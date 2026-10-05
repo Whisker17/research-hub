@@ -31,6 +31,6 @@
 
 - [ ] `pnpm rh render <slug>` 没有 `✗`，图已烘焙；STE 警告已改到只剩有理由保留的。
 - [ ] `pnpm rh check <slug>` 通过。
-- [ ] 截图（`.rh/shots/<slug>/`）和每张 `fig-N.png` 都看过。
+- [ ] 手机分段截图（`.rh/shots/<slug>/`）和 `pnpm figshot` 产出的每张 `fig-N.png`（1280 与 390 两种宽度）都看过。
 - [ ] brief 的每个研究问题都有回答或说明。
 - [ ] 台账“页面”列已填；页面上没有台账之外的论断；speculative 都标出来了。

@@ -56,13 +56,17 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
 1. **启动后台 agent**（Claude Code 的 Agent / Task 工具，后台运行）。任务说明按 [references/research-agent.md](references/research-agent.md) 填写，必须包含：brief 路径、研究问题清单、用户资料清单（路径 B）或外部调研文件（路径 C）、产出文件与台账格式。没有后台能力时，你自己在前台按同一份说明执行。
    - 路径 B：先把用户资料登记到 `$DIR/research/references.md`（小于约 5 MB 的本地文件复制到 `$DIR/research/references/`；大文件和网页只记链接、路径与访问日期）。agent 以这些资料为主，只为补证或核对去查一手来源。
    - 路径 C：导入的外部结果是**线索**，不是证据。台账里的证据要追到它引用的原始来源；追不到的论断标 speculative 或删掉。
+   - **题目大时拆成几路并行**（例如机制 / 产品 / 方案各一路）：每路一个 agent，只写自己的 `research/notes-<lane>.md`，台账编号用各自的前缀（M1…、P1…、A1…），台账表放在该文件末尾。拆法见 research-agent.md 的“多路并行”。
 2. **产出**（都在 `$DIR/research/`）：
-   - `notes.md`：按研究问题组织的发现、来源列表（一手来源标 **PRIMARY**）、命令与输出、没查到 / 互相矛盾的地方、开放问题。
+   - `notes.md`：按研究问题组织的发现、来源列表（一手来源标 **PRIMARY**）、命令与输出、没查到 / 互相矛盾的地方、开放问题。多路并行时，`notes.md` 是索引：每路一行答案，加上“资料中被修正的地方”。
    - `ledger.md`：论断台账，格式见 research-agent.md。
-3. **自检**（agent 完成后由你做）：
+3. **收齐产出**（agent 完成后由你做，先于自检）：
+   - 先确认文件真的在 `$DIR/research/` 里（`ls $DIR/research`）。后台 agent 的写入可能落在子 agent 的产物目录，或只出现在它的回复里：按它回复里给的路径找到文件，复制到 `$DIR/research/notes-<lane>.md`。
+   - 多路并行时，把各路的台账行**合并进 `ledger.md` 的同一张表**。`rh check` 只读 `ledger.md` 里第一张“论断 / 证据 / 类型”表，第二张表里的行不会被检查。合并时保留各路前缀，并在表上方写明：前缀对应哪个分册，证据里的 `[n]` 指该分册“来源”一节的第 n 条。
+4. **自检**：
    - 运行 `pnpm rh check --no-shot`，看 `<slug>` 的警告：此时允许出现“缺少 explainer.md / index.html”“title / summary 还是 TODO”这类完整性提示，**但不应有“论断台账”开头的问题**。
    - 抽查 3–5 条 observed 论断：证据能打开、确实支持论断。不支持的降级或删掉。
-4. **把关 ②**：给用户一份简短的调研汇报——
+5. **把关 ②**：给用户一份简短的调研汇报——
    - 每个研究问题的答案（一两句）
    - 台账统计：observed / inferred / speculative 各多少条，列出全部 speculative
    - 关键来源（PRIMARY 优先）、互相矛盾的地方、开放问题
@@ -90,7 +94,10 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
    ```
 
    显式给出 slug 时按发布标准检查（schema、标签、台账、HTML、手机 390×844）。不通过就改稿件重来；问题在 answer-me-with-html 模板时，告诉用户并停下，不要在报告里打补丁。
-5. **自己先看一遍**：用 Read 工具逐张查看 `shots` 目录（`.rh/shots/<slug>/`）里的截图；页面有 excalidraw / uml 图时，再运行 `am shot $DIR/index.html --width 390`，逐张看它打印出的 `fig-N.png`。重叠、截断、空图、文字墙都要先改掉。
+5. **自己先看一遍**：
+   - 手机整页：用 Read 工具查看 `shots` 目录（`.rh/shots/<slug>/`）里的分段截图。
+   - 每张图：运行 `pnpm figshot <slug>`（桌面 1280 宽）和 `pnpm figshot <slug> --width 390`（手机），逐张看 `.rh/figs/<slug>/w<宽>/fig-N.png`；加 `--panels A,L` 可以单独截面板（例如宽表格）。不用 `am shot`：它先截整页，长页面上可能卡住。
+   - 重叠、截断、空图、文字过小、文字墙都要先改掉。手机上图在图框内横向滚动是允许的；但图过宽时（例如 `flowchart LR` 节点超过约 8 个），改成 `TB` 布局。
 6. **把关 ③**：告诉用户——
    - 页面路径 `$DIR/index.html`（可以直接用浏览器打开）和手机截图路径
    - 三条阅读路径各看哪些面板；每张图一句话说明

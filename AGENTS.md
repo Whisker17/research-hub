@@ -36,6 +36,7 @@ pnpm rh new "Meme Launchpad" --slug meme-launchpad --domain crypto --tags meme
 pnpm rh render meme-launchpad
 pnpm rh check meme-launchpad        # 含手机检查，截图在 .rh/shots/<slug>/
 pnpm rh paths meme-launchpad        # 报告目录、发布地址、am 与 vault brief 目录
+pnpm figshot meme-launchpad         # 逐图截图到 .rh/figs/<slug>/（--width 390 看手机）
 pnpm rh publish meme-launchpad
 pnpm verify
 ```
