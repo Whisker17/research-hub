@@ -50,3 +50,7 @@ Wrangler 的 OAuth 令牌不包含 Access 权限（`wrangler login --scopes-list
 ## 6. 2026-10-05 更新：私有站点暂缓，doc-hub 迁移的 4 篇改为公开
 
 所有者决定暂不配置 Access。doc-hub 迁移的 4 篇报告（`domain: work`）改为 `visibility: public`，发布在公开站点 `/r/<slug>/`：全站 noindex、robots 禁止抓取，但持链接即可访问（与 doc-hub 原先的暴露程度相同）。私有 Worker 保持部署，对所有请求返回 503（失败即拒绝）；以后配置 Access 后，把报告改回 private 并重新发布即可。
+
+## 7. 2026-10-05 更新：私有站点启用
+
+Access 已在 Worker 的 Access 标签配置（Scope：All traffic；policy：Cloudflare account + Email domain `mantle.xyz`），AUD 已写入 `wrangler.private.jsonc`。Worker 白名单 `ALLOWED_EMAILS = demiwhisker@gmail.com,@mantle.xyz`（`@域名` 条目匹配整个域名，不含子域名）。doc-hub 迁移的 4 篇改回 private，旧的 `/r/<slug>/` 链接失效。
