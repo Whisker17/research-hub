@@ -60,8 +60,9 @@ test("返回链接：被 am 工具栏盖住时报错；injectBackLink 对 am 页
   const { injectBackLink } = await import("../cli/lib/build.ts");
   const dir = mkdtempSync(join(tmpdir(), "rh-back-"));
   const P = "<p>这是一段足够长的正文段落，用来测量手机上正文容器的宽度与字号，它需要超过二十个字符。</p>";
-  // 与 answer-me-with-html 相同：窄屏上工具栏 absolute，位于页面右上角，几乎占满一行
-  const page = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:0;font:15px/1.6 sans-serif}.am-toolbar{position:absolute;top:12px;right:12px;display:flex;gap:6px}.am-toolbar button{font:12px/1 sans-serif;padding:7px 10px;background:#fff;border:1px solid #ccc}main{padding:56px 12px 24px}</style></head><body><div class="am-toolbar"><button>主题：图纸</button><button>明暗：跟随系统</button><button>复制源稿</button></div><main>${P}${P}</main></body></html>`;
+  // 与 answer-me-with-html 相同：窄屏上工具栏 absolute，位于页面右上角，几乎占满一行。
+  // 按钮宽度写死，避免 CI 上缺中文字体时工具栏变窄。
+  const page = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:0;font:15px/1.6 sans-serif}.am-toolbar{position:absolute;top:12px;right:12px;display:flex;gap:6px}.am-toolbar button{box-sizing:border-box;width:118px;font:12px/1 sans-serif;padding:7px 10px;background:#fff;border:1px solid #ccc}main{padding:56px 12px 24px}</style></head><body><div class="am-toolbar"><button>主题：图纸</button><button>明暗：跟随系统</button><button>复制源稿</button></div><main>${P}${P}</main></body></html>`;
   const naive = page.replace("<body>", '<body><nav data-rh-back style="display:block;padding:12px 16px 0;font:14px/1.5 sans-serif"><a href="/">← Research Hub</a></nav>');
   writeFileSync(join(dir, "naive.html"), naive);
   writeFileSync(join(dir, "fixed.html"), injectBackLink(page, "/", "Research Hub"));
