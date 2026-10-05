@@ -1,0 +1,38 @@
+---
+import type { CardData } from "../../lib/site-data.ts";
+
+interface Props {
+  card: CardData;
+  /** 公开站点：标签链接到 /tags/<tag>/；私有索引：标签只是文字 */
+  linkTags: boolean;
+  /** 私有索引里显示“私有”标记 */
+  showVisibility?: boolean;
+}
+const { card, linkTags, showVisibility = false } = Astro.props;
+const searchText = `${card.title} ${card.summary} ${card.tags.map((t) => `${t.key} ${t.label}`).join(" ")}`.toLowerCase();
+---
+<article
+  class="card"
+  data-card
+  data-domain={card.domain}
+  data-tags={card.tags.map((t) => t.key).join(" ")}
+  data-search={searchText}
+>
+  <div class="card-top">
+    <span class="domain">{card.domainLabel}</span>
+    {showVisibility && card.visibility === "private" && <span class="lock">私有</span>}
+    {showVisibility && card.visibility === "public" && <span class="lock">公开</span>}
+  </div>
+  <h2><a href={card.href}>{card.title}</a></h2>
+  <p class="summary">{card.summary}</p>
+  {
+    card.tags.length > 0 && (
+      <div class="tags">
+        {card.tags.map((t) => (linkTags ? <a class="tag" href={`/tags/${t.key}/`}>{t.label}</a> : <span class="tag">{t.label}</span>))}
+      </div>
+    )
+  }
+  <div class="dates">
+    {card.updated === card.created ? <span>创建于 {card.created}</span> : <span>更新于 {card.updated} · 创建于 {card.created}</span>}
+  </div>
+</article>

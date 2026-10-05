@@ -1,0 +1,22 @@
+---
+import Base from "../layouts/Base.astro";
+import ReportList from "../components/ReportList.astro";
+import SiteFoot from "../components/SiteFoot.astro";
+import SiteHead from "../components/SiteHead.astro";
+import { siteData, toCard, usedDomains, usedTags } from "../../lib/site-data.ts";
+
+const { publicReports, tags } = siteData();
+const cards = publicReports.map((r) => toCard(r, tags));
+---
+<Base title="Research Hub">
+  <SiteHead />
+  <ReportList
+    cards={cards}
+    filters
+    domains={usedDomains(publicReports)}
+    tags={usedTags(publicReports, tags)}
+    linkTags
+    emptyText="还没有公开报告。"
+  />
+  <SiteFoot />
+</Base>

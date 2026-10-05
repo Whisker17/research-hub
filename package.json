@@ -1,0 +1,33 @@
+{
+  "name": "research-hub",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "rh": "node cli/rh.ts",
+    "build": "node cli/rh.ts build",
+    "dev": "astro dev",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "astro check && tsc --noEmit -p tsconfig.json",
+    "verify": "pnpm typecheck && pnpm test && node cli/rh.ts check --no-shot && node cli/rh.ts build",
+    "access:setup": "NODE_USE_ENV_PROXY=1 node scripts/access-setup.ts",
+    "smoke": "bash scripts/smoke.sh",
+    "deploy": "node cli/rh.ts build && wrangler deploy -c wrangler.private.jsonc && wrangler deploy -c wrangler.public.jsonc && bash scripts/smoke.sh"
+  },
+  "dependencies": {
+    "astro": "7.3.5",
+    "yaml": "2.9.1",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@types/node": "^24.19.1",
+    "jose": "6.2.12",
+    "puppeteer-core": "25.12.0",
+    "typescript": "6.0.3",
+    "wrangler": "4.147.0"
+  }
+}

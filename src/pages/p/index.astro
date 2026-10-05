@@ -1,0 +1,28 @@
+---
+/**
+ * 私有索引：列出全部已发布报告（含私有）。rh build 会把 /p/ 移到私有站点，
+ * 公开站点的产物里不存在本页。公开报告链接回公开站点。
+ */
+import Base from "../../layouts/Base.astro";
+import ReportList from "../../components/ReportList.astro";
+import SiteHead from "../../components/SiteHead.astro";
+import { loadConfig } from "../../../lib/config.ts";
+import { siteData, toCard, usedDomains, usedTags } from "../../../lib/site-data.ts";
+
+const { allPublished, tags } = siteData();
+const { publicUrl } = loadConfig();
+const cards = allPublished.map((r) => toCard(r, tags, publicUrl));
+---
+<Base title="私有索引">
+  <SiteHead home="/p/" tagline="全部已发布报告（含私有）" private />
+  <ReportList
+    cards={cards}
+    filters
+    domains={usedDomains(allPublished)}
+    tags={usedTags(allPublished, tags)}
+    linkTags={false}
+    showVisibility
+    emptyText="还没有已发布的报告。"
+  />
+  <footer class="site-foot"><a href={`${publicUrl}/`}>公开站点</a></footer>
+</Base>

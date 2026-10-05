@@ -1,0 +1,85 @@
+// 私有站点 Access 校验：失败即拒绝。
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from "jose";
+import { checkAccess, normalizeTeamDomain } from "../worker/gate.ts";
+
+const TEAM = "rh-test.cloudflareaccess.com";
+const ISSUER = `https://${TEAM}`;
+const AUD = "aud-tag-123";
+
+const { publicKey, privateKey } = await generateKeyPair("RS256");
+const jwk = { ...(await exportJWK(publicKey)), kid: "k1", alg: "RS256" };
+const jwks = createLocalJWKSet({ keys: [jwk] });
+const getKey = () => jwks;
+
+async function token(claims: { iss?: string; aud?: string; exp?: string } = {}) {
+  return new SignJWT({ email: "reviewer@example.com" })
+    .setProtectedHeader({ alg: "RS256", kid: "k1" })
+    .setIssuer(claims.iss ?? ISSUER)
+    .setAudience(claims.aud ?? AUD)
+    .setIssuedAt()
+    .setExpirationTime(claims.exp ?? "5m")
+    .sign(privateKey);
+}
+const headers = (jwt?: string) => new Headers(jwt ? { "cf-access-jwt-assertion": jwt } : {});
+const config = { teamDomain: TEAM, audience: AUD };
+
+test("valid Access token is allowed", async () => {
+  const r = await checkAccess(headers(await token()), config, getKey);
+  assert.deepEqual(r, { ok: true, email: "reviewer@example.com" });
+});
+
+test("request without token is denied (Access bypassed/disabled)", async () => {
+  const r = await checkAccess(headers(), config, getKey);
+  assert.equal(r.ok, false);
+  assert.equal(!r.ok && r.status, 403);
+});
+
+test("token for another Access application is denied", async () => {
+  const r = await checkAccess(headers(await token({ aud: "other-app" })), config, getKey);
+  assert.equal(r.ok, false);
+});
+
+test("token from another issuer is denied", async () => {
+  const r = await checkAccess(headers(await token({ iss: "https://evil.cloudflareaccess.com" })), config, getKey);
+  assert.equal(r.ok, false);
+});
+
+test("expired token is denied", async () => {
+  const r = await checkAccess(headers(await token({ exp: "-1m" })), config, getKey);
+  assert.equal(r.ok, false);
+});
+
+test("forged signature is denied", async () => {
+  const other = await generateKeyPair("RS256");
+  const forged = await new SignJWT({})
+    .setProtectedHeader({ alg: "RS256", kid: "k1" })
+    .setIssuer(ISSUER)
+    .setAudience(AUD)
+    .setExpirationTime("5m")
+    .sign(other.privateKey);
+  const r = await checkAccess(headers(forged), config, getKey);
+  assert.equal(r.ok, false);
+});
+
+test("missing configuration fails closed with 503", async () => {
+  for (const c of [{}, { teamDomain: TEAM }, { audience: AUD }, { teamDomain: " ", audience: " " }]) {
+    const r = await checkAccess(headers(await token()), c, getKey);
+    assert.equal(r.ok, false);
+    assert.equal(!r.ok && r.status, 503);
+  }
+});
+
+test("team domain normalization", () => {
+  assert.equal(normalizeTeamDomain("rh-test"), TEAM);
+  assert.equal(normalizeTeamDomain(`https://${TEAM}/`), TEAM);
+  assert.equal(normalizeTeamDomain(""), undefined);
+});
+
+test("邮箱白名单：不在名单里的有效令牌也被拒绝", async () => {
+  const denied = await checkAccess(headers(await token()), { ...config, allowedEmails: "owner@example.com" }, getKey);
+  assert.equal(denied.ok, false);
+  const allowed = await checkAccess(headers(await token()), { ...config, allowedEmails: "owner@example.com, Reviewer@Example.com" }, getKey);
+  assert.equal(allowed.ok, true);
+});

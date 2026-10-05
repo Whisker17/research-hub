@@ -1,0 +1,7 @@
+{
+  "publicUrl": "https://research-hub.demiwhisker.workers.dev",
+  "privateUrl": "https://research-hub-private.demiwhisker.workers.dev",
+  "vaultDir": "~/Work/src/personal/personal-knowledge-base/personal-knowledge-base",
+  "briefsDir": "Research Briefs",
+  "amScript": "~/.agents/skills/answer-me-with-html/scripts/am.mjs"
+}

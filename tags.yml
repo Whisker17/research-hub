@@ -1,0 +1,17 @@
+# 标签登记表：报告的 tags 必须在这里登记（rh tags add <tag> --label <展示名>）。
+# 键只用小写字母、数字和连字符；同一个概念只登记一个键，避免同义词分裂。
+tags:
+  account-abstraction:
+    label: 账户抽象
+  dex:
+    label: DEX
+  eip:
+    label: EIP
+  mantle:
+    label: Mantle
+  paper:
+    label: 论文导读
+  propamm:
+    label: PropAMM
+  routing:
+    label: 路由算法

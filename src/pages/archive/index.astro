@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import SiteFoot from "../../components/SiteFoot.astro";
+import { byMonth, siteData } from "../../../lib/site-data.ts";
+
+const { publicReports } = siteData();
+const months = byMonth(publicReports);
+---
+<Base title="按月归档">
+  <p class="crumbs"><a href="/">Research Hub</a></p>
+  <h1 class="page-title">按月归档</h1>
+  <p class="page-sub">按报告的创建月份</p>
+  {
+    months.length ? (
+      <ul class="index-list">
+        {months.map((m) => (
+          <li><a href={`/${m.year}/${m.month}/`}><span>{m.year} 年 {Number(m.month)} 月</span><span class="n">{m.reports.length} 篇</span></a></li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">还没有公开报告。</p>
+    )
+  }
+  <SiteFoot />
+</Base>

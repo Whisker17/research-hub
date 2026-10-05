@@ -1,0 +1,12 @@
+{
+  // 公开站点：只有静态资源，没有 Worker 代码。产物由 `pnpm build` 生成（dist/public）。
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "research-hub",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist/public",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": false
+}

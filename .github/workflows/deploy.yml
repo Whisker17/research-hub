@@ -1,0 +1,82 @@
+# 校验 → 构建（含泄漏检查）→ 部署公开 / 私有两个 Worker → 线上冒烟测试。
+# 部署的是 verify 任务验证过的同一份 dist/（artifact），不重新构建。
+# 手机检查（截图）只在本地 rh check / rh publish 时运行（规格 §6.2），CI 用 --no-shot。
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - name: Unit + e2e tests
+        run: pnpm test
+      - name: rh check (schema / tags / ledger / completeness; no screenshots)
+        run: node cli/rh.ts check --no-shot
+      - name: rh build (public / private split + leak check)
+        run: node cli/rh.ts build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy:
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://research-hub.demiwhisker.workers.dev
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check credentials
+        run: |
+          for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID; do
+            if [ -z "${!v}" ]; then echo "::error::secret $v is not configured (see README → 部署)"; exit 1; fi
+          done
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+      - name: Deploy private site (Access + JWT gate)
+        run: pnpm exec wrangler deploy -c wrangler.private.jsonc --message "main@${GITHUB_SHA}"
+      - name: Deploy public site (static assets only)
+        run: pnpm exec wrangler deploy -c wrangler.public.jsonc --message "main@${GITHUB_SHA}"
+      - name: Smoke test
+        run: bash scripts/smoke.sh

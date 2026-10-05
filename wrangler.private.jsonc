@@ -1,0 +1,21 @@
+{
+  // 私有站点：Cloudflare Access 保护整个 workers.dev 域名，Worker 再校验 Access JWT（失败即拒绝）。
+  // 产物由 `pnpm build` 生成（dist/private）。
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "research-hub-private",
+  "main": "worker/private.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist/private",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "lucky-dust-c0b5.cloudflareaccess.com",
+    "ACCESS_AUD": "",
+    "ALLOWED_EMAILS": "demiwhisker@gmail.com"
+  }
+}

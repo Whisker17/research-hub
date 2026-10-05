@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import SiteFoot from "../../components/SiteFoot.astro";
+import { siteData, usedTags } from "../../../lib/site-data.ts";
+
+const { publicReports, tags } = siteData();
+const list = usedTags(publicReports, tags);
+---
+<Base title="标签">
+  <p class="crumbs"><a href="/">Research Hub</a></p>
+  <h1 class="page-title">标签</h1>
+  <p class="page-sub">{list.length} 个标签</p>
+  {
+    list.length ? (
+      <ul class="index-list">
+        {list.map((t) => (
+          <li><a href={`/tags/${t.key}/`}><span>{t.label}</span><span class="n">{t.count} 篇</span></a></li>
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">还没有标签。</p>
+    )
+  }
+  <SiteFoot />
+</Base>

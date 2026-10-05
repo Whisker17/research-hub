@@ -1,0 +1,12 @@
+---
+interface Props {
+  home?: string;
+  tagline?: string;
+  private?: boolean;
+}
+const { home = "/", tagline = "AI 研究报告的图文讲解", private: isPrivate = false } = Astro.props;
+---
+<header class="site-head">
+  <a class="brand" href={home}><img src="/favicon.svg" alt="" width="26" height="26" />Research Hub{isPrivate && <span class="badge-private">私有</span>}</a>
+  <p>{tagline}</p>
+</header>

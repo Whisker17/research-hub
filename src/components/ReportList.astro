@@ -1,0 +1,106 @@
+---
+import type { CardData } from "../../lib/site-data.ts";
+import ReportCard from "./ReportCard.astro";
+
+interface Props {
+  cards: CardData[];
+  /** 显示搜索框与 domain / 标签筛选 */
+  filters?: boolean;
+  domains?: { key: string; label: string }[];
+  tags?: { key: string; label: string; count: number }[];
+  linkTags: boolean;
+  showVisibility?: boolean;
+  emptyText?: string;
+}
+const { cards, filters = false, domains = [], tags = [], linkTags, showVisibility = false, emptyText = "还没有报告。" } = Astro.props;
+---
+<section data-rh-list>
+  {
+    filters && cards.length > 0 && (
+      <div class="filters">
+        <input class="search" type="search" placeholder="按标题、摘要或标签筛选" aria-label="筛选报告" data-q />
+        {domains.length > 1 && (
+          <div class="chip-row" role="group" aria-label="领域">
+            <button class="chip" type="button" data-filter="domain" data-value="" aria-pressed="true">全部</button>
+            {domains.map((d) => (
+              <button class="chip" type="button" data-filter="domain" data-value={d.key} aria-pressed="false">{d.label}</button>
+            ))}
+          </div>
+        )}
+        {tags.length > 0 && (
+          <div class="chip-row" role="group" aria-label="标签">
+            {tags.map((t) => (
+              <button class="chip" type="button" data-filter="tag" data-value={t.key} aria-pressed="false">
+                {t.label}<span class="n">{t.count}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+  {cards.length > 0 && <p class="result-count" data-count>{cards.length} 篇报告</p>}
+  {
+    cards.length > 0 ? (
+      <div class="cards">
+        {cards.map((card) => <ReportCard card={card} linkTags={linkTags} showVisibility={showVisibility} />)}
+        <p class="empty" data-empty hidden>没有符合条件的报告。</p>
+      </div>
+    ) : (
+      <p class="empty">{emptyText}</p>
+    )
+  }
+</section>
+{
+  filters && cards.length > 0 && (
+    <script is:inline>
+      (() => {
+        const root = document.querySelector("[data-rh-list]");
+        if (!root) return;
+        const cards = Array.from(root.querySelectorAll("[data-card]"));
+        const q = root.querySelector("[data-q]");
+        const count = root.querySelector("[data-count]");
+        const empty = root.querySelector("[data-empty]");
+        const params = new URLSearchParams(location.search);
+        const state = { q: params.get("q") || "", domain: params.get("domain") || "", tag: params.get("tag") || "" };
+        const sync = () => {
+          for (const b of root.querySelectorAll("[data-filter]")) {
+            b.setAttribute("aria-pressed", String(state[b.dataset.filter] === b.dataset.value));
+          }
+          if (q && q.value !== state.q) q.value = state.q;
+        };
+        const apply = () => {
+          const words = state.q.toLowerCase().split(/\s+/).filter(Boolean);
+          let n = 0;
+          for (const c of cards) {
+            const show =
+              (!state.domain || c.dataset.domain === state.domain) &&
+              (!state.tag || c.dataset.tags.split(" ").includes(state.tag)) &&
+              words.every((w) => c.dataset.search.includes(w));
+            c.hidden = !show;
+            if (show) n++;
+          }
+          if (count) count.textContent = n === cards.length ? `${n} 篇报告` : `${n} / ${cards.length} 篇报告`;
+          if (empty) empty.hidden = n !== 0;
+          const p = new URLSearchParams();
+          for (const k of ["q", "domain", "tag"]) if (state[k]) p.set(k, state[k]);
+          history.replaceState(null, "", `${location.pathname}${p.toString() ? `?${p}` : ""}`);
+          sync();
+        };
+        root.addEventListener("click", (e) => {
+          const b = e.target.closest("[data-filter]");
+          if (!b) return;
+          const key = b.dataset.filter;
+          // 标签可再次点击取消；领域“全部”的值为空
+          state[key] = key === "tag" && state.tag === b.dataset.value ? "" : b.dataset.value;
+          apply();
+        });
+        q?.addEventListener("input", () => {
+          state.q = q.value.trim();
+          apply();
+        });
+        apply();
+      })();
+    </script>
+  )
+}

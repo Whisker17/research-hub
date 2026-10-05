@@ -105,9 +105,9 @@ tags.yml                     ← 标签登记表
   - `/`：公开索引，**只列 public 报告**，按 `updated` 倒序，可按 domain 和 tag 筛选，卡片显示创建与更新日期。
   - `/tags/<tag>`、`/YYYY/MM`：归档页。
   - `/r/<slug>`：公开报告，全站 `noindex`。
-  - `/p/`、`/p/<slug>`：私有索引（列出全部报告）与私有报告，由 Cloudflare Access 保护。
+  - `/p/`、`/p/<slug>`：私有索引（列出全部报告）与私有报告，由 Cloudflare Access 保护。**实现时放在单独的私有 Worker 域名上**（workers.dev 的 Access 只能按整个域名开启），详见 [decisions/0001](decisions/0001-site-architecture.md)。
 - **返回导航**：构建时在报告的输出副本里注入一个 "← Research Hub" 链接。它在文档流里，不用 fixed，也不改样式，源文件不动。不用 iframe 外壳。
-- **托管**：Cloudflare Workers 静态资源 + Access（保护 `/p/*`）。v1 用 `workers.dev` 域名。
+- **托管**：Cloudflare Workers 静态资源 + Access。公开站 `research-hub`，私有站 `research-hub-private`（Access 保护整个域名，Worker 再校验 Access JWT）。v1 用 `workers.dev` 域名。
 - **部署**：push 到 `main` 后，由 GitHub Actions 先跑 `rh check`（不含截图），再执行 `wrangler deploy`。不设 PR 审核门。
 
 ## 6. 手机适配
