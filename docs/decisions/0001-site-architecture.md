@@ -54,3 +54,7 @@ Wrangler 的 OAuth 令牌不包含 Access 权限（`wrangler login --scopes-list
 ## 7. 2026-10-05 更新：私有站点启用
 
 Access 已在 Worker 的 Access 标签配置（Scope：All traffic；policy：Cloudflare account + Email domain `mantle.xyz`），AUD 已写入 `wrangler.private.jsonc`。Worker 白名单 `ALLOWED_EMAILS = demiwhisker@gmail.com,@mantle.xyz`（`@域名` 条目匹配整个域名，不含子域名）。doc-hub 迁移的 4 篇改回 private，旧的 `/r/<slug>/` 链接失效。
+
+## 8. 2026-10-05 更新：把关 ① 放在 `rh new` 之前（WHI-1620）
+
+项目 skill（`.claude/skills/research-hub/`）把“确认 brief”与 meta（slug、domain、tags、visibility，含新标签）合并成一次确认，确认后才 `rh new`。原因：slug 来自目录名、建好后不能改；Claude Code 的 Bash 不是交互终端，未登记的标签会让 `rh new` 失败；先确认再快照，`brief.md` 就是确认后的版本。人工把关点仍是三个。规格 §3 流程图已同步。

@@ -26,10 +26,11 @@ research-hub 与 personal-site 互相独立。
 ## 3. 工作流
 
 ```
-Obsidian vault: Research Briefs/<topic>.md   ← 人：记下想法与要求
-        │  rh new（快照 brief，记录 vault 原路径）
+Obsidian vault: Research Briefs/<topic>.md   ← 人：记下想法与要求（或由 agent 起草）
+        │                                     ← 人工把关 ①：确认 brief 与 meta（slug / domain / tags / visibility）
+        │  rh new（快照确认后的 brief，记录 vault 原路径）
         ▼
-reports/YYYY/MM/<slug>/brief.md               ← 人工把关 ①：确认 brief
+reports/YYYY/MM/<slug>/brief.md
         │  Claude Code 后台 agent（research skill）或外部 Deep Research（rh import）
         ▼
 reports/.../research/*.md（含论断台账）         ← 人工把关 ②：审阅调研结果

@@ -6,7 +6,7 @@ research-hub 存放 AI 生成的研究报告，并把它们发布成手机友好
 ## 规则（先读）
 
 - **`rh` 是唯一的写入入口**：建报告、导入、渲染、检查、发布都用 `pnpm rh …`（`node cli/rh.ts …`）。不要手写 `meta.yml` 的状态字段，不要手动把 HTML 复制进 `dist/`。
-- **`rh` 不调用 LLM**。调研、写 explainer 由 Claude Code 会话完成（项目 skill：`.claude/skills/research-hub/`，WHI-1620）。
+- **`rh` 不调用 LLM**。调研、写 explainer 由 Claude Code 会话完成（项目 skill：`.claude/skills/research-hub/`，按它的流程做）。
 - **人工把关点只有三个**：确认 brief、审阅调研结果、审阅页面后执行 `rh publish`。不要替用户执行 `rh publish`，除非用户明确要求。
 - **默认私有**：`rh new` / `rh import` 默认 `visibility: private`；只有用户明确要求才设为 `public`。
 - **私有站点已启用**：Cloudflare Access（Cloudflare 账号成员 + Email domain mantle.xyz），Worker 再校验 JWT 与白名单 `demiwhisker@gmail.com,@mantle.xyz`。工作类内容（`domain: work`）一律 private。
@@ -35,6 +35,7 @@ test/                     node --test：单元、手机检查夹具、端到端
 pnpm rh new "Meme Launchpad" --slug meme-launchpad --domain crypto --tags meme
 pnpm rh render meme-launchpad
 pnpm rh check meme-launchpad        # 含手机检查，截图在 .rh/shots/<slug>/
+pnpm rh paths meme-launchpad        # 报告目录、发布地址、am 与 vault brief 目录
 pnpm rh publish meme-launchpad
 pnpm verify
 ```

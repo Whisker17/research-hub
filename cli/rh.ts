@@ -8,6 +8,7 @@ import { CHECK_HELP, cmdCheck } from "./commands/check.ts";
 import { runBuild } from "./commands/build.ts";
 import { IMPORT_HELP, cmdImport } from "./commands/import.ts";
 import { NEW_HELP, cmdNew } from "./commands/new.ts";
+import { PATHS_HELP, cmdPaths } from "./commands/paths.ts";
 import { PUBLISH_HELP, cmdPublish } from "./commands/publish.ts";
 import { RENDER_HELP, cmdRender } from "./commands/render.ts";
 import { TAGS_HELP, cmdList, cmdTags } from "./commands/tags.ts";
@@ -24,11 +25,12 @@ const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
   rh build                    构建 dist/public 与 dist/private，并做泄漏检查
   rh tags list | add          标签登记表
   rh list                     列出全部报告
+  rh paths [slug]             打印已解析的路径（vault brief 目录、am、报告目录、发布地址）
 
   rh <命令> --help 查看详细用法。`;
 
 const SUB_HELP: Record<string, string> = {
-  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP,
+  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP,
 };
 
 async function main(argv: string[]): Promise<number> {
@@ -47,6 +49,7 @@ async function main(argv: string[]): Promise<number> {
     case "build": runBuild(cfg); break;
     case "tags": cmdTags(cfg, rest); break;
     case "list": cmdList(cfg); break;
+    case "paths": cmdPaths(cfg, rest); break;
     default:
       console.log(HELP);
       throw new CliError(`未知命令：${cmd}`, 2);
