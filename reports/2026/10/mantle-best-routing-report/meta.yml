@@ -1,0 +1,19 @@
+title: Mantle 聚合器最佳路由：17 个算法的实验报告与解析
+summary: 在同一冻结快照上，共享池拆单比 Uniswap SOR 端口平均少损失 3.9 bps；4 跳 history label 搜索最接近已知最优。下一步把同一套算法接到实时状态和 eth_call 执行验证上。
+created: 2026-10-05
+updated: 2026-10-05
+domain: work
+tags:
+  - dex
+  - routing
+  - mantle
+status: published
+visibility: private
+kind: imported
+source_repo: git@github.com:Whisker17/router-algorithms-optimizer.git:docs/external/routing-report/2026-10-05-best-routing-report.md@95d0744（未提交的工作区文件）
+am_version: 0.2.2-research.2
+changelog:
+  - date: 2026-10-05
+    note: 导入
+  - date: 2026-10-05
+    note: 从 doc-hub 迁移
