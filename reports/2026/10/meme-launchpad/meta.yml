@@ -1,0 +1,20 @@
+title: Meme Launchpad：原理、演进与 Agentic 设计
+summary: 讲清 meme launchpad 的机制与完整生命周期，复盘主要产品，并推导 Mantle 上 agent 第一公民的 launchpad 为什么这样设计
+created: 2026-10-05
+updated: 2026-10-05
+domain: crypto
+tags:
+  - meme
+  - ai-agent
+  - mantle
+  - account-abstraction
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/Meme Launchpad.md
+am_version: 0.2.2-research.2
+changelog:
+  - date: 2026-10-05
+    note: 创建（brief 快照）
+  - date: 2026-10-05
+    note: 发布

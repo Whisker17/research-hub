@@ -3,12 +3,16 @@
 tags:
   account-abstraction:
     label: 账户抽象
+  ai-agent:
+    label: AI Agent
   dex:
     label: DEX
   eip:
     label: EIP
   mantle:
     label: Mantle
+  meme:
+    label: Meme
   paper:
     label: 论文导读
   propamm:
