@@ -15,7 +15,7 @@
     "verify": "pnpm typecheck && pnpm test && node cli/rh.ts check --no-shot && node cli/rh.ts build",
     "access:setup": "NODE_USE_ENV_PROXY=1 node scripts/access-setup.ts",
     "smoke": "bash scripts/smoke.sh",
-    "deploy": "node cli/rh.ts build && wrangler deploy -c wrangler.private.jsonc && wrangler deploy -c wrangler.public.jsonc && bash scripts/smoke.sh"
+    "deploy:manual": "node cli/rh.ts build && wrangler deploy -c wrangler.private.jsonc && wrangler deploy -c wrangler.public.jsonc && bash scripts/smoke.sh"
   },
   "dependencies": {
     "astro": "7.3.5",
