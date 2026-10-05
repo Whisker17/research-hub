@@ -46,3 +46,7 @@ Wrangler 的 OAuth 令牌不包含 Access 权限（`wrangler login --scopes-list
 - `rh new` / `rh import` 默认 `visibility: private`：公开必须显式声明。
 - `source_repo` 记录为 `<remote>:<仓库内路径>@<commit>`；路径未被 git 跟踪时追加“（未提交的工作区文件）”，避免 commit 与内容对不上。
 - answer-me-with-html 的移动端修复（WHI-1611）已在 code-template PR #5 合并（0.2.2-research.2）。doc-hub 的 4 篇原稿在迁移前已用该版本重新生成；cfmm 导读（自定义 `build_html.mjs`）同样使用 research.2，无需再改原仓库。
+
+## 6. 2026-10-05 更新：私有站点暂缓，doc-hub 迁移的 4 篇改为公开
+
+所有者决定暂不配置 Access。doc-hub 迁移的 4 篇报告（`domain: work`）改为 `visibility: public`，发布在公开站点 `/r/<slug>/`：全站 noindex、robots 禁止抓取，但持链接即可访问（与 doc-hub 原先的暴露程度相同）。私有 Worker 保持部署，对所有请求返回 503（失败即拒绝）；以后配置 Access 后，把报告改回 private 并重新发布即可。

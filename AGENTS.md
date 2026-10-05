@@ -8,7 +8,8 @@ research-hub 存放 AI 生成的研究报告，并把它们发布成手机友好
 - **`rh` 是唯一的写入入口**：建报告、导入、渲染、检查、发布都用 `pnpm rh …`（`node cli/rh.ts …`）。不要手写 `meta.yml` 的状态字段，不要手动把 HTML 复制进 `dist/`。
 - **`rh` 不调用 LLM**。调研、写 explainer 由 Claude Code 会话完成（项目 skill：`.claude/skills/research-hub/`，WHI-1620）。
 - **人工把关点只有三个**：确认 brief、审阅调研结果、审阅页面后执行 `rh publish`。不要替用户执行 `rh publish`，除非用户明确要求。
-- **默认私有**：`rh new` / `rh import` 默认 `visibility: private`；只有用户明确要求才设为 `public`。工作类内容（`domain: work`）一律 private。
+- **默认私有**：`rh new` / `rh import` 默认 `visibility: private`；只有用户明确要求才设为 `public`。
+- **私有站点暂未启用**（Access 未配置，私有站点对所有请求返回 503）：private 报告发布后谁都读不到。需要能读的报告，经用户同意后设为 public（公开站点 noindex，但持链接即可访问）。
 - **论断台账**：原生报告的 `research/ledger.md` 必须有一张“论断 | 证据 | 类型”表，类型只能是 observed / inferred / speculative。explainer 里的每个论断都要在台账里有一行。
 - **标签**：先 `rh tags list` 看已有标签，不要登记同义词；新标签用 `rh tags add <key> --label <展示名>`。
 - **手机适配**：不要往报告 HTML 里注入 CSS 补丁。手机检查不过就修源头（answer-me-with-html 或原仓库的构建脚本）。

@@ -25,9 +25,9 @@ const first = await probe();
 const loc = first.location ? new URL(first.location, cfg.privateUrl) : null;
 if (!loc || !loc.hostname.endsWith(".cloudflareaccess.com")) {
   console.log(`✗ 私有站点没有被 Cloudflare Access 拦截（匿名请求得到 HTTP ${first.status}）。先在控制台开启 Access：
-  1. Cloudflare 控制台 → Workers & Pages → research-hub-private → Settings → Domains & Routes
-  2. workers.dev 一行 → Enable Cloudflare Access（或 “Cloudflare Access” 开关）
-  3. 打开生成的 Access 应用，策略只允许你的邮箱（例如 demiwhisker@gmail.com）
+  1. Cloudflare 控制台 → Workers & Pages → research-hub-private → Access 标签
+  2. Protect this Worker behind Access（或 Domains 标签里 Production 一行的 “Enable Access”）
+  3. 策略只允许你的邮箱（例如 demiwhisker@gmail.com）；Preview URL 保持关闭
   然后重新运行：pnpm access:setup`);
   process.exit(1);
 }
