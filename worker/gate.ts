@@ -14,7 +14,10 @@ export interface GateConfig {
   teamDomain?: string;
   /** Access 应用的 Audience（AUD）标签 */
   audience?: string;
-  /** 可选：逗号分隔的邮箱白名单（在 Access 策略之外再加一层） */
+  /**
+   * 可选：逗号分隔的白名单（在 Access 策略之外再加一层）。
+   * 完整邮箱精确匹配（demiwhisker@gmail.com）；以 @ 开头的条目匹配整个域名（@mantle.xyz，不含子域名）。
+   */
   allowedEmails?: string;
 }
 
@@ -48,9 +51,18 @@ export async function checkAccess(
   } catch {
     return { ok: false, status: 403, reason: "invalid Cloudflare Access token" };
   }
-  const allow = (config.allowedEmails ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
-  if (allow.length && (!email || !allow.includes(email.toLowerCase()))) {
+  if (!isEmailAllowed(email, config.allowedEmails)) {
     return { ok: false, status: 403, reason: "email not allowed" };
   }
   return { ok: true, email };
+}
+
+/** 白名单为空时放行（只依赖 Access 策略）；否则邮箱必须精确匹配某一项，或属于某个 @域名。 */
+export function isEmailAllowed(email: string | undefined, allowList: string | undefined): boolean {
+  const allow = (allowList ?? "").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  if (!allow.length) return true;
+  const e = email?.trim().toLowerCase();
+  if (!e || e.indexOf("@") <= 0 || e.indexOf("@") !== e.lastIndexOf("@")) return false;
+  const domain = e.slice(e.indexOf("@"));
+  return allow.some((a) => (a.startsWith("@") ? domain === a : e === a));
 }

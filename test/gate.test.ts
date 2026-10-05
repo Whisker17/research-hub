@@ -83,3 +83,19 @@ test("邮箱白名单：不在名单里的有效令牌也被拒绝", async () =>
   const allowed = await checkAccess(headers(await token()), { ...config, allowedEmails: "owner@example.com, Reviewer@Example.com" }, getKey);
   assert.equal(allowed.ok, true);
 });
+
+test("白名单：精确邮箱 + @域名（不含子域名、不被后缀伪造）", async () => {
+  const { isEmailAllowed } = await import("../worker/gate.ts");
+  const list = "demiwhisker@gmail.com, @mantle.xyz";
+  assert.equal(isEmailAllowed("demiwhisker@gmail.com", list), true);
+  assert.equal(isEmailAllowed("DemiWhisker@Gmail.com", list), true);
+  assert.equal(isEmailAllowed("alice@mantle.xyz", list), true);
+  assert.equal(isEmailAllowed("Bob@MANTLE.XYZ", list), true);
+  assert.equal(isEmailAllowed("other@gmail.com", list), false);
+  assert.equal(isEmailAllowed("eve@evilmantle.xyz", list), false);
+  assert.equal(isEmailAllowed("eve@sub.mantle.xyz", list), false);
+  assert.equal(isEmailAllowed("eve@mantle.xyz.evil.com", list), false);
+  assert.equal(isEmailAllowed("a@mantle.xyz@evil.com", list), false);
+  assert.equal(isEmailAllowed(undefined, list), false);
+  assert.equal(isEmailAllowed("anyone@x.com", ""), true, "白名单为空时只依赖 Access 策略");
+});

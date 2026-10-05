@@ -63,7 +63,7 @@ push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型�
 
 ### 一次性配置
 
-1. **Cloudflare Access（私有站点，目前未启用）**：控制台 → Workers & Pages → `research-hub-private` → **Access** 标签 → Protect this Worker behind Access，策略只允许自己的邮箱；Preview URL 保持关闭；不要在控制台手动填 `ACCESS_AUD`（每次部署会被 `wrangler.private.jsonc` 覆盖）。然后运行 `pnpm access:setup`：它从 Access 重定向里读出 AUD，写入 `wrangler.private.jsonc` 并重新部署。提交这个文件。在这之前，私有站点对所有请求返回 503（失败即拒绝）。
+1. **Cloudflare Access（私有站点，目前未启用）**：控制台 → Workers & Pages → `research-hub-private` → **Access** 标签 → Protect this Worker behind Access，策略 Include：Emails = demiwhisker@gmail.com，再加一条 Include：Emails ending in = @mantle.xyz（两条 Include 是“或”的关系；不要放进 Require）；Preview URL 保持关闭；不要在控制台手动填 `ACCESS_AUD`（每次部署会被 `wrangler.private.jsonc` 覆盖）。然后运行 `pnpm access:setup`：它从 Access 重定向里读出 AUD，写入 `wrangler.private.jsonc` 并重新部署。提交这个文件。在这之前，私有站点对所有请求返回 503（失败即拒绝）。
 2. **CI 部署凭据**：Cloudflare 创建 API Token（权限：Account → Workers Scripts → Edit），然后：
    ```sh
    gh secret set CLOUDFLARE_API_TOKEN      # 粘贴 token
