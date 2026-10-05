@@ -15,7 +15,7 @@
   "preview_urls": false,
   "vars": {
     "ACCESS_TEAM_DOMAIN": "lucky-dust-c0b5.cloudflareaccess.com",
-    "ACCESS_AUD": "",
+    "ACCESS_AUD": "d0781a546051e4573c7f70171fc6de94cd424deded735a8997309b15120e51ef",
     "ALLOWED_EMAILS": "demiwhisker@gmail.com,@mantle.xyz"
   }
 }
