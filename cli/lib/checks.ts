@@ -7,13 +7,17 @@
  *    draft 默认只给警告，这样未完成的 draft 可以放心提交到 main。
  */
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Browser } from "puppeteer-core";
 import { parseLedger } from "../../lib/ledger.ts";
 import { REPORT_FILES, type Report } from "../../lib/reports.ts";
 import type { TagRegistry } from "../../lib/schema.ts";
+import { injectBackLink } from "./build.ts";
 import { MOBILE_CHECK_VERSION, checkMobile, type MobileResult } from "./mobile.ts";
+
+/** 手机检查用的临时文件（在报告目录内，检查后删除；已加入 .gitignore） */
+export const MOBILE_TMP = ".rh-mobile-check.html";
 
 export interface ReportCheck {
   slug: string;
@@ -83,9 +87,11 @@ function cacheKey(html: Buffer): string {
 }
 
 export async function checkReportMobile(report: Report, opts: CheckOptions): Promise<MobileResult | CacheEntry | null> {
-  const htmlFile = join(report.dir, REPORT_FILES.html);
-  if (!existsSync(htmlFile) || !opts.browser) return null;
-  const key = cacheKey(readFileSync(htmlFile));
+  const source = join(report.dir, REPORT_FILES.html);
+  if (!existsSync(source) || !opts.browser) return null;
+  // 检查的是实际部署的版本：注入返回链接后的 HTML。临时文件放在报告目录里，保证相对路径的资源可用。
+  const deployed = injectBackLink(readFileSync(source, "utf8"), report.meta.visibility === "public" ? "/" : "/p/", "Research Hub");
+  const key = cacheKey(Buffer.from(deployed));
   const cacheFile = opts.cacheDir ? join(opts.cacheDir, `${report.slug}.json`) : null;
   const shotDir = opts.shotsDir ? join(opts.shotsDir, report.slug) : null;
   if (cacheFile && existsSync(cacheFile)) {
@@ -93,7 +99,14 @@ export async function checkReportMobile(report: Report, opts: CheckOptions): Pro
     // 截图目录被删时重新跑，保证“输出全页截图”始终成立
     if (cached.key === key && cached.version === MOBILE_CHECK_VERSION && (!shotDir || existsSync(shotDir))) return cached;
   }
-  const result = await checkMobile(opts.browser, htmlFile, shotDir);
+  const htmlFile = join(report.dir, MOBILE_TMP);
+  writeFileSync(htmlFile, deployed);
+  let result: MobileResult;
+  try {
+    result = await checkMobile(opts.browser, htmlFile, shotDir);
+  } finally {
+    rmSync(htmlFile, { force: true });
+  }
   if (cacheFile) {
     mkdirSync(opts.cacheDir!, { recursive: true });
     const entry = { key, version: MOBILE_CHECK_VERSION, ok: result.ok, failures: result.failures, warnings: result.warnings };

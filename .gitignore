@@ -5,3 +5,4 @@ dist/
 .rh/
 .wrangler/
 .DS_Store
+reports/**/.rh-mobile-check.html

@@ -15,7 +15,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { Browser } from "puppeteer-core";
 
-export const MOBILE_CHECK_VERSION = 1;
+export const MOBILE_CHECK_VERSION = 2;
 export const VIEWPORT = { width: 390, height: 844 } as const;
 export const MIN_BODY_WIDTH = 300;
 export const MIN_FONT_PX = 14;
@@ -23,6 +23,8 @@ export const MIN_FONT_PX = 14;
 const SHOT_SEGMENT = 8000;
 
 export interface MobileMetrics {
+  /** 注入的返回链接被哪个元素盖住（没有返回链接或没被盖住时为 null） */
+  backLinkCovered: string | null;
   viewportMeta: string | null;
   innerWidth: number;
   scrollWidth: number;
@@ -127,7 +129,22 @@ function measureInPage(expectedWidth: number): Omit<MobileMetrics, "overlays" | 
     if (clipped.length >= 5) break;
   }
 
+  // 注入的返回链接必须可见、可点（不被工具栏等元素盖住）
+  let backLinkCovered: string | null = null;
+  const back = document.querySelector("[data-rh-back] a");
+  if (back) {
+    const r = back.getBoundingClientRect();
+    for (const [x, y] of [[r.left + 2, r.top + r.height / 2], [r.left + r.width / 2, r.top + r.height / 2], [r.right - 2, r.top + r.height / 2]]) {
+      const hit = document.elementFromPoint(x, y);
+      if (hit && !back.contains(hit) && !hit.contains(back)) {
+        backLinkCovered = `${hit.tagName.toLowerCase()}${hit.className && typeof hit.className === "string" ? `.${hit.className.trim().split(/\s+/).join(".")}` : ""}`;
+        break;
+      }
+    }
+  }
+
   return {
+    backLinkCovered,
     viewportMeta: document.querySelector('meta[name="viewport"]')?.getAttribute("content") ?? null,
     innerWidth: window.innerWidth,
     scrollWidth: Math.max(document.documentElement.scrollWidth, document.body?.scrollWidth ?? 0),
@@ -209,6 +226,7 @@ export async function checkMobile(browser: Browser, htmlFile: string, shotDir: s
       if (metrics.bodyWidth < MIN_BODY_WIDTH) failures.push(`② 正文容器过窄：${metrics.bodyWidth}px < ${MIN_BODY_WIDTH}px`);
       if (metrics.bodyFont !== null && metrics.bodyFont < MIN_FONT_PX) failures.push(`③ 正文字号过小：${metrics.bodyFont}px < ${MIN_FONT_PX}px`);
     }
+    if (metrics.backLinkCovered) failures.push(`返回链接“← Research Hub”被 ${metrics.backLinkCovered} 盖住`);
     const seen = new Set<string>();
     for (const o of metrics.overlays) {
       if (seen.has(o.desc)) continue;

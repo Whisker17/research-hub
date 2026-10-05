@@ -23,9 +23,13 @@ const escapeHtml = (s: string): string =>
 export function injectBackLink(html: string, href: string, label: string): string {
   let out = html;
   if (!out.includes(`${BACK_LINK_ATTR}`)) {
+    // answer-me-with-html 的工具栏在窄屏上是 absolute（页面右上角，几乎占满一行）。
+    // 这类页面在窄屏上把返回链接放到工具栏下方；样式只作用于注入的 nav 本身，不碰页面样式。
+    const amToolbar = /class="am-toolbar"/.test(out);
+    const scoped = amToolbar ? `<style>@media (max-width:760px){nav[${BACK_LINK_ATTR}]{padding-top:50px!important}}</style>` : "";
     const nav =
       `<nav ${BACK_LINK_ATTR} style="display:block;margin:0;padding:12px 16px 0;font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif;">` +
-      `<a href="${escapeHtml(href)}" style="color:inherit;opacity:.72;text-decoration:none;">← ${escapeHtml(label)}</a></nav>`;
+      `${scoped}<a href="${escapeHtml(href)}" style="color:inherit;opacity:.72;text-decoration:none;">← ${escapeHtml(label)}</a></nav>`;
     const m = /<body\b[^>]*>/i.exec(out);
     if (!m) throw new Error("HTML 没有 <body> 标签，无法注入返回链接");
     out = out.slice(0, m.index + m[0].length) + nav + out.slice(m.index + m[0].length);
