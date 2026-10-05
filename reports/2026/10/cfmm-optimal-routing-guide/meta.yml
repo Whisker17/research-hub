@@ -8,7 +8,7 @@ tags:
   - routing
   - paper
 status: published
-visibility: public
+visibility: private
 kind: imported
 source_repo: git@github.com:Whisker17/router-algorithms-optimizer.git:docs/external/cfmm-routing-guide@95d0744（未提交的工作区文件）
 changelog:
@@ -18,3 +18,5 @@ changelog:
     note: 从 doc-hub 迁移
   - date: 2026-10-05
     note: 改为公开（暂不启用私有站点）
+  - date: 2026-10-05
+    note: 改回私有（Access：本人 + @mantle.xyz）
