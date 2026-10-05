@@ -8,7 +8,7 @@ tags:
   - eip
   - mantle
 status: published
-visibility: private
+visibility: public
 kind: imported
 source_repo: https://github.com/Whisker17/mantle-v3-roadmap.git:8-native-aa/native-aa-overview.md@b819a33（未提交的工作区文件）
 am_version: 0.2.2-research.2
@@ -17,3 +17,5 @@ changelog:
     note: 导入
   - date: 2026-10-05
     note: 从 doc-hub 迁移
+  - date: 2026-10-05
+    note: 改为公开（暂不启用私有站点）
