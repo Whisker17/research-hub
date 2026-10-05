@@ -1,0 +1,18 @@
+title: CFMM 最优路由论文导读：从拆单直觉到对偶分解
+summary: 给每个币一个影子价格，让每个池独立做一维套利；调价直到资金守恒，就得到模型内全局最优的池级拆单。含 3 个交互实验。
+created: 2026-10-05
+updated: 2026-10-05
+domain: work
+tags:
+  - dex
+  - routing
+  - paper
+status: published
+visibility: private
+kind: imported
+source_repo: git@github.com:Whisker17/router-algorithms-optimizer.git:docs/external/cfmm-routing-guide@95d0744（未提交的工作区文件）
+changelog:
+  - date: 2026-10-05
+    note: 导入
+  - date: 2026-10-05
+    note: 从 doc-hub 迁移
