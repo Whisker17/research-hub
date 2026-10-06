@@ -19,3 +19,7 @@ tags:
     label: PropAMM
   routing:
     label: 路由算法
+  rwa:
+    label: RWA
+  uniswap:
+    label: Uniswap

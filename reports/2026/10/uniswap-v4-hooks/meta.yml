@@ -1,0 +1,21 @@
+title: Uniswap v4 Hooks：机制、v3 可行性与 RWA 应用
+summary: 讲清 v4 hook 的机制与生命周期，判断哪些能力依赖 v4 架构、能否在 v3 上实现，并解析合规 / RWA 与其他代表性 hook 的交易流程
+created: 2026-10-06
+updated: 2026-10-06
+domain: crypto
+tags:
+  - uniswap
+  - rwa
+  - dex
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/Uniswap v4 Hooks.md
+am_version: 0.2.2-research.2
+related:
+  - meme-launchpad
+changelog:
+  - date: 2026-10-06
+    note: 创建（brief 快照）
+  - date: 2026-10-06
+    note: 发布
