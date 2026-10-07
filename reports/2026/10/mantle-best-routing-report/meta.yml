@@ -1,7 +1,7 @@
-title: Mantle 聚合器最佳路由：17 个算法的实验报告与解析
-summary: 在同一冻结快照上，共享池拆单比 Uniswap SOR 端口平均少损失 3.9 bps；4 跳 history label 搜索最接近已知最优。下一步把同一套算法接到实时状态和 eth_call 执行验证上。
+title: Mantle 聚合器最佳路由：19 个算法的实验报告与解析
+summary: 在同一冻结快照上，共享池拆单比 Uniswap SOR 端口平均少损失 3.9 bps；4 跳 history label 搜索最接近已知最优；0.2.3 的拆分精修和分支激活从不更差，但只多出零点几 bps。下一步把同一套算法接到实时状态和 eth_call 执行验证上。
 created: 2026-10-05
-updated: 2026-10-05
+updated: 2026-10-07
 domain: work
 tags:
   - dex
@@ -21,3 +21,13 @@ changelog:
     note: 改为公开（暂不启用私有站点）
   - date: 2026-10-05
     note: 改回私有（Access：本人 + @mantle.xyz）
+  - date: 2026-10-07
+    note: 重新渲染（answer-me-with-html 0.2.2-research.2）
+  - date: 2026-10-07
+    note: 重新渲染（answer-me-with-html 0.2.2-research.2）
+  - date: 2026-10-07
+    note: 重新渲染（answer-me-with-html 0.2.2-research.2）
+  - date: 2026-10-07
+    note: 重新渲染（answer-me-with-html 0.2.2-research.2）
+  - date: 2026-10-07
+    note: 新增 0.2.3 后处理方向：split_polish / marginal_activation 与 research-023 campaign

@@ -1,15 +1,15 @@
 ---
 template: research
-title: Mantle 聚合器最佳路由：17 个算法的实验报告与解析
-subtitle: 在同一冻结快照上，共享池拆单比 Uniswap SOR 端口平均少损失 3.9 bps；4 跳 history label 搜索最接近已知最优。下一步把同一套算法接到实时状态和 eth_call 执行验证上。
+title: Mantle 聚合器最佳路由：19 个算法的实验报告与解析
+subtitle: 在同一冻结快照上，共享池拆单比 Uniswap SOR 端口平均少损失 3.9 bps；4 跳 history label 搜索最接近已知最优；0.2.3 的两个后处理器从不更差，但只多出零点几 bps。下一步把同一套算法接到实时状态和 eth_call 执行验证上。
 cols: 4
 type: 实验报告 · 算法解析
 audience: 后端 / 合约开发，未做过 DEX 聚合路由
 scope: Mantle 区块 101082044，5 个流动性来源，Exact Input，gross 目标
-evidence: 0.1.0 验收 + 0.2.0 / 0.2.1 / 0.2.2 预注册 campaign 的冻结记录，代码 @95d0744
-date: 2026-10-05 · v1
+evidence: 0.1.0 验收 + 0.2.0 / 0.2.1 / 0.2.2 / 0.2.3 预注册 campaign 的冻结记录，代码 @95d0744，0.2.3 @4f17770（campaign 冻结 @60ac764）
+date: 2026-10-07 · v2（新增 0.2.3 后处理方向）
 ---
-结论先行：在 SOR 能用的 98 个池子上，[[incremental_graph]] 的平均 [[短缺]] 是 2.26 bps，`uni_sor_port` 是 6.14 bps（[F1](#F1)）。4 跳的 `metis_history` 在 240 个经验用例中有 174 个达到 [[best known]]（[F3](#F3)）。速度优化和剪枝主要减少报价次数，计时证据因主机负载全部 inconclusive（[F4](#F4)、[F7](#F7)）。接入链上需要四层：实时状态、求解、eth_call 验证、执行合约（[面板 V](#panel-V)）。
+结论先行：在 SOR 能用的 98 个池子上，[[incremental_graph]] 的平均 [[短缺]] 是 2.26 bps，`uni_sor_port` 是 6.14 bps（[F1](#F1)）。4 跳的 `metis_history` 在 240 个经验用例中有 174 个达到 [[best known]]（[F3](#F3)）。速度优化和剪枝主要减少报价次数，计时证据因主机负载全部 inconclusive（[F4](#F4)、[F7](#F7)）。0.2.3 新增“后处理”方向：精修已算完计划的拆分比例，平均多 0.447 bps；再激活新分支，比匹配对照多 0.210 bps，两者都保留为实验（[F9](#F9)、[F10](#F10)）。接入链上需要四层：实时状态、求解、eth_call 验证、执行合约（[面板 V](#panel-V)）。
 
 ## A 要解的问题 {sheet span=2 meta="Exact Input"}
 ```annot
@@ -26,7 +26,7 @@ date: 2026-10-05 · v1
 用例: 398 = 96 调参 + 302 报告
 对照组: full 143 池 · matched 98 池（无 LB）
 主配置: 3 跳 · 4 路拆分 · 5% 网格 · 50 块
-算法: 6 基础 + 2 SOR 优化 + 9 实验
+算法: 6 基础 + 2 SOR 优化 + 9 实验 + 2 后处理（0.2.3）
 ```
 
 ## C 能力对比 {sheet span=2 meta="capability"}
@@ -58,12 +58,13 @@ date: 2026-10-05 · v1
 0.2.0 | metis_inspired | 逐块 label 搜索
 0.2.1 | 5 个独立方法 | history / 修复 / 防环 / 证书 / 对偶
 0.2.2 | 精确上界剪枝 | 3 个 bounded
+0.2.3 | 后处理 | 拆分精修 + 分支激活
 *0.3.0 | 链上 dry run | 草案：实时状态 + eth_call
 ```
 
 ## F 结论 {sheet span=2}
 ```callout ok 先用共享池拆单，再解决速度和链上验证
-质量排序：`metis_history` ≈ `metis_inspired` > `incremental_graph` > `path_split` ≈ `uni_sor_port` > `single_path` > `direct`。最大的两个因素是跳数上限和是否允许共享池。先读 [F1](#F1)–[F3](#F3)，再读 [面板 V](#panel-V)。
+质量排序：`metis_history` ≈ `metis_inspired` > `incremental_graph` > `path_split` ≈ `uni_sor_port` > `single_path` > `direct`。最大的两个因素是跳数上限和是否允许共享池。0.2.3 的后处理从不更差，但平均只多 0.2–0.5 bps，代替不了更细的分块或 4 跳搜索。先读 [F1](#F1)–[F3](#F3)，再读 [面板 V](#panel-V)。
 ```
 
 ## G 如何阅读 {depth=1}
@@ -83,7 +84,7 @@ date: 2026-10-05 · v1
 | 30 分钟 | + H–V（depth 2） | 能解释每个算法，能参与接入链上的设计 |
 | 完整 | + W–X（depth 3） | 能复现数字，能质疑结论 |
 
-只关心算法原理时，按 [前置知识](#panel-I) → [教学图](#panel-L) → [基础算法](#panel-M) → [优化算法](#panel-P) 读。只关心链上落地时，直接读 [面板 U](#panel-U) 和 [面板 V](#panel-V)。
+只关心算法原理时，按 [前置知识](#panel-I) → [教学图](#panel-L) → [基础算法](#panel-M) → [优化算法](#panel-P) 读。只关心链上落地时，直接读 [面板 U](#panel-U) 和 [面板 V](#panel-V)。只关心 0.2.3 的新方向时，按 [后处理算法](#panel-R2) → [实验设计](#panel-S1) → [实验结果](#panel-S2) → [F9](#F9)–[F11](#F11) 读。
 
 全文用同一张 4 代币、7 个池子的[[教学图]]做例子（[面板 L](#panel-L)）。真实数据的结论全部来自冻结记录，见 [面板 S](#panel-S)。
 
@@ -586,23 +587,26 @@ flowchart TD
 - 先填满整张表：中位约 2.4 万次报价，中位求解约 12 s（共享主机上测得）。
 
 ## O 基础算法的缺陷与优化方向 {depth=2}
-0.1.0 验收（6 算法 × 302 报告用例）暴露出 4 类问题。后续每个优化算法只针对其中一类，并和它的基础算法成对比较。
+0.1.0 验收（6 算法 × 302 报告用例）暴露出 4 类问题。后续每个优化算法只针对其中一类，并和它的基础算法成对比较。0.2.3 又加了第 5 类，见 [面板 R2](#panel-R2)。分块贪心的终点计划可能离最佳拆分差不到一块。另外，计划没碰过的池子始终是 0。
 
-```excalidraw q="基础算法有哪些缺陷？各自对应哪个优化方向？" read="左列红色是问题，右列绿色是对应的优化。" takeaway="4 个方向：少报价、搜得更准、保证合法、可证明。" name=defect-map
+```excalidraw q="基础算法有哪些缺陷？各自对应哪个优化方向？" read="左列红色是问题，右列绿色是对应的优化。最后一行是 0.2.3 新增的方向。" takeaway="5 个方向：少报价、搜得更准、保证合法、可证明，以及对算完的计划做后处理。" name=defect-map
 {"grid": {"w": 420, "h": 100}, "defaults": {"w": 270, "h": 70, "fontSize": 16},
  "nodes": [
    {"id": "d1", "label": "报价太多、太慢\nSOR 中位 2.4 万次报价", "col": 0, "row": 0, "color": "red"},
    {"id": "d2", "label": "贪心与近似会丢解\n跳数上限挡住好路径", "col": 0, "row": 1, "color": "red"},
    {"id": "d3", "label": "计划可能不合法\nSOR 12 例代币环", "col": 0, "row": 2, "color": "red"},
    {"id": "d4", "label": "只有数值、没有证明\n离散网格看不到全局", "col": 0, "row": 3, "color": "red"},
+   {"id": "d5", "label": "块粒度留下拆分误差\n没用过的池子始终为 0", "col": 0, "row": 4, "color": "red"},
    {"id": "o1", "label": "少报价\nadaptive / optimized / bounded", "col": 1, "row": 0, "color": "green"},
    {"id": "o2", "label": "搜得更准\nmetis_inspired / history / repair", "col": 1, "row": 1, "color": "green"},
    {"id": "o3", "label": "保证合法\nuni_sor_cycle_safe", "col": 1, "row": 2, "color": "green"},
-   {"id": "o4", "label": "可证明 / 全局视角\ncertified / cfmm_dual", "col": 1, "row": 3, "color": "green"}
+   {"id": "o4", "label": "可证明 / 全局视角\ncertified / cfmm_dual", "col": 1, "row": 3, "color": "green"},
+   {"id": "o5", "label": "后处理（0.2.3）\nsplit_polish / marginal_activation", "col": 1, "row": 4, "color": "green"}
  ],
  "edges": [
    {"from": "d1", "to": "o1"}, {"from": "d2", "to": "o2"},
-   {"from": "d3", "to": "o3"}, {"from": "d4", "to": "o4"}
+   {"from": "d3", "to": "o3"}, {"from": "d4", "to": "o4"},
+   {"from": "d5", "to": "o5"}
  ]}
 ```
 
@@ -616,6 +620,8 @@ flowchart TD
 | 网格最优没有证明 | 只有一个数 | 分支定界 + 精确有理上界 | `direct_split_certified` | 0.2.1 |
 | 离散搜索没有全局视角 | — | 论文的对偶分解 + 整数恢复 | `cfmm_dual` | 0.2.1 |
 | 大部分报价不可能胜出 | `single_path` 中位 3,134 次报价 | 证明过的上界剪枝，结果不变 | 3 个 `*_bounded` | 0.2.2 |
+| 分块提交后不收回，拆分比例有误差 | 50 块时每块 2%；一个真实请求里 LB 腿多拿了 14.15 USDC | 在固定路由上精确线搜索份额 | `split_polish` | 0.2.3 |
+| 计划没用过的池子始终为 0 | 论文 P1：“池子激活不足”是短缺的主因 | 在计划执行后的状态上接入新分支 | `marginal_activation` | 0.2.3 |
 
 各优化算法和基础算法的谱系：
 
@@ -636,6 +642,9 @@ flowchart TD
     uni_sor_cycle_safe | 防代币环（0.2.1）
 外部方法
   cfmm_dual | 论文对偶分解 + 整数恢复（0.2.1）
+后处理（0.2.3，套在一个基础算法的计划上）
+  split_polish | 精修拆分比例；基础：incremental_graph / path_split / metis_inspired / metis_history / repair
+    marginal_activation | + 激活新分支；基础：incremental_graph / path_split
 ```
 
 ## P 优化方向一：少报价 {depth=2}
@@ -909,9 +918,137 @@ flowchart TD
 
 **真实数据。** 302 例里只有 28 例数值收敛，180 例未收敛，94 例恢复失败后回退到 `single_path`。和 `path_split` 比（matched）：126 胜、85 平、77 负，最差 −4564 bps。结论：功能正确、门禁全过，但**不是**质量改进。它最大的价值是给出连续视角下的估计值（不是上界）。
 
+## R2 优化方向四：后处理——精修拆分，再激活新分支（0.2.3） {depth=2}
+前 3 个方向都在改“怎么搜”。这个方向不改搜索，只改一个已经算完的计划。两个[[后处理]]器都先运行一个声明的基础算法，再用精确整数重放在它的计划上做局部优化：
+
+- `split_polish`（E1）：路由不变，只重新分配拆分份额。
+- `marginal_activation`（E2）：先做 E1，再把计划没用过的路径作为新分支接进来。
+
+两者都**不是** Jupiter Metis，只支持 gross 目标。它们只在 profile 里写明时运行；`--strategies all` 仍然是 17 行。
+
+**动机。**
+- `incremental_graph` 每次提交 A / chunks（50 块时每块 2%），提交后不收回。所以它的计划可能离“同一组路由的最佳拆分”差不到一块。
+- Jupiter 的 Ultra V3（2025-10）和 Metis v7（2025-11）公告说，它们用 [[Brent 法]]优化拆单，精度到 0.01% 或 1 bps。公告没有给出算法细节，所以这里只借用思路，算法由合同 `R023-C/1` 自己定义。
+- Xi & Moallemi（P1，arXiv 2607.20762）在同币对的池子上测得平均短缺 2.02 bps。其中“已用池子之间拆错”只占 0.05467 bps，主要损失来自“该用的池子没用”。E1 针对前者，E2 针对后者。
+
+```excalidraw q="两个后处理器各自改动计划的哪一部分？" read="上框：一个真实请求上的 E1，路由不变，只挪份额。下框：构造例上的 E2，绿色虚线是新接入的分支。" takeaway="E1 只在已有路由之间挪份额；E2 把没用过的池子接进计划，再重新拆分。" name=postproc-what
+{"grid": {"w": 300, "h": 100}, "defaults": {"w": 210, "h": 66, "fontSize": 16},
+ "nodes": [
+   {"id": "s1", "label": "USDC 10,000", "col": 0, "row": 1},
+   {"id": "a1", "label": "Agni V3\n9,950 → 9,964.15", "col": 1, "row": 0, "color": "blue"},
+   {"id": "l1", "label": "Moe LB\n50 → 35.85", "col": 1, "row": 2, "color": "blue"},
+   {"id": "t1", "label": "USDT0\n+189 raw", "col": 2, "row": 1, "color": "green"},
+   {"id": "s2", "label": "S 1,000,000", "col": 0, "row": 5},
+   {"id": "p2", "label": "池 p（原计划）\n100% → 50%", "col": 1, "row": 4, "color": "blue"},
+   {"id": "q2", "label": "池 q（新分支）\n0 → 50%", "col": 1, "row": 6, "color": "green", "stroke": "dashed"},
+   {"id": "t2", "label": "T\n909090 → 952380", "col": 2, "row": 5, "color": "green"}
+ ],
+ "edges": [
+   {"from": "s1", "to": "a1"}, {"from": "s1", "to": "l1"},
+   {"from": "a1", "to": "t1"}, {"from": "l1", "to": "t1"},
+   {"from": "s2", "to": "p2"}, {"from": "p2", "to": "t2"},
+   {"from": "s2", "to": "q2", "dashed": true, "strokeColor": "#2f9e44"},
+   {"from": "q2", "to": "t2", "dashed": true, "strokeColor": "#2f9e44"}
+ ],
+ "boxes": [
+   {"label": "E1 split_polish：路由不变，只改份额", "around": ["s1", "a1", "l1", "t1"], "pad": 26, "color": "blue"},
+   {"label": "E2 marginal_activation：接入没用过的池子", "around": ["s2", "p2", "q2", "t2"], "pad": 26, "color": "green"}
+ ]}
+```
+
+### `split_polish`（E1）：在固定资金拓扑上精修拆分份额
+**原理。**
+1. 运行基础算法。它和单独运行时用完全相同的配置，并和后处理共用一个报价账本。
+2. 规范化它的计划：去掉零输入的步骤。每个被消费的资金必须被全部消费；否则拒绝（`unsupported_topology`），原样返回基础计划。
+3. 把池子、方向、步骤顺序和资金连线全部固定（[[固定资金拓扑]]）。变量只有每个“被多个步骤消费”的资金上的精确有理数份额。
+4. 对每个拆分资金的每一对消费者 (i, j) 做一维线搜索：把份额 t 从 i 挪到 j。t = 0 和两个端点（一方清零）总是评估；内部点用 Brent 法（或黄金分割）在 10⁹ 份的网格上找。
+5. 每个点都是一次完整的整数重放，结果等于 evaluator 的结果。严格更高才接受；一轮没有接受就停止（nominee 最多 2 轮）。
+
+**例子（构造例 F7）。** 300 S → T，3 个无手续费的 CPMM 池：`a`（1000 / 2000）、`b`（1000 / 100）、`c`（1000 / 100）。基础计划平均分配。
+
+| 步骤 | 计划 | 输出 | 总输出 |
+|---|---|---|---:|
+| 基础 | `a` 100、`b` 100、`c` 100 | 181、9、9 | 199 |
+| 对 (`a`, `b`)：最优在端点，`b` 清空到 `a` | `a` 200、`c` 100 | 333、9 | 342 |
+| 对 (`a`, `c`)：`c` 清空到 `a` | `a` 300 | 461 | ok 461 |
+| 对 (`b`, `c`)：两边都是 0，只有 t = 0 | 不变 | | 461 |
+| 第 2 轮：没有接受，停止 | | | 461 |
+
+461 等于穷举最优。这里最优解在角上，内部网格只能逼近它，所以两个端点必须评估。Brent 用 92 次模拟、197 次报价；黄金分割用 99 次、210 次，结果相同。报价上限提前到达时，保留最后接受的计划：上限 50 → 199，80 → 342，140 → 461。
+
+**保证与边界。**
+- 从不比基础差。每个返回的计划都是 evaluator 合法的整数计划。报价账本用完时状态仍是 `ok`，并记录 `truncated_by`。
+- 只是局部的成对搜索：不加池子，不加路由，不保证全局最优。
+- 可以接 5 种基础：`incremental_graph`、`path_split`、`metis_inspired`、`metis_history`、`incremental_graph_repair`。
+
+### `marginal_activation`（E2）：精修之后，再激活新分支
+**动机。** E1 只能在已有路由之间挪流量。基础计划没用过的池子始终是 0，即使给它一小笔钱比现有路由的边际汇率更好。最接近的公开方法是 PRIME-Flow（P2）：允许路径重叠，在“当前流量”和“新路径”之间搜索拆分比例。
+
+**原理。**
+1. 运行 E1，得到当前计划。
+2. 模拟一次当前计划，得到计划执行后的池状态（[[post-plan 状态]]）。
+3. 在这些状态上，用一小笔 δ = A × 10⁻⁴ 做分层 label 搜索（最多 H 跳）。到达目标代币的路径按输出排序，取前 3 名。
+4. 把候选路径作为新分支接到计划后面。新分支可以复用计划里的池子：它在计划用完之后的状态上再执行一次（`shared_sequential`）。合并后的代币图有环就拒绝（`dag_cycle`）。
+5. 重新拆分。PF 模式：原 REQUEST 份额整体缩成 (1 − t)，新分支拿 t，对 t 做一次线搜索。full 模式：对合并后的全部资金完整跑一次 E1（消融对照）。
+6. 三个条件都满足才接受：新分支第一跳有正的整数输入；总输出严格更高；evaluator 重放（计入报价账本）得到同一个数。
+7. 最多激活 K = 2 次。没有候选被接受时停止（`stop_no_candidate`）。
+
+```uml q="E2 怎么决定接不接受一个新分支？" read="从上到下是一次激活迭代；接受后回到 post-plan 状态开始下一次迭代。" takeaway="新分支要过三道关：代币图无环、重新拆分后严格更高、计费的 evaluator 重放相同。"
+flowchart TD
+  E["split_polish stages<br/>(base + E1, one ledger)"] --> R{"E1 reached<br/>its end?"}
+  R -- no --> N["ok, E1 incumbent<br/>not_reached: E1 truncated"]
+  R -- yes --> P["post-plan states<br/>delta label search, top-3"]
+  P --> C["next ranked terminal"]
+  C --> D{"union token<br/>graph acyclic?"}
+  D -- "no: dag_cycle" --> C
+  D -- yes --> S["seed (PF / donor)<br/>re-split (PF / full polish)"]
+  S --> A{"flow > 0, gross higher,<br/>charged replay equal?"}
+  A -- yes --> H["rebuild, publish"] --> P
+  A -- "no: no_gain_or_zero_flow" --> C
+  C -. none left .-> T["stop_no_candidate"]
+```
+
+**例子。** 10⁶ S → T，两个无手续费的 CPMM 池 `p`、`q`，储备都是 10⁷ / 10⁷。基础计划全走 `p`。
+
+| 步骤 | 发生了什么 | 总输出 |
+|---|---|---:|
+| 基础 | `p` 1,000,000 → 909090 | 909090 |
+| E1 | 只有一个消费者，没有可拆的 | 909090 |
+| 第 1 次：提议 | δ = 100；在 post-plan 状态上 `p` 给 82，没动过的 `q` 给 99，`q` 排第一 | |
+| 种子 | `p` 999900、`q` 100 | 909107 |
+| PF 线搜索 | t = 1/2 最优：`p`、`q` 各 500000 → 各 476190 | 952380 |
+| 接受 | 第一跳流量 > 0，952380 > 909090，重放相同 | ok 952380 |
+| 第 2 次 | 两个池在新状态上都给 90；都会复用池子，没有严格增益：`stop_no_candidate` | 952380 |
+
+激活阶段用了 203 次报价。full 模式得到同一个计划，但用了 861 次。两个[[匹配对照]]从同一个 E1 结果出发，都停在 909090：只精修不激活，这里没有可拆的。
+
+**保证与边界。**
+- 从不比基础差。每次接受的激活都满足三点：第一跳流量为正、输出严格更高、重放结果相同。
+- label 搜索每层、每个代币只留一个 label，所以前 3 名不是全局前 3 名。被 `dag_cycle` 拒绝的路径不修复。
+- 只能接 `incremental_graph` 和 `path_split` 两种基础。
+
+### 一个真实请求：10,000 USDC → USDT0
+同一区块的 19 池 fixture，`config/daily_gross.yaml` 的参数，用显式 profile 运行（复现见 [面板 X](#panel-X)）。
+
+| 算法 | 输出 USDT0 | 报价次数 | 计划 |
+|---|---:|---:|---|
+| `incremental_graph`（基础） | 10000.663447 | 264 | Agni V3 9,950 USDC + Moe LB 50 USDC |
+| `split_polish` | ok 10000.663636 | 360（264 + 96） | Agni V3 9,964.149090 + Moe LB 35.850910 |
+| `marginal_activation` | ok 10000.663636 | 588（+ 228） | 和 E1 相同；没有接受新分支 |
+
+- **E1 重拆了那一块 LB。** `incremental_graph` 每块 50 USDC，正好给了 Moe LB 一块。E1 用一次 Brent 线搜索把 14.149090 USDC 挪回 Agni V3，多出 189 raw（约 0.0002 bps）。第 2 轮没有改进。
+- **E2 没找到值得激活的分支。** δ = 1 USDC。前 3 名里 Agni V3 和 Moe LB 已在计划中，只能在两条腿之间挪流量。Moe Classic `0x69a7` 是新池，但它的 USDT0 储备只有 14410 raw。三个候选都记为 `no_gain_or_zero_flow`。
+- 这是单个请求的探索，不是 campaign 结果。campaign 结果见 [面板 S2](#panel-S2)。
+
+### 怎么选用
+- 每个后处理器的选项全部必填，没有预设：E1 6 个（`base`、`solver`、`rounds`、`tolerance`、`grid`、`maxiter`），E2 12 个。
+- 一个 profile 只能有一个 `split_polish` 条目，所以每种基础各写一个 profile。
+- 非 gross 目标直接返回 `unsupported`，基础算法不运行。
+- campaign 后两者的处置都是 [[keep_experimental]]：不采纳，不改默认。
+
 ## S 方法与证据：全部算法的 bench 结果 {depth=2}
 ### 统一结果表（本文从冻结记录重算）
-数据来自 0.2.1 正式 campaign 的两个 roster 运行：14 个算法 × 302 个报告用例，主配置（3 跳、4 路、5%、50 块；metis 系 4 跳），gross 目标。每个用例的 best known 取这 14 个算法的最大值。3 个 `*_bounded` 不在表里：它们在 1,194 / 1,194 / 1,978 个单元上和参照算法逐项相同（[F7](#F7)）。
+数据来自 0.2.1 正式 campaign 的两个 roster 运行：14 个算法 × 302 个报告用例，主配置（3 跳、4 路、5%、50 块；metis 系 4 跳），gross 目标。每个用例的 best known 取这 14 个算法的最大值。3 个 `*_bounded` 不在表里：它们在 1,194 / 1,194 / 1,978 个单元上和参照算法逐项相同（[F7](#F7)）。0.2.3 的两个后处理器也不在表里：它们用另一次 campaign，只和自己的基础与参照成对比较（[面板 S1](#panel-S1)、[S2](#panel-S2)）。
 
 **matched 对照组（98 池，SOR 公平比较），240 个经验用例：**
 
@@ -1027,6 +1164,172 @@ flowchart TD
 
 所有运行都没有 `timeout`、`algorithm_error` 或 `incomplete_snapshot`。
 
+## S1 0.2.3 实验设计：research-023 预注册 campaign {depth=2}
+后处理器的增益很小，容易被噪声和事后挑选盖住。所以这次实验先写合同 `R023-C/1`，固定问题、组、对照、门禁和处置；再在调参集上选参数；最后冻结代码，在报告集上只跑一次。
+
+### 要回答的 5 个问题
+全部是描述性的结果，不算 p 值：302 个用例共享 32 个有向币对和一个区块，不是独立样本。
+
+| 问题 | 问什么 | 比较 |
+|---|---|---|
+| Q1 | E1 在各种基础上能加多少 | `split_polish(B)` vs B，6 种基础 |
+| Q2 | E1 能不能代替更细的分块 | `split_polish(A0)` vs C100、C200 |
+| Q3 | E2 的增益是不是来自“激活” | E2 vs 两种匹配对照 |
+| Q4 | E2 和参照算法比怎样 | E2 vs C100、C200、M4、S4、REP |
+| Q5 | Brent 和黄金分割哪个省工作量 | 成对的精修报价次数和输出 |
+
+### 23 个组（arm）
+| 组 | 数量 | 内容 |
+|---|---:|---|
+| 参照 | 7 | A0 = `incremental_graph` 50 块；C100、C200 = 100 / 200 块；M4 = `metis_inspired`（4 跳）；S4 = `metis_history`；REP = `incremental_graph_repair`；PS = `path_split` |
+| E1-b | 6 | Brent，2 轮，容差 10⁻⁴，网格 10⁹，maxiter 60；接在 A0、C100、M4、S4、REP、PS 上 |
+| E1-g | 1 | 黄金分割 2 轮，接在 A0 上（求解器对照） |
+| E2 | 3 | PF on A0、PF on C100、full on A0；K = 2，前 3 名，δ = A / 10⁴ |
+| E2 的对照 | 6 | 每个 E2 组各带一个 `work_matched` 和一个 `call_matched` |
+
+- 每组都用 `config/full_gross.yaml` 的搜索参数：3 跳、4 路、5%，每例 900 s / 300,000 次报价，种子 1447，一次测量。
+- 17 个非对照组另跑一遍不计时的“工作量通道”，统计 CL swap 步数和 LB bin 数。
+
+### 匹配对照：增益是不是来自激活？
+E2 比 E1 多花了报价。如果把这些报价用来继续精修 E1，也许能得到同样的增益。两个[[匹配对照]]排除这种解释：
+
+```excalidraw q="两个匹配对照和处理组有什么不同？" read="三组从同一个 E1 结果出发；右侧是成对比较。" takeaway="起点和工作量相同，只差“加新分支”还是“继续精修”。对照本身只比 E1 多 0.002–0.019 bps。" name=matched-controls
+{"grid": {"w": 320, "h": 112}, "defaults": {"w": 240, "h": 80, "fontSize": 15},
+ "nodes": [
+   {"id": "e1", "label": "E1 的结果\n（同一起点）", "col": 0, "row": 1},
+   {"id": "tr", "label": "处理组：激活\n最多 K = 2 个新分支", "col": 1, "row": 0, "color": "green"},
+   {"id": "wm", "label": "work_matched\n继续精修，直到花掉\n同样多的报价", "col": 1, "row": 1, "color": "blue"},
+   {"id": "cm", "label": "call_matched\n精修同样多次\n（每次一整轮 E1）", "col": 1, "row": 2, "color": "blue"},
+   {"id": "cmp", "label": "成对比较\n处理组 − 对照", "col": 2, "row": 1, "color": "yellow"}
+ ],
+ "edges": [
+   {"from": "e1", "to": "tr"}, {"from": "e1", "to": "wm"}, {"from": "e1", "to": "cm"},
+   {"from": "tr", "to": "cmp"}, {"from": "wm", "to": "cmp"}, {"from": "cm", "to": "cmp"}
+ ]}
+```
+
+- **work_matched：** 从 E1 结果继续跑 E1 精修，直到花掉和激活阶段相同的报价数（硬上限），或一次精修没有改进。
+- **call_matched：** 跑和激活阶段相同次数的优化调用，每次是一整轮 E1 精修。
+- 对照只是测量用的组，不是可以选用的路由器。
+
+### 顺序：先登记，再跑报告集
+```timeline v
+8162df3 | 合同 R023-C/1 | 问题、组、对照、门禁、处置
+52a5261 · b8c93f9 · 4f17770 | 实现 | E1；E2 + 对照；E1 的 M4 / S4 / REP 基础
+调参集 96 例 | 选定 nominee | 看过 probe 结果后选定
+1bfd3f9 → 阶段 T | 在调参集上跑整个 schedule | 40 / 40 ok，没有改任何设置
+*60ac764 | 冻结并推送 | 2026-10-06 06:35:20Z
+阶段 R | 报告集只跑一次 | 06:36:17Z → 13:43:38Z，没有重跑
+```
+
+### 门禁与处置
+- **E1 门禁：** 0 个非法计划；0 次比同一个基础记录差；报价账本 = 基础 + 自身；0 次 `unsupported_topology`；0 次重建错误。
+- **E2 门禁：** 同上，再加对照审计：0 次超出工作目标，0 次调用次数不符。
+- **处置词：** 门禁全过则为 [[keep_experimental]]。它的意思是“证据照实报告，仍然 opt-in”，不是采纳。
+
+### 分母
+23 组 × 302 例 = 6,946 个单元：6,923 个 `ok`，23 个 `no_route`（每组都是同一个用例）。没有 `timeout`、`invalid_plan` 或 `algorithm_error`。
+
+- 10 个用例的基础输出为 0。它们单独计数，不进 bps，所以计分分母是 291。
+- C100 上的 E2 有 2 例在 E1 阶段就用完报价（`not_reached`）。它们留在 302 里，但不计分，所以 PF（C100）的分母是 289。
+- 每个 E1 / E2 记录里的基础行，都和对应参照组同一用例的记录逐项相同：4,832 / 4,832，0 处不同。Q1 比较的是完全相同的基础。
+- [[H/E/L]] 数用例；“币对 净+ / 净−”数 32 个有向币对中整体更高 / 更低的个数。
+
+```callout warn CAUTION：证据边界
+- 报告集已被 0.1.0、0.2.0、0.2.1、0.2.2 看过（`previously_exposed`）。
+- nominee 是在调参集上看过结果后选定的。
+- 只有一个区块，不推广到新区块。
+- 没有 L01 计时协议，所以不声称任何速度。共享主机 6 路并发，最大单次求解 101 s（C200）。
+```
+
+## S2 0.2.3 结果：从不更差，但只多出零点几 bps {depth=2}
+数字全部来自 `docs/references/research-023/results.md` 和 `campaign/report-analysis.json`。bps 是“第一个计划相对第二个计划”的成对差，正数表示第一个更好。
+
+### Q1：E1 对自己的基础
+| 基础 B | 更高/相等/更低 | 平均 bps | p50 | p95 | 币对 净+ / 净− |
+|---|---|---:|---:|---:|---|
+| A0（`incremental_graph` 50 块） | 199/92/0 | 0.447 | 0.072 | 1.915 | 26 / 0 |
+| C100（100 块） | 205/86/0 | 0.329 | 0.074 | 1.608 | 27 / 0 |
+| M4（`metis_inspired`） | 214/77/0 | 0.494 | 0.129 | 2.383 | 29 / 0 |
+| S4（`metis_history`） | 214/77/0 | ok 0.529 | 0.112 | 2.422 | 29 / 0 |
+| REP（`incremental_graph_repair`） | 199/92/0 | 0.454 | 0.071 | 2.336 | 26 / 0 |
+| PS（`path_split`） | 181/110/0 | 0.224 | 0.018 | 0.865 | 22 / 0 |
+
+分母都是 291 / 302。6 种基础上都是 0 例更低，改进 181–214 例。增益集中在低额和中额（A0 上中位 0.30 / 0.16 bps），边界用例上中位为 0。
+
+### Q2：E1 对更细的分块
+| 比较 | 更高/相等/更低 | 平均 bps | p5 | p50 | p95 | 币对 净+ / 净− |
+|---|---|---:|---:|---:|---:|---|
+| `split_polish(A0)` vs C100 | warn 84/85/122 | 0.472 | −1.422 | 0.000 | 3.856 | 8 / 18 |
+| `split_polish(A0)` vs C200 | warn 63/79/149 | 0.682 | −1.768 | −0.004 | 9.015 | 7 / 19 |
+
+按用例数和币对数，E1 都输给更细的分块。平均值为正，来自少数长尾用例：粗分块在那里留下了很大的拆分误差。调参集已经预测了这个结果，报告集上更明显（币对 13 / 14 → 8 / 18）。
+
+### Q3：E2 对匹配对照
+| 处理组 vs 对照 | 计分 | 更高/相等/更低 | 平均 bps | p50 | p95 | 币对 净+ / 净− |
+|---|---:|---|---:|---:|---:|---|
+| PF（A0）vs work_matched | 291 | 209/78/4 | 0.210 | 0.060 | 0.948 | 28 / 1 |
+| PF（A0）vs call_matched | 291 | 202/79/10 | 0.195 | 0.053 | 0.945 | 28 / 0 |
+| full（A0）vs work_matched | 291 | 208/76/7 | 0.257 | 0.059 | 1.027 | 28 / 1 |
+| full（A0）vs call_matched | 291 | 208/78/5 | 0.258 | 0.059 | 1.027 | 28 / 0 |
+| PF（C100）vs work_matched | 289 | 195/88/6 | 0.146 | 0.044 | 0.564 | 28 / 0 |
+| PF（C100）vs call_matched | 289 | 186/87/16 | 0.130 | 0.040 | 0.559 | 27 / 0 |
+
+- **增益来自激活。** 每个 E2 组都胜过两个对照。对照本身只比 E1 多 +0.002 到 +0.019 bps：同样的预算用来继续精修，几乎没有收益。
+- **激活的去向（PF，A0）。** 210 个用例中共接受 395 次激活。111 个候选因 `dag_cycle` 被拒绝，159 个没有增益，116 次迭代因没有候选而停止，0 次因预算停止。
+- PF 保留了 full 模式大部分的增益（0.210 vs 0.257），工作量却小得多（见下文的物理工作量）。
+
+### Q4：E2 对参照算法
+每格是“更高 / 相等 / 更低，平均 bps”。PF（C100）的 C100 列就是它自己的基础。
+
+| 处理组 | vs C100 | vs C200 | vs M4 | vs S4 | vs REP |
+|---|---|---|---|---|---|
+| PF（A0） | 170/56/65，+0.685 | 116/56/119，+0.895 | 143/52/96，warn −0.747 | 141/51/99，warn −1.986 | 233/56/2，+0.622 |
+| PF（C100） | 235/54/0，+0.479 | 175/54/60，+0.691 | 156/50/83，warn −0.962 | 150/49/90，warn −2.210 | 212/54/23，+0.416 |
+| full（A0） | 183/56/52，+0.748 | 134/56/101，+0.958 | 146/52/93，warn −0.684 | 145/51/95，warn −1.923 | 233/56/2，+0.685 |
+
+- **对 `incremental_graph` 系的参照（C100、C200、REP）：** E2 在多数用例上更高。唯一的例外是 PF（A0）vs C200（116 / 56 / 119）。PF（C100）vs C200 有 26 个币对净正、3 个净负。
+- **对 M4 和 S4：** E2 在更多用例上更高，但**平均值为负**。M4 和 S4 的 label 搜索在少数用例上找到好得多的路由（p5 约 −10 bps；最大是 S4 在一个 dust 边界用例上的 −351 bps）。对 `incremental_graph` 系计划的局部修改到不了那些路由。
+- E2 从不低于自己的基础（PF（C100）vs C100：235 / 54 / 0）。
+
+### Q5 与物理工作量
+**Brent vs 黄金分割（都是 2 轮，接在 A0 上）。** 输出几乎相同：107 / 110 / 74，平均 +0.004 bps，p95 +0.019。黄金分割的精修报价是 Brent 的中位 1.207 倍（p95 1.432），301 例合计 2,983,922 vs 2,367,236 次。这是“精度与评估次数解耦”的实测形式，不是速度结论。
+
+**物理工作量（不计时的工作量通道，302 例合计，相对各自基础）：**
+
+| 组 | 报价次数 / 基础 | CL swap 步数 / 基础 | LB bin 数 / 基础 |
+|---|---:|---:|---:|
+| E1-b（A0） | 1.276 | 1.014 | 1.072 |
+| E1-g（A0） | 1.347 | 1.020 | 1.090 |
+| E2 PF（A0） | 1.305 | 1.046 | 1.079 |
+| E2 full（A0） | warn 2.260 | warn 1.448 | 1.283 |
+| E2 PF（C100） | 1.345 | 1.046 | 1.104 |
+| E1-b（M4 / S4 / REP / PS） | 1.489 / 1.503 / 1.211 / 1.038 | 1.022 / 1.022 / 1.013 / 1.006 | 1.086 / 1.086 / 1.067 / 1.010 |
+
+精修报价在物理上很便宜：E1 多 28% 报价，只多 1.4% CL swap 步数。原因是它在相近的金额上重新报价已用的池子。只有 E2 full 的物理成本很大（CL 步数 +44.8%）。参照组的工作量和 0.2.2 campaign 逐项相同，这是一个跨 campaign 的确定性检查。
+
+### 调参集 vs 报告集
+| 指标 | 调参集（96） | 报告集（302） |
+|---|---|---|
+| E1-b（A0）平均 / p50 / p95 bps | 0.473 / 0.086 / 2.076 | 0.447 / 0.072 / 1.915 |
+| E1-b（A0）vs C100，币对 净+ / 净− | 13 / 14 | 8 / 18 |
+| PF（A0）vs work_matched | +0.199（74/19/3） | +0.210（209/78/4） |
+| full（A0）vs work_matched | +0.247 | +0.257 |
+
+报告集上没有“好得可疑”的迹象：增益和对照差距都在调参集数字的几百分之一 bps 以内。
+
+### 为什么比 Jupiter 公告的数字小
+这里只依据合同登记的来源（`research-023/sources.md` 里的引文和哈希）。
+
+| 公开的说法 | 实际衡量的是什么 | 和本实验的关系 |
+|---|---|---|
+| “100x performance improvements”（Ultra V3） | 没有定义指标；对比的是已退役的 Metis；是一组改动的合计 | 只作动机，不作目标。可迁移的只有“精度与评估次数解耦”，即 Q5 |
+| +0.63 bps 正滑点（QE、Ultra V3） | 执行价和报价之差 | 不是一个路由算法对另一个的增益 |
+| Brent 拆单到 0.01% / 1 bps（Ultra V3、Metis v7） | 拆分精度 | 就是 E1 的杠杆。P1 测得它只占 2.02 bps 短缺里的 0.05467 bps |
+| RTSE、预测执行、JIT 链上重拆、RFQ 等 | 动态状态、执行层、Mantle 没有的场所 | 冻结的单区块 gross 重放测不到 |
+
+另外，这里每个基础本身都已经精确拆单，留给 E1 的空间很小。基础从 50 块换到 100 块后，E1 平均增益从 0.447 降到 0.329 bps。
+
 ## T 发现 {depth=2}
 ```finding F1 high
 # 允许共享池的拆单，比 Uniswap SOR 平均少损失约 3.9 bps，而且从不更差
@@ -1082,6 +1385,27 @@ flowchart TD
 结论: 成本模型 v1 没有校准拆单和共享池计划。empirical_cost 目标下，拆单算法改选单路由，放弃中位 14–22 bps 的 gross。
 证据: [observed] v1 §5.4、§10.2。[inferred] 链上每步的真实 gas 是缺失的输入。
 影响: 0.3.0 用 eth_call 收集每步 gas，拟合新的成本模型版本。
+```
+
+```finding F9 high
+# split_polish 从不更差，但平均只多 0.22–0.53 bps，代替不了更细的分块
+结论: 6 种基础上 0 例更低，改进 181–214 / 291 例。A0 上平均 +0.447 bps（p50 0.072）。但按用例数输给 C100（84 / 85 / 122）和 C200（63 / 79 / 149）。
+证据: [observed] `research-023/results.md` Q1、Q2；门禁全过，处置 keep_experimental。[observed] A0 上报价 1.276 倍，CL swap 步数只有 1.014 倍。
+影响: 可以作为精确基础计划之后的廉价收尾。要提升质量，先加细分块或用 4 跳搜索。
+```
+
+```finding F10 high
+# 激活新分支是更大的杠杆，但对 4 跳 label 搜索平均仍为负
+结论: PF（A0）比 work_matched 对照高 +0.210 bps（209 / 78 / 4），比 call_matched 高 +0.195。对照本身只比 E1 多 +0.002 到 +0.019 bps。对 M4、S4 的平均值为负（PF（C100）：−0.962 / −2.210 bps）。
+证据: [observed] `research-023/results.md` Q3、Q4。[inferred] M4 / S4 的 label 搜索在少数用例上找到更好的路由。局部修改 `incremental_graph` 系计划到不了这些路由。
+影响: E2 目前只接 `incremental_graph` 和 `path_split`，不能代替 `metis_history`。值得试的下一步是把激活接到 metis 系基础上。
+```
+
+```finding F11 medium
+# 增益小于 Jupiter 公告，是因为两者衡量的不是同一件事
+结论: Jupiter 唯一量化的价格数字是 +0.63 bps 正滑点，衡量执行价和报价之差。“100x”没有定义指标。P1 测得拆错只占 2.02 bps 短缺里的 0.05467 bps。
+证据: [observed] `research-023/sources.md` 的引文（Ultra V3、QE、P1）。[inferred] 冻结的单区块 gross 重放测不到 RTSE、JIT 链上重拆等动态机制。
+影响: 不要把 Jupiter 的公告数字当作 Mantle 路由的目标。动态重拆的价值由 0.3.0 的 `resplit@k` 指标来测。
 ```
 
 ## U 链上：真实的聚合器是怎么运作的 {depth=2}
@@ -1276,7 +1600,7 @@ sequenceDiagram
 | `resolve@k` / `reselect@k` / `resplit@k` | 在落地块状态上重解 / 每跳重选 / 重新拆分 | 链上再优化（JIT）值不值得做 |
 
 ### 接入步骤
-1. 冻结 0.3.0 的 roster：`single_path_bounded`（基线）、`uni_sor_optimized`（快）、`incremental_graph_bounded`、`metis_history_bounded`（质量）。bounded 版本和参照结果相同，零风险替换（[F7](#F7)）。
+1. 冻结 0.3.0 的 roster：`single_path_bounded`（基线）、`uni_sor_optimized`（快）、`incremental_graph_bounded`、`metis_history_bounded`（质量）。bounded 版本和参照结果相同，零风险替换（[F7](#F7)）。0.2.3 的两个后处理器是 keep_experimental，不进这个 roster（[F9](#F9)、[F10](#F10)）。
 2. 实现 `LiveState.at(block)`：返回和 `SnapshotBundle` 兼容的状态，钉在一个区块号和哈希上。
 3. 写验证用执行合约：直接调池子的 `swap` 和回调，按步返回输出和 gas。用 fork 测试证明严格模式复现 evaluator。
 4. 接入外部聚合器 adapter（先 OKX），同一 intent 同一块报价，并用 eth_call 模拟它们的 calldata。
@@ -1300,11 +1624,15 @@ sequenceDiagram
 - **计时全部 inconclusive。** 共享主机负载超过阈值。需要一台专用机器重测。
 - **只比较 gross。** 成本模型没有校准拆单计划。
 - **没有链上执行证据。** 计划只经过精确 Python 数学重放，没有在 EVM 上执行。0.3.0 的 `exec_gap` 会补上这一点。
+- **0.2.3 的参数来自调参集。** nominee 是在调参集上看过 probe 结果后选定的。合同同时把这一点写进了证据边界。
+- **0.2.3 不含的机制。** 按代币合并重参数化、停用分支来解环、Fast Mode、逐 tick 精确缓存都不在 0.2.3 里。
 - **开放问题：**
   1. 4 跳的增益有多少来自 label 机制，多少来自跳数？需要同跳数的消融。
   2. `metis_history_bounded` 只省 5.6% 的报价；能否用凹包络得到更紧的上界？
   3. LB 是否值得做一个 `uni_sor_lb`（0.2.1 研究结论：narrow go，未实现）？
   4. Mantle 上的 JIT 执行能挽回多少 `out@k` 损失？
+  5. 把 E2 的激活接到 `metis_history` 上，能否同时拿到 4 跳 label 搜索和激活的好处？目前 E2 只支持 `incremental_graph` 和 `path_split`。
+  6. PF（A0）有 111 个候选被 `dag_cycle` 拒绝。按代币合并或先停用一个分支，能救回多少？
 
 ## X 复现 {depth=3}
 环境：`uv sync`；冻结语料在 `data/corpus/mantle-5src-101082044/`（gitignored，清单见 `tests/fixtures/corpus/full_bundle.json`）。
@@ -1312,9 +1640,9 @@ sequenceDiagram
 **教学图上的所有数字**（离线，不需要凭据）：
 ```bash
 uv run python docs/examples/routing-algorithms/run_examples.py
-uv run pytest tests/docs/test_routing_algorithm_examples.py tests/docs/test_r021_examples.py tests/docs/test_r022_examples.py
+uv run pytest tests/docs/test_routing_algorithm_examples.py tests/docs/test_r021_examples.py tests/docs/test_r022_examples.py tests/docs/test_r023_examples.py
 ```
-预期：每个例子打印 `[OK]`，测试全部通过。
+预期：每个例子打印 `[OK]`，测试全部通过。`run_examples.py` 的第 23–26 节是 0.2.3 的例子（F7、`p` / `q` 构造例、真实请求和 campaign 数字）。
 
 **单个请求，17 个算法并排：**
 ```bash
@@ -1322,6 +1650,14 @@ uv run python main.py quote --bundle tests/fixtures/corpus/bundle \
   --profile config/daily_gross.yaml --token-in USDC --token-out USDT0 --amount 10000 --details
 ```
 预期：`incremental_graph` 等 6 行输出 10000.663447 USDT0（99.5% Agni V3 + 0.5% Moe LB），其余多数行 10000.660449，`direct_split_certified` 为 `unsupported`。
+
+**同一请求上的 0.2.3 后处理器（[面板 R2](#panel-R2)）：** 复制 `config/daily_gross.yaml`，把 `algorithms` 换成 `incremental_graph`、`split_polish`、`marginal_activation`。再写出两个后处理器全部选项（见 `routing-algorithms.md` §11.5），存为 `r023-walkthrough.yaml`：
+```bash
+uv run python main.py quote --bundle tests/fixtures/corpus/bundle \
+  --profile r023-walkthrough.yaml --token-in USDC --token-out USDT0 --amount 10000 \
+  --strategies profile --details
+```
+预期：两个后处理器都输出 10000.663636（比基础多 189 raw），报价次数 360 和 588。
 
 **面板 S 的统一表**（只读冻结记录）：
 ```bash
@@ -1334,6 +1670,7 @@ python3 docs/external/routing-report/unified_table.py \
 - 0.1.0：`docs/references/v1-acceptance.md` §11
 - 0.2.1：`docs/references/research-021/results.md` §12
 - 0.2.2：`docs/references/research-022/results.md` §10
+- 0.2.3：`docs/references/research-023/results.md` §5（从冻结提交 `60ac764` 运行 `tools/research_023/campaign.py check / run / analyze / tables`）
 
 ## Y 术语表 {depth=2}
 ```glossary
@@ -1361,11 +1698,18 @@ held-out | 报告集 | 302 个不参与调参的用例。
 best known | 已知最优 | 同一次运行中所有算法对同一用例的最好结果。 | 不是数学最优
 短缺 | shortfall | (best known − 本算法输出) / best known × 10⁴，单位 bps。
 bps | 基点 | 万分之一。
+后处理 | post-processor | 先运行一个声明的基础算法，再在它算完的计划上做局部优化。从不比基础差。 | 不是独立的搜索
+固定资金拓扑 | fixed funding topology | 池子、方向、步骤顺序和资金连线都不变，只改拆分份额。split_polish 的搜索域。
+Brent 法 | Brent's method | 结合黄金分割和抛物线插值的一维局部最小化方法。 | 不保证全局最优
+post-plan 状态 | post-plan state | 当前计划执行完之后各池子的状态。marginal_activation 在它上面找新分支。
+匹配对照 | matched control | 从同一个 E1 结果出发、花同样的报价数（work_matched）或调用次数（call_matched）、但只做精修的对照组。 | 不是可选的路由器
+H/E/L | 更高 / 相等 / 更低 | 成对比较时，第一个计划更高、相等、更低的用例数。
+keep_experimental | 处置词 | 门禁全过，证据照实报告；算法仍是 opt-in，默认不变。 | 不是采纳
 ```
 
 ## Z 参考资料 {depth=2}
 1. `docs/DESIGN.md` — 本项目的规格。为什么读：所有约束和非目标的出处。**PRIMARY**
-2. `docs/references/routing-algorithms.md` — 17 个算法的原理、伪代码和可执行例子。为什么读：本文例子的完整推导。**PRIMARY**
+2. `docs/references/routing-algorithms.md` — 19 个算法（含 0.2.3 的两个后处理器，§§23–24）的原理、伪代码和可执行例子。为什么读：本文例子的完整推导。**PRIMARY**
 3. [An Efficient Algorithm for Optimal Routing Through CFMMs](https://arxiv.org/html/2302.04938) — Diamandis、Resnick、Chitra、Angeris，FC 2023。为什么读：路由的凸优化表述和对偶分解，§1–§2、§6。**PRIMARY**
 4. `docs/references/v1-acceptance.md` — 0.1.0 六算法验收。为什么读：基础算法的成对结果和配置标定。**PRIMARY**
 5. `docs/references/metis-challenge-results.md` — `metis_inspired` 的预注册结果。为什么读：4 跳增益的统计检验。**PRIMARY**
@@ -1375,3 +1719,9 @@ bps | 基点 | 万分之一。
 9. `docs/external/jupiter-kyberswap-research.md` — KyberSwap / Jupiter 的链上执行与状态管理调研。为什么读：面板 U 的源码证据。
 10. `docs/external/0.3.0-onchain-dry-run-design-draft.md` — 链上 dry run 设计草案（待审阅）。为什么读：面板 V 的出处。
 11. [Uniswap smart-order-router @04c7c0b4](https://github.com/Uniswap/smart-order-router) — SOR 源码。为什么读：`uni_sor_port` 的移植来源。
+12. `docs/references/research-023/contract.md` — 合同 `R023-C/1`。为什么读：E1 / E2 的规范定义、nominee、问题、组、对照和门禁。**PRIMARY**
+13. `docs/references/research-023/results.md` — 0.2.3 campaign 的结果。为什么读：面板 S2 的全部数字和审计。**PRIMARY**
+14. `docs/references/research-023/sources.md` — Jupiter 公告和论文的引文、日期与哈希。为什么读：[F11](#F11) 的出处。
+15. [Jupiter Ultra V3](https://developers.jup.ag/blog/ultra-v3)（2025-10-15）与 [Metis v7](https://developers.jup.ag/blog/metis-v7)（2025-11-17）— Brent 拆单的公告。为什么读：E1 的动机。
+16. [Quantifying Sub-Optimality in Routing for AMMs](https://arxiv.org/abs/2607.20762) — Xi、Moallemi，2026。为什么读：拆错与池子激活不足各占多少短缺。**PRIMARY**
+17. [PRIME: Efficient Algorithm for Token Graph Routing Problem](https://arxiv.org/abs/2603.08337) — PRIME-Flow 是 E2 最接近的公开方法。

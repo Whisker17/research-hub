@@ -23,5 +23,7 @@ tags:
     label: 路由算法
   rwa:
     label: RWA
+  security:
+    label: 安全
   uniswap:
     label: Uniswap
