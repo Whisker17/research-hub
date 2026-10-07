@@ -9,6 +9,8 @@ tags:
     label: DEX
   eip:
     label: EIP
+  interop:
+    label: 跨链互操作
   mantle:
     label: Mantle
   meme:
