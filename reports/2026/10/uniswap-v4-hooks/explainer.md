@@ -6,7 +6,7 @@ cols: 4
 type: 技术调研 · dev 团队内部分享
 audience: 懂 Solidity、了解 v2/v3 原理、没写过 v4 hook 的开发者
 scope: v4 hook 机制与生命周期、v3 可行性、合规与 RWA hook、股票 quote launchpad 的同池毕业、其他代表性 hook、工程与安全、对 Mantle 的意义
-evidence: 248 条论断台账（observed 197 / inferred 39 / speculative 12）；源码固定 commit；网页访问于 2026-10-06
+evidence: 253 条论断台账（observed 197 / inferred 43 / speculative 13）；源码固定 commit；网页访问于 2026-10-06
 date: 2026-10-06 · v1
 ---
 结论先行：v4 hook 的辨识度不在“swap 前后能跑代码”。它在于 hook 能参与决定交易金额，并和原生集中流动性、跨池净额结算、ERC-6909 内部请求权组合（[F2](#F2)）。准入、动态费这类规则只有写进 hook 才对所有调用者生效（[F1](#F1)）。同时，PoolManager 只检查每个地址、每个币种的欠账都已结清，不检查 hook 的账目对不对（[F3](#F3)）。RWA 方向的关键结论：准入必须放在池层，但池层替代不了代币层（[F4](#F4)）；股票 quote 的同池毕业可以做，但目前没有生产实例（[F6](#F6)）。
@@ -196,21 +196,146 @@ function unlock(bytes calldata data) external override returns (bytes memory res
 }
 ```
 
-- 每个操作（swap、加减流动性、donate）只给“调用者 × 币种”记一笔有符号 [[delta]]，不转账。
-- 退出 unlock 前，**每一个**地址、每一个币种的 delta 都必须为 0。“所有账户加总为 0”不够 [1]。
-- unlock 禁止嵌套，但不等于禁止重入：在已解锁的上下文里，hook 和其他合约仍然可以调用 PoolManager [1]。
+换一个讲法：先把 delta 当成一张临时记账本，再一笔一笔记账。下面的例子都用我们的场景：quote 是 mStocks，币叫 MEME。
 
-**delta 的符号与结清方式**（站在调用者一侧）[1][5]：
+### 1. delta 是什么
 
-| 操作 | delta 变化 | 实际资产 |
+每次交易开始时，PoolManager 拿出一张空白记账本。交易结束，记账本就扔掉。
+
+记账本按 **「地址 × 币种」** 记录。每一格是一个数：
+
+- **负数**：这个地址欠 PoolManager 这么多币，必须付进来
+- **正数**：PoolManager 欠这个地址这么多币，必须领走
+- **0**：两清
+
+交易结束前，PoolManager 检查每一格，**全部为 0 才放行**。只要有一格不是 0，整笔交易回滚。这也是 delta 结算和时间、区块都无关的原因：它只在一笔交易内部存在，交易结束时必须结清。
+
+几个容易搞错的点：
+
+- **delta 是按「地址 × 币种」记的，不是按池子记的。** 同一笔交易里经过多个池子，同一个地址同一种币的欠款会加在一起。多跳交易能自动抵消中间币，就是因为这个。
+- **delta 不是余额。** 它存在瞬态存储（EIP-1153）里，交易结束就清空。要在 PoolManager 里长期留一笔钱，靠的是 ERC-6909 余额。
+- **Hook 也是一个地址，有自己的格子，也必须自己结清。**
+
+### 2. 改变 delta 的操作
+
+| 操作 | 作用 | 对调用者 delta 的影响 |
 |---|---|---|
-| swap 输入、加流动性 | 变负（欠池子） | 无 |
-| `sync` + 转账 + `settle` | 负 → 0 | 代币转进 PoolManager |
-| swap 输出、减流动性 | 变正（池子欠你） | 无 |
-| `take` | 正 → 0 | 代币转出 PoolManager |
-| `mint` / `burn` ERC-6909 | 正 → 0 / 负 → 0 | 不动代币，换成 claim |
+| `swap` | 在池子里成交 | 付出的币变负，得到的币变正 |
+| `modifyLiquidity` | 加或减 LP | 加 LP 时两种币都变负；减 LP 时变正 |
+| `sync` + 转账 + `settle` | 用真实 ERC-20 付钱进来 | 负数补到 0 |
+| `take` | 把真实 ERC-20 提走 | 正数扣到 0 |
+| `mint` | 不提真币，换成 6909 余额留在 PoolManager | 正数扣到 0 |
+| `burn` | 用 6909 余额付款 | 负数补到 0 |
 
-**多跳**：同一次 unlock 里 A→B→C，中间币 B 的欠账互相抵消，只在两端转账；v3 的多跳要把中间币先转给 router 托管 [1][9]。按差额结算不会凭空产生资金：`take` 仍然需要 PoolManager 真有这么多币。
+**为什么付钱要先 `sync`：** ERC-20 转账时，收款方收不到通知。PoolManager 的做法是 `sync` 先记下自己当前持有多少这种币，你转账进来，再调用 `settle`，它用余额的增量算出你付了多少，再给你记账。
+
+**`mint` / `burn` 和 `take` / `settle` 的区别：** 前者只改 PoolManager 内部的记录，不调用代币合约。Hook 存储备、协议收费都用这一对，比真实转账便宜。
+
+### 3. 最简单的例子：直接用 mStocks 买 MEME（单跳）
+
+先不考虑 hook，看一个普通池子。Agent 通过 Router，用 100 mStocks 买到 1,000,000 MEME。
+
+| 步骤 | Router 的 mStocks | Router 的 MEME |
+|---|---|---|
+| unlock 开始 | 0 | 0 |
+| `swap` 成交 | **−100** | **+1,000,000** |
+| sync，从 Agent 钱包转 100 mStocks 进来，settle | 0 | +1,000,000 |
+| take 1,000,000 MEME 给 Agent | 0 | 0 |
+| unlock 结束，检查全部为 0 | 通过 | |
+
+真实转账一共两笔：mStocks 转进来，MEME 转出去。v3 单跳也是两笔，所以 **单跳几乎省不了转账**。这和你之前的直觉一致。
+
+### 4. 多跳：中间币为什么能自动抵消
+
+Agent 手里是 USDT，路径是 USDT → mStocks → MEME，经过两个池子。
+
+| 步骤 | USDT | mStocks | MEME |
+|---|---|---|---|
+| 开始 | 0 | 0 | 0 |
+| swap #1（USDT/mStocks 池）：付 100 USDT，得 99 mStocks | −100 | **+99** | 0 |
+| swap #2（mStocks/MEME 池）：付 99 mStocks，得 MEME | −100 | **−99 + 99 = 0** | +990,000 |
+| settle 100 USDT | 0 | 0 | +990,000 |
+| take 990,000 MEME | 0 | 0 | 0 |
+
+mStocks 在同一个格子里先 +99 再 −99，**这 99 枚从来没有被真正转过**。这就是官方文档说的「不管多少跳，只需要输入和输出两笔转账」。v3 里，这 99 mStocks 要真的从第一个池子合约转到第二个池子合约。
+
+### 5. 加上 Hook：内盘曲线这一笔到底发生了什么
+
+内盘阶段，原生池子里没有流动性，由 hook 按 bonding curve 报价。Hook 平时把 MEME 储备和收到的 mStocks 都存成 6909 余额。
+
+假设 Agent 付 100 mStocks，曲线给出 1,000,000 MEME，收 1% 手续费：99 mStocks 进 hook 储备，1 mStocks 进创作者 vault。
+
+记账本里有两个账户：**Router**（代表 Agent）和 **Hook**。
+
+| 步骤 | Router mStocks | Router MEME | Hook mStocks | Hook MEME |
+|---|---|---|---|---|
+| unlock 开始 | 0 | 0 | 0 | 0 |
+| ① Router 调用 swap，hook 的 `beforeSwap` 声明「这笔由我处理：收 100，给 1,000,000」 | | | | |
+| ② PoolManager 按这个声明分别记账 | **−100** | **+1,000,000** | **+100** | **−1,000,000** |
+| ③ 原生集中流动性引擎的成交量为 0，什么也不做 | −100 | +1,000,000 | +100 | −1,000,000 |
+| ④ Hook 结清自己：mint 99 mStocks 到自己的储备，mint 1 mStocks 到创作者 vault | | | **0** | −1,000,000 |
+| ⑤ Hook 用自己的 MEME 6909 余额支付：burn 1,000,000 | | | 0 | **0** |
+| ⑥ Router：sync 后转入 100 mStocks，settle | **0** | +1,000,000 | 0 | 0 |
+| ⑦ Router：take 1,000,000 MEME 给 Agent | 0 | **0** | 0 | 0 |
+| unlock 结束，全部为 0 | 通过 | | | |
+
+这一笔的结果：
+
+- **真实转账只有两笔**：Agent 付 mStocks，Agent 收 MEME。
+- Hook 储备、创作者的费，都只是 PoolManager 内部 6909 余额的变化。
+- 第 ②、③ 步就是 `beforeSwapReturnDelta` 的作用：hook 返回的声明，让 PoolManager 跳过原生池子，把这笔交易的买卖双方分别记成「Router 对 PoolManager」和「Hook 对 PoolManager」。
+- **Hook 不把自己那两格清零，整笔交易就会回滚。** 曲线算错或者储备不够，交易不会成功，只会失败。
+
+（Hook 返回值里有 specified 和 unspecified 两个字段，分别对应「用户指定数量的那种币」和「另一种币」。具体正负号以 v4-core 代码为准，理解上就是「hook 拿走多少输入、给出多少输出」。）
+
+```uml q="多跳与带 Hook 的 swap 中，delta 记账本如何清零？" read="步骤展示多跳中间币自动抵消与 Hook 接管内盘时双方 delta 结清过程。" takeaway="PoolManager 只检查每个账户名下每种币是否清零；中间币与 6909 内部记账均不触发外部 ERC-20 转账。"
+sequenceDiagram
+  autonumber
+  participant R as Router (代表 Agent)
+  participant PM as PoolManager (瞬态记账本)
+  participant H as LaunchHook (持有 6909)
+
+  Note over R,H: 多跳：USDT → mStocks → MEME
+  R->>PM: swap USDT/mStocks: USDT -100, mStocks +99
+  R->>PM: swap mStocks/MEME: mStocks -99, MEME +990k
+  Note over PM: mStocks 账户为 +99 - 99 = 0 (自动清零)
+  R->>PM: settle 100 USDT (真实转入), take 990k MEME (真实提走)
+
+  Note over R,H: 内盘带 Hook：beforeSwapReturnDelta 接管
+  R->>PM: swap 100 mStocks → MEME
+  PM->>H: beforeSwap: Hook 声明收 100, 给 1M
+  Note over PM: Router[-100 mStocks, +1M MEME] vs Hook[+100 mStocks, -1M MEME]
+  H->>PM: mint 99 储备 + 1 创作者费 6909, burn 1M MEME 6909
+  R->>PM: settle 100 mStocks (真币转入), take 1M MEME (真币提走)
+  Note over PM: 所有账户所有币种清零，放行通过
+```
+
+### 6. 毕业时 delta 做了什么
+
+达到门槛后，hook 用 200M MEME 和募集到的 mStocks 在池子里加 LP。这一步必须在 unlock 期间进行：要么在某笔 swap 的回调里做，要么在 `graduate()` 里自己调用一次 unlock。
+
+| 步骤 | Hook mStocks | Hook MEME |
+|---|---|---|
+| 开始 | 0 | 0 |
+| `modifyLiquidity` 加 LP，两种币都欠给池子 | **−96** | **−200,000,000** |
+| burn 自己的 6909 余额来支付 | 0 | 0 |
+
+**没有任何 ERC-20 转账。** 资产本来就在 PoolManager 里，只是从「hook 的 6909 余额」变成「池子里的 LP」。这就是毕业不需要迁移的底层原因。
+
+### 7. 没结清会怎样
+
+| 情况 | 结果 |
+|---|---|
+| Router 忘了 settle（还欠钱） | 回滚 |
+| Router 忘了 take（PoolManager 还欠它钱） | 也回滚。**正数也必须清零** |
+| Hook 曲线算错，6909 余额不够 burn | burn 失败，回滚 |
+| 想在这笔交易里先欠着，下一笔再还 | 做不到，交易结束时必须结清 |
+
+（正数有一个例外：调用者可以用 `clear` 主动放弃一点零头，这不影响上面的理解。）
+
+### 一句话总结
+
+delta 是一笔交易内的临时欠款单。swap、加 LP 只负责记账；`settle` / `burn` 付钱，`take` / `mint` 收钱。退出 unlock 前，每个地址、每种币都必须两清。v4 能省下的部分在于：中间步骤只改账，同一个地址同一种币的借贷会自动抵消，长期留在 PoolManager 里的钱用 6909 余额表示，不用调用代币合约转账。
 
 ## K Hook 的回调、return delta 与动态手续费 {depth=2}
 | 回调 | 调用时机 | 能改什么 |
@@ -479,54 +604,255 @@ sequenceDiagram
 影响: 对 Tape：先证明 B 类（多段 CL 从一开始运行）满足不了发行经济模型，再承担 C 类的复杂度。
 ```
 
-**C 类的四个难点**
+下面按「部署 → 发币 → 内盘 → 毕业 → 外盘」讲。v4 特性在用到的那一步解释，最后汇总成表。没有写进仓库。
 
-1. **同一个池不能重新 initialize**。做法是建池时就把价格设在曲线终点价 P*。曲线阶段原生流动性为 0，所有交易由 hook 接管，`slot0` 不动；毕业时直接在 P* 建头寸 [29]。前提：P* 能提前算出；所有 swap 都受 hook 控制；禁止外部提前加流动性。如果毕业阈值按股票的美元价动态变化，P* 就不再确定。
-2. **毕业只能用真实储备**。虚拟储备只是定价参数，变不成 LP 资金。阈值按净售出量和实际募集的 quote 判定。不要按累计买入量判定，否则来回买卖就能推进“毕业进度”。曲线阶段的 quote 可以用 ERC-6909 claim 按 PoolId 托管，毕业时 burn claim 偿付头寸的欠账 [29]。
-3. **储备配比要和毕业价一致**。例：曲线 p(s)=1+0.01s，卖到 100 M 时毕业，P*=2 Q/M，募集 R_Q=∫₀¹⁰⁰(1+0.01u)du=150 Q。直接把 100 M + 150 Q 放成全区间头寸，比例是 1.5，和终点价 2 不一致。毕业瞬间价格会跳。按 P*=2 应放 75 M + 150 Q。剩下 25 M 按预先公布的规则锁定、销毁或另放区间（G13，主会话复算）。两币精度不同时还要按 10^(d1−d0) 换算原始价格。
-4. **跨阈值的订单**。用户出 100 Q，曲线只剩 20 Q 的容量，有三种处理：
-   - Router 在链上裁剪到 20 Q，剩下的不收（最容易证明正确，但用户要允许部分成交）；
-   - 同一次 unlock 里拆成两笔：20 Q 走曲线，毕业，80 Q 走新头寸；
-   - 单次 beforeSwap 内先吃满曲线，余量留给刚注入的头寸（untoll-hook 的 no-straddle 规则就是这样）[29]。
+设计前提：quote 是 mStocks；内盘曲线由 hook 计价；毕业后不迁池，在同一个池子里改用 Uniswap 原生集中流动性。
 
-```uml q="同池毕业的阶段怎么切换？" read="Graduating 只存在于同一笔交易的 unlock 回调里。" takeaway="切换要原子完成；任何一步失败，整笔交易回滚，阶段仍是曲线。"
-stateDiagram-v2
-  state "曲线阶段（hook 报价）" as Curve
-  state "毕业中（瞬态）" as Graduating
-  state "集中流动性阶段" as AMM
-  [*] --> Curve : initialize 在 P*，原生流动性为 0
-  Curve --> Graduating : 跨阈值的那一笔
-  Graduating --> AMM : 注入头寸并结清，放弃铸币权
-  note right of Curve : 买卖按曲线成交，外部加减流动性被拒
-  note right of Graduating : 任一步失败，整笔回滚，仍是曲线阶段
-  note right of AMM : 市场暂停、发行方暂停要与阶段分开管理
+---
+
+### 0. 参与方
+
+| 组件 | 是什么 | 部署次数 |
+|---|---|---|
+| **PoolManager** | v4 的 singleton。所有池子的状态和资产都在这一个合约里 | Uniswap 官方部署一次 |
+| **LaunchHook** | 我们写的 hook，负责曲线定价、反狙击、收费和毕业 | 我们部署一次，所有 meme 池共用 |
+| **Factory** | 发币入口：部署代币、建池、可选首买 | 一次 |
+| **MemeToken** | 每个 meme 的 ERC-20 | **每个币部署一次** |
+| **Universal Router / Quoter** | 官方外围合约，用户和聚合器通过它交易、询价 | 官方 |
+
+一个常见误解：v4 省掉的是「每个池子一个合约」。**每个代币仍然要部署一个 ERC-20。** 只是不再额外部署一个池子合约。
+
+```
+          ┌──────────────── PoolManager（singleton）────────────────┐
+ Agent ──►│ pool(MEME/mStocks) ── hooks ──► LaunchHook               │
+ Router   │   内盘：hook 定价，hook 的储备记成 ERC-6909 余额          │
+          │   毕业后：原生集中流动性（LP 由 hook 持有，无法撤出）     │
+          └──────────────────────────────────────────────────────────┘
 ```
 
-```uml q="从发射、曲线买入、触发毕业到毕业后交易，同一个 PoolId 里发生了什么？" read="参照 untoll-hook 的同池毕业模式；quote 是非 rebase 的股票包装份额 qSTOCK。" takeaway="毕业注入的头寸由 hook 自己持有、直接用 claim 结清；hook 自己调用 PoolManager 时，它自己的回调会被跳过，所以毕业函数必须自己检查授权和状态。"
+```uml q="meme launchpad 各组件在 Uniswap v4 下如何协作与分工？" read="实线为合约调用流；虚线为资产记账与托管关系；PoolManager 统管全局资产。" takeaway="每个代币单独部署 ERC-20，池子无需独立合约；内盘由 LaunchHook 接管定价，毕业直接在 PoolManager 内转为集中流动性。"
+flowchart TD
+  subgraph Client ["外部参与方"]
+    Agent["AI Agent / 交易者"]
+    Router["Universal Router / Quoter
+(官方外围合约)"]
+  end
+
+  subgraph Deployer ["发行入口"]
+    Factory["Launch Factory
+(部署代币 + 建池 + 可选首买)"]
+    Meme["MemeToken
+(每个币独立部署 ERC-20)"]
+  end
+
+  subgraph v4_Core ["Uniswap v4 核心与 Hook"]
+    PM["PoolManager (Singleton 单例)
+- 全局资金金库
+- ERC-6909 内部余额
+- 集中流动性原生撮合"]
+    Hook["LaunchHook (全局共享 Hook)
+- 内盘 Bonding Curve 定价
+- 开盘反狙击衰减税
+- 创作者收费与金库
+- 同池毕业与永久锁仓"]
+  end
+
+  Agent -->|"1. launch()"| Factory
+  Factory -->|"部署合约"| Meme
+  Factory -->|"2. initialize(P*)"| PM
+  Agent -->|"交易与询价"| Router
+  Router -->|"unlock → swap"| PM
+  PM <-->|"beforeSwap / afterSwap"| Hook
+  Hook -.->|"持有 6909 储备与 LP"| PM
+```
+
+---
+
+### 阶段 0：部署 Hook（只做一次）
+
+**v4 特性：hook 的权限写在地址里。**
+Hook 能拦截哪些回调，由合约地址最低 14 位的 flag 决定。用 CREATE2 反复试 salt，找到满足这些位的地址（HookMiner）。部署后权限不能修改。
+
+我们需要的权限：
+
+| flag | 用途 |
+|---|---|
+| `beforeInitialize` | 只允许 Factory 建池，防止别人用我们的 hook 建假池 |
+| `beforeAddLiquidity` | 内盘阶段拒绝第三方加 LP |
+| `beforeRemoveLiquidity` | 永远拒绝撤出毕业时注入的 LP，也就是永久锁仓 |
+| `beforeSwap` + `beforeSwapReturnDelta` | 内盘由 hook 自己计价（custom curve） |
+| `afterSwap` + `afterSwapReturnDelta` | 外盘按成交收创作者费 |
+
+后果：这个 hook 会被所有 meme 池永久调用。**Hook 有 bug，就是所有池子一起出事**，审计要按这个风险级别做。
+
+---
+
+### 阶段 1：发行（Agent 调用 `launch(name, symbol)`）
+
+Factory 在一笔交易里做完：
+
+1. **部署 MemeToken**，固定总量，比如 1B。可以用 CREATE2 让代币地址固定排在 mStocks 的同一侧（PoolKey 要求 `currency0 < currency1`），后面的计算更简单。
+2. **拼 PoolKey**：`{currency0, currency1, fee, tickSpacing, hooks = LaunchHook}`。PoolId 是 PoolKey 的哈希。
+   - **v4 特性：动态费率。** `fee` 设成 `DYNAMIC_FEE_FLAG`，由 hook 逐笔决定费率。
+3. **`PoolManager.initialize(key, sqrtPriceX96)`**。
+   - **v4 特性：建池只是在 singleton 里写一条记录，不部署合约。** 官方文档写明 initialize 不需要 unlock。
+   - 这里有个关键设计：`sqrtPriceX96` 直接设成**毕业价格**。内盘不走原生池子，原生价格会一直停在这里；毕业注入 LP 时价格正好接上，不需要事后改价。这能成立，是因为前面说过的那一点：**同一条曲线，毕业价是确定的常数。**
+4. **把代币放进 PoolManager**。内盘要卖的 800M 和毕业预留的 200M 都由 hook 持有。
+   - **v4 特性：ERC-6909 余额。** Hook 把代币存进 PoolManager，换成 6909 余额。之后内盘每笔成交只改内部记账，不调用 MemeToken 的 `transfer`。
+5. **可选：开发者首买**。在同一个 `unlock` 里直接按曲线买一笔。
+   - **v4 特性：flash accounting。** 建池、存储备、首买都在一次 unlock 里，最后只需要 Agent 付 mStocks、拿 meme 这两笔真实转账。
+
+Session 只允许调用 Factory 的 `launch`，以及 Router 的买卖函数。
+
+---
+
+### 阶段 2：内盘交易（bonding curve）
+
+用户或 agent 通过 Universal Router 买卖。每笔交易的路径：
+
+```
+Router.unlock
+  └─ PoolManager.swap(key, params)
+       └─ LaunchHook.beforeSwap
+            ├─ 检查：开盘窗口内的持仓上限、session 白名单（可选）
+            ├─ 按曲线公式算出成交量（虚拟储备 x·y = k）
+            ├─ 收费，从 quote 那一侧扣
+            └─ 返回 BeforeSwapDelta：「这笔我已经处理完」
+       （原生集中流动性引擎实际成交量为 0）
+  └─ Router settle(mStocks) / take(MEME)
+```
+
+这一阶段用到的 v4 特性：
+
+- **`beforeSwapReturnDelta`（custom curve，也叫 NoOp swap）**：hook 告诉 PoolManager「输入我拿走了，输出我来给」。原生池子没有流动性也能成交，这就是在 v4 池子里跑 bonding curve 的方法。
+- **Hook 的 delta 也要结清**：hook 用自己的 6909 余额支付输出、记入输入。内盘的资产始终在 PoolManager 里。
+- **收费方式**：内盘不走原生引擎，**原生 LP 费率在这个阶段不生效**。费用必须在 hook 自己的计算里扣，给创作者和协议的部分记成 6909 余额，之后再领取。
+- **反狙击**：开盘几秒到几十秒内提高 hook 收的费（衰减税），或者限制单地址持仓。前面讨论过：抢开盘靠隐私 RPC 防不住，只能在这里让抢跑无利可图。
+- **`beforeAddLiquidity` 直接 revert**：内盘阶段别人不能往原生池子加 LP，免得有人在毕业价附近抢先摆一个仓位。
+- **Flash accounting 的实际收益在这里**：Agent 手里是 USDT 时，路径是 USDT→mStocks→MEME，两跳。中间的 mStocks 不发生转账，只付 USDT、收 MEME。
+- **Quoter**：官方 Quoter 通过模拟 swap 并 revert 来询价，会走同一个 hook，所以内盘报价也能用。
+
+---
+
+### 阶段 3：毕业（同一个池子里切换模式）
+
+触发条件：hook 内部累计的 quote 达到门槛，或者卖出量达到 800M。
+
+毕业要做的事：
+
+1. 拿 hook 持有的 **200M meme（6909 余额）+ 募集到的 mStocks（扣费后）**，在初始化时设好的毕业价格附近，调用 `modifyLiquidity` 加集中流动性。
+   - **v4 特性：用 6909 余额结清。** 资产本来就在 PoolManager 里，加 LP 用 burn 6909 余额支付，没有外部 ERC-20 转账。
+2. LP 仓位的所有者是 hook 本身，并且 `beforeRemoveLiquidity` 永远 revert，等于**永久锁仓**。只能领手续费，不能撤本金。
+3. hook 内部把 `graduated` 设成 true。
+
+为什么没有迁移漏洞：v3 时代的风险点都发生在**搬资产**的过程中，比如 four.meme 的迁移 helper、别人抢先 initialize、链下 keeper 私钥、锁仓合约后门。这里资产没有离开 PoolManager，池子早就初始化好了，价格也提前定死，这几个攻击面都不存在。
+
+需要明确的设计选择：
+
+- **原子毕业**：在跨过门槛的那一笔 swap 的 hook 回调里，直接加 LP。完全没有时间断层，但「在 swap 回调里修改同一个池子的流动性」的顺序和安全性必须专门审计。
+- **独立一笔毕业**：达到门槛后先锁住内盘，任何人都可以调用 `graduate()` 完成。实现简单，但中间会有一个很短的空窗期。期间资产仍然不动，只是交易暂停。
+
+在 Mantle 上，第一版先用后一种更稳妥。
+
+---
+
+### 阶段 4：外盘交易（毕业后）
+
+- hook 的 `beforeSwap` 发现已经毕业，**返回零 delta，交给 Uniswap 原生集中流动性引擎撮合**。从这一刻起和普通 v4 池子一样。
+- Hook 仍然会被每笔交易调用，因为权限写在地址里改不了。它可以继续做两件事：
+  - **`afterSwapReturnDelta` 收创作者费**，按成交从输出那一侧扣一小部分，记成 6909 余额进 agent 的 runtime vault；
+  - **毕业后第一个短窗口再加一次衰减税**。这是聚合器自动买入最集中的时候。
+- 锁仓 LP 的原生手续费会继续累积，由 hook 领取后分给创作者和协议。
+- `beforeAddLiquidity` 改成放行，第三方可以来做市，深度从这里开始增长。
+- 聚合器和交易机器人通过 Universal Router 路由进来。要注意 Clanker 文档的提醒：**hook 收的费率太高，会影响路由器和聚合器的兼容性**，外盘的稳定费率要克制。
+
+```uml q="meme 池从发行到外盘经历哪些阶段状态？" read="阶段 0 部署 Hook 只做一次；每个 meme 池经历阶段 1 发行 → 阶段 2 内盘 → 阶段 3 毕业 → 阶段 4 外盘。" takeaway="阶段 2 到阶段 4 全在同一个 PoolId 内完成，资产不离 PoolManager，根本不存在跨合约搬迁资金的风险。"
+stateDiagram-v2
+  state "阶段 1：发行完成（价格锁在毕业价格）" as Created
+  state "阶段 2：内盘交易（Hook 曲线定价）" as InnerCurve
+  state "阶段 3：毕业切换（瞬态/独立触发）" as Graduating
+  state "阶段 4：外盘交易（原生集中流动性）" as OuterCL
+
+  [*] --> Created : Factory 部署代币并在毕业价格初始化池子
+  Created --> InnerCurve : 存入 800M 销售储备 + 200M 毕业储备换 6909
+  InnerCurve --> Graduating : quote 募集达标或卖出 800M
+  Graduating --> OuterCL : 在毕业价格加 LP，burn 6909 结清，永久锁仓
+  note right of InnerCurve : beforeSwapReturnDelta 接管，禁止外部加 LP
+  note right of Graduating : 用 6909 余额结清，无外部 ERC-20 转账
+  note right of OuterCL : beforeSwap 放行交还原生撮合，afterSwap 扣创作者费
+```
+
+```uml q="从发币、内盘、毕业到外盘，链上调用链与记账如何流转？" read="序号标出关键步骤；蓝线/实线为合约调用，虚线为 delta 与 6909 内部账本变化。" takeaway="内盘通过 NoOp swap 绕过 CL；毕业时在同一个 unlock 里 burn 6909 注入头寸；外盘交还 CL 撮合但继续按笔抽创作者费。"
 sequenceDiagram
   autonumber
+  participant A as Agent / 发行者
   participant F as Launch Factory
-  participant U as 买家
-  participant R as Launch Router
+  participant R as Universal Router
   participant PM as PoolManager
-  participant H as Launch Hook
-  F->>PM: initialize(meme / qSTOCK, hook, 价格 = P*)
-  U->>R: 用 qSTOCK 买 meme
+  participant H as LaunchHook
+
+  Note over A,H: 阶段 1：发行（一笔交易做完）
+  A->>F: launch(name, symbol)
+  F->>F: 部署 MemeToken (固定总量 1B)
+  F->>PM: initialize(PoolKey, 毕业价格)
+  F->>PM: 存入 1B MEME 换取 Hook 的 6909 余额
+
+  Note over A,H: 阶段 2：内盘交易（bonding curve）
+  A->>R: swap(100 mStocks -> MEME)
   R->>PM: unlock → swap
-  PM->>H: beforeSwap：曲线报价
-  H->>PM: 收 qSTOCK 为 claim，交付 meme
-  H-->>PM: delta 抵消全部输入，原生数量为 0
-  R->>PM: settle qSTOCK，take meme
-  U->>R: 跨阈值的一笔
+  PM->>H: beforeSwap(key, params)
+  H-->>PM: BeforeSwapDelta (收 100 mStocks, 给 1M MEME)
+  Note over PM: 原生集中流动性撮合成交量为 0 (NoOp swap)
+  H->>PM: mint 99 储备 + 1 创作者费 (6909)
+  H->>PM: burn 1M MEME (6909) 结清欠账
+  R->>PM: settle 100 mStocks, take 1M MEME
+  PM-->>R: unlock 检查通过 (全部清零)
+
+  Note over A,H: 阶段 3：毕业（同一个池子里切换模式）
+  Note over H: 累计 quote 达标或卖出 800M
+  H->>PM: modifyLiquidity(注入 200M MEME + 募集 mStocks)
+  H->>PM: burn 6909 余额结清加 LP 欠账
+  Note over H: LP 头寸归 Hook 所有，标记 graduated = true
+
+  Note over A,H: 阶段 4：外盘交易（原生集中流动性撮合）
+  A->>R: swap(mStocks -> MEME)
   R->>PM: unlock → swap
-  PM->>H: beforeSwap：只成交到阈值
-  H->>PM: modifyLiquidity：在 P* 注入头寸
-  H->>PM: burn claim 结清头寸欠账
-  PM->>PM: 余量在新头寸上按集中流动性成交
-  R->>PM: 结清，unlock 检查通过
-  U->>R: 毕业后交易
-  R->>PM: swap：hook 不再接管报价
+  PM->>H: beforeSwap: 已毕业，返回 0 delta
+  PM->>PM: Uniswap 原生集中流动性引擎撮合成交
+  PM->>H: afterSwap: return delta 扣创作者费
+  H->>PM: mint 创作者费 (6909) 进 runtime vault
+  R->>PM: settle 输入，take 输出
 ```
+
+---
+
+### v4 特性在每个阶段的用途
+
+| 特性 | 用在哪一步 | 解决什么问题 |
+|---|---|---|
+| Singleton PoolManager | 建池、全程 | 每个 meme 不用部署池子合约；资产始终在一个合约里，毕业不用搬 |
+| Hook 地址即权限 | 部署 | 规则在部署时固定，不能偷偷修改；代价是 bug 会影响全部池子 |
+| `beforeInitialize` | 发行 | 防止别人用我们的 hook 建假池 |
+| 动态费率 | 内盘、毕业后短窗口 | 开盘衰减税，用经济手段让抢跑无利可图 |
+| `beforeSwapReturnDelta` | 内盘 | 在 v4 池子里跑 bonding curve |
+| `afterSwapReturnDelta` | 外盘 | 按成交给创作者 / agent 分费 |
+| `before/afterAddLiquidity`、`beforeRemoveLiquidity` | 内盘禁止加 LP，毕业后永久锁仓 | 防止抢先摆仓位，防止撤池跑路 |
+| ERC-6909 余额 | 储备、收费、毕业加 LP | 内部记账，不调用外部 `transfer` |
+| Flash accounting | 发行加首买、多跳买入、毕业结算 | 只结算最终净额；多跳时中间代币不转账 |
+| 瞬态存储（EIP-1153） | flash accounting 的底层 | **Mantle 必须支持 Cancun 的 `TSTORE`/`TLOAD`，否则 v4 跑不起来** |
+
+---
+
+### 还需要验证的风险点
+
+1. **毕业价写死在初始化里**：前提是所有币用同一条曲线。如果要给不同币配不同曲线，每个池子初始化时必须用对应的毕业价。
+2. **在 swap 回调里加 LP 的原子毕业**：要专门审计执行顺序和重入；第一版先用「锁内盘 + 任何人可调用 `graduate()`」。
+3. **聚合器能否给内盘报价**：custom-delta 池子的报价依赖 Quoter 模拟，需要实测主流路由器是否支持。
+4. **Hook 是所有池子共享的单点**：要审计，要有暂停机制；暂停只能停新发行和内盘交易，不能影响已经锁住的 LP 和已经产生的费用。
+5. **一直没毕业的币**：曲线会永远停在那里。只要不额外占 L2 状态就可以，状态膨胀的问题放到后面的链改造里处理。
+
+---
+
 
 **股票 quote 的额外坑**
 

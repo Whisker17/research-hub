@@ -255,3 +255,8 @@
 | G18 | PureFi Verifier Hook 是凭证型准入的公开参考实现：issuer 签发数据包、Router 放入 hookData、hook 验证 issuer 与规则 | 仅见于 gpt-deep-research.md §4.7（指向 github.com/purefiprotocol/purefi-verifier-hook），主会话未读源码 | speculative | N、T |
 | G19 | GPT Deep Research 使用的 v4-core `59d3ecf`（v1.0.2，2025-05-13）与本报告基准 `46c6834` 之间只差 CI 工作流文件，合约源码相同 | gh api compare `59d3ecf...46c6834`：ahead 9，变更文件全部在 `.github/workflows/` | observed | U |
 | G20 | Uniswap 官方 `deployments.json`（generatedAt 2026-09-22）中 v4 PoolManager 部署在 25 条链（含测试网），Mantle（chainId 5000）只有 v3、Permit2 与 Universal Router | 主会话下载 developers.uniswap.org/deployments.json 后按记录 id 统计，2026-10-06 | observed | D、F11 |
+| G21 | 在 v4 中，建池省去独立池子合约，但每个 meme 资产仍需部署独立 ERC-20 代币合约 | 由 ERC-20 标准与 PoolKey 结构推出：PoolKey 引用外部 Currency 合约地址 | inferred | O |
+| G22 | 通过 CREATE2 预计算代币地址使其小于 quote 币地址，可固定 PoolKey 中 currency0 与 currency1 排序，简化定价计算 | 由 PoolKey.currency0 < currency1 校验逻辑推出 | inferred | O |
+| G23 | 内盘阶段 hook 接管成交时原生 LP 费不生效，协议与创作者费用须在 hook 内部计算并作为 6909 记账 | 由 NoOp swap 机制（原生 CL 不成交）推出 | inferred | O |
+| G24 | 毕业切换时资产由 hook 持有的 6909 余额经 modifyLiquidity 注入头寸，不发生外部 ERC-20 转账，根除了跨合约搬运资产的攻击面 | 由 PoolManager.modifyLiquidity 与 ERC-6909 burn 逻辑推出 | inferred | O |
+| G25 | 毕业方式分为 swap 回调内原子加 LP 与达到门槛后锁内盘由独立交易触发两类，后者在复杂 L2 环境下重入风险更低 | 工程架构设计推断 | speculative | O |
