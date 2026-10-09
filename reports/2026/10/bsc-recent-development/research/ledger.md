@@ -147,6 +147,21 @@
 | J40 | Jenner 正式 release 很可能基于 v1.8 代码线 | develop 的 version.go = 1.8.0-alpha；该推测没有发布说明支持 | speculative | Q |
 | J41 | 官方 gas limit 路线：55M → 70M（9 月中）→ 80M（10-10 之后）→ 约 90M（11 月中，有条件） | 来源 [13] “From 55M Toward 90M Gas” 节中的图片 | observed | A |
 | J42 | 后量子（BEP-707 / 708 / 713）、BEP-684、BEP-668 都只是 open PR 提案 | gh pr list -R bnb-chain/BEPs --state open | observed | |
+| J43 | BAP-710 的动机：每个做市商要为每个 builder 各自解决三件事（低成本发布报价、按所见报价成交、可靠上链），每个 taker 要逐个对接做市商的合约和报价格式 | `BEPs/BAPs/BAP-710.md:67@e9b2be3b00`（§3.1） | observed | O |
+| J44 | BAP-710 对比三种现有部署：Solana 由做市商自建上链管道；Base 每次更新都上链付 gas，模拟与执行状态可能不一致；Titan 由 taker 订阅单一 builder 的 state override 流并自己组 bundle | BAP-710.md:71-79（§3.2 表）、§5.3 | observed | O |
+| J45 | 做市商只接一条 `pamm_sendQuoteUpdateV1` 流，就能触达所有授权 taker 和所有 builder；relayer 吸收各 builder 在端点、鉴权、提交格式上的差异 | BAP-710.md:58（§2 Key properties）、:133（§4.1 Relayer 角色） | observed | O |
+| J46 | 钱包只换 RPC 地址；聚合器 / solver 在现有池子适配器里加 `IPropAMM` 支持，把 PropAMM 当作普通流动性源参与路径搜索和拆单 | BAP-710.md §4.5.3、§4.5.4（:490-506） | observed | O |
+| J47 | solver 只能把 PropAMM 路由返回给声明兼容、交易会发到 relayer 的钱包；只发到公开 RPC 的交易会因缺少报价更新而 revert，不会丢资金 | BAP-710.md §4.5.4、§8.3 “Public-RPC failure” | observed | O |
+| J48 | BAP-710 否决了四种替代方案：builder 端 PropAMM 协议（会让标准按 builder 碎片化）、taker 自组 bundle、做市商自建执行设施、每个做市商自定义报价更新交易 | BAP-710.md §5.2 | observed | O |
+| J49 | relayer 是许可制运营方：做市商和 taker 经控制台申请角色、管理员批准后拿 API key；做市商可把报价限定给指定 taker；BAP 把多 relayer 互通列为应对单一运营方的长期办法 | BAP-710.md §4.4（:417-432）、§8.2 | observed | O |
+| J50 | relayer 存在的核心原因是即时上链（报价被读到才与 taker 交易原子上链），不只是集成聚合；做市商 × builder 的重复由 relayer 消除，taker × 做市商的格式差异由统一 registry 与 `IPropAMM` 接口消除 | 由 J36、J43、J45、J46、J48 推出 | inferred | O, F13 |
+| J51 | Flashbots 的 Priority Update Registry（PUR）是一个共享合约：更新交易只能写它自己的 storage；builder 把更新插在读取它的用户交易之前，没被读到的更新不上链。它已提交为 ERC-8324 草案（ethereum/ERCs PR #1852，2026-07-03 创建，open），并部署在以太坊主网 | `flashbots/priority-update-registry` README @8701e8e（Motivation、Block Builder Integration、Deployments）；`gh pr view 1852 -R ethereum/ERCs`；`eth_getCode 0xda7afeed021e…` 返回 4085 字节 | observed | O, F14 |
+| J52 | BAP-710 的 registry 与 PUR 同名同构：`IPrioUpdateRegistry`、`updateState` / `getState` / `addUpdater` / `isUpdater`、`laneIndex`、每 lane 最多 255 个 word、lane 基址 = keccak256(abi.encode(NAMESPACE, target, laneIndex)) + i；BSC 的命名空间串是 “PrioUpdateRegistryV2.lane.v1” | BAP-710.md §4.2.1–4.2.2（:186-260）；PUR `src/PrioUpdateRegistry.sol`、README “Storage Layout” @8701e8e | observed | O, F14 |
+| J53 | BAP-710 自述“早期 registry 草案自己验证做市商签名（batchUpdateStateWithSignature）并检查 maxBlockNumber”；这个函数名正是 PUR 的接口 | BAP-710.md §5.2 “Expiry and signatures inside the registry”；PUR README “Writing Priority Updates” | observed | O, F14 |
+| J54 | 两者的差异：PUR 用 uint32 updateTimestamp 加读写时间窗做新鲜度，签名内置且在窗口内可重放，slot0 = 时间戳 32 位 + 长度 8 位 + 数据 216 位；BAP-710 用严格递增的 48 位 seq，registry 不检查过期，签名移到 decoder lane（SignedSeqDecoder），slot0 = seq 48 位 + 数据 208 位，批量写跳过无效项 | PUR README “Writing / Reading / Storage Layout / Threat Model”；BAP-710.md §4.2（:160-167）、§4.2.1 | observed | O |
+| J55 | 插入报价更新的角色不同：PUR 要求每个 builder 维护未上链更新的池子，并把更新插在读取它的交易之前；BAP-710 让 builder 保持通用的原子 bundle 执行器，由 relayer 匹配读写集并组包 | PUR README “Block Builder Integration”；BAP-710.md :52、§5.1 “Builder neutrality”、§5.2 | observed | O, F14 |
+| J56 | BAP-710 正文没有提到 Flashbots、PUR 或 ERC-8324 | `grep -i "flashbots\|8324\|PUR" BAPs/BAP-710.md` 只命中 “Prio…” 接口名，0 次提及 Flashbots / ERC-8324 | observed | O |
+| J57 | BAP-710 的链上 registry 是 PUR 的改版（V2）；relayer 是 BSC 在 PUR 之外加的一层，把 PUR 模型里由每个 builder 承担的插入工作集中起来 | 由 J51–J56 推出 | inferred | O, F14 |
 | S1 | 近期开发分成三层：资产层（CAS20）、资源层（Payment Lane）、出块流水线（BEP-675 BidBlock + gRPC + gas limit 提升）；另有 BEP-706 / BEP-714 两个小改动和应用层的 BAP-710 | 由 J1、J9、J16、J35、J41、C1、P1 推出：Jenner 清单 + BidBlock 加固 + BAP 提案按作用层归类 | inferred | 导语, A |
 | S2 | BSC 的差异化正在从自研执行 / 存储优化转向协议层的金融基础设施（原生资产、支付容量保障、builder 出块流水线），执行引擎回归上游 geth | 由 J26、J27、J28 与 C2、P1、J9 推出：superinstruction / incr / multidb 被删，同期新增的都是协议层功能 | inferred | F12, F |
 | S3 | CAS20、Payment Lane、BAP-710 之间没有自动连接：CAS20 代币不会自动进入支付名单；经 Router 调用的支付不进 lane；BAP-710 的 bundle 不获得共识优先级 | 由 P6、P10、C26、J35 推出 | inferred | F6, F, F12 |

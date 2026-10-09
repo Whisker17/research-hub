@@ -6,7 +6,7 @@ cols: 4
 type: 技术调研 · 代码库深挖
 audience: 懂 EVM 和以太坊客户端基础的开发者，没有细读过 BSC 的 Parlia 与 MEV builder 流程
 scope: 2026-06 至 2026-10-09 的 bsc（Go）、reth-bsc（Rust）、BEPs / BAPs 仓库；Jenner 硬分叉；对比 Base B20 与 Tempo payment lane
-evidence: 139 条论断台账（observed 118 / inferred 17 / speculative 4）；源码 bsc @8cc60b2、reth-bsc @349f55c、BEPs @e9b2be3、base-std @a2954a8、base @f1f40ba、tempo @feb5dff；BSC 主网 RPC；访问于 2026-10-09
+evidence: 154 条论断台账（observed 131 / inferred 19 / speculative 4）；源码 bsc @8cc60b2、reth-bsc @349f55c、BEPs @e9b2be3、base-std @a2954a8、base @f1f40ba、tempo @feb5dff、flashbots/priority-update-registry @8701e8e；BSC 主网 RPC；访问于 2026-10-09
 date: 2026-10-09 · v1
 ---
 结论先行：BSC 近期的开发分成三层。资产层是 CAS20：客户端原生执行的合规代币，接口和存储布局逐项沿用 Base B20（[F1](#F1)、[F2](#F2)）。资源层是 Payment Lane：每个区块给支付交易保底 5% 的 gas（[F5](#F5)）。出块层是 BEP-675 BidBlock：它已经在主网承担约 98% 的区块（[F8](#F8)）。同一时期，BSC 删掉了自研的执行与存储优化，回归上游 geth（[F10](#F10)）。CAS20 和 Payment Lane 属于 Jenner 硬分叉，截至 2026-10-09 还没有进入任何 release（[F11](#F11)）。
@@ -20,7 +20,7 @@ date: 2026-10-09 · v1
 出块流水线 | BEP-675 BidBlock + gRPC
   gas limit | 55M → 70M（已上）→ 80M / 90M（目标）
 共识参数 | 备用验证者等待 2s → 1s（BEP-714）
-链下接入 | BAP-710 PropAMM Relayer（应用层）
+链下接入 | BAP-710 PropAMM Relayer + PUR 式 registry
 客户端底座 | geth v1.17.3 同步；reth-bsc 双客户端
 ```
 
@@ -637,7 +637,41 @@ reth-bsc 的流程是 Go 先实现，Rust 移植 [8]。CAS20 的 Rust 版回放 
 
 ### BAP-710：PropAMM Relayer（应用层提案）
 
-BAP-710 于 2026-10-08 合并进 BEPs 仓库，类型是 Application，不改共识 [4]。它让做市商只对接一个 relayer，taker 继续用标准 RPC。Fig 8 是流程。
+BAP-710 于 2026-10-08 合并进 BEPs 仓库，类型是 Application，不改共识 [4]。[[PropAMM]] 是做市商自己定价的池子：价格来自链下高频报价，不来自链上曲线。
+
+**它要解决的问题**。BAP §3.1 的说法是：做市商要把报价带上链，需要解决三件事 [4]：
+1. 低成本地发布报价；
+2. 保证 taker 按模拟时看到的报价成交；
+3. 有可靠的上链路径。
+
+今天在 BSC 上，每个做市商要为每个 builder 各做一遍。每个 taker 还要逐个对接每个做市商的合约和报价格式。BAP 把现有做法按“复杂度压在谁身上”做了对比 [4]：
+
+| 现有做法 | 复杂度在谁身上 |
+|---|---|
+| Solana PropAMM | 做市商：自建上链管道，每家重复 |
+| Base PropAMM | 做市商付 gas：每次更新都上链；模拟与成交之间状态会变 |
+| Titan | taker：订阅单一 builder 的 state override 流，自己组 bundle |
+| BAP-710 | 共享的 relayer 承担组包、分发、builder 适配 |
+
+**两组多对多，由两个部件分别消除** [4]：
+
+| 多对多 | 谁来消除 |
+|---|---|
+| 做市商 × builder | relayer：做市商只推一条 `pamm_sendQuoteUpdateV1` 流 |
+| taker × 做市商的格式 | 链上标准：统一的 registry + `IPropAMM` 池子接口 |
+
+**各角色要做什么** [4]：
+
+| 角色 | 集成工作 |
+|---|---|
+| 做市商 | 推一条报价流；池子实现 `IPropAMM`，从 registry 读报价 |
+| 钱包 | 只换 RPC 地址，交易模型不变 |
+| 聚合器 / solver | 现有适配器加 `IPropAMM`，`eth_call` 发给 relayer |
+| builder | 不改代码，只执行原子 bundle |
+
+聚合器有一条硬约束：只能把 PropAMM 路由返回给“交易会发到 relayer”的钱包。交易只发到公开 RPC，会因缺少报价更新而 revert；后果是失败，不丢资金 [4]。
+
+Fig 8 是一笔成交的流程。
 
 ```uml q="做市商的链下报价怎样和 taker 的普通交易一起上链？" read="源自 BAP-710 §4。relayer 是兼容 geth 的 RPC 端点；builder 只执行原子 bundle，没有 PropAMM 专用代码。" takeaway="报价不上链，直到有 taker 交易读到它；匹配依据是“报价写集 ∩ taker 读集”。"
 sequenceDiagram
@@ -660,6 +694,47 @@ sequenceDiagram
 ```
 
 链上的报价 registry **不检查过期**：relayer 和 builder 按截止时间丢弃过期报价。需要链上保护的池子，要在 `quote` / `swap` 里自己检查新鲜度 [4]。registry 里的 “lane” 指一份报价状态，与 Payment Lane 无关。
+
+relayer 是许可制的运营方：做市商和 taker 在它的控制台申请角色，管理员批准后发 API key；做市商可以只让指定 taker 看到报价 [4]。BAP 自己把“多 relayer 互通”列为应对单一运营方的长期办法。截至 2026-10-09，本文没有查到正在运营的 relayer。
+
+```finding F13 high
+# relayer 的核心是即时上链，不只是把集成工作集中起来
+结论: 报价平时不上链。某笔 taker 交易读到某个报价时，relayer 才把两者打成原子 bundle 发给所有 builder。这样，无人使用的报价不花 gas，模拟与成交之间也没有状态差。做市商 × builder 的重复由 relayer 消除；聚合器 × 做市商的格式差异由 `IPropAMM` 接口消除。
+证据: [observed] BAP-710 §3.1、§3.2、§4.5.4、§5.2 [4]（J43–J48）。[inferred] “核心是即时上链”由以上推出（J50）。
+影响: 聚合器接 PropAMM 的成本接近接一个 PancakeSwap 池子，但必须判断用户钱包是否走 relayer。
+```
+
+### 与 Flashbots PUR（ERC-8324）的关系
+
+[[PUR]]（Priority Update Registry）是 Flashbots 在以太坊上做的共享合约，参考实现在 `flashbots/priority-update-registry` [24]。它已提交为 ERC-8324 草案（ethereum/ERCs PR #1852，2026-07-03 创建，未合并），并部署在以太坊主网 [25]。
+
+PUR 的思路有三点 [24]：
+- 做市商的“优先更新”交易只能写 PUR 自身的 storage。因此 builder 不用模拟，也能知道它改了什么。
+- builder 把更新插在读取它的用户交易之前。
+- 没被读到的更新不上链。
+
+BAP-710 的链上 registry 和 PUR 同名同构，见下表 [4][24]：
+- 接口都叫 `IPrioUpdateRegistry`，方法名相同：`updateState` / `getState` / `addUpdater` / `isUpdater`。
+- 存储布局相同：每个 lane 最多 255 个 word，基址公式也相同。
+- BAP 的命名空间串是 `PrioUpdateRegistryV2.lane.v1`。
+- BAP §5.2 写道：“早期 registry 草案自己验证签名（`batchUpdateStateWithSignature`）”。这个函数名正是 PUR 的接口。
+
+BAP-710 正文没有提到 Flashbots 或 ERC-8324。
+
+| 维度 | Flashbots PUR | BAP-710 |
+|---|---|---|
+| 存储 | lane ≤ 255 word，base = keccak(ns, target, lane) + i | 相同（命名空间 V2） |
+| 新鲜度 | uint32 时间戳；registry 检查读写时间窗 | 48 位递增 seq；registry 不查过期 |
+| 签名 | 内置；时间窗内可重放 | 移到 decoder lane；seq 防重放 |
+| 谁插入更新 | 每个 builder 维护更新池，插在读取交易前 | relayer 匹配读写集、组 bundle；builder 不改 |
+| 标准化 | ERC-8324 草案，主网已部署 | BAP Draft，未见部署 |
+
+```finding F14 high
+# 和 PUR 作用相同的是 BAP-710 的链上 registry，不是 relayer
+结论: BAP-710 的 registry 是 PUR 的改版：接口和存储布局同名同构，新鲜度从时间戳改成递增 seq，签名移到 decoder。relayer 是 BSC 在 PUR 之外加的一层：PUR 要求每个 builder 自己插入更新，BAP-710 把这件事集中到一个对所有 builder 中立的 relayer。
+证据: [observed] PUR README 与合约 [24]；ERC-8324 PR [25]；BAP-710 §4.2、§5.2 [4]（J51–J56）。[inferred] “registry 是 PUR 改版，relayer 是新加的一层”（J57）。
+影响: 熟悉 PUR 的做市商，迁移到 BSC 时池子读报价的方式基本不变。要改的是新鲜度检查（时间戳改 seq）和提交路径（发给 relayer，不发给 builder）。
+```
 
 ## P 进度与方向 {depth=2}
 | 功能 | 规范 | Go（合并） | Rust（合并） |
@@ -703,6 +778,7 @@ sequenceDiagram
   - Jenner release 基于 v1.8 代码线（J40）
 - **双客户端差异**：Go 的 fast node 跳过 lane 检查而 Rust 不跳过；Rust 的 BidBlock 系统交易检查是否限定 legacy 类型，没有核实。
 - **采样很小**：主网 BidBlock 占比只采了 120 个块。
+- **BAP-710 没有落地数据**：没有查到正在运营的 relayer，也没有做市商或聚合器接入的公开信息。
 
 ## R 方法与证据 {depth=3}
 **方法**：本文是“代码库深挖”。三路并行调研，各自写分册和台账，再合并：
@@ -805,6 +881,8 @@ Payment Lane | 支付保底 | BEP-703：每块给支付交易保底一定比例�
 quota | 保底配额 | Payment Lane 的 Q = ratio × G / 10000，ratio 读父区块状态。
 BidBlock | 整块 bid | BEP-675：builder 提交已执行的整块，验证者封块前不重放。 | SendBid 只提交交易列表
 QANet | 内部测试网 | BNB Chain 的内部 QA 网络，不是公开测试网 Chapel。
+PropAMM | 专有 AMM | 做市商自己定价的池子，价格来自链下高频报价，不来自链上曲线。 | 不是普通 AMM
+PUR | 优先更新注册表 | Flashbots 的 Priority Update Registry（ERC-8324 草案）：只能写自身 storage 的共享合约，用来承载 builder 优先插入的报价更新。 | 不是 Payment Lane
 ```
 
 ## U 参考资料 {depth=2}
@@ -831,3 +909,5 @@ QANet | 内部测试网 | BNB Chain 的内部 QA 网络，不是公开测试网 
 21. BSC 主网 RPC `bsc-dataseed.bnbchain.org`（2026-10-09 采样）— gas limit 与 BidBlock 标记。**PRIMARY**
 22. [BNB Chain Tech Roadmap 2026](https://www.bnbchain.org/en/blog/tech-roadmap-2026) — 背景。
 23. ChatGPT Deep Research：`research/bsc-development-research.md` — 外部调研，只作线索。
+24. [flashbots/priority-update-registry @8701e8e](https://github.com/flashbots/priority-update-registry/tree/8701e8e13d74beef9126c3e1fbbe89c64ce0c0f6) — PUR 参考实现：接口、存储布局、builder 集成、主网部署。**PRIMARY**
+25. [ethereum/ERCs PR #1852](https://github.com/ethereum/ERCs/pull/1852) — ERC-8324 “Priority Update Registry” 草案，2026-07-03 创建，未合并。**PRIMARY**

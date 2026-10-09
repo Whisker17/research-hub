@@ -18,3 +18,9 @@ changelog:
     note: 创建（brief 快照）
   - date: 2026-10-09
     note: 首次发布：CAS20、Payment Lane、Jenner 与 BSC 近期开发方向
+  - date: 2026-10-09
+    note: 重新渲染（answer-me-with-html 0.2.2-research.2）
+  - date: 2026-10-09
+    note: 重新渲染（answer-me-with-html 0.2.2-research.2）
+  - date: 2026-10-09
+    note: 补充 BAP-710 relayer 的动机与各角色集成方式；新增与 Flashbots PUR（ERC-8324）的对比（F13、F14）

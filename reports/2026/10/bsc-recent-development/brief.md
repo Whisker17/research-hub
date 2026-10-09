@@ -13,6 +13,7 @@ visibility: private
 1. CAS20 precompile：它做什么、怎么做（stateful precompile 执行路径、Factory 与地址编码、Asset / Stablecoin 变体、角色 / 策略 / 扣押、gas 计量、Activation Registry 激活）？它和 Base B20 precompile 是什么关系：fork、参考设计后重写，还是各自独立？差异在哪里？
 2. Payment Lane：它做什么、怎么做（payment 交易如何分类、quota 如何计算与校验、读 parent state 与 live state 的分工、在出块 / 验块流水线中的位置）？它和 Tempo 的 payment lane 是否是同类设计？异同在哪里？
 3. 我没注意到的其他开发方向：盘点 bsc / reth-bsc / BEPs 仓库近期的主要开发线（例如 Jenner 范围内的其他 BEP、Builder Blind Signing / BidBlock、上游 geth 同步与回撤、BAP-710 PropAMM Relayer 等），每条讲清做什么、怎么做、原理和工作流程。
+   - （2026-10-09 补充）BAP-710 的 relayer 为什么存在：是不是为了减少做市商与多个聚合器之间的重复集成？它和以太坊上 Flashbots 的 PUR（Priority Update Registry）合约是什么关系？
 4. 进度：每个功能分别处于 规范 → Go / Rust 实现合并 → release → 测试网 / 主网硬分叉 → 治理或管理员激活 的哪一步？
 5. 合起来看，BSC 近期的发展方向是什么？
 
