@@ -1,0 +1,20 @@
+title: BSC 近期开发方向：CAS20、Payment Lane 与 Jenner 升级
+summary: 讲清 BSC 近几个月在开发的 CAS20 原生资产、Payment Lane 支付预留空间等功能是做什么的、怎么实现、进度到哪，并与 Base B20、Tempo 对比
+created: 2026-10-09
+updated: 2026-10-09
+domain: crypto
+tags:
+  - bsc
+  - payment
+  - rwa
+  - propamm
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/BSC Recent Development.md
+am_version: 0.2.2-research.2
+changelog:
+  - date: 2026-10-09
+    note: 创建（brief 快照）
+  - date: 2026-10-09
+    note: 首次发布：CAS20、Payment Lane、Jenner 与 BSC 近期开发方向

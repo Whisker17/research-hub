@@ -5,6 +5,8 @@ tags:
     label: 账户抽象
   ai-agent:
     label: AI Agent
+  bsc:
+    label: BSC / BNB Chain
   dex:
     label: DEX
   eip:
@@ -19,6 +21,8 @@ tags:
     label: NEAR
   paper:
     label: 论文导读
+  payment:
+    label: 支付
   propamm:
     label: PropAMM
   routing:
