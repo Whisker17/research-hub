@@ -438,22 +438,24 @@ stateDiagram-v2
 
 **9. [[default code]]**：对没有代码的 EOA，VERIFY 帧执行协议内置的默认规则：检查 secp256k1 签名，然后 APPROVE。所以 EOA 不部署合约也能用批处理和代付，但**没有** Session key 和额度控制。
 
-## N 8141 例子：同一个 Alice {depth=2}
-**第 1 步 · 开户**：8141 没有 Create 配置项，开户靠前面的部署帧。
+## N 8141 例子：交易生命周期与同一个 Alice {depth=2}
+**核心概念：为什么 VERIFY 帧由智能合约执行？**
+传统以太坊由节点在 EVM 外用固化代码（`ecrecover`）验签。在 8141 中，Alice 的账户本身就是链上的钱包合约 A。节点不感知具体的密码学算法或权限规则。执行 VERIFY 帧时，节点启动 EVM 只读沙箱运行 A 的代码。钱包合约在沙箱内完成自定义验签并决定是否放行。
 
-| 帧 | 模式 | 目标 | 作用 |
-|---|---|---|---|
-| F0 | DEFAULT | Factory | 部署 A，Owner 固定为 `K_Alice` |
-| F1 | VERIFY | A | 运行刚部署的验证代码，检查 Alice 签名，`APPROVE(0x2)` |
-| F2 | VERIFY | P | 审核代付，`APPROVE(0x1)` |
+**实战场景：Alice 经平台 P 代付买入 100 USDC 代币**
+以 Alice 用 Passkey 签名、平台 P 代付 Gas 买入为例：
+1. **链下组装**：客户端组装 Type 0x06 交易，包含 4 个帧：F0 是 A 的 VERIFY 帧；F1 是 P 的 VERIFY 帧；F2 是 SENDER 帧（`USDC.approve`，带 flag `0x4` 原子组标记）；F3 是 SENDER 帧（`Launchpad.buy`）。
+2. **执行 F0（账户自我安检）**：节点在只读沙箱运行 A 的代码。A 用 `SIGDATACOPY` 读入签名并验证。A 用 `FRAMEPARAM` 与 `FRAMEDATALOAD` 透视后续帧。A 确认 F2、F3 目标合规且金额在预算内，执行 `APPROVE(0x2)`。协议标记 `sender_approved = true`。
+3. **执行 F1（代付赞助安检）**：节点运行 P 的合约代码。P 验证代付凭据并确认余额充裕，执行 `APPROVE(0x1)`。协议标记 `payer = P`。
+4. **协议握手分水岭**：`sender_approved` 为真且存在 `payer`，交易正式有效。协议消耗 A 的 nonce，并从 P 预扣最大 Gas 费。若任一 VERIFY 帧失败，交易直接丢弃，不消耗 nonce 和 Gas。
+5. **执行 F2 与 F3（业务执行）**：节点切入 SENDER 模式，被调方看到的 `msg.sender` 真实为 A。现有 DeFi 合约无需修改即可兼容。F2 与 F3 组成原子组，若 F3 失败，F2 的授权一同回滚。
+6. **结算**：退还多余 Gas 给 P，交易打入区块。
 
-F1 或 F2 失败时整笔交易无效，部署也不保留。初始化代码要保证“任何人提交同一份部署材料，都只能得到 Alice 控制的 A”。
+**进阶：Alice 首次开户与授权 Agent**
+- **首次开户**：8141 无需专门开户配置。交易第一帧用 DEFAULT 模式调用 Factory 部署 A，后续帧紧接着跑 A 的 VERIFY 与业务。
+- **授权 Agent**：Alice 发送交易，F0 VERIFY 验证其身份，F1 SENDER 调用 `A.authorizeSession(K_Agent, 规则)` 写入存储。VERIFY 为只读模式，授权状态必须在 SENDER 帧写入。
 
-**第 2 步 · Alice 亲自买入**：F0 VERIFY（`APPROVE(0x3)`，自付）；F1 SENDER `USDC.approve`（flag `0x4`）；F2 SENDER `buy`（flag `0x0`）。F1 与 F2 是一个原子组，F2 失败时 allowance 一起回滚，F0 已消耗的 nonce 和 Gas 不退。
-
-**第 3 步 · 授权 Agent**：Alice 发一笔交易，F0 VERIFY 验证她的 Owner 身份，F1 VERIFY 批准代付，F2 SENDER 调用 `A.authorizeSession(K_Agent, 规则)`，把 Session 写进 A 的存储。VERIFY 是只读的，所以授权必须在 SENDER 帧里写入。Session 的字段、撤权方式、版本号都由账户代码定义，协议没有统一格式。
-
-**第 4 步 · Agent 代付买入**
+**Agent 代付买入**
 
 ```uml q="Agent 签名、平台代付时，8141 的检查发生在哪些帧？" read="F4、F5 是原子组；F3 在组外。executeSessionBuy 是教学设计。" takeaway="账户代码在 F1 用内省审查全部后续帧；累计预算在 F5 执行时检查。报销在组外，买入失败也保留。"
 sequenceDiagram

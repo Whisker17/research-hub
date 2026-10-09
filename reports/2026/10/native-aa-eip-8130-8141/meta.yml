@@ -29,3 +29,7 @@ changelog:
     note: 重新渲染（answer-me-with-html 0.2.2-research.2）
   - date: 2026-10-09
     note: 补充 policy 拦截对比与 nonce-free 运作机制
+  - date: 2026-10-09
+    note: 重新渲染（answer-me-with-html 0.2.2-research.2）
+  - date: 2026-10-09
+    note: 重构 8141 交易生命周期与智能合约验证流程
