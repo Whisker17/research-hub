@@ -261,7 +261,9 @@ Scope 是“授予”，不是“限制”：位越多，权限越大。`OPERATO
 为了让旧的 ERC-1271 订单接口通过而追加 OPERATOR，会让 Agent 绕过 Manager 门禁。改用 Actor-aware 的签名验证接口。
 ```
 
-**3. [[Policy Manager]] 门禁**：对“有 POLICY、无 OPERATOR”的 Actor，协议检查每个顶层调用的 `call.to == policy_manager`。不匹配时抛出 `ActorPolicyViolation`，当前 [[Phase]] 失败。这是**执行阶段的失败**，不是无效交易：nonce 和 Gas 照样消耗。协议只管“入口地址”，额度、市场、接收人、累计预算由 Manager 检查。Keystore 里的 `policy_commitment` 是 Owner 批准的规则哈希，Manager 用它防止 Agent 偷换参数。
+**3. [[Policy Manager]] 门禁**：8130 的受限权限采用“协议层物理关门 + 合约层搜身安检”两层防御：
+- **协议层（物理关门）**：节点不感知上层业务规则（如滑点、白名单）。对“有 POLICY、无 OPERATOR”的 Actor，顶层调用必须满足 `call.to == policy_manager`。若试图直调外部合约，协议抛出 `ActorPolicyViolation`，当前 [[Phase]] 失败。这是执行阶段的失败，nonce 和 Gas 照样消耗，防止恶意轰炸节点。
+- **合约层（业务安检）**：Manager 读出 Keystore 里的策略哈希（`policy_commitment`）。它逐项核对单笔限额、累计预算和接收人白名单。规则不符时合约主动回滚。
 
 **4. 交易信封与双签名域**：`0x79` 交易带 `sender`、二维 nonce、有效期、`account_changes`、多组 `calls`、`payer`、`sender_auth`、`payer_auth`。操作签名与付款签名用不同的域前缀：
 
@@ -282,9 +284,12 @@ Scope 是“授予”，不是“限制”：位越多，权限越大。`OPERATO
 
 **6. [[2D nonce]] 与 [[nonce-free]]**
 
-- 有序通道：`(account, nonce_key, nonce_sequence)`。不同 key 互不阻塞，同 key 仍然有序。只读预编译地址 `0x8130…aa01`。
-- NONCE scope 授予**全部**有序空间，不按 Actor 分通道。“Agent A 用 key 7”只是 SDK 约定，协议不阻止它消费 key 8。
-- nonce-free：`nonce_key = 2^256−1`、`nonce_sequence = 0`，并设置短 `valid_before`。协议用有界环形缓冲区记录 [[replay_id]]，窗口内去重。缓冲区是共识状态，容量要 ≥ 峰值速率 × 最大窗口。
+- 有序通道（2D Nonce）：`(account, nonce_key, nonce_sequence)`。不同 key 互不阻塞，同 key 仍然有序。只读预编译地址 `0x8130…aa01`。NONCE scope 授予全部有序空间，不按 Actor 分通道。
+- 无序模式（nonce-free）：高频场景（如高频撤单、游戏）无需排队顺序。交易设 `nonce_key = 2^256−1` 且 `nonce_sequence = 0` 时触发此模式。
+- nonce-free 防重放机制：账户不更新链上计数器，靠三件套防重放：
+  1. **短有效期**：强制指定 `valid_before`。过期交易全网作废。
+  2. **指纹 [[replay_id]]**：由交易核心字段计算哈希。排除 Gas 费与签名，提价加速不改变重放身份。
+  3. **环形缓冲区去重**：共识状态维护有界环形缓冲区（Ring Buffer）。命中已有指纹直接拒绝，写入时循环复用槽位。固定只耗 13,000 Gas，不留永久状态。
 
 **7. [[Phase]]：原子性的单位**
 
@@ -313,13 +318,21 @@ Scope 是“授予”，不是“限制”：位越多，权限越大。`OPERATO
 
 **第 2 步 · Alice 亲自买入**：`calls = [[USDC.approve(L, 100), L.buy(100, minOut, A)]]`，一个 Phase。Alice 是 ADMIN，不经过门禁。`buy` 失败时，同 Phase 的 `approve` 一起回滚。
 
-**第 3 步 · 授权 Agent**：Alice 签一份 Config change，新增 `agent-key`。配置为：认证器 `k1`，scope `POLICY | NONCE`，24 小时后到期，`policy_manager = A`。同时写入规则哈希：单笔 ≤ 100 USDC，累计 ≤ 300 USDC，资产只能回到 A。这里假设 A 的代码是会检查 Actor 与规则的策略账户。
+**第 3 步 · 授权 Agent**：Alice 想让 Agent 替她高频自动买 MEME 币，但绝不能给 `OPERATOR` 权限。若有 `OPERATOR`，Agent 私钥泄露后可直调 `USDC.transfer(黑客地址)` 卷空资产。Alice 签一份 Config change，仅授予 `POLICY | NONCE`（关入门禁），24 小时后到期，绑定 `policy_manager = A`。同时写入规则哈希：单笔 ≤ 100 USDC，累计 ≤ 300 USDC，资产只能回到 A。这里假设 A 的代码是会检查 Actor 与规则的策略账户。
 
 ```callout warn CAUTION：manager = A 时不能只看 msg.sender
 协议发出的调用本来就是 A 调 A。账户代码必须从交易上下文读出本次的 actorId，再按该 Actor 的规则检查。默认账户代码信任自调用，不能直接当策略账户。
 ```
 
-**第 4 步 · Agent 代付买入**
+**第 4 步 · Agent 代付买入与三类行为对比**
+
+Agent 持有受限私钥后的三类典型行为与防御分工：
+- **场景 A（试图偷钱）**：Agent 构造交易直接调用 `USDC.transfer(黑客, 1000)`。
+  👉 **拦截点**：在协议第一层被拦截（`call.to ≠ manager`），抛出 `ActorPolicyViolation`，当前 Phase 直接失败。
+- **场景 B（试图超额）**：Agent 经 Manager 尝试买入 1,000 USDC 的代币。
+  👉 **拦截点**：第一层协议门禁放行，但在 Manager 合约内部被单笔限额规则（≤ 100 USDC）拦截，合约主动 `revert`。
+- **场景 C（合规买入）**：Agent 经 Manager 买入 50 USDC 且接收人指定为 Alice。
+  👉 **放行**：两层检查全部通过，Launchpad 成交，买入的代币安全回流 Alice 账户。
 
 ```uml q="Agent 用自己的钥匙签名、平台代付时，8130 的检查分几层？" read="rect 标出两个 Phase。示例函数 executePolicy 是教学设计。" takeaway="协议检查身份、scope、nonce 和入口地址；Manager 检查业务规则。报销在 Phase 0，买入失败不影响它。"
 sequenceDiagram
