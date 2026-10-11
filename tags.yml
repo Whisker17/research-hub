@@ -17,6 +17,8 @@ tags:
     label: Mantle
   meme:
     label: Meme
+  mev:
+    label: MEV 与交易排序
   near:
     label: NEAR
   paper:

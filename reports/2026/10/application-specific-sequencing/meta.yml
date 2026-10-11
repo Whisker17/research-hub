@@ -1,0 +1,20 @@
+title: 应用特定排序（ASS / ACE）：跨生态实现与 Mantle 的区块空间再分配
+summary: 盘点各生态（重点 EVM）应用特定排序的实现方式、强制力来自哪一层、代价是什么，并据此为 Mantle 设计按应用 / 操作分配区块空间与排序规则的方案
+created: 2026-10-11
+updated: 2026-10-11
+domain: crypto
+tags:
+  - mantle
+  - mev
+  - payment
+  - dex
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/Application Specific Sequencing.md
+am_version: 0.5.0-research.1
+changelog:
+  - date: 2026-10-11
+    note: 创建（brief 快照）
+  - date: 2026-10-11
+    note: 首次发布：ASS / ACE 跨生态实现与 Mantle 五车道调度设计
