@@ -11,6 +11,8 @@ tags:
     label: DEX
   eip:
     label: EIP
+  hyperliquid:
+    label: Hyperliquid
   interop:
     label: 跨链互操作
   mantle:
@@ -25,6 +27,8 @@ tags:
     label: 论文导读
   payment:
     label: 支付
+  perps:
+    label: 永续合约
   propamm:
     label: PropAMM
   routing:

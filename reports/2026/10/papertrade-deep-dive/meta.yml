@@ -1,0 +1,20 @@
+title: Papertrade 深度拆解：Vault 对手方永续、亏损铸币与 Mantle 复现条件
+summary: 讲清 Papertrade 的交易、定价、偿付队列与 PAPER 发行机制及上线后暴露的风险，对照同类 vault 对手方永续，并判断这类产品在 Mantle 上复现需要哪些前序能力、Mantle 能否提供
+created: 2026-10-13
+updated: 2026-10-13
+domain: crypto
+tags:
+  - perps
+  - hyperliquid
+  - mantle
+  - security
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/Papertrade Deep Dive.md
+am_version: 0.5.0-research.1
+changelog:
+  - date: 2026-10-13
+    note: 创建（brief 快照）
+  - date: 2026-10-13
+    note: 首次发布：Papertrade 机制、链上核对、操纵事件、同类对照与 Mantle 复现条件

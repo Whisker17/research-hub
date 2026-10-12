@@ -1,0 +1,212 @@
+                                                  Martin Galer
+      A Bootstrapping Mechanism for Sustainable Asynchronous Speculation Games of Chance
+
+
+                                      Jez                      Blurr
+                                  @izebel eth        Refund Contract Deployer
+
+
+
+                                                         Abstract
+        We propose a mechanism for bootstrapping a generic onchain speculation game, without requiring an initial or
+     incentivized LP pool (also known as a bankroll). This allows for the creation of new games with no upfront capital
+     commitment, with a few other emergent properties such as: unconstrained bet sizing, negative house edge (+EV
+     bets), eventual solvency, token emissions and more...
+
+
+1     Premise                                             where players could bet on virtual dice rolls, using smart
+                                                          contracts to allow players to set their own odds and pay-
+1.1 History of Onchain Games of Chance outs, while ensuring transparency. EtherCrash, launched
+                                                          in 2018, followed the crash game model, where players bet
+Onchain speculation games of chance have existed in the
+                                                          on how long a multiplier would increase before crashing.
+cryptocurrency ecosystem since the beginning, offering
+a blend of transparency, decentralization, and innova-
+tion that traditional online gambling platforms could not 1.2 Limitations of Existing Mechanisms
+match. These games leverage blockchain technology to
+provide provably fair experiences, immutable transaction Despite the advancements and popularity of onchain
+records, and often decentralized operations, appealing to games of chance, several limitations persist, impacting
+users seeking fairness and transparency.                  their efficiency and user experience:
+
+     SatoshiDice: Pioneering Bitcoin Gambling                     Need for Initial Liquidity Providers (LP):
+                                                                   Most onchain games require an initial liquidity pool
+  Launched in April 2012 by Erik Voorhees, SatoshiDice             to function. This pool ensures that players can re-
+was the first major onchain speculation game. Players              ceive payouts promptly. However, establishing this
+sent Bitcoin to different addresses, each with a specific          pool can be challenging, as it requires significant ini-
+probability of winning and corresponding payout. The               tial capital.
+outcome was determined by a combination of the wa-
+ger’s transaction hash and a secret salt, ensuring fair-          Incentivizing Liquidity Providers: To attract
+ness and transparency. SatoshiDice quickly became im-              and retain liquidity providers, platforms often need
+mensely popular, accounting for a significant portion of           to offer incentives such as a share of the profits or
+Bitcoin transactions in its early years.                           tokens. This requirement can complicate the plat-
+                                                                   form’s economic model and affect its sustainability.
+        Bustabit: Innovating Crash Games
+
+   Introduced in 2015, Bustabit pioneered crash gambling          Constraint on Bet Sizing: The size of bets that
+games. Players bet on a multiplier that increases until            players can place is often constrained by the size
+it crashes, with the option to cash out before the crash.          of the liquidity pool. If the pool is small, it limits
+This introduced a social dimension to onchain gambling,            the maximum possible bet, potentially discouraging
+as players could see and react to each other’s bets and            high-stakes players and limiting the game’s appeal.
+decisions.
+                                                                  Solvency Concerns: Players must continually
+    Etheroll & EtherCrash: Ethereum Iterations                     evaluate the solvency of the platform they inter-
+                                                                   act with. Notably, EtherCrash had a bad actor
+  With Ethereum’s smart contract capabilities, the land-           drain the LP. Platforms like Rollbit, which offer
+scape of onchain speculation games expanded beyond Bit-            the blockchain-based Rollercoaster game, continue to
+coin. Etheroll, launched in 2017, offered a dice game              suffer from this concern.
+
+
+                                                             1
+2      Proposal                                              2.3    Solvency Ratio Invariant
+                                                           The Solvency Ratio Invariant (SRI) defines whether the
+We introduce a novel mechanism that addresses the
+                                                           protocol can pay out new wagers. The solvency ratio is
+stated concerns, by utilizing a queue-based payout sys-
+                                                           defined as:
+tem to allow the protocol to sustain temporary overall
+insolvencies.                                                                 (ETH in the treasury) + (Eth in the queue)
+                                                           Solvency Ratio =
+                                                                                        Liabilities of the queue
+                                                                                                                 (1)
+2.1 High Level Design Choices                              The eth in the treasury is the protocol’s accumulated eth
+                                                           from losses, edge, etc...
+The proposed mechanism allows for great flexibility with
+respect to game design, allowing game creators to specify: The eth in the queue is the total unpaid won input
+                                                           wagers (minus any taxes).
+   payout structure and odds
+                                                           The liabilities of the queue is the total unpaid win-
+   house edge (+ or -)                                    nings of the above input wagers.
+
+     a solvency ratio invariant                             At one extreme, an SRI of 1.0 would require the
+                                                             protocol to be fully solvent in order to pay out any
+                                                             wager. In practice, this means that anytime the protocol
+    without having to deal with:
+                                                             would be insolvent, it will queue all subsequent won
+                                                             wagers until enough losses/edge builds up to pay the
+     initializing or incentivizing a LP pool                entire queue out.
+
+     constraining bet size based on the LP pool             At the other end, an SRI of 0.0 would indiscrimi-
+                                                             nately pay out the front of the queue with subsequent
+     designing token emissions                              wagers.
+
+                                                             One elegant way to construct an SRI is to
+2.2     Payout Queue System                                  define it as:
+The core of the new mechanism is a novel payout queue.           (ETH in the treasury) + (ETH in the queue)
+This system ensures that the protocol remains solvent             Pn                   >                      (2)
+while managing payouts efficiently and fairly.                       i=1 Wageri , where n is the queue length
+
+After each gameplay iteration, a protocol imple- With this definition, the protocol can let the queued un-
+menting this mechanism evaluates its ability to pay out paid won wagers withdraw their input (forfeiting any win-
+based on a predefined solvency ratio.                   nings). This allows ”stuck” participants to recoup some
+                                                        eth, while increasing the solvency of the remaining queue.
+The queue logic is essentially:
+                                                             2.4    Yield-Bearing Wager Denominations
+ 1. a new wager is placed and wins
+                                                             If the wager currency generates native yield, the queue
+                                                             system will naturally increase its solvency ratio over time.
+ 2. if a queue already exists:
+
+       (a) add wager to the end of the queue                 2.5    Token Emissions
+     (b) evaluate whether the front of the queue can be Token emissions enable games with a positive house edge
+          paid out, determined by the solvency ratio    to present as +EV for the player by immediately remu-
+                                                        nerating them with a liquid token. The basic emission
+      (c) if yes, pay out the front of the queue        framework features a linearly decreasing reward based on
+                                                        game iteration, encouraging early participation and initi-
+ 3. if no existing queue:                               ating the flywheel effect.
+                                                           A tax on wagers (similar to a house edge) can incen-
+     (a) evaluate whether the wager can be paid out, tivize token ownership through a buy-and-burn mecha-
+          determined by the solvency ratio              nism, which will price in future cash flows. Additionally,
+                                                        token emissions can be linked to queue length to incen-
+     (b) if yes, pay out the wager
+                                                        tivize wagers when the protocol is temporarily insolvent
+      (c) otherwise, create a queue of length one       and a queue exists.
+
+
+                                                         2
+3      Examples                                           As demonstrated, the state of the perfectly fair coin flip
+                                                        game depends on the outcome variance - with no ability
+In order to better demonstrate this mechanism, here are to accumulate treasury via edge, the treasury is vulnera-
+a few example simulations of different games of chance. ble to bad runs at any point in its lifecycle. The queue
+                                                        mechanism allows the protocol to absorb this variance.
+3.1     Fair Coin Flip
+This protocol is defined as a perfectly fair coin flip, with 3.2 ”3/4 Chance to Win 4/3”
+no house edge or taxes included.                             The payout structure for this game is:
+
+The payout structure is thus:                                 3/4 chance to win wager * 1.33
+     50% chance to win double the wager                      1/4 chance of total loss
+     50% chance of total loss
+                                                            The house edge in this game is thus 0.25%. We then
+We then simulate one million iterations with input fee 1. simulate one million iterations with input fee 1.
+
+
+
+
+                                                         3
+4    Async vs Synchronous Games                        [8] T. Diamandis, A. Evans, T. Chitra, G. Angeris,
+                                                           “Dynamic Pricing for Non-fungible Resources: De-
+A strong motivation for proposing this mechanism is to     signing Multidimensional Blockchain Fee Markets,”
+remove the constraints from launching an asynchronous      https://arxiv.org/pdf/2208.07919, 2022.
+game.
+                                                       [9] K. Kulkarni, T. Diamandis, T. Chitra, “To-
+It is the author’s opinion that asynchronous games         wards a Theory of Maximal Extractable
+are far superior to synchronous games. Synchronous         Value I: Constant Function Market Makers,”
+games, such as tournaments or peer-to-peer wagers          https://arxiv.org/pdf/2207.11835, 2022.
+require much higher levels of coordination, which often [10] G. Angeris, T. Chitra, A. Evans, S. Boyd, “Opti-
+limits participation to those who can commit to being         mal Routing for Constant Function Market Makers,”
+available at the same time as other players. Without          https://arxiv.org/pdf/2204.05238, 2022.
+enough player density, marginal participants may not be
+able to play on demand.                                   [11] A. Obadia, A. Salles, L. Sankar, T. Chitra, V. Chel-
+                                                              lani, P. Daian, “Unity is Strength: A Formaliza-
+However, the LP requirements of asynchronous games            tion of Cross-Domain Maximal Extractable Value,”
+often proves challenging to aspiring game designers, who      https://arxiv.org/pdf/2112.01472, 2021.
+may not be able to provide the bankroll, or have no
+                                                          [12] G. Angeris, A. Evans, T. Chitra, “Repli-
+desire to raise one. As a result, designers often default
+                                                              cating Monotonic Payoffs Without Oracles,”
+to parimutuel, synchronous game designs where players
+                                                              https://arxiv.org/pdf/2111.13740, 2021.
+bring their own capital, thus alleviating the need for a
+large initial liquidity provision.                        [13] G. Angeris, A. Agrawal, A. Evans, T. Chi-
+                                                              tra, S. Boyd, “Constant Function Market Mak-
+By introducing this mechanism and removing the                ers: Multi-Asset Trades via Convex Optimization,”
+LP requirement and bet size constraints, we hope to see       https://arxiv.org/pdf/2107.12484, 2021.
+the creation of more novel, asynchronous games.
+                                                          [14] A. Evans, G. Angeris, T. Chitra, “Optimal
+                                                              Fees for Geometric Mean Market Makers,”
+References                                                    https://arxiv.org/pdf/2104.00446, 2021.
+                                                          [15] G. Angeris, A. Evans, T. Chitra, “Replicating Mar-
+[1] T. Chitra, K. Kulkarni, M. Pai, T. Diaman-                ket Makers,” https://arxiv.org/pdf/2103.14769, 2021.
+    dis, “An Analysis of Intent-Based Markets,”
+    https://arxiv.org/pdf/2403.02525, 2024.               [16] G. Angeris, A. Evans, T. Chitra, “A Note on
+                                                              Privacy in Constant Function Market Makers,”
+[2] G. Angeris, T. Chitra, T. Diamandis, K. Kulkarni,         https://arxiv.org/pdf/2103.01193, 2021.
+    “The Specter (and Spectra) of Miner Extractable
+    Value,” https://arxiv.org/pdf/2310.07865, 2023.       [17] G. Angeris, A. Evans, T. Chitra, “When Does the
+                                                              Tail Wag the Dog? Curvature and Market Making,”
+[3] T. Chitra,       “Towards a Theory of Max-                https://arxiv.org/pdf/2012.08040, 2020.
+    imal    Extractable     Value    II:    Uncertainty,”
+                                                          [18] T. Chitra, A. Evans, “Why Stake When You Can
+    https://arxiv.org/pdf/2309.14201, 2023.
+                                                              Borrow?,” https://arxiv.org/pdf/2006.11156, 2020.
+[4] G. Angeris, T. Chitra, T. Diamandis, A. Evans, K. [19] G. Angeris, T. Chitra, “Improved Price Or-
+    Kulkarni, “The Geometry of Constant Function Mar-     acles:     Constant Function Market Makers,”
+    ket Makers,” https://arxiv.org/pdf/2308.08066, 2023.  https://arxiv.org/pdf/2003.10001, 2020.
+
+[5] T. Chitra, P. Erins, K. Kulkarni,          “Attacks [20] T.    Chitra,     “Competitive    Equilibria   Be-
+    on Dynamic DeFi Interest Rate              Curves,”     tween     Staking     and    On-Chain     Lending,”
+    https://arxiv.org/pdf/2307.13139, 2023.                 https://arxiv.org/pdf/2001.00919, 2020.
+                                                     [21] G. Angeris, H.-T. Kao, R. Chiang, C. Noyes,
+[6] T. Diamandis, M. Resnick, T. Chitra, G. An-
+                                                         T. Chitra, “An Analysis of Uniswap Markets,”
+    geris, “An Efficient Algorithm for Optimal Rout-
+                                                         https://arxiv.org/pdf/1911.03380, 2019.
+    ing Through Constant Function Market Makers,”
+    https://arxiv.org/pdf/2302.04938, 2023.          [22] T. Chitra, M. Quaintance, S. Haber, W. Mar-
+                                                         tino, “Agent-Based Simulations of Blockchain
+[7] T. Chitra, M. V. X. Ferreira, K. Kulkarni,           Protocols Illustrated via Kadena’s Chainweb,”
+    “Credible, Optimal Auctions via Blockchains,”        https://arxiv.org/pdf/1904.12924, 2019.
+    https://arxiv.org/pdf/2301.12532, 2023.
+
+
+                                                        4
+
