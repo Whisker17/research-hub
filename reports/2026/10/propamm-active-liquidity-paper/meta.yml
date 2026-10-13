@@ -1,7 +1,7 @@
 title: PropAMM 论文导读：Active Liquidity On Chain（arXiv 2609.38056）
 summary: 成交后 2 秒，propAMM 赚 0.37–1.69 bps，AMM 亏 0.22–2.06 bps。优势有四个来源，其中 spoofing 的成本由用户承担。
 created: 2026-10-04
-updated: 2026-10-05
+updated: 2026-10-13
 domain: work
 tags:
   - dex
@@ -12,7 +12,7 @@ status: published
 visibility: private
 kind: imported
 source_repo: https://github.com/Whisker17/mantle-v3-roadmap.git:1-rfs-propamm/explainers/2026-10-04-propamm-active-liquidity-paper.md@b819a33（未提交的工作区文件）
-am_version: 0.2.2-research.2
+am_version: 0.5.2-research.1
 changelog:
   - date: 2026-10-04
     note: 导入
@@ -22,3 +22,17 @@ changelog:
     note: 改为公开（暂不启用私有站点）
   - date: 2026-10-05
     note: 改回私有（Access：本人 + @mantle.xyz）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+title_en: "PropAMM Paper Reading: Active Liquidity On Chain (arXiv 2609.38056)"
+summary_en: Two seconds post-trade, propAMMs earn +0.37 to +1.69 bps while passive AMMs lose -0.22 to -2.06 bps. Four mechanisms drive this advantage, with users bearing the cost of spoofing.

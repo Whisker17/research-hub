@@ -1,7 +1,7 @@
 title: 原子同步可组合交易（EEZ）：原理、首笔主网交易与 Mantle L2↔L3
 summary: 讲清 L1↔L2 原子同步（AS）交易怎么实现、要改哪些 infra，解码 2026-10-05 的首笔主网交易，对比其他同步可组合路线，并分析对 Mantle L2↔L3 的意义
 created: 2026-10-06
-updated: 2026-10-07
+updated: 2026-10-13
 domain: crypto
 tags:
   - mantle
@@ -10,9 +10,15 @@ status: published
 visibility: private
 kind: native
 brief_source: Research Briefs/Atomic Synchronous Composability.md
-am_version: 0.2.2-research.2
+am_version: 0.5.2-research.1
 changelog:
   - date: 2026-10-06
     note: 创建（brief 快照）
   - date: 2026-10-07
     note: 发布
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+title_en: "Atomic Synchronous Composability (EEZ): Mechanics, First Mainnet Tx & Mantle L2↔L3"
+summary_en: Explaining L1↔L2 atomic synchronous transactions and required infra upgrades, decoding the first mainnet transaction on 2026-10-05, benchmarking synchronous composability models, and analyzing implications for Mantle L2↔L3.

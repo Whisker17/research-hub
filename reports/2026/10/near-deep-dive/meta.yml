@@ -1,7 +1,7 @@
 title: NEAR 深度拆解：分片链架构、Intents / Privacy / AI 产品栈与生态
 summary: NEAR 的 Intents、Privacy、AI 不共用一个 VM，而是共用账户与授权、intents.near 账本和一个同时做签名 / CKD / 外链验证的 MPC 网络。用户真正接受的是跨链兑换（30 天 44 亿美元，靠外部渠道分发）；产品驱动 infra 只在账户层和分片布局成立。附 Mantle 启示：NEAR Intents 目前不支持 Mantle。
 created: 2026-10-07
-updated: 2026-10-07
+updated: 2026-10-13
 domain: crypto
 tags:
   - near
@@ -12,9 +12,15 @@ status: published
 visibility: private
 kind: native
 brief_source: Research Briefs/NEAR Deep Dive.md
-am_version: 0.2.2-research.2
+am_version: 0.5.2-research.1
 changelog:
   - date: 2026-10-07
     note: 创建（brief 快照）
   - date: 2026-10-07
     note: 发布
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+title_en: "NEAR Deep Dive: Sharding Architecture, Intents/Privacy/AI Stack & Ecosystem"
+summary_en: NEAR's Intents, Privacy, and AI stacks share accounts, an intents.near ledger, and an MPC network rather than a single VM. Users primarily consume cross-chain swaps ($4.4B in 30 days via external distribution); product-driven infra holds only at the account and sharding tiers.

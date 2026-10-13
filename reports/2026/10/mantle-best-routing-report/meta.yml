@@ -1,7 +1,7 @@
 title: Mantle 聚合器最佳路由：19 个算法的实验报告与解析
 summary: 在同一冻结快照上，共享池拆单比 Uniswap SOR 端口平均少损失 3.9 bps；4 跳 history label 搜索最接近已知最优；0.2.3 的拆分精修和分支激活从不更差，但只多出零点几 bps。下一步把同一套算法接到实时状态和 eth_call 执行验证上。
 created: 2026-10-05
-updated: 2026-10-07
+updated: 2026-10-13
 domain: work
 tags:
   - dex
@@ -11,7 +11,7 @@ status: published
 visibility: private
 kind: imported
 source_repo: git@github.com:Whisker17/router-algorithms-optimizer.git:docs/external/routing-report/2026-10-05-best-routing-report.md@95d0744（未提交的工作区文件）
-am_version: 0.2.2-research.2
+am_version: 0.5.2-research.1
 changelog:
   - date: 2026-10-05
     note: 导入
@@ -31,3 +31,9 @@ changelog:
     note: 重新渲染（answer-me-with-html 0.2.2-research.2）
   - date: 2026-10-07
     note: 新增 0.2.3 后处理方向：split_polish / marginal_activation 与 research-023 campaign
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+title_en: "Mantle Aggregator Optimal Routing: Empirical Evaluation of 19 Algorithms"
+summary_en: On identical frozen snapshots, shared-pool split routing reduces slippage by 3.9 bps on average compared to Uniswap SOR ports; 4-hop history label search nears known theoretical optima. Outlines next steps for connecting algorithms to live state and eth_call validation.

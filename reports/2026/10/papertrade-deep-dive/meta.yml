@@ -12,9 +12,21 @@ status: published
 visibility: private
 kind: native
 brief_source: Research Briefs/Papertrade Deep Dive.md
-am_version: 0.5.0-research.1
+am_version: 0.5.2-research.1
 changelog:
   - date: 2026-10-13
     note: 创建（brief 快照）
   - date: 2026-10-13
     note: 首次发布：Papertrade 机制、链上核对、操纵事件、同类对照与 Mantle 复现条件
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+title_en: "Papertrade Deep Dive: Vault-Counterparty Perps, Loss-Based Minting & Mantle Feasibility"
+summary_en: Deconstructing Papertrade's trading, pricing, payout queues, and PAPER issuance mechanics alongside launch-day exploits, contrasting peer vault perps, and assessing prerequisites for replication on Mantle.

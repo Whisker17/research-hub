@@ -1,7 +1,7 @@
 title: BSC 近期开发方向：CAS20、Payment Lane 与 Jenner 升级
 summary: 讲清 BSC 近几个月在开发的 CAS20 原生资产、Payment Lane 支付预留空间等功能是做什么的、怎么实现、进度到哪，并与 Base B20、Tempo 对比
 created: 2026-10-09
-updated: 2026-10-09
+updated: 2026-10-13
 domain: crypto
 tags:
   - bsc
@@ -12,7 +12,7 @@ status: published
 visibility: private
 kind: native
 brief_source: Research Briefs/BSC Recent Development.md
-am_version: 0.2.2-research.2
+am_version: 0.5.2-research.1
 changelog:
   - date: 2026-10-09
     note: 创建（brief 快照）
@@ -24,3 +24,11 @@ changelog:
     note: 重新渲染（answer-me-with-html 0.2.2-research.2）
   - date: 2026-10-09
     note: 补充 BAP-710 relayer 的动机与各角色集成方式；新增与 Flashbots PUR（ERC-8324）的对比（F13、F14）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+title_en: "BSC Recent Roadmap: CAS20, Payment Lane, and the Jenner Upgrade"
+summary_en: Explaining BSC's native CAS20 assets, reserved Payment Lane blockspace, implementation architecture, and current milestone progress, benchmarked against Base B20 and Tempo.

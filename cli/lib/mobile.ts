@@ -73,7 +73,7 @@ export async function launchBrowser(): Promise<Browser> {
 
 /** 在页面里运行的测量函数（会被序列化到浏览器执行，不能引用外部变量）。 */
 function measureInPage(expectedWidth: number): Omit<MobileMetrics, "overlays" | "pageHeight"> {
-  const SKIP = "table, figure, pre, nav, svg, [aria-hidden='true'], .am-toc, .am-fig, .am-toolbar, [data-rh-back]";
+  const SKIP = "table, figure, pre, nav, svg, [aria-hidden='true'], .am-toc, .am-fig, .am-toolbar, [data-rh-back], .am-colophon";
   const visible = (el: Element): boolean => {
     const r = el.getBoundingClientRect();
     if (r.width <= 0 || r.height <= 0) return false;

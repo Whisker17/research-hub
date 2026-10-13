@@ -307,7 +307,11 @@ term2 = referenceNotional / (1e6 * move * positionMultiplier)
 </svg>
 ```
 
-**Alice 的情形 A1**：BTC 涨 0.1%，原始盈利 $100。扣死区后 move′ = 0.098%，scale = 0.754，再扣 2%，Alice 到账 **$72.43**，即保证金的 72% [3]。
+**Alice 的情形 A1**：BTC 涨 0.1%，原始盈利 $100。扣死区后 $\Delta' = 0.098\%$，$\text{scale} = 0.754$，再扣 2%，Alice 到账 **$72.43**，即保证金的 72% [3]：
+
+$$
+\text{Payout} = \text{Notional} \times \Delta' \times \text{scale} \times 0.98, \quad \text{scale} = \frac{0.9}{1 + \frac{1}{15{,}000 \cdot \Delta'} + \frac{10^5}{10^6 \cdot 814.6 \cdot \Delta'}}
+$$
 
 **情形 A2**：BTC 跌 0.0524%，碰到 bust 价，Alice 失去全部 $100（[[hard bust]]）。如果她在 bust 之前主动平仓，还能拿回约一半保证金。链上 bust 缓冲是 4.76 bps，不是文档写的“约 5 bps”[3]。
 
@@ -357,7 +361,7 @@ Papertrade 把协议持有的 USDC 分成三个[[账本桶|三桶账本]]：LP c
 - 队列只出现过 3 笔各 $7.62 的排队，一个区块后付清。
 - 之后 517 次超额划转，共 $25.97M 分给质押者，LP 一直被压在约 $5M。
 
-下图是 PAPER 铸币曲线。LP 低于 $2M 时，每 $1 亏损铸 100 枚；之后按 100 × (120M / (120M + H))² 衰减，H 是只增不减的累计 LP 增量 [1]。
+下图是 PAPER 铸币曲线。LP 低于 $2M 时，每 $1 亏损铸 100 枚；之后按 $100 \times \left(\frac{120\text{M}}{120\text{M} + H}\right)^2$ 衰减，$H$ 是只增不减的累计 LP 增量 [1]。
 
 ```svg
 <svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PAPER 铸币率曲线" style="width:100%;height:auto;font-family:system-ui,sans-serif;font-size:13px">

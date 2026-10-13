@@ -335,7 +335,7 @@ if (key.currency0.toId() != NATIVE_CURRENCY_ID)
 
 ```finding F3 high
 # MEV tax 能把约 99.5% 的套利出价留给应用，但依赖 sequencer 的四条承诺；外层若按小费分配空间就会挤出它
-结论: Angstrom L2 的税 = `swapMEVTaxFactor × 120,000 × (优先费 − 阈值)`。Base 实测 factor 200、阈值 0.01 gwei。池子必须是“原生币 / X”交易对，在 Mantle 上就是 MNT/X。已核实的部署只在 Base（2026-09-24 新版）；文档声称的 Unichain 地址在链上没有代码。
+结论: Angstrom L2 的税为：$\text{Tax} = \text{swapMEVTaxFactor} \times 120{,}000 \times (\text{priority\_fee} - \text{threshold})$。Base 实测 factor 200、阈值 0.01 gwei。池子必须是“原生币 / X”交易对，在 Mantle 上就是 MNT/X。已核实的部署只在 Base（2026-09-24 新版）；文档声称的 Unichain 地址在链上没有代码。
 证据: [observed] `AngstromL2.sol:105,195-215,249,664-666` [5]；Base 链上 `swapMEVTaxFactor()` = 200 等读数 [5]；Paradigm 四条规则与 Full blocks 节 [6]（A18、A19、A23、A26–A28、A33、A34）。[inferred] 99.5% 由 factor 推出（A36）；外层不能按小费比较由 A34、A36 推出（D5）。
 影响: Mantle 若想吸引这类应用，sequencer 要公开承诺并能证明“按优先费排序、不插队”。外层车道的容量分配不能比较付给 sequencer 的小费。
 ```

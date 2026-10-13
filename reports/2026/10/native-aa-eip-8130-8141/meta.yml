@@ -1,7 +1,7 @@
 title: Native AA：EIP-8130 与 EIP-8141（+ EIP-8250）原理解析
 summary: 8130 把“账户与权限”写进协议，8141 把“交易处理流程”写进协议。对 Mantle，先做 8130 PoC，同时用 8141 + 8250 做对照组。
 created: 2026-10-04
-updated: 2026-10-09
+updated: 2026-10-13
 domain: work
 tags:
   - account-abstraction
@@ -11,7 +11,7 @@ status: published
 visibility: private
 kind: imported
 source_repo: https://github.com/Whisker17/mantle-v3-roadmap.git:8-native-aa/native-aa-overview.md@b819a33（未提交的工作区文件）
-am_version: 0.2.2-research.2
+am_version: 0.5.2-research.1
 changelog:
   - date: 2026-10-04
     note: 导入
@@ -33,3 +33,13 @@ changelog:
     note: 重新渲染（answer-me-with-html 0.2.2-research.2）
   - date: 2026-10-09
     note: 重构 8141 交易生命周期与智能合约验证流程
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-13
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+title_en: "Native Account Abstraction: Deconstructing EIP-8130, EIP-8141, and EIP-8250"
+summary_en: EIP-8130 bakes accounts and permissions into the protocol, while EIP-8141 bakes transaction processing pipelines into it. For Mantle, benchmark an 8130 PoC against an 8141 + 8250 control group.

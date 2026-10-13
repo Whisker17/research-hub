@@ -539,8 +539,16 @@ sequenceDiagram
 多个 key 共享一个 `nonce_seq`：key 7 当前为 4、key 9 当前为 8 时，不能用一笔交易同时推进两者。8250 激活后签名载荷会变，跨激活边界的待处理交易要重签。
 
 ## P 8141 细节：Gas、Paymaster、待澄清项 {depth=3}
-- **Intrinsic**：`12,000 + 475 × 帧数 + 帧数据成本 + 签名数据成本（signer、msg、signature 三部分） + 验签成本 + value 转账成本`。三帧加一个 k1 签名的固定部分是 `12,000 + 3 × 475 + 2,800 = 16,225`，不含数据和执行。
-- **最大预扣**：`max_gas = max(intrinsic + Σexecution + Σstate, calldata_floor + Σstate)`，付款人预扣 `max_cost`。
+- **Intrinsic**：
+  $$
+  \text{Intrinsic} = 12{,}000 + 475 \times N_{\text{frames}} + \text{Cost}_{\text{data}} + \text{Cost}_{\text{sig}} + \text{Cost}_{\text{verify}} + \text{Cost}_{\text{value}}
+  $$
+  三帧加一个 k1 签名的固定部分是 $12{,}000 + 3 \times 475 + 2{,}800 = 16{,}225$，不含数据和执行。
+- **最大预扣**：
+  $$
+  \text{max\_gas} = \max\left(\text{intrinsic} + \sum \text{execution} + \sum \text{state}, \; \text{calldata\_floor} + \sum \text{state}\right)
+  $$
+  付款人预扣 `max_cost`。
 - **Refill 与 refund**：原子组回滚撤销状态与对应 state gas，但已做的执行工作照常计费。双维 Gas 区分资源种类，不等于 Launchpad 与 Perps 之间的资源隔离。
 - **Paymaster**：标准 Paymaster 通过精确匹配 runtime code 识别，限制原生资产外流并支持延迟提现，节点按 `余额 − 待处理预留 − 待提现` 接纳。非标准 Paymaster 每个最多 1 笔待处理交易。规范里“只有标准 Paymaster 可公共传播”的句子与非标准专节有张力，待澄清。
 - **canonical 签名哈希**：`msg` 为空的签名条目在计算哈希时清空签名字节，避免“签名包含自己”。

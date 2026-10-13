@@ -224,7 +224,11 @@ sequenceDiagram
 | 60 | 71.53% | 2.52e-7 | 9.0× |
 | 85.0 (Graduation) | 79.31% | 4.11e-7 | 14.7× |
 
-The first 30 SOL captures over half of the entire supply, whereas the final 25 SOL distributes only ~7.8%. This mathematical asymmetry explains why opening sniping is structurally lucrative ([B-4](#B-4)).
+$$
+(x + 30) \times (y + 2.799 \times 10^8) = 3.219 \times 10^{10}
+$$
+
+Opening price $P_0 = \frac{30}{1.073 \times 10^9} \approx 2.80 \times 10^{-8}\text{ SOL}$. The first 30 SOL captures over half of the entire supply, whereas the final 25 SOL distributes only ~7.8%. This mathematical asymmetry explains why opening sniping is structurally lucrative ([B-4](#B-4)).
 
 **Key Observations Across Lifecycle Stages**:
 1. **Creation**: Zero protocol creation fee [2]. Token initialization and initial purchase can be bundled in a single transaction as a [[dev buy]] [4].

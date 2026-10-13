@@ -293,7 +293,13 @@ sequenceDiagram
   U->>P: idx 137 seq 0x5a，p=2457.468，s=6 ppm
 ```
 
-Fig 5 把 6 项罚金的判断画成流程。论文没有给出合约内的检查顺序，图中顺序是示意。
+Fig 5 把 6 项罚金的判断画成流程。最终成交公式为：
+
+$$
+Y_{\text{exec}} = Y_{\text{book}}(x) \times (1 - \phi), \quad \phi = \sum_{i} \phi_i \quad (i \in \{\text{base, age, priority, mode, default, address}\})
+$$
+
+论文没有给出合约内的检查顺序，图中顺序是示意。
 
 ```uml q="一笔 swap 的罚金 ϕ 由哪些判断组成？" read="简化：论文没有给出检查顺序。200 / 500 ppm 是论文观测到的优先费罚金峰值。" takeaway="地址、报价新鲜度、优先费和默认费各自独立计分，最后相加。"
 flowchart LR
