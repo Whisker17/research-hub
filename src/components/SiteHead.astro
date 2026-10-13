@@ -7,6 +7,9 @@ interface Props {
 const { home = "/", tagline = "AI 研究报告的图文讲解", private: isPrivate = false } = Astro.props;
 ---
 <header class="site-head">
-  <a class="brand" href={home}><img src="/favicon.svg" alt="" width="26" height="26" />Research Hub{isPrivate && <span class="badge-private">私有</span>}</a>
-  <p>{tagline}</p>
+  <div class="site-head-bar">
+    <a class="brand" href={home}><img src="/favicon.svg" alt="" width="26" height="26" />Research Hub{isPrivate && <span class="badge-private" data-i18n="private">私有</span>}</a>
+    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
+  </div>
+  <p data-i18n="tagline" data-zh={tagline} data-en="Visual Explainers of AI Research Reports">{tagline}</p>
 </header>

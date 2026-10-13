@@ -34,10 +34,11 @@ reports/YYYY/MM/<slug>/brief.md
         │  Claude Code 后台 agent（research skill）或外部 Deep Research（rh import）
         ▼
 reports/.../research/*.md（含论断台账）         ← 人工把关 ②：审阅调研结果
-        │  agent 按 answer-me-with-html research 模式写稿
+        │  agent 按 answer-me-with-html research 模式写中英文双版
         ▼
-reports/.../explainer.md → rh render → index.html
-        │  rh check（schema / 标签 / 台账 / 手机检查）
+reports/.../explainer.md + explainer.en.md（经 sol subagent 审查达成共识）
+        │  rh render（同时渲染 index.html 与 index.en.html）
+        │  rh check（schema / 标签 / 台账 / 中英文手机检查）
         ▼                                     ← 人工把关 ③：审阅页面
 rh publish → push main → CI → Cloudflare
 ```
@@ -69,8 +70,10 @@ reports/YYYY/MM/<slug>/      ← 创建年月
   meta.yml
   brief.md                   ← 原生报告
   research/*.md              ← 原生报告
-  explainer.md               ← am 稿件（原生报告；导入报告可有原稿）
-  index.html                 ← 最终产物（已提交的 HTML 就是最终产物）
+  explainer.md               ← am 中文稿件（原生报告；导入报告可有原稿）
+  explainer.en.md            ← am 英文稿件（经 sol subagent 双重审查）
+  index.html                 ← 中文最终产物
+  index.en.html              ← 英文最终产物
 tags.yml                     ← 标签登记表
 ```
 
@@ -82,7 +85,8 @@ tags.yml                     ← 标签登记表
 
 | 字段 | 说明 |
 | --- | --- |
-| `title`, `summary` | 标题、一句话摘要 |
+| `title`, `summary` | 中文标题、一句话中文摘要 |
+| `title_en`, `summary_en` | 英文标题、一句话英文摘要（可选，双语报告建议填写） |
 | `created`, `updated` | 日期；`changelog` 记录每次更新 |
 | `domain` | 固定值，只能选一个：`ai \| crypto \| finance \| work \| other` |
 | `tags` | 自由标签，但必须在 `tags.yml` 登记；新标签由 `rh` 提示确认后加入 |

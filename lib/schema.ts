@@ -40,6 +40,8 @@ export const metaSchema = z
   .strictObject({
     title: z.string().trim().min(1),
     summary: z.string().trim().min(1),
+    title_en: z.string().trim().min(1).optional(),
+    summary_en: z.string().trim().min(1).optional(),
     created: isoDate,
     updated: isoDate,
     changelog: z.array(changelogEntry).min(1, { message: "至少要有一条 changelog（创建记录）" }),

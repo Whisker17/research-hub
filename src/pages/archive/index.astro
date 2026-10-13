@@ -7,7 +7,10 @@ const { publicReports } = siteData();
 const months = byMonth(publicReports);
 ---
 <Base title="按月归档">
-  <p class="crumbs"><a href="/">Research Hub</a></p>
+  <div class="crumbs-bar">
+    <p class="crumbs"><a href="/">Research Hub</a></p>
+    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
+  </div>
   <h1 class="page-title">按月归档</h1>
   <p class="page-sub">按报告的创建月份</p>
   {

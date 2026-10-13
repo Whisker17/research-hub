@@ -74,37 +74,42 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
 
    问“调研结果是否可以，进入写稿？”。**停下等待。** 用户要求补查时，回到第 1 步，只补缺的部分。
 
-## 4. 写 explainer → 渲染 → 检查 → 把关 ③：审阅页面
+## 4. 写 explainer → 英文版与 sol Review → 渲染 → 检查 → 把关 ③：审阅页面
 
 1. **读 am 文档**（在 `am_docs` 目录）：`SKILL.md` 第 3–5 节、`references/research.md`（研究页工作流与骨架）、`references/writing.md`（STE）、需要画图时读 `references/diagrams.md`。写稿规则见 [references/explainer.md](references/explainer.md)。
 2. **写 `$DIR/explainer.md`**：`template: research`，用户的语言，标题写主题、副标题写结论。台账里的论断才能上页面；finding 的 `证据:` 用 `[observed]` / `[inferred]` / `[speculative]` 标注，和台账类型一致。写完把每条论断出现的位置（如 `F1`、`J`）填进台账的“页面”列。
-3. **渲染**：
+3. **撰写英文版与 sol subagent Review 达成一致**：
+   - 编写 `$DIR/explainer.en.md`，并在 `$DIR/meta.yml` 补齐 `title_en` 与 `summary_en`。
+   - 启动 `sol` subagent（模型 `mantle/gpt-6.1-sol`，agent `reviewer`）审查英文稿件：重点核对专业 Web3 术语、论断定性与证据（observed/inferred/speculative）、am 组件解析语法（prereq/finding 字段）、图表尺寸与英文自然表达。
+   - 双方在多轮审查与答辩中达成一致（PASS 裁决），修复所有阻塞项。
+4. **渲染**：
 
    ```sh
    pnpm rh render <slug>
    ```
 
-   - `✗ L<行号> …`：按行号改 explainer.md，再渲染。
+   `rh render` 会同时把中文 `explainer.md` 渲染成 `index.html`，把英文 `explainer.en.md` 渲染成 `index.en.html`。
+   - `✗ L<行号> …`：按行号改 explainer.md 或 explainer.en.md，再渲染。
    - “图形没有烘焙进页面”：检查本机 Chrome / Node 22+，不要发布未烘焙的页面。
    - STE 警告：按建议改写，最多再渲染 2 轮；仍有警告就保留，并在 ③ 里说明。
-4. **检查**：
+5. **检查**：
 
    ```sh
    pnpm rh check <slug>
    ```
 
-   显式给出 slug 时按发布标准检查（schema、标签、台账、HTML、手机 390×844）。不通过就改稿件重来；问题在 answer-me-with-html 模板时，告诉用户并停下，不要在报告里打补丁。
-5. **自己先看一遍**：
-   - 手机整页：用 Read 工具查看 `shots` 目录（`.rh/shots/<slug>/`）里的分段截图。
+   显式给出 slug 时按发布标准检查（schema、标签、台账、中英文 HTML 与手机 390×844）。不通过就改稿件重来；问题在 answer-me-with-html 模板时，告诉用户并停下，不要在报告里打补丁。
+6. **自己先看一遍**：
+   - 手机整页：用 Read 工具查看 `shots` 目录（`.rh/shots/<slug>/` 与 `.rh/shots/<slug>-en/`）里的分段截图。
    - 每张图：运行 `pnpm figshot <slug>`（桌面 1280 宽）和 `pnpm figshot <slug> --width 390`（手机），逐张看 `.rh/figs/<slug>/w<宽>/fig-N.png`；加 `--panels A,L` 可以单独截面板（例如宽表格）。不用 `am shot`：它先截整页，长页面上可能卡住。
    - 重叠、截断、空图、文字过小、文字墙都要先改掉。手机上图在图框内横向滚动是允许的；但图过宽时（例如 `flowchart LR` 节点超过约 8 个），改成 `TB` 布局。
-6. **把关 ③**：告诉用户——
-   - 页面路径 `$DIR/index.html`（可以直接用浏览器打开）和手机截图路径
+7. **把关 ③**：告诉用户——
+   - 页面路径 `$DIR/index.html`（中文）与 `$DIR/index.en.html`（英文，可以直接用浏览器打开），以及中英文手机截图路径
    - 三条阅读路径各看哪些面板；每张图一句话说明
    - 删掉或标为 speculative 的内容、遗留的 STE 警告、开放问题
-   - 发布后的地址：`pnpm rh paths <slug>` 的 `url`（public → `/r/<slug>/`，private → 私有站点 `/p/<slug>/`）
+   - 发布后的地址：`pnpm rh paths <slug>` 的 `url`（public → `/r/<slug>/`，private → 私有站点 `/p/<slug>/`；英文版自动追加 `/en/`）
 
-   问“页面是否可以发布？”。**停下等待。** 用户提修改意见：改 explainer.md（需要新证据时先补台账）→ 第 3–5 步 → 再问。
+   问“页面是否可以发布？”。**停下等待。** 用户提修改意见：改 explainer.md / explainer.en.md（需要新证据时先补台账）→ 第 4–6 步 → 再问。
 
 ## 5. 发布（只在 ③ 明确批准之后）
 

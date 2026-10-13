@@ -39,7 +39,7 @@ const { cards, filters = false, domains = [], tags = [], linkTags, showVisibilit
       </div>
     )
   }
-  {cards.length > 0 && <p class="result-count" data-count>{cards.length} 篇报告</p>}
+  {cards.length > 0 && <p class="result-count" data-count data-total={cards.length}>{cards.length} 篇报告</p>}
   {
     cards.length > 0 ? (
       <div class="cards">
@@ -80,13 +80,21 @@ const { cards, filters = false, domains = [], tags = [], linkTags, showVisibilit
             c.hidden = !show;
             if (show) n++;
           }
-          if (count) count.textContent = n === cards.length ? `${n} 篇报告` : `${n} / ${cards.length} 篇报告`;
+          const isEn = (localStorage.getItem("rh_lang") || "zh") === "en";
+          if (count) {
+            count.textContent = isEn
+              ? (n === cards.length ? `${n} ${n === 1 ? "report" : "reports"}` : `${n} / ${cards.length} reports`)
+              : (n === cards.length ? `${n} 篇报告` : `${n} / ${cards.length} 篇报告`);
+          }
           if (empty) empty.hidden = n !== 0;
           const p = new URLSearchParams();
           for (const k of ["q", "domain", "tag"]) if (state[k]) p.set(k, state[k]);
           history.replaceState(null, "", `${location.pathname}${p.toString() ? `?${p}` : ""}`);
           sync();
         };
+        window.addEventListener("rh:langchange", () => {
+          apply();
+        });
         root.addEventListener("click", (e) => {
           const b = e.target.closest("[data-filter]");
           if (!b) return;

@@ -23,5 +23,130 @@ const pageTitle = title === "Research Hub" ? title : `${title} · Research Hub`;
     <div class="wrap">
       <slot />
     </div>
+    <script is:inline>
+      (() => {
+        const I18N = {
+          zh: {
+            btnLang: "English",
+            tagline: "AI 研究报告的图文讲解",
+            private: "私有",
+            public: "公开",
+            all: "全部",
+            searchPlaceholder: "按标题、摘要或标签筛选",
+            emptyFilter: "没有符合条件的报告。",
+            emptyList: "还没有报告。",
+            footAll: "全部报告",
+            footArchive: "按月归档",
+            footTags: "标签",
+            created: "创建于",
+            updated: "更新于",
+          },
+          en: {
+            btnLang: "中文",
+            tagline: "Visual Explainers of AI Research Reports",
+            private: "Private",
+            public: "Public",
+            all: "All",
+            searchPlaceholder: "Filter by title, summary or tag",
+            emptyFilter: "No matching reports found.",
+            emptyList: "No reports yet.",
+            footAll: "All Reports",
+            footArchive: "Monthly Archive",
+            footTags: "Tags",
+            created: "Created",
+            updated: "Updated",
+          },
+        };
+
+        function getLang() {
+          return localStorage.getItem("rh_lang") || "zh";
+        }
+
+        function applyLang(lang) {
+          const dict = I18N[lang] || I18N.zh;
+          document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+
+          const btn = document.getElementById("rh-lang-toggle");
+          if (btn) btn.textContent = dict.btnLang;
+
+          const taglineEl = document.querySelector('[data-i18n="tagline"]');
+          if (taglineEl) taglineEl.textContent = dict.tagline;
+
+          document.querySelectorAll('[data-i18n="private"]').forEach((el) => { el.textContent = dict.private; });
+          document.querySelectorAll('[data-i18n="public"]').forEach((el) => { el.textContent = dict.public; });
+
+          const searchInput = document.querySelector("[data-q]");
+          if (searchInput) searchInput.placeholder = dict.searchPlaceholder;
+
+          const allChip = document.querySelector('[data-filter="domain"][data-value=""]');
+          if (allChip) allChip.textContent = dict.all;
+
+          const footLinks = document.querySelectorAll(".site-foot a");
+          if (footLinks.length >= 3) {
+            footLinks[0].textContent = dict.footAll;
+            footLinks[1].textContent = dict.footArchive;
+            footLinks[2].textContent = dict.footTags;
+          }
+
+          const emptyEl = document.querySelector("[data-empty]");
+          if (emptyEl) emptyEl.textContent = dict.emptyFilter;
+
+          document.querySelectorAll("[data-card]").forEach((card) => {
+            const titleLink = card.querySelector("h2 a");
+            const summaryEl = card.querySelector(".summary");
+            const datesEl = card.querySelector(".dates");
+
+            const titleZh = card.dataset.titleZh || "";
+            const titleEn = card.dataset.titleEn || "";
+            const summaryZh = card.dataset.summaryZh || "";
+            const summaryEn = card.dataset.summaryEn || "";
+            const hrefZh = card.dataset.hrefZh || "";
+            const hrefEn = card.dataset.hrefEn || "";
+            const created = card.dataset.created || "";
+            const updated = card.dataset.updated || "";
+
+            if (lang === "en") {
+              if (titleLink) {
+                titleLink.textContent = titleEn || titleZh;
+                titleLink.href = hrefEn || hrefZh;
+              }
+              if (summaryEl) summaryEl.textContent = summaryEn || summaryZh;
+              if (datesEl) {
+                datesEl.innerHTML = updated === created
+                  ? `<span>${dict.created} ${created}</span>`
+                  : `<span>${dict.updated} ${updated} · ${dict.created} ${created}</span>`;
+              }
+            } else {
+              if (titleLink) {
+                titleLink.textContent = titleZh;
+                titleLink.href = hrefZh;
+              }
+              if (summaryEl) summaryEl.textContent = summaryZh;
+              if (datesEl) {
+                datesEl.innerHTML = updated === created
+                  ? `<span>${dict.created} ${created}</span>`
+                  : `<span>${dict.updated} ${updated} · ${dict.created} ${created}</span>`;
+              }
+            }
+          });
+
+          window.dispatchEvent(new CustomEvent("rh:langchange", { detail: { lang } }));
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+          const initial = getLang();
+          if (initial === "en") applyLang("en");
+
+          const btn = document.getElementById("rh-lang-toggle");
+          if (btn) {
+            btn.addEventListener("click", () => {
+              const next = getLang() === "en" ? "zh" : "en";
+              localStorage.setItem("rh_lang", next);
+              applyLang(next);
+            });
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

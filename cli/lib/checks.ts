@@ -72,6 +72,14 @@ export function checkCompleteness(report: Report): string[] {
     if (!/<body[\s>]/i.test(html)) problems.push("index.html 没有 <body> 标签");
     if (existsSync(f(REPORT_FILES.explainer)) && !meta.am_version) problems.push("meta 缺少 am_version（用 rh render 渲染会自动记录）");
   }
+  if (existsSync(f(REPORT_FILES.explainerEn))) {
+    if (!existsSync(f(REPORT_FILES.htmlEn))) {
+      problems.push("缺少 index.en.html（运行 rh render）");
+    } else {
+      const htmlEn = readFileSync(f(REPORT_FILES.htmlEn), "utf8");
+      if (!/<body[\s>]/i.test(htmlEn)) problems.push("index.en.html 没有 <body> 标签");
+    }
+  }
   return problems;
 }
 
@@ -86,20 +94,32 @@ function cacheKey(html: Buffer): string {
   return createHash("sha256").update(html).digest("hex");
 }
 
-export async function checkReportMobile(report: Report, opts: CheckOptions): Promise<MobileResult | CacheEntry | null> {
-  const source = join(report.dir, REPORT_FILES.html);
+async function checkSingleHtmlMobile(
+  report: Report,
+  file: string,
+  cacheSuffix: string,
+  opts: CheckOptions,
+): Promise<MobileResult | CacheEntry | null> {
+  const source = join(report.dir, file);
   if (!existsSync(source) || !opts.browser) return null;
-  // 检查的是实际部署的版本：注入返回链接后的 HTML。临时文件放在报告目录里，保证相对路径的资源可用。
-  const deployed = injectBackLink(readFileSync(source, "utf8"), report.meta.visibility === "public" ? "/" : "/p/", "Research Hub");
+  const isEn = file === REPORT_FILES.htmlEn;
+  const deployed = injectBackLink(
+    readFileSync(source, "utf8"),
+    report.meta.visibility === "public" ? "/" : "/p/",
+    "Research Hub",
+    isEn ? { href: "../", label: "中文" } : { href: "./en/", label: "English" },
+  );
   const key = cacheKey(Buffer.from(deployed));
-  const cacheFile = opts.cacheDir ? join(opts.cacheDir, `${report.slug}.json`) : null;
-  const shotDir = opts.shotsDir ? join(opts.shotsDir, report.slug) : null;
+  const cacheName = cacheSuffix ? `${report.slug}-${cacheSuffix}.json` : `${report.slug}.json`;
+  const cacheFile = opts.cacheDir ? join(opts.cacheDir, cacheName) : null;
+  const shotDirName = cacheSuffix ? `${report.slug}-${cacheSuffix}` : report.slug;
+  const shotDir = opts.shotsDir ? join(opts.shotsDir, shotDirName) : null;
   if (cacheFile && existsSync(cacheFile)) {
     const cached = JSON.parse(readFileSync(cacheFile, "utf8")) as CacheEntry & { key: string };
-    // 截图目录被删时重新跑，保证“输出全页截图”始终成立
     if (cached.key === key && cached.version === MOBILE_CHECK_VERSION && (!shotDir || existsSync(shotDir))) return cached;
   }
-  const htmlFile = join(report.dir, MOBILE_TMP);
+  const tmpName = cacheSuffix ? `.rh-mobile-check-${cacheSuffix}.html` : MOBILE_TMP;
+  const htmlFile = join(report.dir, tmpName);
   writeFileSync(htmlFile, deployed);
   let result: MobileResult;
   try {
@@ -113,6 +133,34 @@ export async function checkReportMobile(report: Report, opts: CheckOptions): Pro
     writeFileSync(cacheFile, JSON.stringify(entry, null, 2));
   }
   return result;
+}
+
+export async function checkReportMobile(report: Report, opts: CheckOptions): Promise<MobileResult | CacheEntry | null> {
+  const zhResult = await checkSingleHtmlMobile(report, REPORT_FILES.html, "", opts);
+  const hasEn = existsSync(join(report.dir, REPORT_FILES.htmlEn));
+  if (!hasEn) return zhResult;
+
+  const enResult = await checkSingleHtmlMobile(report, REPORT_FILES.htmlEn, "en", opts);
+  if (!zhResult && !enResult) return null;
+  const combinedFailures = [
+    ...(zhResult?.failures ?? []),
+    ...(enResult?.failures.map((f) => `[英文版] ${f}`) ?? []),
+  ];
+  const combinedWarnings = [
+    ...(zhResult?.warnings ?? []),
+    ...(enResult?.warnings.map((w) => `[英文版] ${w}`) ?? []),
+  ];
+  const combinedShots: string[] = [];
+  if (zhResult && "shots" in zhResult) combinedShots.push(...zhResult.shots);
+  if (enResult && "shots" in enResult) combinedShots.push(...enResult.shots);
+
+  return {
+    version: MOBILE_CHECK_VERSION,
+    ok: combinedFailures.length === 0,
+    failures: combinedFailures,
+    warnings: combinedWarnings,
+    shots: combinedShots,
+  };
 }
 
 export async function checkReport(report: Report, all: Report[], tags: TagRegistry, opts: CheckOptions): Promise<ReportCheck> {

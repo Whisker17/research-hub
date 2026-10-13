@@ -14,12 +14,13 @@ research-hub 存放 AI 生成的研究报告，并把它们发布成手机友好
 - **标签**：先 `rh tags list` 看已有标签，不要登记同义词；新标签用 `rh tags add <key> --label <展示名>`。
 - **手机适配**：不要往报告 HTML 里注入 CSS 补丁。手机检查不过就修源头（answer-me-with-html 或原仓库的构建脚本）。
 - **已发布报告不自动重新渲染**；需要时 `rh render <slug> --force`。
+- **中英文双语发布**：新报告统一中英文双版一起发。中文写 `explainer.md`，英文写 `explainer.en.md` 并在 `meta.yml` 中填写 `title_en` 与 `summary_en`。英文版需启动 `sol` subagent（`mantle/gpt-6.1-sol`）进行 Review 和 double check，双方就专业术语、论断定性与图文布局交互协商达成一致后再渲染；`rh render <slug>` 与 `rh check <slug>` 自动处理双语输出（`/r/<slug>/` 与 `/r/<slug>/en/`）。
 - 提交前运行 `pnpm verify`（类型检查、测试、`rh check --no-shot`、构建与泄漏检查）。
 
 ## 目录
 
 ```
-reports/YYYY/MM/<slug>/   报告（meta.yml、brief.md、research/、explainer.md、index.html、source.md、assets/）
+reports/YYYY/MM/<slug>/   报告（meta.yml、brief.md、research/、explainer.md、explainer.en.md、index.html、index.en.html、source.md、assets/）
 tags.yml                  标签登记表
 lib/                      CLI 与 Astro 共用：schema、报告读取、台账解析、站点数据
 cli/                      rh 命令（commands/）与检查、构建、手机检查（lib/）

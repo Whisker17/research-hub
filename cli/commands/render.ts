@@ -25,27 +25,56 @@ export function renderReport(cfg: HubConfig, dir: string, opts: { force: boolean
   const meta = readMetaRaw(dir);
   const explainer = join(dir, "explainer.md");
   const html = join(dir, "index.html");
-  if (!existsSync(explainer)) throw new CliError(`${opts.label}：没有 explainer.md，无法渲染`);
+  const explainerEn = join(dir, "explainer.en.md");
+  const htmlEn = join(dir, "index.en.html");
+  if (!existsSync(explainer) && !existsSync(explainerEn)) throw new CliError(`${opts.label}：没有 explainer.md，无法渲染`);
   const published = meta.status === "published";
-  if (published && existsSync(html) && !opts.force) {
+  const zhDone = existsSync(html);
+  const enDone = !existsSync(explainerEn) || existsSync(htmlEn);
+  if (published && zhDone && enDone && !opts.force) {
     throw new CliError(`${opts.label} 已发布：已提交的 HTML 就是最终产物，不自动重新渲染。确认要重新渲染时运行 rh render ${opts.label} --force`);
   }
   const version = amVersion(cfg);
-  info(`渲染 ${opts.label}（answer-me-with-html ${version}）…`);
-  const r = spawnSync(process.execPath, [cfg.amScript, "render", "explainer.md", "-o", "index.html", "--no-open"], {
-    cwd: dir,
-    encoding: "utf8",
-    env: { ...process.env, NO_COLOR: "1" },
-  });
-  const out = `${r.stdout ?? ""}${r.stderr ?? ""}`;
-  for (const line of out.split("\n")) if (line.trim()) info(`  ${line}`);
-  if (r.status !== 0) throw new CliError(`${opts.label}：am render 失败（退出码 ${r.status}）`);
-  const errorLines = out.split("\n").filter((l) => /^\s*✗/.test(l));
-  if (errorLines.length) throw new CliError(`${opts.label}：am render 报告了 ${errorLines.length} 个错误，按行号修改 explainer.md 后重试`);
-  if (/^\s*!\s*未烘焙/m.test(out)) {
-    throw new CliError(`${opts.label}：图形没有烘焙进页面（页面会依赖 CDN、离线不可读）。检查本机 Chrome / Node 22+ 后重试`);
+
+  // 1. 渲染中文版
+  if (existsSync(explainer) && (!zhDone || opts.force)) {
+    info(`渲染 ${opts.label}（answer-me-with-html ${version}）…`);
+    const r = spawnSync(process.execPath, [cfg.amScript, "render", "explainer.md", "-o", "index.html", "--no-open"], {
+      cwd: dir,
+      encoding: "utf8",
+      env: { ...process.env, NO_COLOR: "1" },
+    });
+    const out = `${r.stdout ?? ""}${r.stderr ?? ""}`;
+    for (const line of out.split("\n")) if (line.trim()) info(`  ${line}`);
+    if (r.status !== 0) throw new CliError(`${opts.label}：am render 失败（退出码 ${r.status}）`);
+    const errorLines = out.split("\n").filter((l) => /^\s*✗/.test(l));
+    if (errorLines.length) throw new CliError(`${opts.label}：am render 报告了 ${errorLines.length} 个错误，按行号修改 explainer.md 后重试`);
+    if (/^\s*!\s*未烘焙/m.test(out)) {
+      throw new CliError(`${opts.label}：图形没有烘焙进页面（页面会依赖 CDN、离线不可读）。检查本机 Chrome / Node 22+ 后重试`);
+    }
+    if (/STE \d+ 条警告/.test(out) && !/STE ✓/.test(out)) warn("STE 写作检查有警告：按建议改写对应行后可重新渲染");
+    ok(`${opts.label}：index.html 已生成`);
   }
-  if (/STE \d+ 条警告/.test(out) && !/STE ✓/.test(out)) warn("STE 写作检查有警告：按建议改写对应行后可重新渲染");
+
+  // 2. 渲染英文版（若存在 explainer.en.md）
+  if (existsSync(explainerEn) && (!existsSync(htmlEn) || opts.force)) {
+    info(`渲染 ${opts.label} 英文版（answer-me-with-html ${version}）…`);
+    const rEn = spawnSync(process.execPath, [cfg.amScript, "render", "explainer.en.md", "-o", "index.en.html", "--no-open"], {
+      cwd: dir,
+      encoding: "utf8",
+      env: { ...process.env, NO_COLOR: "1" },
+    });
+    const outEn = `${rEn.stdout ?? ""}${rEn.stderr ?? ""}`;
+    for (const line of outEn.split("\n")) if (line.trim()) info(`  ${line}`);
+    if (rEn.status !== 0) throw new CliError(`${opts.label}：英文版 am render 失败（退出码 ${rEn.status}）`);
+    const errorLinesEn = outEn.split("\n").filter((l) => /^\s*✗/.test(l));
+    if (errorLinesEn.length) throw new CliError(`${opts.label}：英文版 am render 报告了 ${errorLinesEn.length} 个错误，按行号修改 explainer.en.md 后重试`);
+    if (/^\s*!\s*未烘焙/m.test(outEn)) {
+      throw new CliError(`${opts.label}：英文版图形没有烘焙进页面。检查本机 Chrome / Node 22+ 后重试`);
+    }
+    if (/STE \d+ 条警告/.test(outEn) && !/STE ✓/.test(outEn)) warn("英文版 STE 写作检查有警告：按建议改写对应行后可重新渲染");
+    ok(`${opts.label}：index.en.html 已生成`);
+  }
 
   meta.am_version = version;
   if (published) {
@@ -55,7 +84,7 @@ export function renderReport(cfg: HubConfig, dir: string, opts: { force: boolean
     meta.changelog = log;
   }
   writeMeta(dir, meta);
-  ok(`${opts.label}：index.html 已生成，am_version = ${version}`);
+  ok(`${opts.label}：完成渲染，am_version = ${version}`);
   return version;
 }
 

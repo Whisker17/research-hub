@@ -20,16 +20,26 @@ const escapeHtml = (s: string): string =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /** 在 <body> 开头注入返回链接；在 <head> 补 robots noindex。幂等。 */
-export function injectBackLink(html: string, href: string, label: string): string {
+export function injectBackLink(
+  html: string,
+  href: string,
+  label: string,
+  altLangLink?: { href: string; label: string },
+): string {
   let out = html;
   if (!out.includes(`${BACK_LINK_ATTR}`)) {
     // answer-me-with-html 的工具栏在窄屏上是 absolute（页面右上角，几乎占满一行）。
     // 这类页面在窄屏上把返回链接放到工具栏下方；样式只作用于注入的 nav 本身，不碰页面样式。
     const amToolbar = /class="am-toolbar"/.test(out);
     const scoped = amToolbar ? `<style>@media (max-width:760px){nav[${BACK_LINK_ATTR}]{padding-top:50px!important}}</style>` : "";
+    const altHtml = altLangLink
+      ? `<a href="${escapeHtml(altLangLink.href)}" style="color:inherit;opacity:.72;text-decoration:none;font-weight:500;">${escapeHtml(altLangLink.label)}</a>`
+      : "";
     const nav =
-      `<nav ${BACK_LINK_ATTR} style="display:block;margin:0;padding:12px 16px 0;font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif;">` +
-      `${scoped}<a href="${escapeHtml(href)}" style="color:inherit;opacity:.72;text-decoration:none;">← ${escapeHtml(label)}</a></nav>`;
+      `<nav ${BACK_LINK_ATTR} style="display:flex;justify-content:space-between;align-items:center;margin:0;padding:12px 16px 0;font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif;">` +
+      `${scoped}<a href="${escapeHtml(href)}" style="color:inherit;opacity:.72;text-decoration:none;">← ${escapeHtml(label)}</a>` +
+      altHtml +
+      `</nav>`;
     const m = /<body\b[^>]*>/i.exec(out);
     if (!m) throw new Error("HTML 没有 <body> 标签，无法注入返回链接");
     out = out.slice(0, m.index + m[0].length) + nav + out.slice(m.index + m[0].length);
@@ -91,10 +101,32 @@ export function assemble(root: string, astroOut: string, reports: Report[]): Ass
     const target = isPublic ? join(publicDir, "r", r.slug) : join(privateDir, "p", r.slug);
     if (existsSync(target)) throw new Error(`${r.relDir}：目标路径冲突 ${relative(dist, target)}`);
     mkdirSync(target, { recursive: true });
-    const injected = injectBackLink(readFileSync(html, "utf8"), isPublic ? "/" : "/p/", "Research Hub");
+    const htmlEn = join(r.dir, REPORT_FILES.htmlEn);
+    const hasEn = existsSync(htmlEn);
+    const backHref = isPublic ? "/" : "/p/";
+    const injected = injectBackLink(
+      readFileSync(html, "utf8"),
+      backHref,
+      "Research Hub",
+      hasEn ? { href: "./en/", label: "English" } : undefined,
+    );
     writeFileSync(join(target, "index.html"), injected);
     const assets = join(r.dir, REPORT_FILES.assetsDir);
     if (existsSync(assets) && statSync(assets).isDirectory()) cpSync(assets, join(target, "assets"), { recursive: true });
+
+    if (hasEn) {
+      const enTarget = join(target, "en");
+      mkdirSync(enTarget, { recursive: true });
+      const injectedEn = injectBackLink(
+        readFileSync(htmlEn, "utf8"),
+        backHref,
+        "Research Hub",
+        { href: "../", label: "中文" },
+      );
+      writeFileSync(join(enTarget, "index.html"), injectedEn);
+      if (existsSync(assets) && statSync(assets).isDirectory()) cpSync(assets, join(enTarget, "assets"), { recursive: true });
+    }
+
     (isPublic ? result.publicReports : result.privateReports).push(r.slug);
   }
 
@@ -115,7 +147,9 @@ function* walk(dir: string): Generator<string> {
 
 /** 一个报告在产物里可能出现的“指纹”：标题、摘要（原文与 HTML 转义后）和站点路径。 */
 export function fingerprints(r: Report): string[] {
-  const texts = [r.meta.title, r.meta.summary].filter((s) => s.trim().length >= 4);
+  const texts = [r.meta.title, r.meta.summary, r.meta.title_en, r.meta.summary_en].filter(
+    (s): s is string => typeof s === "string" && s.trim().length >= 4,
+  );
   const out = new Set<string>();
   for (const t of texts) {
     out.add(t);
@@ -124,6 +158,8 @@ export function fingerprints(r: Report): string[] {
   }
   out.add(`/p/${r.slug}/`);
   out.add(`/r/${r.slug}/`);
+  out.add(`/p/${r.slug}/en/`);
+  out.add(`/r/${r.slug}/en/`);
   return [...out];
 }
 

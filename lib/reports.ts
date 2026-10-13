@@ -25,7 +25,9 @@ export interface Issue {
 export const REPORT_FILES = {
   meta: "meta.yml",
   html: "index.html",
+  htmlEn: "index.en.html",
   explainer: "explainer.md",
+  explainerEn: "explainer.en.md",
   brief: "brief.md",
   source: "source.md",
   researchDir: "research",
@@ -108,3 +110,7 @@ export const isPublicPublished = (r: Report): boolean => isPublished(r) && r.met
 
 /** 报告在站点上的路径（不含域名）。 */
 export const reportPath = (r: Report): string => (r.meta.visibility === "public" ? `/r/${r.slug}/` : `/p/${r.slug}/`);
+
+/** 英文报告在站点上的路径（不含域名）。 */
+export const reportEnPath = (r: Report): string => (r.meta.visibility === "public" ? `/r/${r.slug}/en/` : `/p/${r.slug}/en/`);
+

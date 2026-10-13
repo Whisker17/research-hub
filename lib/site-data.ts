@@ -4,14 +4,18 @@
  * 公开页面只能使用 publicReports；私有索引（/p/）可以使用 allPublished。
  * draft 不出现在任何列表里。
  */
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { loadConfig } from "./config.ts";
-import { isPublicPublished, isPublished, loadReports, loadTags, reportPath, sortByUpdated, type Report } from "./reports.ts";
+import { REPORT_FILES, isPublicPublished, isPublished, loadReports, loadTags, reportPath, sortByUpdated, type Report } from "./reports.ts";
 import { DOMAIN_LABELS, type Domain, type TagRegistry } from "./schema.ts";
 
 export interface CardData {
   slug: string;
   title: string;
   summary: string;
+  title_en?: string;
+  summary_en?: string;
   created: string;
   updated: string;
   domain: Domain;
@@ -19,6 +23,7 @@ export interface CardData {
   tags: { key: string; label: string }[];
   visibility: "public" | "private";
   href: string;
+  href_en?: string;
 }
 
 let cache: { publicReports: Report[]; allPublished: Report[]; tags: TagRegistry } | null = null;
@@ -45,10 +50,14 @@ export function siteData() {
  */
 export function toCard(r: Report, tags: TagRegistry, linkBase = ""): CardData {
   const path = reportPath(r);
+  const hasEn = existsSync(join(r.dir, REPORT_FILES.htmlEn));
+  const pathEn = r.meta.visibility === "public" ? `/r/${r.slug}/en/` : `/p/${r.slug}/en/`;
   return {
     slug: r.slug,
     title: r.meta.title,
     summary: r.meta.summary,
+    title_en: r.meta.title_en,
+    summary_en: r.meta.summary_en,
     created: r.meta.created,
     updated: r.meta.updated,
     domain: r.meta.domain,
@@ -56,6 +65,7 @@ export function toCard(r: Report, tags: TagRegistry, linkBase = ""): CardData {
     tags: r.meta.tags.map((k) => ({ key: k, label: tags[k]?.label ?? k })),
     visibility: r.meta.visibility,
     href: r.meta.visibility === "public" ? `${linkBase}${path}` : path,
+    href_en: hasEn ? (r.meta.visibility === "public" ? `${linkBase}${pathEn}` : pathEn) : undefined,
   };
 }
 

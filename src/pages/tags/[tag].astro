@@ -15,7 +15,10 @@ const { publicReports, tags } = siteData();
 const cards = publicReports.filter((r) => r.meta.tags.includes(tag)).map((r) => toCard(r, tags));
 ---
 <Base title={`标签：${label}`}>
-  <p class="crumbs"><a href="/">Research Hub</a> / <a href="/tags/">标签</a></p>
+  <div class="crumbs-bar">
+    <p class="crumbs"><a href="/">Research Hub</a> / <a href="/tags/">标签</a></p>
+    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
+  </div>
   <h1 class="page-title">{label}</h1>
   <p class="page-sub">{cards.length} 篇报告</p>
   <ReportList cards={cards} linkTags />

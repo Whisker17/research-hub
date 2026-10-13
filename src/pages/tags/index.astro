@@ -7,7 +7,10 @@ const { publicReports, tags } = siteData();
 const list = usedTags(publicReports, tags);
 ---
 <Base title="标签">
-  <p class="crumbs"><a href="/">Research Hub</a></p>
+  <div class="crumbs-bar">
+    <p class="crumbs"><a href="/">Research Hub</a></p>
+    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
+  </div>
   <h1 class="page-title">标签</h1>
   <p class="page-sub">{list.length} 个标签</p>
   {

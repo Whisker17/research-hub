@@ -9,7 +9,7 @@ interface Props {
   showVisibility?: boolean;
 }
 const { card, linkTags, showVisibility = false } = Astro.props;
-const searchText = `${card.title} ${card.summary} ${card.tags.map((t) => `${t.key} ${t.label}`).join(" ")}`.toLowerCase();
+const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.summary_en ?? ""} ${card.tags.map((t) => `${t.key} ${t.label}`).join(" ")}`.toLowerCase();
 ---
 <article
   class="card"
@@ -17,11 +17,19 @@ const searchText = `${card.title} ${card.summary} ${card.tags.map((t) => `${t.ke
   data-domain={card.domain}
   data-tags={card.tags.map((t) => t.key).join(" ")}
   data-search={searchText}
+  data-title-zh={card.title}
+  data-title-en={card.title_en ?? ""}
+  data-summary-zh={card.summary}
+  data-summary-en={card.summary_en ?? ""}
+  data-href-zh={card.href}
+  data-href-en={card.href_en ?? ""}
+  data-created={card.created}
+  data-updated={card.updated}
 >
   <div class="card-top">
     <span class="domain">{card.domainLabel}</span>
-    {showVisibility && card.visibility === "private" && <span class="lock">私有</span>}
-    {showVisibility && card.visibility === "public" && <span class="lock">公开</span>}
+    {showVisibility && card.visibility === "private" && <span class="lock" data-i18n="private">私有</span>}
+    {showVisibility && card.visibility === "public" && <span class="lock" data-i18n="public">公开</span>}
   </div>
   <h2><a href={card.href}>{card.title}</a></h2>
   <p class="summary">{card.summary}</p>

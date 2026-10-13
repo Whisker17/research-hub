@@ -27,11 +27,23 @@ test("injectBackLink：没有 <body> 时报错；href 会转义", () => {
   assert.match(injectBackLink(page, '/"x', "a<b"), /href="\/&quot;x"[^>]*>← a&lt;b/);
 });
 
+test("injectBackLink：传入 altLangLink 时在导航栏右侧注入语言切换链接", () => {
+  const withLang = injectBackLink(page, "/", "Research Hub", { href: "./en/", label: "English" });
+  assert.match(withLang, /<a href="\.\/en\/"[^>]*>English<\/a>/);
+  assert.match(withLang, /justify-content:space-between/);
+});
+
 test("fingerprints：标题 / 摘要的原文与转义形式，以及站点路径", () => {
-  const r = { slug: "s", meta: { title: "A & B <C>", summary: "短" } } as unknown as Report;
+  const r = {
+    slug: "s",
+    meta: { title: "A & B <C>", summary: "短", title_en: "English Title", summary_en: "English Summary Description" },
+  } as unknown as Report;
   const f = fingerprints(r);
   assert.ok(f.includes("A & B <C>"));
   assert.ok(f.includes("A &amp; B &lt;C&gt;"));
+  assert.ok(f.includes("English Title"));
+  assert.ok(f.includes("English Summary Description"));
   assert.ok(!f.includes("短"), "过短的文本不作为指纹，避免误报");
   assert.ok(f.includes("/p/s/") && f.includes("/r/s/"));
+  assert.ok(f.includes("/p/s/en/") && f.includes("/r/s/en/"));
 });
