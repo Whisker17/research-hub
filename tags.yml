@@ -29,6 +29,10 @@ tags:
     label: 支付
   perps:
     label: 永续合约
+  post-quantum:
+    label: 后量子密码
+  privacy:
+    label: 隐私
   propamm:
     label: PropAMM
   routing:
@@ -37,5 +41,7 @@ tags:
     label: RWA
   security:
     label: 安全
+  starknet:
+    label: Starknet
   uniswap:
     label: Uniswap

@@ -1,0 +1,22 @@
+title: Starknet 账户模型、后量子迁移与 STRK20 / Shadow Account
+summary: Starknet 的 PQ 底气来自 hash-based 证明层和不规定签名算法的原生账户，但主网只迁出了证明层和两个 hash，“2027 PQ L1”仍是没有范围定义的考虑方向；STRK20 与 Shadow Account 的保密性建立在 ECDH 上，不继承证明层的 PQ 属性
+created: 2026-10-14
+updated: 2026-10-14
+domain: crypto
+tags:
+  - starknet
+  - account-abstraction
+  - post-quantum
+  - privacy
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/Starknet Account Model.md
+am_version: 0.5.2-research.1
+changelog:
+  - date: 2026-10-14
+    note: 创建（brief 快照）
+  - date: 2026-10-14
+    note: 首次发布：账户模型、PQ 迁移、STRK20 / Shadow Account（中英双语，sol review PASS）
+title_en: Starknet's Account Model, Post-Quantum Migration, and STRK20 / Shadow Accounts
+summary_en: Starknet's PQ confidence rests on a hash-based proving layer and native accounts with no fixed signature scheme, but mainnet has moved only the proving layer and two hashes off elliptic curves, and a PQ L1 by 2027 is an option with no defined scope. STRK20 and Shadow Account confidentiality rests on ECDH and does not inherit the proving layer's PQ property.
