@@ -23,6 +23,8 @@ tags:
     label: MEV 与交易排序
   near:
     label: NEAR
+  options:
+    label: 期权
   paper:
     label: 论文导读
   payment:

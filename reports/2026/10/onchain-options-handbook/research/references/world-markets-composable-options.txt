@@ -1,0 +1,820 @@
+                     The Economics of Composable Options Markets
+                                 Replication, liquidity formation, and capital efficiency
+                                            in composable financial markets
+
+                                                 World Markets Research
+                                                        October 2026
+
+                                                         Abstract
+
+        Onchain options are primarily constrained by liquidity. It is possible to construct options using existing onchain
+     spot and loan markets. October 2026 market data suggests a 6-12x increase in top of book liquidity is possible for
+     onchain calls and puts, relative to Derive V2, by constructing options from this existing liquidity. This opportunity
+     would allow traders to exploit market inefficiencies in current onchain options markets. We explore how the unique
+     properties of fully onchain matching and settlement unlock a more efficient market structure intermediated by
+     dealers in traditional equities and FX options markets.
+
+
+1     Introduction                                                    This paper evaluates the potential gains in executable
+                                                                   liquidity and capital efficiency under the assumption
+European options are not economically isolated contracts.          that the necessary counterparties, constituent-market
+Their payoffs are linked to spot, fixed-term financing,            liquidity, financing, and risk capital are available at eco-
+forwards, and other options via no-arbitrage identities.           nomically viable prices. Its objective is to quantify the
+These relationships permit economically equivalent pay-            improvements achievable through replication and inte-
+off profiles to be constructed through different instru-           grated market structure under these conditions.
+ments; the only difference between the “constructed”                  Three questions organize the paper: Which option
+payoff and “an option” is label, which is trivially solved.        payoffs can a venue construct exactly from executable
+The amount of liquidity available for a particular op-             constituent markets? How do dynamic hedging and joint
+tion therefore need not be determined solely by market             margin extend liquidity beyond static replication? And,
+makers’ resting orders in that option’s book.                      under explicitly specified inputs, how much additional
+   The opportunity is to integrate replication principles          option depth and immediate execution could these mech-
+into a trading venue, rather than rely only on market              anisms support?
+makers. A venue can compare a native option quote
+against an executable combination of spot, financing,
+and an opposite option, construct the cheaper or deeper            2     Replication Across Financial
+route, and deliver the requested payoff under enforceable                Markets
+settlement conditions. An onchain exchange is directly
+able to source existing liquidity of the underlying spot
+and loan markets adherent to replication logic. Where ex-
+                                                                   2.1    Put-call parity and ordinary financ-
+act static construction is unavailable, a liquidity provider              ing
+can supply the exposure dynamically through the same
+                                                                   For matched European calls and puts on the same un-
+spot and perpetual markets. Onchain portfolio margin
+                                                                   derlying, strike K, and expiry T , the terminal payoff
+for spot, loans, and options minimizes the additional
+                                                                   identity is
+capital required to supply the exposures which cannot
+be statically replicated.
+                                                                                     CT − PT = ST − K.                       (1)
+   This paper develops that architecture from Stoll’s
+(1969) put-call relationships, Black and Scholes’ (1973)              Let Bt (K, T ) be the present value of an enforceable
+and Merton’s (1973) dynamic replication, and Merton’s              fixed cash payment of K at T . Assuming matching settle-
+(1974) debt-option equivalence [1-4]. It then uses current         ment, no intervening cash distributions, and financeable
+onchain spot, lending, and options data to quantify plau-          positions, the corresponding price relation is
+sible quote capacity and execution benefits relative to
+current order book depth on Derive. Derive is a demand-                            Ct − Pt = St − Bt (K, T ).                (2)
+ing reference: it already offers options and perpetual
+portfolio margin, cross-asset collateral, and RFQ execu-             The right-hand side is the financed spot, or forward,
+tion [11,12]. The analysis therefore does not attribute            component of option payoffs. A conventional recourse
+those existing capabilities to a new design.                       loan can fund the spot purchase and supply the fixed
+                                                                   repayment obligation. Rearranging gives several exact
+
+
+                                                               1
+                       Table 1. Matched-payoff constructions at expiry
+
+                                                                                                              80
+
+
+
+
+                                                                                       Terminal receipt ($)
+Target payoff                          Equivalent portfolio
+Long call                              Long spot + long put - fixed
+                                                                                                              60
+                                       repayment claim
+                                                                                                                               Lender claim
+Long put                               Long call - spot + fixed repayment                                                      Borrower equity
+                                                                                                              40
+                                       claim
+Long forward                           Long call - long put = spot - fixed
+                                                                                                              20
+                                       repayment claim
+Covered call                           Long spot + short call = fixed
+                                                                                                               0
+                                       repayment claim + short put
+                                                                                                                   60      80     100    120      140
+                                                                                                                    Collateral value at maturity ($)
+
+                        40                                                            Figure 2: Non-recourse debt with promised repayment of
+
+
+
+
+ Terminal payoff ($)
+                                                                                      $90 splits collateral into a lender claim and borrower equity.
+                        20                                                            Illustrative maturity-settled contract.
+
+                          0                                                           lateral ending at $120 or $70 yields lender receipts of
+                                                                                      $90 or $70, and borrower equity of $30 or $0. This is
+                       −20                                                            an exact contingent-payoff relationship, not a statement
+                                                           Financed spot
+                                                           Put                        that a conventional liquidatable DeFi loan embeds a
+                       −40                                                            freely tradable European put. The example is relevant
+                                                           Synthetic call
+                                                                                      as an illustration of the broader body of work around
+                                 60    80     100     120     140                     option replication.
+                                  Underlying price at expiry ($)
+
+Figure 1: Exact payoff construction at strike K = 100:                                2.3                      Dynamic replication where no exact
+financed spot plus a put equals a call. Illustrative terminal                                                  static route exists
+payoffs; premiums excluded.
+                                                                                      When neither an opposite option nor a matching con-
+                                                                                      tingent claim is executable, Black-Scholes-Merton repli-
+static constructions, given a blockchain gives all legs
+                                                                                      cation provides another route: a liquidity provider as-
+identical settlement properties.
+                                                                                      sumes an options position and dynamically adjusts its
+   Here a minus sign denotes a short position or a re-                                underlying exposure [2,3]. For option value V (S, t), the
+payment obligation, not the absence of collateral. These                              instantaneous directional hedge is determined by
+identities relate contractual payoffs, not necessarily the
+margin requirements or bid-ask prices of the correspond-                                                                          ∂V
+ing trades, this paper explores margin requirements in                                                                     ∆t =      .                  (4)
+                                                                                                                                  ∂S
+a subsequent section. Exact static option construction
+needs a source of convexity: the opposite option, or an-                                 A dealer short an approximately at-the-money call
+other enforceable claim with the same contingent payoff                               with delta 0.5 initially acquires roughly half a unit of
+[1,23].                                                                               spot or equivalent long-perpetual exposure per call. That
+                                                                                      hedge must change as price, time, and implied volatil-
+                                                                                      ity evolve. A spot-plus-financing hedge corresponds to
+2.2                      Non-recourse debt as an alternative                          the idealized replication model; a perpetual introduces
+                         contingent claim                                             funding and basis risks. A practical short-option dealer
+                                                                                      still bears discontinuous rehedging, gamma, volatility
+Merton’s (1974) debt-option relationship identifies one                               repricing, execution, and liquidation risks.
+such alternative. For an idealized, maturity-settled non-
+                                                                                         Thus static construction transfers an already available
+recourse loan secured by an asset worth ST and promis-
+                                                                                      equivalent payoff; dynamic replication creates an addi-
+ing K at T , the lender receives
+                                                                                      tional quoted option position whose residual risks must
+                                                                                      be borne and financed.
+                       DT = min (ST , K) = K − max (K − ST , 0) .           (3)
+
+  The lender’s claim equals a fixed repayment minus a
+put; the borrower’s retained equity is max (ST − K, 0),
+a call. For example, a $90 repayment secured by col-
+
+
+                                                                                  2
+3     Constructing Synthetic Options                                       If the native call ask also offers 40 independent units,
+                                                                         the venue can execute up to 100 units within a limit
+      Liquidity                                                          price that admits both routes. At a tighter limit only
+                                                                         the synthetic units may qualify. Routing can atomically
+The exchange-level proposition is to “construct” resting
+                                                                         account for price impact, shared constituent inventory,
+limit orders in the native options book as a function
+                                                                         credit constraints, and whether other routes already
+of all executable, payoff-equivalent routes, then atom-
+                                                                         consume the same spot or financing liquidity; otherwise
+ically execute the best feasible route or combination.
+                                                                         quoted depth is double-counted.
+Onchain, programmatic settlement creates the enforce-
+able conditions under which the synthetic route is not
+only valid but economically indistinguishable from the                   3.3    Adding dynamically hedged quota-
+“native” option contract.                                                       tions
+                                                                         Exact synthetic depth is limited by the supply of ex-
+3.1    From parity to executable bids and                                isting convexity. Where that supply is absent or too
+       asks                                                              expensive, a risk-bearing dealer can offer further options
+                                                                         capacity against dynamically executed spot or perpetual
+Consider a call and put with matching strike and expiry.
+                                                                         hedges. The venue may help price and coordinate this
+Let S a , S b and P a , P b denote executable spot and put
+                                                                         route, but some party must own the residual short-
+asks and bids. Let B borrow be the cash actually received
+                                                                         or long-volatility risk. Dynamic hedging is not an
+today for assuming a fixed repayment of K at expiry, and
+                                                                         instantaneously enforceable parity trade.
+B lend the cash paid today to acquire the corresponding
+fixed-payment claim. With financing and credit fric-                        The venue therefore aggregates two different liq-
+tions, generally B borrow ≤ B lend . The parity-implied                  uidity sources: payoff-equivalent static routes,
+executable call prices are                                               which repackage existing positions, and risk-backed
+                                                                         dealer quotations, which expand options risk inventory.
+                                                                         Shared hedge markets and a common margin account
+               C syn,a = S a + P a − B borrow ,                (5)
+                                                                         make the second source more capital-efficient.
+
+                 C syn,b = S b + P b − B lend .                (6)
+   The first builds a long synthetic call by buying spot
+                                                                         4     Dynamic Hedging and Portfolio
+and a put while assuming the repayment obligation. The                         Margin
+second builds a short synthetic call by selling the corre-
+sponding constituent positions and acquiring the fixed                   Options fragment into strikes, maturities, and call/put
+claim; it requires inventory or executable shorting and                  types while their directional hedges concentrate in the
+appropriate short-put margin. Both directions include                    same underlying markets. A menu of 20 strikes, 10
+trading fees, slippage, and settlement costs, which are                  expiries, and two types comprises 400 option series, yet
+all deterministically knowable at runtime.                               an options portfolio has one aggregate underlying delta
+   For illustration, take spot bid/ask $99.80/$100.20, put               per risk asset:
+bid/ask $3.60/$4.00, financing proceeds $99.80, and the
+cost of the fixed-payment claim $99.90, all for a $100                                       qhedge ≃ −nj ∆j .                 (8)
+strike and one underlying unit. Synthetic call bid/ask
+is therefore $3.50/$4.40. Against a native call bid/ask                     The dealer can source that delta from spot or perpetual
+of $3.25/$4.80, the synthetic route improves both sides.                 liquidity rather than separately hold a directional hedge
+This is arithmetic from assumed firm constituent quotes,                 for every series. Its remaining exposure includes gamma,
+not an observed onchain arbitrage.                                       volatility-surface changes, basis, funding, and execution.
+                                                                         A common margin engine can measure these together
+                                                                         with the spot and financing positions, rather than simply
+3.2    Depth, aggregation, and execution                                 sum independent position margins.
+Executable depth is constrained by the scarcest con-
+stituent leg. If an ask-side call route has 150 units                    4.1    Net risk and eligible collateral are
+available at the spot ask, 80 at the put ask, and suf-                          distinct
+ficient term financing for only 60, then its synthetic
+call capacity is 60 units, not 150. More generally, in                   Netting reduces the margin associated with offsetting
+contract-equivalent units,                                               exposures. Collateral recognition determines which ex-
+                                                                         isting assets may satisfy that margin. In an illustrative
+                                                                         stress framework,
+      qsyn ≤ min (qspot , qopposite option , qf inancing ) .   (7)
+
+
+                                                                     3
+                   Static route: bottleneck = 60                                 Independent liquidity adds
+
+        Spot                                          150      Combined                                            100
+
+
+
+
+         Put                        80                         Synthetic                             60
+
+
+
+
+ Financing                     60                                   Native                   40
+
+
+
+               0           50        100           150                       0     20     40    60    80         100     120
+                             Available units                                              Executable units
+
+Figure 3: The static route is limited by its smallest constituent. Independent native liquidity can add to synthetic depth at
+an admissible price limit. Section 3.2 assumptions.
+
+                                                                   ($0.45M+$0.98M)/0.15=$9.53M, or 3.18x. These are
+           M (Π) = max max (0, −∆V (Π; s)) ,             (9)       model portfolios contrasting eligible and ineligible fixed-
+                     s∈S
+                                                                   term claims; they are not measured Derive V3 or pro-
+   where Π is the entire portfolio and S is a common set of        posed V2 margin outputs.
+price, volatility, funding, liquidity, and credit scenarios.         Collateral reuse adds liquidity and wrong-way risks.
+An integrated account can recognize a covered call’s               Joint stress must mark down the lending claim when the
+underlying, a protective put’s downside protection, or             derivative portfolio is impaired, incorporate settlement
+the offset between spot and a short perpetual. It must             and liquidation costs, and avoid counting the same asset
+also preserve solvency during adverse intermediate price           twice.
+paths.
+   Derive already recognizes options and perpetual net-
+ting and certain spot assets as collateral [11]. A potential
+                                                                   4.3    From hedges and capital to dealer
+incremental mechanism is to recognize eligible native                     quote size
+fixed-term lender claims in the same ledger as spot,               For option delta magnitude |∆|, executable underlying
+perps, and options, subject to their liquidity and credit          hedge notional H, eligible risk-financing capital Ce , ap-
+risk. The illustrative integrated-credit scenario uses 98%         proximate margin fraction m, and independent residual-
+recognition of an eligible lender claim, a documented ex-          risk ceiling NR , a useful dynamic dealer capacity
+isting multi-asset collateral parameter [20-22]; an options        bound is
+extension still requires joint stress treatment.
+                                                                                                           
+                                                                                                   H Ce
+                                                                                 Qdyn ≤ min          ,  , NR .            (10)
+4.2    A matched financing example                                                                |∆| m
+
+Suppose a dealer has a $1.00 million eligible stable-                This is not a formula for static synthetic depth, which
+denominated fixed-term lending claim, sells $1.00 million          depends on each constituent order book and financing
+underlying-reference notional of at-the-money calls, and           route. Portfolio margin relaxes the capital constraint.
+holds a $0.50 million long-perpetual hedge. For the sim-
+plified expiry prices $70 and $130 from an initial $100,
+the derivative book loses $150,000 in either shock. As-            5     Quantifying the Liquidity Ad-
+sign the same $150,000 illustrative risk requirement to                  vantage
+both compared derivatives accounts.
+   The illustrative 13.04% total-capital reduction is              The empirical benchmark is Derive, an established on-
+$0.15M/$1.15M. It comes from reusing an existing                   chain options venue with portfolio margin and RFQ
+credit asset, not from lowering the derivatives loss               [11-13]. We use an October 12, 2026 research snap-
+estimate.     With a fixed total capital budget of                 shot to retain a consistent numerical comparison. It
+$1.45 million, of which $1 million is placed in term               is a dated set of market observations. We distinguish
+credit, a further simplified 15% derivatives margin                observed volume and positions from executable depth, as-
+factor yields capacities of $0.45M/0.15=$3.00M and                 sumed liquidity-provider capacity, and modeled customer
+
+
+                                                               4
+                        Table 2. Incremental collateral recognition for an identical dealer portfolio
+
+Measure                                                Fixed-term claim external to          Integrated eligible term
+                                                       derivatives account                   claim
+Existing term-lending investment                       $1.00M                                $1.00M
+Netted derivatives requirement                         $0.15M                                $0.15M
+Term claim eligible against requirement                $0                                    $0.98M
+Additional cash needed                                 $0.15M                                $0
+Total capital committed                                $1.15M                                $1.00M
+
+
+fills.                                                                The aggregate spot and loan data in Table 3 establish
+                                                                   an economically material candidate liquidity base,
+                                                                   but do not provide those simultaneous per-strike inputs.
+5.1      Onchain markets and the Derive
+                                                                   The executable parity example in Section 3 demonstrates
+         benchmark                                                 the mechanism and its pricing, not its observed market
+Data boundary: The October 12 values are dated figures             size.
+transcribed from the cited source dashboards; without
+an immutable historical export, they cannot be recon-              5.3    Potential liquidity improvement
+structed from the current live counters. The Sept. 24                     through jointly margined option
+source captures public visible order-book depth, not
+                                                                          portfolios
+Derive V3 or firm institutional RFQ liquidity. Trading
+volume is a time-period flow; outstanding loans and                A portfolio-based calibration identifies potential quoted
+open interest are point-in-time stocks. Neither is a               quantities of 532–1,052 option units, approximately 6–
+measure of immediately executable hedge depth.                     12 times the 90-unit ask in the historical Derive V2
+   The corresponding ratios - spot turnover to options             benchmark. These quantities use approximately the
+turnover, combined active loans to Derive option open              same 60 ETH of initial spot hedging, with measured
+interest, and Derive’s share of tracked onchain option             spot execution costs equivalent to approximately $0.30
+turnover - are                                                     and $0.15 per customer-facing option respectively. In an
+                                                                   illustrative stress model, the associated risk reserves are
+                     246.593                                       approximately $19,000, supporting 1.34 - 2.64 million
+                             = 50.5.                    (11)
+                      4.881                                        of customer-facing option reference notional. A more
+                                                                   aggressive scenario reaches approximately 2,620 units,
+                                    17.93
+         12.15 + 5.78 = 17.93,            = 10.8.       (12)       or 29 times the historical displayed size, but requires
+                                    1.655                          substantially more liquidity in a closely matching hedge
+                      4.236                                        option.
+                            = 86.8%.                  (13)            These estimates describe conditional quotation capac-
+                      4.881
+                                                                   ity. They combine measured onchain spot execution
+  These ratios establish the relative scale of existing
+                                                                   with modeled option portfolios and assume that suffi-
+spot, credit, and option markets. They do not imply 50.5
+                                                                   cient offsetting options and financing are executable. The
+times more executable hedge liquidity, or 10.8 times more
+                                                                   6–12-fold range represents two specified hedge configura-
+reusable option collateral. Only price-and-size executable
+                                                                   tions rather than a statistical confidence interval. Gas
+orders and eligible, maturity-matched funding can enter
+                                                                   costs are set to zero throughout.
+an actual synthetic route.
+
+                                                                   The mechanism: finance the residual portfolio
+5.2      The static-route mechanism and                            risk
+         what the data establish
+                                                                   The larger opportunity arises when a dealer combines
+Section 3 gives executable synthetic call prices and               the customer-facing option with an offsetting option
+a constituent-depth bound. To measure the static-                  and hedges only the remaining directional exposure in
+routing uplift for a given contract, one would observe             spot. For example, a dealer offering an at-the-money call
+spot and opposite-option order-book levels, firm ten-day           can simultaneously acquire a call with the same expiry
+lending and repayment prices, fees, and permitted short            and a slightly higher strike. The customer receives the
+positions at the same instant. Native and synthetic                requested call, while the dealer holds a short call spread
+routes could then be sorted by all-in price, allocated with-       and a spot hedge.
+out reusing the same constituent liquidity, and compared             The purchased call offsets much of the sold call’s
+at an identical client price limit.
+
+
+                                                               5
+                                      Table 3. Market observations used as inputs
+
+Market                   Measurement                Value                   Period / date                   Source
+Onchain spot DEXs        Trading notional           $246.593B               Prior 30 days; Oct. 12, 2026    [15]
+Aave V3                  Active loans outstanding   $12.15B                 Snapshot; Oct. 12, 2026         [18]
+Morpho                   Active loans outstanding   $5.78B                  Snapshot; Oct. 12, 2026         [17]
+All tracked onchain      Option notional traded     $4.881B                 Prior 30 days; Oct. 12, 2026    [14]
+options
+Derive                   Option notional traded     $4.236B                 Prior 30 days; Oct. 12, 2026    [13]
+Derive V3                Options open interest      $1.655B                 Snapshot; Oct. 12, 2026         [13]
+Derive V2                Best bid on                82.8 ETH                Public capture; Sep. 24, 2026   [16]
+                         ETH-20261002-2700-C
+ETH option               Contract strike            $2,700                  Same historical option          [16]
+normalization
+
+
+gamma and vega. The option spread alone also has
+a bounded terminal liability determined by the differ-
+                                                                   Historical ask    90
+ence between the strikes. Adding the spot hedge reduces
+initial delta but changes the portfolio’s risk profile, so
+the combined position must be assessed jointly. [24]                   $50 offset         532 / 5.9×
+    A unified margin framework could recognize these off-
+sets and finance the resulting portfolio according to its
+residual risk. This extends the existing principle of eval-            $25 offset              1,052 / 11.7×
+
+uating spot, perpetuals, and borrowing together. [20]
+The economic benefit is that capital need not be reserved                                                      2,620 / 29.1×
+                                                                       $10 offset
+as though each leg were an independent directional ex-
+posure.
+    For q customer-facing calls, the initial spot purchase                          0    1000     2000     3000
+is:                                                                                 Customer-facing option units
+
+                                                                  Figure 4: Conditional quotation capacity using approxi-
+                 h = q (∆sold − ∆hedge ) .            (14)        mately 60 ETH of initial hedging. The 90-unit historical ask
+                                                                  is the comparison baseline; the three hedge scenarios assume
+  A standalone short call with delta near 0.50 requires
+                                                                  executable offsetting calls. The $10 case is the aggressive
+approximately half an ETH of initial hedging per option           scenario.
+unit. When a nearby call supplies an offsetting position,
+the difference between the two deltas can be much smaller.
+                                                                  separately. Each customer-facing call is backed by one
+The same executable spot liquidity can therefore support
+                                                                  purchased call with the same expiry and a higher strike.
+a substantially larger customer-facing quotation.
+                                                                     Quantities are rounded down to remain within approx-
+                                                                  imately 60 ETH of initial hedging. The full measured
+Calibration using onchain spot liquidity                          execution cost is retained for these slightly smaller quan-
+The spot input is a simulated purchase of 60 ETH across           tities.
+two Uniswap V3 WETH/USDC pools at Ethereum                           The table describes calls offered in one customer-facing
+block 26,189,586, corresponding to October 14, 2026,              series, rather than a sum of gross orders across different
+at 08:36:59 UTC. The route buys 40 ETH through the                books. However, each configuration also requires the
+5-basis-point pool and 20 ETH through the 1-basis-                corresponding quantity of hedge calls. The $25 config-
+point pool. At the common reference price of 2,510.8339           uration, for example, requires 1,052 executable hedge
+USDC per ETH, the quoted cash input is approximately              calls at the specified higher strike. Their availability
+$150,808.54, including $158.51 of pool fees and price im-         and execution prices are assumptions, not observations
+pact. The calls are evaluated against the same blockchain         established by the spot simulations.
+state. [27,28]
+   To translate this observation into option capacity, con-       Capital requirements for the combined position
+sider hypothetical seven-day European calls with an at-
+the-money customer strike, 50% implied volatility, and a          To examine the financing mechanism, the portfolios are
+flat volatility surface. Black–Scholes valuation uses zero        repriced under an illustrative stress grid covering spot
+interest rates; actual borrowing expense is introduced            changes between -20% and +20%, implied volatilities of
+
+
+                                                              6
+                            Table 4a. Hedge configurations and candidate quotation capacity
+
+Hedge call strike        Initial net delta per       Customer-               Total size relative to          Initial spot
+above customer           option package              facing call units       historical 90-unit ask          execution cost
+strike                                               supported                                               per customer
+                                                                                                             call
+$50                      0.1126                      532                     5.9×                            $0.30
+$25                      0.0570                      1,052                   11.7×                           $0.15
+$10                      0.0229                      2,620                   29.1×                           $0.06
+
+
+25%, 50%, and 75%, and remaining maturities of seven,              call. This is a materially larger opportunity than treat-
+three, one, and zero days. The initial spot hedge is held          ing every customer call as a standalone short-convexity
+fixed within each scenario. The largest modeled losses             position requiring a full initial delta hedge.
+are:
+   These calculations illustrate how a relatively small            From portfolio capacity to executable resting
+risk reserve can support a large customer-facing option            depth
+position when an executable option hedge offsets much
+of its exposure. They are not production World margin              A venue can expose these portfolios as resting option
+outputs or maximum possible losses. Larger price shocks,           quotations by coordinating the customer order, option
+volatility-surface distortions, liquidation costs, and hedge       hedge, spot execution, and financing. Each quotation
+adjustments can require additional capital. In particular,         must remain backed by executable constituent liquidity
+the small initial delta difference need not persist as the         and sufficient capital after adverse fills. Shared hedge
+underlying approaches either strike near expiry.                   orders cannot be counted repeatedly across different
+   Risk capital must also be distinguished from cash               customer-facing series. When a constituent changes,
+financing. The spot purchase still needs funding. Assum-           the associated quotation must be updated, cancelled, or
+ing the option premiums settle together, the modeled net           supported by committed dealer inventory.
+premium receipts reduce the required financing to ap-                 The capacity of the route is therefore constrained by
+proximately $139,000 in the $50 and $25 configurations,            the smallest of its available hedge-option quantity, afford-
+before dealer equity is applied to reduce borrowing. Joint         able spot execution, financing capacity, and residual-risk
+margin can make this funding more capital-efficient, but           capacity. The 6–12-fold scenarios become executable
+does not eliminate the need for an executable financing            depth only when all of these conditions hold together.
+facility.                                                             Derive V2 already recognizes option spreads and port-
+                                                                   folio offsets. [11] The incremental World hypothesis is
+Can the larger quotations remain competitively                     therefore that integrating constituent execution and fi-
+priced?                                                            nancing makes more of this economically available capac-
+                                                                   ity accessible as competitive resting orders. Establishing
+The historical Derive V2 observation reports a $67.20 ask          that advantage requires a matched comparison of the
+for 90 units and a $63.30 bid for ETH-20261002-2700-               same contracts, prices, portfolios, and capital budgets,
+C. [16] Its midpoint implies a $1.95 ask-side allowance            including Derive’s deeper book and executable RFQs.
+if the midpoint is adopted as a hypothetical pre-cost                 The numerical opportunity is nevertheless substantial:
+option value. Here, that dollar allowance is used only             the measured spot route, combined with specified option
+as a pricing sensitivity: the historical contract and date         offsets, supports candidate quotations of approximately
+differ from the new model portfolio.                               530–1,050 units with modest modeled residual capital
+   At an assumed 5% annual borrowing rate for seven                requirements. The decisive empirical input is the exe-
+days, the measured spot friction and modeled financing             cutable supply of the offsetting options. The article’s
+expense consume the following amounts:                             central proposition is that a venue can organize that sup-
+   The hedge option’s model premium is included in the             ply, spot liquidity, and financing into a deeper options
+portfolio cash flows. The remaining allowance must cover           book through joint execution and portfolio margin.
+its execution cost above model value, subsequent hedging,
+venue fees, capital compensation, and profit.                      5.4    Capital capacity and a matched
+   The $25 configuration consequently identifies a con-                   dealer comparison
+crete feasibility condition: a quotation of approximately
+1,052 customer-facing calls can fit the illustrative al-           The Section 4 balance sheet supplies an independent test
+lowance if the hedge option is available in that quantity          of the collateral constraint. Given $1.45 million in dealer
+and all remaining costs fit within approximately $1.67 per         capital, $1 million already in term loans, 98% term-claim
+                                                                   eligibility in the integrated scenario, and an assumed
+
+
+                                                               7
+                                                                    Table 4b. Illustrative joint stress reserves
+
+Hedge strike                                       Modeled stress reserve per          Reserve as a share of                                                  Total reserve for the
+difference                                         customer call                       customer option reference                                              candidate quotation
+                                                                                       notional
+$50                                                $35.59                              1.42%                                                                  $18,932
+$25                                                $17.49                              0.70%                                                                  $18,395
+$10                                                $6.88                               0.27%                                                                  $18,034
+
+                                                                      Table 4c. Per-call pricing allowance
+
+Hedge strike                                       Initial spot friction per call      Financing expense per call                                             Remaining from a $1.95
+difference                                                                                                                                                    pricing allowance
+$50                                                $0.30                               $0.25                                                                  $1.40
+$25                                                $0.15                               $0.13                                                                  $1.67
+$10                                                $0.06                               $0.05                                                                  $1.84
+
+
+
+
+                                                                                               Total stress reserve ($ thousands)
+                               40
+
+
+
+
+ Stress reserve per call ($)
+                                          35.59                                                                                     20      18.93            18.39          18.03
+
+                               30                                                                                                   15
+
+
+                               20                           17.49                                                                   10
+
+
+                               10                                            6.88                                                    5
+
+
+                                0                                                                                                    0
+                                       $50 offset  $25 offset      $10 offset                                                             $50 offset  $25 offset      $10 offset
+                                              Hedge strike difference                                                                            Hedge strike difference
+
+Figure 5: Modeled reserves from Section 5.3. Per-call risk falls as the strike gap narrows; aggregate reserves stay near $19,000
+as quoted units rise. These are illustrative stress outputs.
+
+15% reserve per dollar of options reference notional, the                                                          5.5                   Immediate execution and incremen-
+capital ceilings are $3.00M for segregated term credit                                                                                   tal volume
+and $9.53M for eligible integrated credit. The ratio is
+3.18x, holding derivatives netting identical.                                                                      Let X be an incoming sell order’s option reference
+  Now give both dealers the same accessible underlying                                                             notional, and Q the firm bid quantity at a specified
+hedge H = $3.00M and option |∆| = 0.5. Directional                                                                 best price. Its immediate best-price fill is min(X, Q).
+hedge capacity is 3/0.5 = $6.00M . With nonbinding                                                                 For an assumed exponential order-size distribution with
+residual-risk limits,                                                                                              mean µ, the expected share of requested notional filled
+                                                                                                                   immediately is
+                                     Qseparate = min(3.00, 6.00) = $3.00M,
+                                                                                    (15)                                                              E [min(X, Q)]
+                                    Qintegrated = min(9.53, 6.00) = $6.00M.                                                              F (Q, µ) =                 = 1 − e−Q/µ .     (16)
+                                                                                                                                                          E[X]
+  The integrated structure could therefore support twice
+                                                                                                                      Use µ = $100, 000, round the historical bid to QD =
+the reference notional in this capital-bound scenario. If
+                                                                                                                   $224, 000, and posit a new firm bid of QU = $1, 000, 000
+hedge liquidity fell to H = $1M , both capacities would
+                                                                                                                   at the same effective execution price, replenished
+be limited to 2M and the uplift would vanish. This
+                                                                                                                   between requests. The resulting fill shares are 89.354%
+exercise isolates a fixed-term-claim eligibility mechanism
+                                                                                                                   and 99.995%. Per V = $1B of hypothetical incoming
+relative to a Derive-style derivatives account with
+                                                                                                                   sell demand,
+that claim held externally.
+
+
+
+                                                                                           8
+ Option reference notional ($M)
+                                  10
+
+
+
+
+                                                                                       Immediate best-price fill (%)
+                                                                                                                       100
+                                           External term claim                                                                                       ~100%
+                                           Eligible term claim
+                                   8                                                                                    80
+                                                                                                                                      89.4%
+                                   6                                                                                    60
+
+                                   4
+                                                                                                                        40
+
+                                   2
+                                                                                                                        20
+
+                                   0
+                                                                                                                         0
+                                       0    1      2     3     4      5    6                                              0.0   0.2     0.4    0.6    0.8    1.0
+                                           Available hedge notional ($M)                                                              Firm bid depth ($M)
+
+Figure 6: Capital and hedge constraints jointly determine                             Figure 7: Modeled immediate best-price fill share, 1−e−D/µ ,
+dealer capacity. Curves use the Section 5.4 assumptions:                              with mean request size µ = $0.10M. Points mark $0.224M
+delta 0.5 and capital ceilings of $3.00M and $9.53M.                                  and $1M firm bid depth; this is a demand model.
+
+                                                                                      approximately $220T annualized at a purely illustra-
+                                                                                      tive 250 trading days [8,9]. These are different statistical
+ ∆Vimmediate = V [F (QU , µ) − F (QD , µ)] = $106.4M.                                 samples and measures: margin savings are collateral
+                                                    (17)                              reductions, not fee revenue, while options turnover is
+   Some additional best-price execution would otherwise                               neither financing cost nor profit.
+have occurred deeper in the book, via RFQ, or later. De-                                 A replication-aware venue potentially internalizes more
+fine θ as the assumed fraction becoming genuinely                                     than clearing efficiency: it can compare economically
+new volume, not merely better-priced or accelerated                                   equivalent execution paths, source the associated spot
+execution. At θ = 50%,                                                                and financing, and settle the combined package within
+                                                                                      one risk framework. Doing this across institutional FX or
+                                       ∆Vnew = θ ∆Vimmediate = $53.2M.     (18)       equity markets would also require matching legal, regu-
+                                                                                      latory, market-access, and settlement rights; the present
+   The separate 3M -versus-6M collateral experiment,                                  onchain estimates do not quantify those extensions.
+with assumed mean request size µ = $2M , yields fill
+shares of 77.69% and 95.02%, or $173.3M more im-
+mediate best-price execution per $1B demand. At the                                   7                                World Markets V2: +Options
+same assumed conversion factor, the implied new trading
+is $86.7M. Neither calculation measures actual World                                  World Markets V2 applies these principles at the venue
+routing or Derive order-flow conversion; both require                                 level. It will compare native option orders with exe-
+fixed executable quote sizes and price conditions that                                cutable synthetic constructions and assemble the lat-
+are not provided by the aggregate dashboards.                                         ter from spot, fixed-term financing, and option payoffs
+                                                                                      whenever they provide a better price or deeper liquidity.
+5.6                                Results and evidentiary status                     Matching static-payoff components can be encoded in
+                                                                                      smart contracts. Where exact construction is unavailable,
+6                                 The Economics of Financial In-                      risk-bearing liquidity providers or vaults can hedge resid-
+                                                                                      ual exposure through the existing spot and perpetual
+                                  termediation                                        markets with full portfolio margin across all instruments.
+                                                                                         Net exposures and eligible yield-bearing collateral can
+The benefits of financing related derivatives exposures                               therefore support the combined trade rather than fund
+together are already material in traditional markets.                                 each leg independently; the existing risk framework rec-
+Studies of clearing fragmentation and established cross-                              ognizes eligible lender-side loans at 98% of value [20-22].
+margin arrangements show how separate intermedia-                                     The expected result is greater executable depth and more
+tion and collateral constraints can consume capital even                              efficient capital use, subject to sound options and credit-
+where economic risks offset. The relevant gain is not the                             risk controls. The capital efficiency gains are illustrated
+disappearance of risk, but the reduction of duplicated                                in the table below, comparing the additional margin re-
+financing and operational requirements [5-7].                                         quirements on World Markets v2 vs Derive and isolated
+   The BIS OTC figures imply $634B+$245.8B=$879.8B                                    margin.
+of average daily FX and interest-rate options notional, or
+
+
+                                                                                  9
+                                         Table 5. Principal quantitative conclusions
+
+Result                                                  Estimate                              Evidence
+Onchain spot/options 30-day turnover                    50.5x                                 Dated aggregate market data
+Aave + Morpho loans / Derive options OI                 10.8x                                 Dated outstanding balances
+Static synthetic call bid/ask in worked example         $3.50 / $4.40                         Illustrative executable-leg prices
+Jointly margined candidate quote capacity               532–1,052 units                       Modeled offsetting calls and
+                                                                                              approximately 60 ETH initial
+                                                                                              spot hedge
+Ratio to historical Derive V2 90-unit ask               5.9–11.7x                             Conditional capacity / historical
+                                                                                              displayed ask
+Capital-limited capacity increase                       3.18x                                 Fixed-term collateral eligibility
+                                                                                              scenario
+Matched-case hedge-and-capital quote increase           2.00x                                 $3M versus $6M, conditional
+Additional immediate best-price execution               $106.4M / $1B demand                  Assumed order sizes and firm
+                                                                                              quote depth
+Potential incremental traded volume                     $53.2M / $1B demand                   Further assumed 50% conversion
+
+                            Table 6. Selected traditional-market scale and intermediation evidence
+
+Measure                                                                              Reported observation
+Clearing-fragmentation cost in studied LCH interest-rate swap market                 $80M per day
+OCC-CME cross-margin average collateral savings (2014)                               $700M per day
+OCC-CME average participant margin reduction                                         54%
+CME swaps/futures average daily margin savings (2025)                                $8.4B
+OTC FX options daily turnover (April 2025)                                           $634B
+OTC interest-rate options daily turnover (April 2025)                                $245.8B
+Listed options contracts worldwide (2025)                                            88.65B contracts
+
+                    Table 7. Capital required for complete trades (USD thousands; provisional comparison)
+
+Trade                     Position                                          Isolated       Derive          World Markets
+                                                                                                           V2
+Basis trade               $100k spot + short perp                           130            8.5             0.1
+Covered call              $100k spot + short ATM call                       100            19              7
+Collar                    $100k spot + long put + short call                100            13              4
+Delta-hedged call         $50k spot + short $100k ATM call                  80             9               2
+Cash-secured put          $100k term claim + short ATM put                  130            12              9
+
+
+8     Implementation,                   Risks,        and           value options nonlinearly, recognize spot/perp offsets
+                                                                    without ignoring basis risk, and stress loan claims under
+      Empirical Tests                                               the same adverse states as the derivatives. Cross-product
+                                                                    composability without shared enforceable margin rights
+A venue-level synthetic router must enforce payoff iden-
+                                                                    does not solve this problem [19-22].
+tity, executable prices, and deliverable settlement.
+Static legs must match currency, strike, expiry, exer-                The mechanism admits direct tests: (i) compare each
+cise rights, and underlying distributions; borrowing or             native option quote against contemporaneous executable
+lending must provide the required fixed-date cash flows.            synthetic route prices and deduplicated depth; (ii) mea-
+Atomic or otherwise guaranteed bundled execution pre-               sure dealer quotes and market impact conditional on
+vents one-sided fills. Firm synthetic depth must exclude            available spot/perp hedge liquidity; (iii) stress the com-
+the same liquidity reserved by another route, and funding           bined derivatives and credit account; and (iv) measure
+markets must be executable for the full trade size.                 immediate fills and the fraction of improved execution
+                                                                    that actually becomes new volume. A like-for-like perfor-
+   For dynamically hedged options, a designated dealer
+                                                                    mance comparison with Derive V3 must sample its firm
+must bear the gamma, volatility, gap, basis, funding, and
+                                                                    displayed orders and RFQs at the same times and option
+liquidation risks. An account-level margin ledger must
+                                                                    contracts. If constituent-market execution is expensive,
+
+
+                                                               10
+                                                       Lower capital required is better
+
+
+                                                                      Derive            World Markets V2
+
+
+
+
+ Capital required ($ thousands)
+                                  20                     $19k
+
+
+
+                                  15                                           $13k
+                                                                                                                            $12k
+
+                                  10   $8.5k                                                          $9k                            $9k
+                                                                $7k
+
+                                   5                                                    $4k
+                                                                                                              $2k
+                                               $0.1k
+                                   0
+                                       Basis trade       Covered call            Collar              Delta-hedged          Cash-secured
+                                                                                                          call                 put
+
+Figure 8: Capital required: Derive versus World Markets V2. Lower bars indicate less capital required for the same trade.
+The isolated-margin series is omitted for clarity; all values remain in Table 7. Values are provisional supplied estimates, not
+independently measured margin-engine outputs.
+
+the financing is mismatched, or residual risk binds, the                             der a specified term-credit example, and an estimated
+proposed liquidity advantage can disappear.                                          $53.2 million of new volume per $1 billion of incoming
+                                                                                     demand only with a 50% conversion assumption. The
+                                                                                     general contribution is a method for combining the exist-
+9                                 Conclusion                                         ing financial system’s constituent liquidity, rather than
+                                                                                     recreating it independently for every contingent contract.
+Put-call parity establishes that options, spot, and fixed-
+term repayment claims are linked by exact payoff iden-
+tities. With an opposite option, or a compatible non-                                References
+recourse contingent claim, a venue can construct an
+option payoff statically. Ordinary recourse loans supply                             [1] Stoll, H. R. (1969). “The Relationship Between Put and
+the financing component but not convexity. When no                                   Call Option Prices.” Journal of Finance. https://doi.org/
+exact static route exists, dynamically hedged dealers                                10.1111/j.1540-6261.1969.tb01694.x
+can supply further option liquidity while bearing the                                   [2] Black, F., and Scholes, M. (1973). “The Pricing of
+remaining nonlinear risk.                                                            Options and Corporate Liabilities.” Journal of Political Econ-
+                                                                                     omy. https://doi.org/10.1086/260062
+   The market-structure implication is that an options
+                                                                                        [3] Merton, R. C. (1973). “Theory of Rational Option Pric-
+venue can source and execute liquidity from fi-
+                                                                                     ing.” Bell Journal of Economics and Management Science.
+nancially equivalent combinations of its other
+                                                                                        [4] Merton, R. C. (1974). “On the Pricing of Corporate
+markets, rather than rely only on orders native to each
+                                                                                     Debt: The Risk Structure of Interest Rates.” Journal of
+options series. Common portfolio margin can make these
+                                                                                     Finance. https://doi.org/10.1111/j.1540-6261.1974.t
+routes and their hedges less capital-intensive, but does                             b03058.x
+not remove credit, volatility, or execution risk.                                       [5] Benos, E., Huang, W., Menkveld, A. J., and Vasios, M.
+   The paper’s dated onchain data show a substantial ex-                             (2024). “The Cost of Clearing Fragmentation.” Management
+isting base of spot and credit activity; its jointly margined                        Science. https://doi.org/10.1287/mnsc.2023.4867
+scenarios illustrate 532–1,052 customer-facing option                                   [6] Options Clearing Corporation (2015). “Enhancing the
+units (approximately 6–12 times the historical Derive                                Resiliency of OCC and the U.S. Options Industry.” https:
+V2 90-unit ask), supported by approximately 60 ETH                                   //www.theocc.com/newsroom/views/2015/05-07-enhanci
+of initial spot hedging and $19,000 in modeled stress                                ng-the-resiliency-of-occ-and-the-u-s
+reserves, a 3.18-fold capital-limited capacity increase un-                             [7] CME Group (2026). “Portfolio Margining Onboarding:
+
+
+
+                                                                                11
+Frequently Asked Questions.” https://www.cmegroup.com
+/articles/faqs/portfolio-margining-onboarding.html
+   [8] Bank for International Settlements (2025). “Global
+FX Markets When Hedging Takes Centre Stage.” https:
+//www.bis.org/publications/qr-202512/global-fx-mar
+kets-when-hedging-takes-centre-stage
+   [9] Bank for International Settlements (2025). “OTC In-
+terest Rate Derivatives Turnover in April 2025.” https:
+//www.bis.org/publications/202509-commentary-otc-d
+erivatives-0
+   [10] Futures Industry Association (2026). “ETD Volume:
+December 2025.” https://www.fia.org/fia/articles/etd
+-volume-december-2025
+   [11] Derive. “Introducing Cross-Asset Collateral and Port-
+folio Margin.” https://blog.derive.xyz/introducing-c
+ross-asset-collateral-portfolio-margin
+   [12] Derive. “Variable Rate Lending.” https://insights
+.derive.xyz/variable-rate-lending/
+   [13] DefiLlama (snapshot cited: October 12, 2026). “Derive:
+Options Volume and Open Interest.” https://defillama.
+com/protocol/derive
+   [14] DefiLlama (snapshot cited: October 12, 2026). “Op-
+tions Notional Volume.” https://defillama.com/options/
+notional-volume
+   [15] DefiLlama (snapshot cited: October 12, 2026). “De-
+centralized Spot Trading Volume.” https://defillama.co
+m/dexs
+   [16] GeorgL0ngGamma (September 24, 2026). “Paradex
+Execution Parity Adapter: Public Paradex/Derive Liquidity
+Snapshot.” https://gist.github.com/GeorgL0ngGamma/4
+e00c477cb66424b9458827f8b3bec44
+   [17] DefiLlama (snapshot cited: October 12, 2026). “Mor-
+pho Active Loans.” https://defillama.com/protocol/mor
+pho
+   [18] DefiLlama (snapshot cited: October 12, 2026). “Aave
+V3 Active Loans.” https://defillama.com/protocol/aav
+e-v3
+   [19] Aave. “Health Factor and Liquidations.” https:
+//aave.com/help/borrowing/liquidations
+   [20] World Markets. “ATLAS: World’s Risk Engine.” ht
+tps://docs.world.inc/tl-dr-unique-features/atlas
+   [21] World Markets. “Trading: Lending and Spot Mechan-
+ics.” https://docs.world.inc/essentials/trading
+   [22] World Markets. “Market Structure: Fixed-Term,
+Fixed-Rate Lending.” https://docs.world.inc/essen
+tials/market-structure
+   [23] Options Industry Council.          “Put/Call Parity.”
+https://www.optionseducation.org/advancedconcepts/put-
+call-parity
+   [24]    Options     Industry     Council.            “Bear
+Call         Spread       (Credit         Call       Spread).”
+https://www.optionseducation.org/strategies/all-
+strategies/bear-call-spread-credit-call-spread
+
+
+
+
+                                                                 12
+

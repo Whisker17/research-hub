@@ -1,0 +1,5 @@
+- 我记得之前有个采访问 Jeff（Hyperliquid），他认为，一个非常有意思的方向就是做 option，那么我们现在就想要针对这个方向去做一个完整的调研，从入门到精通。因为我面向的观众基本都是 devs，所以我希望你能够将一些关于 option（期权）的背景知识以及 context 都完善好，帮助他们去做一个 onboarding
+- 这次的主题主要就是 onchain options 的调研，我希望你能去看一下目前链上这方面生态的情况是什么样的
+- 另外，我今天看到一篇文章引发了大家的讨论。我也希望你能够去查看一下这篇文章讲了什么，然后将其中有意思的内容帮我提炼出来
+	- https://drive.google.com/file/d/1_BQFFAVxBYwypmjQ22Coju5QmXzoEJVn/view
+- 总的来说，我希望你能够帮我输出一篇由浅入深的 options 的入门调研报告，你可以去结合一下 Mantle 目前的生态和叙事方向（RWA，tokenized assets 等），帮我看一下有没有相关的机会，可以去好好把握一下

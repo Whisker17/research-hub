@@ -1,0 +1,21 @@
+title: 链上期权入门手册：从期权基础、生态现状到 Mantle 的机会
+summary: 面向开发者讲清期权基础（payoff、IV、Greeks、parity、保证金），梳理五代链上期权与当前格局，解读并复算 World Markets 可组合期权论文，判断 Mantle 在 RWA 期权方向缺什么、先做什么
+created: 2026-10-16
+updated: 2026-10-16
+domain: crypto
+tags:
+  - options
+  - rwa
+  - mantle
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/Onchain Options Handbook.md
+am_version: 0.5.2-research.1
+changelog:
+  - date: 2026-10-16
+    note: 创建（brief 快照）
+  - date: 2026-10-16
+    note: 首次发布：期权入门、链上期权生态、World Markets 论文复算与 Mantle 机会（中英双语）
+title_en: "Onchain Options Handbook: From Option Basics and the Ecosystem to Mantle's Opportunity"
+summary_en: A developer onboarding to options (payoffs, IV, Greeks, parity, margin), five generations of onchain options and today's market, a re-computed review of the World Markets composable-options paper, and what Mantle lacks and should build first for RWA options.
