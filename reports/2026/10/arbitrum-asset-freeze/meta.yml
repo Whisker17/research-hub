@@ -1,7 +1,7 @@
 title: Arbitrum 冻结黑客资产：机制拆解、审查争议与各链先例
 summary: 讲清 Arbitrum 在 KelpDAO 事件中冻结并转移黑客 ETH 的技术路径（逐步解析交易）和 ArbOS 61 交易过滤，汇总社区对“审查用户”的争论，对比其他 L1/L2 的类似机制，并评估 Mantle 能否采用
 created: 2026-10-07
-updated: 2026-10-13
+updated: 2026-10-16
 domain: crypto
 tags:
   - mantle
@@ -20,5 +20,7 @@ changelog:
     note: 重新渲染（answer-me-with-html 0.5.2-research.1）
   - date: 2026-10-13
     note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-16
+    note: 推特卡片（英文，Excalidraw 配图 + 推文文案，astra-6 审查通过）
 title_en: "Arbitrum Hacker Asset Freeze: Technical Paths, Censorship Debate & Cross-Chain Precedents"
 summary_en: Step-by-step transaction analysis of Arbitrum freezing and recovering hacker ETH during the KelpDAO incident via ArbOS 61 filtering, summarizing community censorship debates and evaluating applicability to Mantle.

@@ -1,0 +1,45 @@
+# Tweet card (English only; tweets are posted in English): node cli/rh.ts card arbitrum-asset-freeze -> card.png
+# Spec and depth rules: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: mechanism AND censorship concern, no side-taking; no project recommendations.
+# Ledger: background M7/M13/M22 (Bridge checks the Inbox address, not its code); context T1/T3/T8/M26/V1;
+# figure M23/T7/T11 (left: names any sender), M25/T21 (used Apr 21 + Jun 15), M34/M38/M39/M47 (right: fail or reroute, disabled on One);
+# findings V55 (33 sourced views, 13/13/7), G11/V9 (10 days to restraining order); P49 (precedents) cut for space;
+# takeaway G5/V50/G10 (sampled support was for one rescue; no evidence for a standing power);
+# tweet also uses G2 (not tx refusal; control changed without key-holder consent), G1 (same class of power where the inbox
+# is upgradeable without delay), M22/F3, T23 (Jun 15 release reused the patch via the timelock path), V14 + panel M table
+# (supporters: narrow window), V21/V20 (critics: not scoped to recovery; neutrality), V8/V50 (90.96% was a release vote),
+# P13/P14/P50 (Sui closest among surveyed precedents; validator upgrade + stake vote).
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (adds "Open source tweet" in card mode)
+title: "Arbitrum's freeze: an Inbox upgrade, not a blacklist"
+background: Arbitrum executes the messages its Bridge records; the Bridge checks the Inbox's address, not its code.
+context: "Apr 21: Arbitrum's Security Council (9/12, no delay) moved the KelpDAO exploiter's 30,765.67 ETH."
+figure:
+  caption: Which tool moved the exploiter's ETH?
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: ib, label: "Temporary Inbox patch\nsends tx as any address", x: 0, y: 36, w: 270, h: 84, color: blue }
+      - { id: f61, label: "Fails or reroutes txs\ndisabled on Arbitrum One", x: 300, y: 36, w: 270, h: 84, color: gray, stroke: dashed }
+    texts:
+      - { x: 4, y: 0, text: "Used Apr 21 and Jun 15", fontSize: 22, color: blue }
+      - { x: 304, y: 0, text: "ArbOS 61 filtering", fontSize: 22, color: gray }
+findings:
+  - stat: "13/13/7"
+    text: "Of 33 sourced views: support / conditional or concerned / critical."
+  - stat: 10 days
+    text: "From the freeze to a US court restraining order served on the DAO."
+takeaway: Sampled support covered one narrow rescue; no evidence it extends to a standing freeze power.
+tweet: |-
+  Was Arbitrum's freeze of the KelpDAO exploiter's ETH censorship? Not a sequencer blacklist: the Security Council patched the L1 Inbox for one tx and sent an L2 transfer in the exploiter's name. Not refusing a tx, but moving funds without the key holder's consent.
+
+  Why it matters: Arbitrum's Bridge checks the Inbox's address, not its code. Rollups whose inbox can be upgraded without delay share this power.
+
+  How to read the figure (Arbitrum One):
+  • Left: the patch used for the freeze (9/12 Council, no delay), reused for the Jun 15 release.
+  • Right: ArbOS 61 filtering can fail or reroute txs, not impersonate senders. Off on One.
+
+  Two details:
+  • Supporters cite a narrow window; critics say the power is not scoped to recovery and affects neutrality.
+  • 10 days after the freeze, US creditors served the DAO a restraining order.
+
+  Caveat: the 90.96% Snapshot vote approved releasing funds, not the freeze power. The closest surveyed precedent, Sui, needed validators.
