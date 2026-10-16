@@ -4,5 +4,7 @@
   "vaultDir": "~/Work/src/personal/personal-knowledge-base/personal-knowledge-base",
   "briefsDir": "Research Briefs",
   "amScript": "~/.agents/skills/answer-me-with-html/scripts/am.mjs",
-  "cardAvoidTerms": ["Mantle"]
+  "cardAvoidTerms": ["Mantle"],
+  "cardHandle": "@whisker17",
+  "cardTweetMax": 1000
 }

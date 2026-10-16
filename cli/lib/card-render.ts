@@ -81,7 +81,7 @@ export async function renderCardPng(browser: Browser, input: CardRenderInput): P
     const shot = Buffer.from(
       await page.screenshot({ type: "png", clip: { x: 0, y: 0, width: CARD_SIZE.width, height: CARD_SIZE.height } }),
     );
-    return { png: withPngText(shot, PNG_HASH_KEY, cardHash(input.content)), errors, slack: m.slack };
+    return { png: withPngText(shot, PNG_HASH_KEY, cardHash(input.content, input.handle)), errors, slack: m.slack };
   } finally {
     await page.close();
   }

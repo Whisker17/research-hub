@@ -21,7 +21,7 @@ const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
   rh import report …          导入在其他仓库完成的报告（draft）
   rh import research …        把外部 Deep Research 结果放进 research/
   rh render <slug>            用 answer-me-with-html 渲染 explainer.md → index.html
-  rh card <slug>              把 card.yml 渲染成推特卡片 card.png / card.en.png（一图速览）
+  rh card <slug>              把 card.yml 渲染成推特卡片 card.png（一图速览，英文）
   rh check [slug…]            检查 schema / 标签 / 台账 / 手机适配（--no-shot 跳过手机检查）
   rh publish <slug>           检查 → 发布 → 构建 → 提交并 push（CI 部署）
   rh build                    构建 dist/public 与 dist/private，并做泄漏检查

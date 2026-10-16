@@ -14,7 +14,7 @@ import { parseLedger } from "../../lib/ledger.ts";
 import { REPORT_FILES, type Report } from "../../lib/reports.ts";
 import type { TagRegistry } from "../../lib/schema.ts";
 import { deployedReportHtml } from "./build.ts";
-import { CARD_LANGS, avoidedTerms, cardPngName, cardPngState, loadCard } from "./card.ts";
+import { CARD_LIMITS, avoidedTerms, cardPngState, loadCard, tweetLimitError } from "./card.ts";
 import { MOBILE_CHECK_VERSION, checkMobile, type MobileResult } from "./mobile.ts";
 
 /** 手机检查用的临时文件（在报告目录内，检查后删除；已加入 .gitignore） */
@@ -37,6 +37,10 @@ export interface CheckOptions {
   shotsDir?: string;
   /** 推特卡片里要尽量避免的词（rh.config.json 的 cardAvoidTerms） */
   cardAvoidTerms?: string[];
+  /** 推特卡片水印（参与 PNG 新鲜度判断） */
+  cardHandle?: string;
+  /** 推文文案的 X 计数上限 */
+  cardTweetMax?: number;
 }
 
 export function checkReferences(report: Report, all: Report[], tags: TagRegistry): string[] {
@@ -87,17 +91,22 @@ export function checkCompleteness(report: Report): string[] {
 }
 
 /**
- * 推特卡片（card.yml，可选）：
- *  - 稿件本身（schema、篇幅上限）：错误，与 meta schema 同级（draft 也一样）。
- *  - 渲染状态（PNG 缺失或比 card.yml 旧）：完整性问题，按严格程度给错误或警告。
+ * 推特卡片（card.yml，可选；只有英文版）：
+ *  - 稿件本身（schema、篇幅上限、推文长度）：错误，与 meta schema 同级（draft 也一样）。
+ *  - 渲染状态（PNG 缺失、比 card.yml 旧、或没有稿件的孤立 PNG）：完整性问题，按严格程度给错误或警告。
  */
-export function checkCard(report: Report, avoidTerms: string[] = []): { errors: string[]; completeness: string[]; warnings: string[] } {
+export function checkCard(
+  report: Report,
+  opts: { avoidTerms?: string[]; handle?: string; tweetMax?: number } = {},
+): { errors: string[]; completeness: string[]; warnings: string[] } {
+  const { avoidTerms = [], handle = "", tweetMax = CARD_LIMITS.tweetFold } = opts;
   const res = { errors: [] as string[], completeness: [] as string[], warnings: [] as string[] };
+  const png = REPORT_FILES.cardPng;
+  if (existsSync(join(report.dir, "card.en.png"))) res.warnings.push("card.en.png 已不再使用（推特卡片只有英文版，统一是 card.png）：删掉它");
   const loaded = loadCard(report.dir);
   if (!loaded.exists) {
-    for (const lang of CARD_LANGS) {
-      if (existsSync(join(report.dir, cardPngName(lang)))) res.warnings.push(`有 ${cardPngName(lang)} 但没有 ${REPORT_FILES.card}：页面会展示这张图，但它没有稿件可以核对`);
-    }
+    // 稿件删了、图还在：构建会继续展示一张无法核对的旧图
+    if (existsSync(join(report.dir, png))) res.completeness.push(`有 ${png} 但没有 ${REPORT_FILES.card}：页面会继续展示这张没有稿件的旧图。删掉 ${png} 或补回稿件`);
     return res;
   }
   if (!loaded.card) {
@@ -105,21 +114,12 @@ export function checkCard(report: Report, avoidTerms: string[] = []): { errors: 
     return res;
   }
   const card = loaded.card;
-  const hasEn = existsSync(join(report.dir, REPORT_FILES.htmlEn));
-  for (const lang of CARD_LANGS) {
-    const content = card[lang];
-    if (!content) {
-      // 稿件里删掉了这种语言，旧 PNG 却还在：构建会继续展示旧图，必须删掉
-      if (existsSync(join(report.dir, cardPngName(lang)))) {
-        res.completeness.push(`${REPORT_FILES.card} 没有 ${lang} 卡片，但 ${cardPngName(lang)} 还在：页面会继续展示旧图。删掉 ${cardPngName(lang)} 或补回 ${lang} 稿件`);
-      } else if (lang === "en" && hasEn) res.warnings.push(`${REPORT_FILES.card} 没有 en 卡片：英文页不会出现推特卡片模式`);
-      continue;
-    }
-    for (const t of avoidedTerms(content, avoidTerms)) res.warnings.push(`${lang} 卡片提到了“${t}”：推特卡片以中立研究者身份发布，尽量不提（rh.config.json 的 cardAvoidTerms）`);
-    const state = cardPngState(report.dir, lang, content);
-    if (state === "missing") res.completeness.push(`缺少 ${cardPngName(lang)}（运行 rh card ${report.slug}）`);
-    if (state === "stale") res.completeness.push(`${cardPngName(lang)} 不是当前 ${REPORT_FILES.card} 的渲染结果（运行 rh card ${report.slug}）`);
-  }
+  const long = tweetLimitError(card.tweet, tweetMax);
+  if (long) res.errors.push(`${REPORT_FILES.card}：tweet：${long}`);
+  for (const t of avoidedTerms(card, avoidTerms)) res.warnings.push(`卡片提到了“${t}”：推特卡片以中立研究者身份发布，尽量不提（rh.config.json 的 cardAvoidTerms）`);
+  const state = cardPngState(report.dir, card, handle);
+  if (state === "missing") res.completeness.push(`缺少 ${png}（运行 rh card ${report.slug}）`);
+  if (state === "stale") res.completeness.push(`${png} 不是当前 ${REPORT_FILES.card}（或水印）的渲染结果（运行 rh card ${report.slug}）`);
   return res;
 }
 
@@ -205,7 +205,7 @@ export async function checkReport(report: Report, all: Report[], tags: TagRegist
   const bucket = strict ? errors : warnings;
 
   bucket.push(...checkCompleteness(report));
-  const card = checkCard(report, opts.cardAvoidTerms);
+  const card = checkCard(report, { avoidTerms: opts.cardAvoidTerms, handle: opts.cardHandle, tweetMax: opts.cardTweetMax });
   errors.push(...card.errors);
   bucket.push(...card.completeness);
   warnings.push(...card.warnings);

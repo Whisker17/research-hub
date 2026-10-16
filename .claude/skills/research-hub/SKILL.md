@@ -94,13 +94,13 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
    - “图形没有烘焙进页面”：检查本机 Chrome / Node 22+，不要发布未烘焙的页面。
    - STE 警告：按建议改写，最多再渲染 2 轮；仍有警告就保留，并在 ③ 里说明。
 
-   **推特卡片**（新报告默认一起做，用户说不要时跳过）：按 [references/tweet-card.md](references/tweet-card.md) 写 `$DIR/card.yml`（中英文两份，英文卡片一并交给 sol 审），然后：
+   **推特卡片**（新报告默认一起做，用户说不要时跳过）：按 [references/tweet-card.md](references/tweet-card.md) 写 `$DIR/card.yml`。卡片和推文**只有英文版**（推特统一用英文发），写完交给 astra-6 subagent（`mantle/gpt-6-astra`，agent `reviewer`）审到 PASS，然后：
 
    ```sh
    pnpm rh card <slug>
    ```
 
-   它把卡片渲染成 `card.png` / `card.en.png`，内容超出固定画布就失败：按提示删减，不缩字号。
+   它把卡片渲染成 `card.png`，内容超出固定画布就失败：按提示删减，不缩字号。
 5. **检查**：
 
    ```sh
@@ -114,7 +114,7 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
    - 重叠、截断、空图、文字过小、文字墙都要先改掉。手机上图在图框内横向滚动是允许的；但图过宽时（例如 `flowchart LR` 节点超过约 8 个），改成 `TB` 布局。
 7. **把关 ③**：告诉用户——
    - 页面路径 `$DIR/index.html`（中文）与 `$DIR/index.en.html`（英文，可以直接用浏览器打开），以及中英文手机截图路径
-   - 推特卡片 `$DIR/card.png` / `$DIR/card.en.png`（如果做了），以及卡片上每条发现对应的台账行
+   - 推特卡片 `$DIR/card.png` 与推文全文（如果做了），以及卡片和推文里每个论断对应的台账行
    - 三条阅读路径各看哪些面板；每张图一句话说明
    - 删掉或标为 speculative 的内容、遗留的 STE 警告、开放问题
    - 发布后的地址：`pnpm rh paths <slug>` 的 `url`（public → `/r/<slug>/`，private → 私有站点 `/p/<slug>/`；英文版自动追加 `/en/`）
@@ -175,16 +175,17 @@ pnpm rh import report --html <页面.html> --slug <slug> --domain <domain> --sou
 | `rh card`：内容超出画布 / 关键数字放不下一行 | 删一条发现，或把各段压到 1–2 行；stat 换更短的数字。不要缩字号。预览在 `.rh/cards/<slug>/overflow-<lang>.png` |
 | `rh card`：配图里的字太小 / 配图的 am 布局错误 | 画成一行、2–3 个节点，节点 fontSize 20–22；分组标题用 `texts`（boxes 的标签固定 14px）；overlap 调位置，标签放不下就缩短 |
 | `rh card` / `rh check`：卡片提到了“Mantle” | 改写成领域层面的说法；确实绕不开时先问用户 |
-| `rh check`：card.png 不是当前 card.yml 的渲染结果 | 改过 `card.yml` 之后没重新渲染：运行 `pnpm rh card <slug>` |
+| `rh check`：card.png 不是当前 card.yml（或水印）的渲染结果 | 改过 `card.yml` 或 `cardHandle` 之后没重新渲染：运行 `pnpm rh card <slug>` |
+| `rh check`：推特卡片只有英文版 / 推文太长 | 卡片与推文都用英文写；推文按 X 计数不超过 `rh.config.json` 的 `cardTweetMax` |
 
 ## 9. 路径 F：给报告做推特卡片
 
 用户要在 X 上引用（quote）一条源推文，配一张本次调研的一图速览。写法和深度控制见 [references/tweet-card.md](references/tweet-card.md)。
 
 1. **确认**：源推文链接（写进 `quote`）、卡片要回应的角度、哪些内容可以公开（卡片会出现在 X 上；私有报告和 `domain: work` 的报告尤其要问）。用户在请求里已经说清楚时不用再问。
-2. 写 `$DIR/card.yml`：背景、现状、一张 Excalidraw 配图（一行、字够大，只讲一件事）、2–3 条发现、结论，以及配图发的推文文案 `tweet`（X 计数 ≤ 280，帮读者读懂图，见 tweet-card.md“推文文案”）。**以中立研究者口吻写，尽量不提 Mantle**：把发现上升到领域层面，不写给某家公司的建议（见 tweet-card.md“立场”）。每条论断都要在台账里有 observed / inferred 的一行；不写 speculative。双语报告写 `zh` 和 `en`，英文卡片交给 `sol` subagent 审。
-3. `pnpm rh card <slug>` → 用 Read 工具看 `card.png` / `card.en.png` → `pnpm rh check <slug>`。
-4. **把关 ③**：给用户看两张 PNG、两段推文文案和每条发现对应的台账行，问“卡片是否可以发布？”。**停下等待。**
-5. 用户批准后：`pnpm rh publish <slug> --note "推特卡片"`（已发布的报告不需要重新渲染 HTML；卡片模式在构建时注入）。上线后在报告页点“推特卡片” → 在 X 上引用源推文 → “复制文案”粘贴 → “复制图片”粘贴。
+2. 写 `$DIR/card.yml`（**只有英文版**）：背景、现状、一张 Excalidraw 配图（一行、字够大，只讲一件事）、2–3 条发现、结论，以及配图发的推文文案 `tweet`（X 计数 ≤ `cardTweetMax`；会员长文的第一段 ≤ 280 且能独立成立，见 tweet-card.md“推文文案”）。**以中立研究者口吻写，尽量不提 Mantle**：把发现上升到领域层面，不写给某家公司的建议（见 tweet-card.md“立场”）。写完交给 astra-6 subagent（`mantle/gpt-6-astra`，agent `reviewer`）审，按意见修改直到 PASS。
+3. `pnpm rh card <slug>` → 用 Read 工具看 `card.png` → `pnpm rh check <slug>`。
+4. **把关 ③**：给用户看 `card.png`、推文全文和各论断对应的台账行，问“卡片是否可以发布？”。**停下等待。**
+5. 用户批准后：`pnpm rh publish <slug> --note "推特卡片"`（已发布的报告不需要重新渲染 HTML；卡片模式在构建时注入，中英文页共用这张英文卡片）。上线后在报告页点“推特卡片” → 在 X 上引用源推文 → “复制文案”粘贴 → “复制图片”粘贴。
 
 换一条源推文再引用同一篇报告时，按需改 `context` 与 `quote`，重新走第 3–5 步。

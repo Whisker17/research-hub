@@ -76,7 +76,9 @@ test("decorateReport：有推文文案时显示文案、X 计数和“复制文�
   const tweet = "第一行 <b>\n\n第二行 & https://x.com/a";
   const html = decorateReport(amPage, opts({ card: { src: "card.png", tweet } }));
   assert.match(html, /<button type="button" data-rh-card-copy-text [^>]*>复制文案<\/button><button type="button" data-rh-card-copy /, "复制文案在复制图片之前");
-  assert.match(html, /<figure data-rh-card-tweet><figcaption>推文文案 · X 计数 \d+ \/ 280<\/figcaption><p data-rh-card-tweet-text>第一行 &lt;b&gt;\n\n第二行 &amp; https:\/\/x\.com\/a<\/p><\/figure>/);
+  assert.match(html, /<figure data-rh-card-tweet><figcaption>推文文案 · X 计数 \d+<\/figcaption><p data-rh-card-tweet-text>第一行 &lt;b&gt;\n\n第二行 &amp; https:\/\/x\.com\/a<\/p><\/figure>/);
+  const long = decorateReport(amPage, opts({ card: { src: "card.png", tweet: `${"a".repeat(200)}\n\n${"b".repeat(200)}` } }));
+  assert.match(long, /X 计数 402（会员长文：信息流中约 280 字符后折叠为“显示更多”）/, "超过 280 时提示折叠");
   assert.match(html, /navigator\.clipboard\.writeText/);
   const noTweet = decorateReport(amPage, opts({ card: { src: "card.png" } }));
   assert.doesNotMatch(noTweet, /<figure data-rh-card-tweet|<button[^>]*data-rh-card-copy-text/);

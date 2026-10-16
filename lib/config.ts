@@ -22,6 +22,10 @@ export interface HubConfig {
   amScript: string;
   /** 推特卡片里尽量不出现的词（卡片以中立研究者身份发布）；出现时 rh card / rh check 给警告 */
   cardAvoidTerms: string[];
+  /** 推特卡片页脚的水印（X 账号，如 @whisker17）；不设时页脚只有日期 */
+  cardHandle: string;
+  /** 推文文案的 X 计数上限：非会员 280；X 会员可以写长文（超过 280 的部分在信息流里折叠） */
+  cardTweetMax: number;
 }
 
 interface RawConfig {
@@ -31,6 +35,8 @@ interface RawConfig {
   briefsDir: string;
   amScript: string;
   cardAvoidTerms?: string[];
+  cardHandle?: string;
+  cardTweetMax?: number;
 }
 
 const expandHome = (p: string): string => (p.startsWith("~/") ? join(homedir(), p.slice(2)) : p);
@@ -61,5 +67,7 @@ export function loadConfig(root: string = repoRoot()): HubConfig {
     briefsDir: raw.briefsDir,
     amScript: resolve(expandHome(process.env.AM_SCRIPT ?? raw.amScript)),
     cardAvoidTerms: Array.isArray(raw.cardAvoidTerms) ? raw.cardAvoidTerms.filter((t) => typeof t === "string") : [],
+    cardHandle: typeof raw.cardHandle === "string" ? raw.cardHandle.trim() : "",
+    cardTweetMax: Number.isInteger(raw.cardTweetMax) && raw.cardTweetMax! > 0 ? raw.cardTweetMax! : 280,
   };
 }

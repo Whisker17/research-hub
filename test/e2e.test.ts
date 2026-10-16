@@ -278,67 +278,74 @@ test("rh publish：严格检查 → published → 构建 → 只提交报告目�
   assert.equal(rh("render", "meme-launchpad").code, 1);
 });
 
-test("rh card：card.yml → card.png / card.en.png；改稿未重渲染时 rh check 报错；rh build 分发卡片与卡片模式", { skip: chrome && amAvailable ? false : "需要 Chrome 与 answer-me-with-html" }, () => {
+test("rh card：card.yml → card.png（只有英文版）；改稿 / 孤立 PNG / 中文 / 超长推文都会被 rh check 拦下；rh build 中英文页共用卡片", { skip: chrome && amAvailable ? false : "需要 Chrome 与 answer-me-with-html" }, () => {
   const dir = writeReport("card-demo", { title: "卡片演示报告", summary: "卡片演示摘要" }, { "index.en.html": goodHtml });
-  const zh = {
-    title: "卡片演示：一眼看完的结论",
-    background: "这是背景：读者需要知道的一件事。",
-    context: "这是现状：源推文说了什么。",
+  const card = {
+    quote: "https://x.com/someone/status/1",
+    title: "Card demo: the result at a glance",
+    background: "What a reader needs to know first.",
+    context: "What the source tweet just said.",
     figure: {
-      caption: "左边是已知，右边是新发现",
-      excalidraw: { nodes: [{ id: "a", label: "已知", col: 0, row: 0, color: "gray" }, { id: "b", label: "新发现", col: 1, row: 0, color: "green" }], edges: [{ from: "a", to: "b" }] },
+      caption: "Known on the left, new on the right",
+      excalidraw: { nodes: [{ id: "a", label: "Known", col: 0, row: 0, color: "gray" }, { id: "b", label: "New", col: 1, row: 0, color: "green" }], edges: [{ from: "a", to: "b" }] },
     },
-    findings: [{ stat: "3×", text: "第一条发现，带一个**关键数字**。" }, "第二条发现。"],
-    takeaway: "这是结论。",
-    tweet: "这是推文文案：先说背景，再解释图左和图右分别是什么，最后补一句图里放不下的限定。",
+    findings: [{ stat: "3×", text: "Finding one, with a **key number**." }, "Finding two."],
+    takeaway: "The bottom line.",
+    tweet: "Tweet copy: first the background, then how to read the left and right of the figure, then one caveat the image cannot fit.",
   };
-  const en = { ...zh, title: "Card demo: the result at a glance", findings: ["Finding one.", "Finding two."] };
+  const write = (c: Record<string, unknown>) => writeFileSync(join(dir, "card.yml"), stringify(c));
   assert.equal(rh("card", "card-demo").code, 1, "没有 card.yml 时失败");
-  writeFileSync(join(dir, "card.yml"), stringify({ quote: "https://x.com/someone/status/1", zh: { ...zh, findings: [zh.findings[0]] } }));
+  write({ ...card, findings: [card.findings[0]] });
   const invalid = rh("card", "card-demo");
   assert.equal(invalid.code, 1, invalid.out);
-  assert.match(invalid.out, /zh\.findings/);
+  assert.match(invalid.out, /findings/);
 
-  writeFileSync(join(dir, "card.yml"), stringify({ quote: "https://x.com/someone/status/1", zh, en }));
+  write(card);
   const r = rh("card", "card-demo");
   assert.equal(r.code, 0, r.out);
-  assert.ok(existsSync(join(dir, "card.png")) && existsSync(join(dir, "card.en.png")));
-  const ok = rh("check", "card-demo", "--no-shot");
-  assert.equal(ok.code, 0, ok.out);
-
-  // 改了 card.yml 却没重新渲染：发布标准下是错误
-  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。" }, en }));
-  const stale = rh("check", "card-demo", "--no-shot");
-  assert.equal(stale.code, 1, stale.out);
-  assert.match(stale.out, /card\.png 不是当前 card\.yml 的渲染结果/);
-  assert.equal(rh("card", "card-demo", "--lang", "zh").code, 0);
+  assert.ok(existsSync(join(dir, "card.png")));
+  assert.ok(!existsSync(join(dir, "card.en.png")), "只有一张英文卡片");
+  assert.match(r.out, /推文文案（X 计数 \d+ \/ 1000）/, "用 rh.config.json 的 cardTweetMax");
   assert.equal(rh("check", "card-demo", "--no-shot").code, 0);
 
-  // 稿件删掉 en，但 card.en.png 还在：构建会继续展示旧图，所以是错误
-  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。" } }));
+  // 改了画进图的内容却没重新渲染：发布标准下是错误；只改推文不算
+  write({ ...card, tweet: `${card.tweet} More detail for Premium readers.` });
+  assert.equal(rh("check", "card-demo", "--no-shot").code, 0, "推文不画进图片");
+  write({ ...card, takeaway: "A changed bottom line." });
+  const stale = rh("check", "card-demo", "--no-shot");
+  assert.equal(stale.code, 1, stale.out);
+  assert.match(stale.out, /card\.png 不是当前 card\.yml（或水印）的渲染结果/);
+  write(card);
+
+  // 中文、超长推文是错误；提到 cardAvoidTerms 里的词只给警告
+  write({ ...card, context: "源推文说了什么。" });
+  assert.match(rh("check", "card-demo", "--no-shot").out, /context: 推特卡片只有英文版/);
+  write({ ...card, tweet: "word ".repeat(220) });
+  assert.match(rh("check", "card-demo", "--no-shot").out, /tweet：推文太长：X 计数 1099，上限 1000/);
+  write({ ...card, context: "Mantle published a roadmap." });
+  const warned = rh("check", "card-demo", "--no-shot");
+  assert.match(warned.out, /卡片提到了“Mantle”/);
+  write(card);
+
+  // 稿件删了、图还在：构建会继续展示无法核对的旧图，所以是错误
+  rmSync(join(dir, "card.yml"));
   const orphan = rh("check", "card-demo", "--no-shot");
   assert.equal(orphan.code, 1, orphan.out);
-  assert.match(orphan.out, /没有 en 卡片，但 card\.en\.png 还在/);
-  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。" }, en }));
-
-  // 中立立场：提到 cardAvoidTerms 里的词只给警告
-  const named = rh("card", "card-demo", "--lang", "en");
-  assert.equal(named.code, 0, named.out);
-  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。", context: "Mantle 发布了新路线。" }, en }));
-  const warned = rh("check", "card-demo", "--no-shot");
-  assert.match(warned.out, /zh 卡片提到了“Mantle”/);
-  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。" }, en }));
+  assert.match(orphan.out, /有 card\.png 但没有 card\.yml/);
+  write(card);
 
   const b = rh("build");
   assert.equal(b.code, 0, b.out);
   const target = join(tmp, "dist", "public", "r", "card-demo");
   assert.ok(existsSync(join(target, "card.png")) && existsSync(join(target, "en", "card.png")));
   const page = readFileSync(join(target, "index.html"), "utf8");
+  const pageEn = readFileSync(join(target, "en", "index.html"), "utf8");
   assert.match(page, /data-rh-card-btn/);
   assert.match(page, /<img data-rh-card-img src="card\.png"/);
   assert.match(page, /data-rh-lang-to="en"/);
-  assert.match(page, /<p data-rh-card-tweet-text>这是推文文案：/, "页面显示当前语言的推文文案");
-  assert.doesNotMatch(page, /x\.com\/someone/, "card.yml 去掉 quote 之后，页面也不再显示源推文链接");
-  assert.match(readFileSync(join(target, "en", "index.html"), "utf8"), /Tweet card/);
+  for (const p of [page, pageEn]) assert.match(p, /<p data-rh-card-tweet-text>Tweet copy: first the background/, "中英文页显示同一段英文文案");
+  assert.match(page, />复制文案</, "按钮跟随页面语言");
+  assert.match(pageEn, />Copy text</);
+  assert.match(page, /x\.com\/someone\/status\/1/);
   rmSync(dir, { recursive: true, force: true });
 });

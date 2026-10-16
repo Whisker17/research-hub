@@ -8,13 +8,13 @@
  *
  * draft 不进入任何产物。报告 HTML 原样复制，只注入站点外壳（decorateReport）：返回链接、
  * 中文 / EN 切换、推特卡片模式（文档流内、无 fixed、样式只作用于注入的元素），并在 <head> 补 robots noindex。
- * 推特卡片 PNG（card.png / card.en.png）分别复制成 <slug>/card.png 与 <slug>/en/card.png。
+ * 推特卡片 PNG（card.png，只有英文版）复制到 <slug>/card.png 与 <slug>/en/card.png。
  * 最后做泄漏检查：公开产物里不能出现任何私有报告或 draft 的标题、摘要、路径。
  */
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { REPORT_FILES, isPublished, type Report } from "../../lib/reports.ts";
-import { cardPngName, loadCard, tweetLength } from "./card.ts";
+import { loadCard, tweetLength } from "./card.ts";
 
 export const BACK_LINK_ATTR = "data-rh-back";
 /** 推特卡片模式在地址栏里的锚点：带上它打开页面就直接进入卡片模式（切换语言时保留）。 */
@@ -53,6 +53,7 @@ const UI: Record<PageLang, Record<string, string>> = {
     copyText: "复制文案",
     tweetLabel: "推文文案",
     count: "X 计数",
+    fold: "（会员长文：信息流中约 280 字符后折叠为“显示更多”）",
   },
   en: {
     langGroup: "Language / 语言",
@@ -69,6 +70,7 @@ const UI: Record<PageLang, Record<string, string>> = {
     copyText: "Copy text",
     tweetLabel: "Tweet text",
     count: "X count",
+    fold: " (Premium long post: folds under “Show more” at around 280 characters)",
   },
 };
 
@@ -133,7 +135,7 @@ function cardSection(card: NonNullable<DecorateOptions["card"]>, ui: Record<stri
     `${quote}<span data-rh-card-hint>${escapeHtml(card.tweet ? ui.hintTweet : ui.hint)}</span></div>` +
     `<p data-rh-card-msg role="status" hidden data-fail-img="${escapeHtml(ui.fail)}" data-fail-text="${escapeHtml(ui.failText)}">${escapeHtml(ui.fail)}</p>` +
     (card.tweet
-      ? `<figure data-rh-card-tweet><figcaption>${escapeHtml(ui.tweetLabel)} · ${escapeHtml(ui.count)} ${tweetLength(card.tweet)} / 280</figcaption><p data-rh-card-tweet-text>${escapeHtml(card.tweet)}</p></figure>`
+      ? `<figure data-rh-card-tweet><figcaption>${escapeHtml(ui.tweetLabel)} · ${escapeHtml(ui.count)} ${tweetLength(card.tweet)}${tweetLength(card.tweet) > 280 ? escapeHtml(ui.fold) : ""}</figcaption><p data-rh-card-tweet-text>${escapeHtml(card.tweet)}</p></figure>`
       : "") +
     `<img data-rh-card-img src="${escapeHtml(card.src)}" width="1200" height="1500" alt="${escapeHtml(ui.cardAria)}" loading="lazy" decoding="async">` +
     `</section>`
@@ -238,9 +240,10 @@ export function decorateReport(html: string, opts: DecorateOptions): string {
 export function deployedReportHtml(r: Report, lang: PageLang): string {
   const file = join(r.dir, lang === "zh" ? REPORT_FILES.html : REPORT_FILES.htmlEn);
   const other = join(r.dir, lang === "zh" ? REPORT_FILES.htmlEn : REPORT_FILES.html);
-  const png = join(r.dir, cardPngName(lang));
+  // 推特卡片只有英文版：中英文页展示同一张图和同一段文案，只有周围的按钮与提示跟随页面语言
+  const png = join(r.dir, REPORT_FILES.cardPng);
   const loaded = existsSync(png) ? loadCard(r.dir).card : null;
-  const card = existsSync(png) ? { src: "card.png", quote: loaded?.quote, tweet: loaded?.[lang]?.tweet } : undefined;
+  const card = existsSync(png) ? { src: "card.png", quote: loaded?.quote, tweet: loaded?.tweet } : undefined;
   return decorateReport(readFileSync(file, "utf8"), {
     backHref: r.meta.visibility === "public" ? "/" : "/p/",
     backLabel: "Research Hub",
@@ -311,7 +314,7 @@ export function assemble(root: string, astroOut: string, reports: Report[]): Ass
       mkdirSync(enTarget, { recursive: true });
       writeFileSync(join(enTarget, "index.html"), deployedReportHtml(r, "en"));
       if (hasAssets) cpSync(assets, join(enTarget, "assets"), { recursive: true });
-      if (existsSync(join(r.dir, REPORT_FILES.cardPngEn))) cpSync(join(r.dir, REPORT_FILES.cardPngEn), join(enTarget, "card.png"));
+      if (existsSync(join(r.dir, REPORT_FILES.cardPng))) cpSync(join(r.dir, REPORT_FILES.cardPng), join(enTarget, "card.png"));
     }
 
     (isPublic ? result.publicReports : result.privateReports).push(r.slug);
