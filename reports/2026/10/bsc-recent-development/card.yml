@@ -1,0 +1,53 @@
+# Tweet card (one-glance summary, English only; tweets go out in English): node cli/rh.ts card bsc-recent-development → card.png
+# Writing and depth rules: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: BSC facts only, no company advice; plans and drafts are labelled (Draft BEPs, planned fork dates, "no release yet").
+# Ledger rows: background C2/C6, P1; context J1, J2/P37, C1/P34 (both BEPs still Draft);
+# figure S5 (left: J8/J18/J19; right: J37, C30/P36/J32, J3; caption = snapshot date 2026-10-09);
+# findings P14/P19 (5% default, 10% cap, idle quota not returned) and C36/C37/C38 + C42 (shared design, separate Go code);
+# takeaway C25/C26, P10, J38 (post-fork steps); tweet also uses J1 (needs hard fork), J3 (no mainnet JennerTime), J18/J19, J37, P2 (no per-tx inclusion), S5.
+# astra round-1 fixes: ~98% BidBlock share dated to its 3-day window ending Sep 1 (J18); 70M gas limit is the Oct 9 sample (J19).
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (fill in to show "Open source tweet" in card mode)
+title: "BSC Jenner: CAS20 and Payment Lane are merged, not live"
+background: "CAS20 runs token rules in client code; Payment Lane reserves a share of block gas for payments."
+context: "BEP-718 puts both in the Jenner fork; both BEPs are Draft. Plan: testnet late Oct, mainnet late Nov."
+figure:
+  caption: BSC mainnet status as of 2026-10-09
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: live, label: "BEP-675 BidBlock\n70M gas limit", x: 0, y: 36, w: 240, h: 84, color: green }
+      - {
+          id: jen,
+          label: "CAS20 (BEP-702)
+
+            Payment Lane (BEP-703)",
+          x: 270,
+          y: 36,
+          w: 300,
+          h: 84,
+          color: yellow,
+          stroke: dashed
+        }
+    texts:
+      - { x: 4, y: 0, text: "Live on mainnet", fontSize: 22, color: green }
+      - { x: 274, y: 0, text: "Merged, no release yet", fontSize: 22, color: orange }
+findings:
+  - stat: "5%"
+    text: "Lane default: 5% of block gas (cap 10%); idle quota can't go to other txs."
+  - stat: "100"
+    text: "CAS20 copies Base B20's storage layout and 100 function names; own Go code."
+takeaway: "Post-fork, CAS20 creation waits on an activation admin; the lane's payment list starts empty."
+tweet: |-
+  BSC's Jenner upgrade (CAS20 tokens, Payment Lane) is easy to read as shipped. As of Oct 9, 2026 it is merged code only: no bsc or reth-bsc release has it, mainnet has no Jenner time set, and both BEPs are still Draft.
+
+  Why it matters: CAS20 moves token rules (roles, policies, seizure) into the client; Payment Lane reserves block gas for payments. Both need the fork.
+
+  How to read the figure:
+  • Left: BidBlock (~98% of blocks, 3 days to Sept 1; official blog); 70M gas limit on Oct 9.
+  • Right: merged in Go and Rust in September, in no release. Plan: testnet late Oct, mainnet late Nov.
+
+  Two details:
+  • The lane defaults to 5% of block gas (max 10%); idle reserve is not handed back. It guarantees room for payments, not inclusion of any one tx.
+  • CAS20 mirrors Base B20's address scheme, storage layout and 100 function names, in its own Go code.
+
+  Caveat: post-fork, CAS20 creation stays off until a governance-appointed admin enables it; the lane's payment list starts empty.
