@@ -1,7 +1,7 @@
 title: PropAMM 论文导读：Active Liquidity On Chain（arXiv 2609.38056）
 summary: 成交后 2 秒，propAMM 赚 0.37–1.69 bps，AMM 亏 0.22–2.06 bps。优势有四个来源，其中 spoofing 的成本由用户承担。
 created: 2026-10-04
-updated: 2026-10-13
+updated: 2026-10-16
 domain: work
 tags:
   - dex
@@ -34,5 +34,7 @@ changelog:
     note: 重新渲染（answer-me-with-html 0.5.2-research.1）
   - date: 2026-10-13
     note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-16
+    note: 推特卡片（英文，Excalidraw 配图 + 推文文案，astra-6 审查通过）
 title_en: "PropAMM Paper Reading: Active Liquidity On Chain (arXiv 2609.38056)"
 summary_en: Two seconds post-trade, propAMMs earn +0.37 to +1.69 bps while passive AMMs lose -0.22 to -2.06 bps. Four mechanisms drive this advantage, with users bearing the cost of spoofing.

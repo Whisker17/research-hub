@@ -1,0 +1,56 @@
+# Tweet card (English only): node cli/rh.ts card propamm-active-liquidity-paper → card.png
+# Spec: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: paper results only, attributed to the paper; no Mantle-specific implications (panels F/M dropped).
+# Imported report, no ledger — evidence = explainer.en.md panels:
+# title: lead + panel C (spoofing cost borne by users routed via quote snapshots) + F1;
+# background: panel I B-2 (propAMM) and B-0 (passive AMMs only reprice on trades); context: panel H (paper position/scope), lead;
+# figure: F1 / panel B (markout 2 s post-trade, 3 chains, 1 year) + panel K takeaway (stale quotes picked off vs quotes updated first);
+# findings: F6 (39% at quoted price) and F3/F4/panel D (0.44 → 1.95 bps with up to 6 penalties);
+# takeaway: report's own commentary, panel F item 3 (markout + quote-execution consistency, not quoted spreads) generalized;
+# tweet adds B-1 (markout definition, gross of gas/hedging), F6 (1.08 bps, block start/end fees), F7 (calm-trade costs, retail proxy).
+# astra round-1 fixes: 1.95 bps is the volume-weighted fee with all six penalty components (panel D, F4), not caller penalties alone; takeaway scoped to Tessera (F6, panel F item 3); markout is not net PnL (B-1).
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (optional)
+title: "Paper: propAMMs lead on markout, users bear some costs"
+background: A propAMM is an on-chain pool whose market maker pushes price updates instead of waiting for trades.
+context: "arXiv 2609.38056: one year of swaps on Solana, Base and Monad; Tessera's closed contract decoded."
+figure:
+  caption: "Paper: avg markout 2 s after trade, 3 chains"
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - {
+          id: amm,
+          label: "−0.22 to −2.06 bps
+
+            stale quotes picked off",
+          x: 0,
+          y: 36,
+          w: 285,
+          h: 84,
+          color: red
+        }
+      - { id: prop, label: "+0.37 to +1.69 bps\nquotes move first", x: 315, y: 36, w: 255, h: 84, color: green }
+    texts:
+      - { x: 4, y: 0, text: "Passive AMMs", fontSize: 22, color: red }
+      - { x: 319, y: 0, text: "propAMMs", fontSize: 22, color: green }
+findings:
+  - stat: "39%"
+    text: "Paper: only 39% of Tessera trades on Base fill at the quoted snapshot price."
+  - stat: "1.95 bps"
+    text: "Paper: Tessera's volume-weighted fee rises from ~0.44 to 1.95 bps."
+takeaway: "Our read: Tessera shows why quoted spreads alone cannot establish execution quality."
+tweet: |-
+  A new paper (arXiv 2609.38056) measures a year of propAMM trading on Solana, Base and Monad. It finds propAMMs earn +0.37 to +1.69 bps of markout 2 s after a trade, while passive AMMs lose 0.22 to 2.06 bps. Part of that edge is paid by users.
+
+  Why it matters: passive AMMs reprice only when traded against, so arbitrageurs pick off stale quotes. A propAMM's maker pushes price updates on-chain.
+
+  How to read the figure (paper's averages):
+  • Left: passive AMMs, negative on all three chains.
+  • Right: propAMMs, positive on all three.
+  Markout = fill price vs Bybit microprice 2 s later.
+
+  Two details from the paper:
+  • Tessera on Base uses up to six penalty components; volume-weighted fees rise from ~0.44 bps nominal to 1.95 bps realized.
+  • Only 39% of its trades fill at the quoted price: default fees rise near block start and reset near block end.
+
+  Caveat: in calm markets (a retail proxy), flow still pays less on propAMMs: 0.26–1.62 vs 1.38–8.60 bps. Markout excludes gas and hedging.
