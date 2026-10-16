@@ -214,7 +214,8 @@ test("renderCardPng：1200×1500 PNG，带内容哈希；内容超出画布时�
   const bad = await renderCardPng(browser, { lang: "zh", content: tooMuch, date: "2026-10-16", ledger: null, figureSvg: FAKE_SVG });
   assert.ok(bad.errors.some((e) => e.includes("超出画布")), bad.errors.join("\n"));
 
-  const wide = await renderCardPng(browser, { lang: "en", content: { ...good, findings: [{ stat: "12345678", text: "x" }, "y"] }, date: "2026-10-16", ledger: null, figureSvg: FAKE_SVG });
+  // 绕过 schema 的超长数字：任何字体下都放不下一行（8 位数字是否换行取决于字体，CI 上没有苹方 / SF）
+  const wide = await renderCardPng(browser, { lang: "en", content: { ...good, findings: [{ stat: "1234567890123456", text: "x" }, "y"] }, date: "2026-10-16", ledger: null, figureSvg: FAKE_SVG });
   assert.ok(wide.errors.some((e) => e.includes("关键数字")), wide.errors.join("\n"));
 
   // 配图太大：要缩得太小才放得下
