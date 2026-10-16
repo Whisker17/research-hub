@@ -17,5 +17,7 @@ changelog:
     note: 创建（brief 快照）
   - date: 2026-10-16
     note: 首次发布：期权入门、链上期权生态、World Markets 论文复算与 Mantle 机会（中英双语）
+  - date: 2026-10-16
+    note: 推特卡片（英文，Excalidraw 配图 + 推文文案，astra-6 审查通过）
 title_en: "Onchain Options Handbook: From Option Basics and the Ecosystem to Mantle's Opportunity"
 summary_en: A developer onboarding to options (payoffs, IV, Greeks, parity, margin), five generations of onchain options and today's market, a re-computed review of the World Markets composable-options paper, and what Mantle lacks and should build first for RWA options.

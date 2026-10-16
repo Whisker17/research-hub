@@ -1,0 +1,65 @@
+# Tweet card (one-glance summary, English only — tweets are posted in English): pnpm rh card onchain-options-handbook → card.png
+# Spec and depth control: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: covers option basics and the onchain options ecosystem only; the report's chain-specific
+# opportunity part (panels E, R, S; ledger X / S5–S8) is dropped entirely.
+# Ledger basis: background B1/B4, B36/B38 (seller carries jump risk); context E5/E6 (media retellings), E18 (docs/announcements, as of 10-16);
+# figure E45/E50/E52/E53/E56/E64 (left: offchain matching / RFQ + onchain settlement), E55/E62/S4 (right: hedging access, capital cost);
+# caption limits the scope to leading venues surveyed in Oct 2026;
+# findings B34/B36/B37 (worked example: ETH 2500, 30 days, IV 60%, r=0), E21/E23/E29 (DefiLlama 30d; Alea OI on 10-01);
+# takeaway S4 + F4 implication (E28/E64); tweet additionally uses E55/E62 (full collateral adds funding cost), E35/E38/E60/E63 (settlement / oracle exploits),
+# E41/E43 (earlier generations' seller-side failures).
+# astra round-1 fixes: "hedging is the bottleneck" (S4, inferred) instead of "matching is solved"; Jeff Yan quote is a hypothetical answer (E5); OI ratio dated Oct 1 (E29); earlier failures attributed to Lyra's own account (E43) and specific exploits (E35/E38/E60/E63); no category-wide "institutional" claim.
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (once set, the card view shows "Open source tweet")
+title: "Onchain options: hedging is the bottleneck"
+background: An option buyer pays a premium for a capped loss; the seller keeps it and carries the jump risk.
+context: "Jeff Yan's hypothetical pick: options. Hyperliquid docs list no native vanilla options as of Oct 16."
+figure:
+  caption: Leading onchain option venues, Oct 2026
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - {
+          id: m,
+          label: "Offchain match / RFQ
+
+            onchain settlement",
+          x: 0,
+          y: 36,
+          w: 268,
+          h: 84,
+          color: green
+        }
+      - {
+          id: r,
+          label: "Maker hedging access
+
+            collateral capital cost",
+          x: 298,
+          y: 36,
+          w: 272,
+          h: 84,
+          color: red
+        }
+    texts:
+      - { x: 4, y: 0, text: "Already working", fontSize: 22, color: green }
+      - { x: 302, y: 0, text: "Still the bottleneck", fontSize: 22, color: red }
+findings:
+  - stat: "$27–30"
+    text: "Example: loss of a delta-hedged short ETH call on a ±10% jump (~10d theta)."
+  - stat: "83.7%"
+    text: "Derive's share of DefiLlama's ~$5.07B 30-day options notional (Oct 16)."
+takeaway: Leading venues can match trades; hedging access and capital costs remain the bottleneck.
+tweet: |-
+  Onchain options need more than matching. Leading venues match or quote offchain and settle onchain; the main bottleneck is sellers' access to hedges and the cost of capital.
+
+  Why it matters: buyers risk their premium. Sellers bear jump risk, even after hedging.
+
+  How to read the figure (leading venues, Oct 2026):
+  • Left: Derive, Paradex and Rysk match or quote offchain and settle onchain.
+  • Right: hedging access and collateral costs constrain sellers.
+
+  Two details:
+  • Example: one delta-hedged short at-the-money ETH call loses $27–30 on an instant ±10% move (ETH $2,500, 30 days, implied volatility 60%, zero interest).
+  • On Oct 16, DefiLlama's 30-day options notional was ~$5.07B; Derive had 83.7%. Deribit's option open interest was ~25× Derive's on Oct 1.
+
+  Caveat: Lyra attributed earlier option-pool losses to pricing and missing hedges. Surveyed Opyn, Ribbon and Typus exploits involved exercise or oracle flaws.
