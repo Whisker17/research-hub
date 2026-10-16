@@ -20,6 +20,8 @@ export interface HubConfig {
   briefsDir: string;
   /** answer-me-with-html CLI（am.mjs）的绝对路径 */
   amScript: string;
+  /** 推特卡片里尽量不出现的词（卡片以中立研究者身份发布）；出现时 rh card / rh check 给警告 */
+  cardAvoidTerms: string[];
 }
 
 interface RawConfig {
@@ -28,6 +30,7 @@ interface RawConfig {
   vaultDir: string;
   briefsDir: string;
   amScript: string;
+  cardAvoidTerms?: string[];
 }
 
 const expandHome = (p: string): string => (p.startsWith("~/") ? join(homedir(), p.slice(2)) : p);
@@ -57,5 +60,6 @@ export function loadConfig(root: string = repoRoot()): HubConfig {
     vaultDir: resolve(expandHome(process.env.RH_VAULT_DIR ?? raw.vaultDir)),
     briefsDir: raw.briefsDir,
     amScript: resolve(expandHome(process.env.AM_SCRIPT ?? raw.amScript)),
+    cardAvoidTerms: Array.isArray(raw.cardAvoidTerms) ? raw.cardAvoidTerms.filter((t) => typeof t === "string") : [],
   };
 }

@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { stringify } from "yaml";
+import { CARD_HELP } from "../cli/commands/card.ts";
 import { CHECK_HELP } from "../cli/commands/check.ts";
 import { IMPORT_HELP } from "../cli/commands/import.ts";
 import { NEW_HELP } from "../cli/commands/new.ts";
@@ -22,7 +23,7 @@ const REPO = join(import.meta.dirname, "..");
 const SKILL_DIR = join(REPO, ".claude", "skills", "research-hub");
 
 const HELP: Record<string, string> = {
-  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP,
+  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP,
   list: "", build: "",
 };
 

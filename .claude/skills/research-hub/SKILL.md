@@ -1,6 +1,6 @@
 ---
 name: research-hub
-description: 在 research-hub 仓库里把一个研究 topic 做成手机友好的单文件 HTML 报告并发布：brief → 调研（含论断台账）→ answer-me-with-html explainer → rh render / check → rh publish。用户说“做一篇报告 / 研究一下 X 并发到 research-hub / 根据这些资料生成报告 / 导入这篇报告 / 更新某篇报告 / rh new …”时使用。全程只有三个人工把关点：确认 brief、审阅调研、审阅页面后发布。
+description: 在 research-hub 仓库里把一个研究 topic 做成手机友好的单文件 HTML 报告并发布：brief → 调研（含论断台账）→ answer-me-with-html explainer → 推特卡片 → rh render / card / check → rh publish。用户说“做一篇报告 / 研究一下 X 并发到 research-hub / 根据这些资料生成报告 / 导入这篇报告 / 更新某篇报告 / 给某篇报告做推特卡片（一图速览）/ rh new …”时使用。全程只有三个人工把关点：确认 brief、审阅调研、审阅页面后发布。
 ---
 
 # research-hub：从 brief 到上线
@@ -28,6 +28,7 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
 | ChatGPT / Gemini 等外部 Deep Research 的结果 | **C 外部调研** | §2（建报告后 `rh import research`），§3 以导入结果为线索补证、写台账 |
 | 在别处做完的单文件 HTML 或 am 稿件 | **D 导入报告** | §6 |
 | 更新已发布的报告 | **E 就地更新** | §7 |
+| 给报告做推特卡片（在 X 上引用源推文时配的一图速览） | **F 推特卡片** | §9 |
 
 拿不准时问用户一句，不要猜。
 
@@ -92,6 +93,14 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
    - `✗ L<行号> …`：按行号改 explainer.md 或 explainer.en.md，再渲染。
    - “图形没有烘焙进页面”：检查本机 Chrome / Node 22+，不要发布未烘焙的页面。
    - STE 警告：按建议改写，最多再渲染 2 轮；仍有警告就保留，并在 ③ 里说明。
+
+   **推特卡片**（新报告默认一起做，用户说不要时跳过）：按 [references/tweet-card.md](references/tweet-card.md) 写 `$DIR/card.yml`（中英文两份，英文卡片一并交给 sol 审），然后：
+
+   ```sh
+   pnpm rh card <slug>
+   ```
+
+   它把卡片渲染成 `card.png` / `card.en.png`，内容超出固定画布就失败：按提示删减，不缩字号。
 5. **检查**：
 
    ```sh
@@ -105,6 +114,7 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
    - 重叠、截断、空图、文字过小、文字墙都要先改掉。手机上图在图框内横向滚动是允许的；但图过宽时（例如 `flowchart LR` 节点超过约 8 个），改成 `TB` 布局。
 7. **把关 ③**：告诉用户——
    - 页面路径 `$DIR/index.html`（中文）与 `$DIR/index.en.html`（英文，可以直接用浏览器打开），以及中英文手机截图路径
+   - 推特卡片 `$DIR/card.png` / `$DIR/card.en.png`（如果做了），以及卡片上每条发现对应的台账行
    - 三条阅读路径各看哪些面板；每张图一句话说明
    - 删掉或标为 speculative 的内容、遗留的 STE 警告、开放问题
    - 发布后的地址：`pnpm rh paths <slug>` 的 `url`（public → `/r/<slug>/`，private → 私有站点 `/p/<slug>/`；英文版自动追加 `/en/`）
@@ -162,3 +172,19 @@ pnpm rh import report --html <页面.html> --slug <slug> --domain <domain> --sou
 | `rh check`：论断台账问题 | 按行号补证据或改类型；表格必须有“论断 / 证据 / 类型”三列 |
 | `rh check`：手机检查失败 | 看 `.rh/shots/<slug>/`；改稿件（宽表格拆列、长代码换行、减少 span）；模板问题报告给用户 |
 | `rh publish`：泄漏检查失败 | public 内容提到了 private 报告的标题或路径；改掉引用，不要绕过检查 |
+| `rh card`：内容超出画布 / 关键数字放不下一行 | 删一条发现，或把各段压到 1–2 行；stat 换更短的数字。不要缩字号。预览在 `.rh/cards/<slug>/overflow-<lang>.png` |
+| `rh card`：配图里的字太小 / 配图的 am 布局错误 | 画成一行、2–3 个节点，节点 fontSize 20–22；分组标题用 `texts`（boxes 的标签固定 14px）；overlap 调位置，标签放不下就缩短 |
+| `rh card` / `rh check`：卡片提到了“Mantle” | 改写成领域层面的说法；确实绕不开时先问用户 |
+| `rh check`：card.png 不是当前 card.yml 的渲染结果 | 改过 `card.yml` 之后没重新渲染：运行 `pnpm rh card <slug>` |
+
+## 9. 路径 F：给报告做推特卡片
+
+用户要在 X 上引用（quote）一条源推文，配一张本次调研的一图速览。写法和深度控制见 [references/tweet-card.md](references/tweet-card.md)。
+
+1. **确认**：源推文链接（写进 `quote`）、卡片要回应的角度、哪些内容可以公开（卡片会出现在 X 上；私有报告和 `domain: work` 的报告尤其要问）。用户在请求里已经说清楚时不用再问。
+2. 写 `$DIR/card.yml`：背景、现状、一张 Excalidraw 配图（一行、字够大，只讲一件事）、2–3 条发现、结论，以及配图发的推文文案 `tweet`（X 计数 ≤ 280，帮读者读懂图，见 tweet-card.md“推文文案”）。**以中立研究者口吻写，尽量不提 Mantle**：把发现上升到领域层面，不写给某家公司的建议（见 tweet-card.md“立场”）。每条论断都要在台账里有 observed / inferred 的一行；不写 speculative。双语报告写 `zh` 和 `en`，英文卡片交给 `sol` subagent 审。
+3. `pnpm rh card <slug>` → 用 Read 工具看 `card.png` / `card.en.png` → `pnpm rh check <slug>`。
+4. **把关 ③**：给用户看两张 PNG、两段推文文案和每条发现对应的台账行，问“卡片是否可以发布？”。**停下等待。**
+5. 用户批准后：`pnpm rh publish <slug> --note "推特卡片"`（已发布的报告不需要重新渲染 HTML；卡片模式在构建时注入）。上线后在报告页点“推特卡片” → 在 X 上引用源推文 → “复制文案”粘贴 → “复制图片”粘贴。
+
+换一条源推文再引用同一篇报告时，按需改 `context` 与 `quote`，重新走第 3–5 步。

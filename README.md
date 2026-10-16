@@ -35,8 +35,14 @@ pnpm dev         # 本地预览索引页（报告页需先 pnpm build，再看 d
 | 快照 brief、建报告目录（draft，默认 private） | `rh new "<brief>" --slug <slug>` | ① 确认 brief |
 | 调研，写 `research/*.md` 与 `research/ledger.md` 台账；外部 Deep Research 用 `rh import research` | — | ② 审阅调研结果 |
 | 写 `explainer.md`（answer-me-with-html research 模式），渲染 | `rh render <slug>` | |
-| 检查（schema / 标签 / 台账 / 手机 390×844 + 截图） | `rh check <slug>` | ③ 审阅页面与截图 |
+| 写 `card.yml`（推特卡片：背景 / 现状 / Excalidraw 配图 / 发现 / 结论），渲染成 `card.png` / `card.en.png` | `rh card <slug>` | |
+| 检查（schema / 标签 / 台账 / 推特卡片 / 手机 390×844 + 截图） | `rh check <slug>` | ③ 审阅页面、卡片与截图 |
 | 发布：检查 → published → 构建与泄漏检查 → 提交并 push → CI 部署 | `rh publish <slug>` | |
+
+### 报告页上的站点功能（构建时注入，源 HTML 不动）
+
+- **中文 / EN 切换**：有英文版的报告，右上角工具栏（手机上在返回链接那一行）有中文 / EN 切换；会保留当前锚点，并和首页共用语言偏好。
+- **推特卡片模式**：有 `card.png` 的报告，阅读路径（5 分钟 / 30 分钟 / 完整）后面多一个“推特卡片”。点开后有推文文案（`card.yml` 的 `tweet`，X 计数 ≤ 280）和“复制文案”“复制图片”：在 X 里引用源推文，先粘贴文案，再粘贴图片（PNG 直接写进剪贴板，不用下载）；`#tweet-card` 锚点直接打开这个模式。复制需要 https（线上站点）或 localhost；不支持的浏览器会提示右键 / 长按复制。卡片以中立研究者口吻写，尽量不提 Mantle（`rh.config.json` 的 `cardAvoidTerms`）。卡片写法与深度控制见 [references/tweet-card.md](.claude/skills/research-hub/references/tweet-card.md)。给已发布报告补卡片：写 `card.yml` → `rh card <slug>` → `rh publish <slug> --note "推特卡片"`。
 
 导入其他仓库完成的研究：`rh import report --explainer <am稿件.md> | --html <页面.html> --slug … --domain … --source-repo <路径>`。
 

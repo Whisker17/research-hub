@@ -1,6 +1,7 @@
-# esbuild / workerd 自带预编译二进制，不需要运行安装脚本。
+# esbuild / workerd 自带预编译二进制，不需要运行安装脚本；core-js（twitter-text 的依赖）的脚本只打印捐赠提示。
 # 在这里显式拒绝，以通过 pnpm 的 build-scripts 检查。
 packages: []
 allowBuilds:
   esbuild: false
   workerd: false
+  core-js: false

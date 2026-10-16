@@ -90,6 +90,7 @@ test("配置：仓库根目录可由 RH_ROOT 指定", () => {
   process.env.RH_ROOT = tmp;
   try {
     assert.equal(loadConfig().vaultDir, join(tmp, "vault"));
+    assert.deepEqual(loadConfig().cardAvoidTerms, ["Mantle"], "推特卡片默认避免点名 Mantle");
   } finally {
     delete process.env.RH_ROOT;
   }
@@ -275,4 +276,69 @@ test("rh publish：严格检查 → published → 构建 → 只提交报告目�
 
   // 已发布：rh render 不带 --force 被拒绝
   assert.equal(rh("render", "meme-launchpad").code, 1);
+});
+
+test("rh card：card.yml → card.png / card.en.png；改稿未重渲染时 rh check 报错；rh build 分发卡片与卡片模式", { skip: chrome && amAvailable ? false : "需要 Chrome 与 answer-me-with-html" }, () => {
+  const dir = writeReport("card-demo", { title: "卡片演示报告", summary: "卡片演示摘要" }, { "index.en.html": goodHtml });
+  const zh = {
+    title: "卡片演示：一眼看完的结论",
+    background: "这是背景：读者需要知道的一件事。",
+    context: "这是现状：源推文说了什么。",
+    figure: {
+      caption: "左边是已知，右边是新发现",
+      excalidraw: { nodes: [{ id: "a", label: "已知", col: 0, row: 0, color: "gray" }, { id: "b", label: "新发现", col: 1, row: 0, color: "green" }], edges: [{ from: "a", to: "b" }] },
+    },
+    findings: [{ stat: "3×", text: "第一条发现，带一个**关键数字**。" }, "第二条发现。"],
+    takeaway: "这是结论。",
+    tweet: "这是推文文案：先说背景，再解释图左和图右分别是什么，最后补一句图里放不下的限定。",
+  };
+  const en = { ...zh, title: "Card demo: the result at a glance", findings: ["Finding one.", "Finding two."] };
+  assert.equal(rh("card", "card-demo").code, 1, "没有 card.yml 时失败");
+  writeFileSync(join(dir, "card.yml"), stringify({ quote: "https://x.com/someone/status/1", zh: { ...zh, findings: [zh.findings[0]] } }));
+  const invalid = rh("card", "card-demo");
+  assert.equal(invalid.code, 1, invalid.out);
+  assert.match(invalid.out, /zh\.findings/);
+
+  writeFileSync(join(dir, "card.yml"), stringify({ quote: "https://x.com/someone/status/1", zh, en }));
+  const r = rh("card", "card-demo");
+  assert.equal(r.code, 0, r.out);
+  assert.ok(existsSync(join(dir, "card.png")) && existsSync(join(dir, "card.en.png")));
+  const ok = rh("check", "card-demo", "--no-shot");
+  assert.equal(ok.code, 0, ok.out);
+
+  // 改了 card.yml 却没重新渲染：发布标准下是错误
+  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。" }, en }));
+  const stale = rh("check", "card-demo", "--no-shot");
+  assert.equal(stale.code, 1, stale.out);
+  assert.match(stale.out, /card\.png 不是当前 card\.yml 的渲染结果/);
+  assert.equal(rh("card", "card-demo", "--lang", "zh").code, 0);
+  assert.equal(rh("check", "card-demo", "--no-shot").code, 0);
+
+  // 稿件删掉 en，但 card.en.png 还在：构建会继续展示旧图，所以是错误
+  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。" } }));
+  const orphan = rh("check", "card-demo", "--no-shot");
+  assert.equal(orphan.code, 1, orphan.out);
+  assert.match(orphan.out, /没有 en 卡片，但 card\.en\.png 还在/);
+  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。" }, en }));
+
+  // 中立立场：提到 cardAvoidTerms 里的词只给警告
+  const named = rh("card", "card-demo", "--lang", "en");
+  assert.equal(named.code, 0, named.out);
+  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。", context: "Mantle 发布了新路线。" }, en }));
+  const warned = rh("check", "card-demo", "--no-shot");
+  assert.match(warned.out, /zh 卡片提到了“Mantle”/);
+  writeFileSync(join(dir, "card.yml"), stringify({ zh: { ...zh, takeaway: "改过的结论。" }, en }));
+
+  const b = rh("build");
+  assert.equal(b.code, 0, b.out);
+  const target = join(tmp, "dist", "public", "r", "card-demo");
+  assert.ok(existsSync(join(target, "card.png")) && existsSync(join(target, "en", "card.png")));
+  const page = readFileSync(join(target, "index.html"), "utf8");
+  assert.match(page, /data-rh-card-btn/);
+  assert.match(page, /<img data-rh-card-img src="card\.png"/);
+  assert.match(page, /data-rh-lang-to="en"/);
+  assert.match(page, /<p data-rh-card-tweet-text>这是推文文案：/, "页面显示当前语言的推文文案");
+  assert.doesNotMatch(page, /x\.com\/someone/, "card.yml 去掉 quote 之后，页面也不再显示源推文链接");
+  assert.match(readFileSync(join(target, "en", "index.html"), "utf8"), /Tweet card/);
+  rmSync(dir, { recursive: true, force: true });
 });

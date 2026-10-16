@@ -13,7 +13,8 @@ import type { Browser } from "puppeteer-core";
 import { parseLedger } from "../../lib/ledger.ts";
 import { REPORT_FILES, type Report } from "../../lib/reports.ts";
 import type { TagRegistry } from "../../lib/schema.ts";
-import { injectBackLink } from "./build.ts";
+import { deployedReportHtml } from "./build.ts";
+import { CARD_LANGS, avoidedTerms, cardPngName, cardPngState, loadCard } from "./card.ts";
 import { MOBILE_CHECK_VERSION, checkMobile, type MobileResult } from "./mobile.ts";
 
 /** 手机检查用的临时文件（在报告目录内，检查后删除；已加入 .gitignore） */
@@ -34,6 +35,8 @@ export interface CheckOptions {
   /** 手机检查结果缓存目录（按 HTML 内容哈希） */
   cacheDir?: string;
   shotsDir?: string;
+  /** 推特卡片里要尽量避免的词（rh.config.json 的 cardAvoidTerms） */
+  cardAvoidTerms?: string[];
 }
 
 export function checkReferences(report: Report, all: Report[], tags: TagRegistry): string[] {
@@ -83,6 +86,43 @@ export function checkCompleteness(report: Report): string[] {
   return problems;
 }
 
+/**
+ * 推特卡片（card.yml，可选）：
+ *  - 稿件本身（schema、篇幅上限）：错误，与 meta schema 同级（draft 也一样）。
+ *  - 渲染状态（PNG 缺失或比 card.yml 旧）：完整性问题，按严格程度给错误或警告。
+ */
+export function checkCard(report: Report, avoidTerms: string[] = []): { errors: string[]; completeness: string[]; warnings: string[] } {
+  const res = { errors: [] as string[], completeness: [] as string[], warnings: [] as string[] };
+  const loaded = loadCard(report.dir);
+  if (!loaded.exists) {
+    for (const lang of CARD_LANGS) {
+      if (existsSync(join(report.dir, cardPngName(lang)))) res.warnings.push(`有 ${cardPngName(lang)} 但没有 ${REPORT_FILES.card}：页面会展示这张图，但它没有稿件可以核对`);
+    }
+    return res;
+  }
+  if (!loaded.card) {
+    res.errors.push(...loaded.errors.map((e) => `${REPORT_FILES.card}：${e}`));
+    return res;
+  }
+  const card = loaded.card;
+  const hasEn = existsSync(join(report.dir, REPORT_FILES.htmlEn));
+  for (const lang of CARD_LANGS) {
+    const content = card[lang];
+    if (!content) {
+      // 稿件里删掉了这种语言，旧 PNG 却还在：构建会继续展示旧图，必须删掉
+      if (existsSync(join(report.dir, cardPngName(lang)))) {
+        res.completeness.push(`${REPORT_FILES.card} 没有 ${lang} 卡片，但 ${cardPngName(lang)} 还在：页面会继续展示旧图。删掉 ${cardPngName(lang)} 或补回 ${lang} 稿件`);
+      } else if (lang === "en" && hasEn) res.warnings.push(`${REPORT_FILES.card} 没有 en 卡片：英文页不会出现推特卡片模式`);
+      continue;
+    }
+    for (const t of avoidedTerms(content, avoidTerms)) res.warnings.push(`${lang} 卡片提到了“${t}”：推特卡片以中立研究者身份发布，尽量不提（rh.config.json 的 cardAvoidTerms）`);
+    const state = cardPngState(report.dir, lang, content);
+    if (state === "missing") res.completeness.push(`缺少 ${cardPngName(lang)}（运行 rh card ${report.slug}）`);
+    if (state === "stale") res.completeness.push(`${cardPngName(lang)} 不是当前 ${REPORT_FILES.card} 的渲染结果（运行 rh card ${report.slug}）`);
+  }
+  return res;
+}
+
 interface CacheEntry {
   version: number;
   ok: boolean;
@@ -102,13 +142,7 @@ async function checkSingleHtmlMobile(
 ): Promise<MobileResult | CacheEntry | null> {
   const source = join(report.dir, file);
   if (!existsSync(source) || !opts.browser) return null;
-  const isEn = file === REPORT_FILES.htmlEn;
-  const deployed = injectBackLink(
-    readFileSync(source, "utf8"),
-    report.meta.visibility === "public" ? "/" : "/p/",
-    "Research Hub",
-    isEn ? { href: "../", label: "中文" } : { href: "./en/", label: "English" },
-  );
+  const deployed = deployedReportHtml(report, file === REPORT_FILES.htmlEn ? "en" : "zh");
   const key = cacheKey(Buffer.from(deployed));
   const cacheName = cacheSuffix ? `${report.slug}-${cacheSuffix}.json` : `${report.slug}.json`;
   const cacheFile = opts.cacheDir ? join(opts.cacheDir, cacheName) : null;
@@ -171,6 +205,10 @@ export async function checkReport(report: Report, all: Report[], tags: TagRegist
   const bucket = strict ? errors : warnings;
 
   bucket.push(...checkCompleteness(report));
+  const card = checkCard(report, opts.cardAvoidTerms);
+  errors.push(...card.errors);
+  bucket.push(...card.completeness);
+  warnings.push(...card.warnings);
 
   if (opts.mobile) {
     const m = await checkReportMobile(report, opts);

@@ -50,6 +50,7 @@ export async function runChecks(cfg: HubConfig, opts: { slugs: string[]; strict:
           browser,
           cacheDir: join(cfg.root, ".rh", "cache", "mobile"),
           shotsDir: join(cfg.root, ".rh", "shots"),
+          cardAvoidTerms: cfg.cardAvoidTerms,
         }),
       );
     }

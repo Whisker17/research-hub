@@ -74,6 +74,8 @@ reports/YYYY/MM/<slug>/      ← 创建年月
   explainer.en.md            ← am 英文稿件（经 sol subagent 双重审查）
   index.html                 ← 中文最终产物
   index.en.html              ← 英文最终产物
+  card.yml                   ← 推特卡片稿件（可选；背景 / 现状 / Excalidraw 配图 / 发现 / 结论）
+  card.png, card.en.png      ← rh card 生成的推特卡片（4:5，1200×1500）
 tags.yml                     ← 标签登记表
 ```
 
@@ -112,6 +114,8 @@ tags.yml                     ← 标签登记表
   - `/r/<slug>`：公开报告，全站 `noindex`。
   - `/p/`、`/p/<slug>`：私有索引（列出全部报告）与私有报告，由 Cloudflare Access 保护。**实现时放在单独的私有 Worker 域名上**（workers.dev 的 Access 只能按整个域名开启），详见 [decisions/0001](decisions/0001-site-architecture.md)。
 - **返回导航**：构建时在报告的输出副本里注入一个 "← Research Hub" 链接。它在文档流里，不用 fixed，也不改样式，源文件不动。不用 iframe 外壳。
+- **语言切换**：有英文版的报告，构建时在右上角（am 工具栏开头；窄屏在返回链接一行的右侧）注入“中文 / EN”切换。切换时保留锚点，并写入与首页共用的 `localStorage.rh_lang`。
+- **推特卡片模式**：报告有 `card.png`（英文页 `card.en.png`）时，构建时在 am 阅读路径（5 分钟 / 30 分钟 / 完整）后面注入“推特卡片”模式：显示推文文案与卡片图、“复制文案”“复制图片”（Clipboard API 写入文本 / PNG）和源推文链接。卡片以中立研究者口吻写，尽量不提 Mantle（`cardAvoidTerms`）。卡片图复制到 `<slug>/card.png` 与 `<slug>/en/card.png`。详见 [decisions/0002](decisions/0002-lang-toggle-and-tweet-card.md)。
 - **托管**：Cloudflare Workers 静态资源 + Access。公开站 `research-hub`，私有站 `research-hub-private`（Access 保护整个域名，Worker 再校验 Access JWT）。v1 用 `workers.dev` 域名。
 - **部署**：push 到 `main` 后，由 GitHub Actions 先跑 `rh check`（不含截图），再执行 `wrangler deploy`。不设 PR 审核门。
 

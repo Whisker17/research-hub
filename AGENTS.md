@@ -15,12 +15,13 @@ research-hub 存放 AI 生成的研究报告，并把它们发布成手机友好
 - **手机适配**：不要往报告 HTML 里注入 CSS 补丁。手机检查不过就修源头（answer-me-with-html 或原仓库的构建脚本）。
 - **已发布报告不自动重新渲染**；需要时 `rh render <slug> --force`。
 - **中英文双语发布**：新报告统一中英文双版一起发。中文写 `explainer.md`，英文写 `explainer.en.md` 并在 `meta.yml` 中填写 `title_en` 与 `summary_en`。英文版需启动 `sol` subagent（`mantle/gpt-6.1-sol`）进行 Review 和 double check，双方就专业术语、论断定性与图文布局交互协商达成一致后再渲染；`rh render <slug>` 与 `rh check <slug>` 自动处理双语输出（`/r/<slug>/` 与 `/r/<slug>/en/`）。
+- **推特卡片（一图速览）**：报告目录里的 `card.yml`（背景 / 现状 / Excalidraw 配图 / 2–3 条发现 / 结论，有篇幅上限）由 agent 按 `.claude/skills/research-hub/references/tweet-card.md` 写，`rh card <slug>` 渲染成 `card.png` / `card.en.png`（固定 4:5 画布，放不下就失败）。卡片只用台账里 observed / inferred 的论断；卡片以中立研究者身份公开发到 X 上，尽量不提 Mantle（`rh.config.json` 的 `cardAvoidTerms`，出现时给警告），不写给某家公司的建议；私有报告先和用户确认可公开的内容。每种语言还有配图发的推文文案 `tweet`（X 计数 ≤ 280，不画进图片）。构建时报告页的阅读路径里会多出“推特卡片”模式（一键复制文案与图片），右上角有中文 / EN 切换。
 - 提交前运行 `pnpm verify`（类型检查、测试、`rh check --no-shot`、构建与泄漏检查）。
 
 ## 目录
 
 ```
-reports/YYYY/MM/<slug>/   报告（meta.yml、brief.md、research/、explainer.md、explainer.en.md、index.html、index.en.html、source.md、assets/）
+reports/YYYY/MM/<slug>/   报告（meta.yml、brief.md、research/、explainer.md、explainer.en.md、index.html、index.en.html、card.yml、card.png、card.en.png、source.md、assets/）
 tags.yml                  标签登记表
 lib/                      CLI 与 Astro 共用：schema、报告读取、台账解析、站点数据
 cli/                      rh 命令（commands/）与检查、构建、手机检查（lib/）
@@ -35,6 +36,7 @@ test/                     node --test：单元、手机检查夹具、端到端
 ```sh
 pnpm rh new "Meme Launchpad" --slug meme-launchpad --domain crypto --tags meme
 pnpm rh render meme-launchpad
+pnpm rh card meme-launchpad         # card.yml → 推特卡片 card.png / card.en.png
 pnpm rh check meme-launchpad        # 含手机检查，截图在 .rh/shots/<slug>/
 pnpm rh paths meme-launchpad        # 报告目录、发布地址、am 与 vault brief 目录
 pnpm figshot meme-launchpad         # 逐图截图到 .rh/figs/<slug>/（--width 390 看手机）

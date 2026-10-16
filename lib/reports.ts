@@ -33,6 +33,10 @@ export const REPORT_FILES = {
   researchDir: "research",
   ledger: "research/ledger.md",
   assetsDir: "assets",
+  /** 推特卡片（一图速览）的稿件与 rh card 的产物 */
+  card: "card.yml",
+  cardPng: "card.png",
+  cardPngEn: "card.en.png",
 } as const;
 
 const isDir = (p: string): boolean => existsSync(p) && statSync(p).isDirectory();
