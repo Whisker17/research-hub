@@ -1,9 +1,7 @@
 title: CFMM 最优路由论文导读：从拆单直觉到对偶分解
-title_en: "CFMM Optimal Routing: From Order-Splitting Intuition to Dual Decomposition"
 summary: 给每个币一个影子价格，让每个池独立做一维套利；调价直到资金守恒，就得到模型内全局最优的池级拆单。含 3 个交互实验。
-summary_en: "Assigning shadow prices to each token allows each pool to execute independent 1D arbitrage; adjusting prices until conservation of funds yields the global optimal split. Includes 3 interactive experiments."
 created: 2026-10-05
-updated: 2026-10-05
+updated: 2026-10-16
 domain: work
 tags:
   - dex
@@ -22,3 +20,7 @@ changelog:
     note: 改为公开（暂不启用私有站点）
   - date: 2026-10-05
     note: 改回私有（Access：本人 + @mantle.xyz）
+  - date: 2026-10-16
+    note: 推特卡片（英文，Excalidraw 配图 + 推文文案，astra-6 审查通过）
+title_en: "CFMM Optimal Routing: From Order-Splitting Intuition to Dual Decomposition"
+summary_en: Assigning shadow prices to each token allows each pool to execute independent 1D arbitrage; adjusting prices until conservation of funds yields the global optimal split. Includes 3 interactive experiments.

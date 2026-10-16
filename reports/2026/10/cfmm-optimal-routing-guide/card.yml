@@ -1,0 +1,56 @@
+# 推特卡片（一图速览，只有英文版——推特统一用英文发）：pnpm rh card cfmm-optimal-routing-guide → card.png
+# 写法与深度控制：.claude/skills/research-hub/references/tweet-card.md
+# 中立研究者口吻：理论导读，不涉及任何产品或项目；不点名 cardAvoidTerms（source.md §8.5 的场景段不用）。
+# 导入报告（kind: imported），无台账；依据为 source.md 小节：
+# background §1.3（报价随交易量变差）、§3.1；context §0.1 第 1–5 句（论文、FC 2023、对偶分解、并行）；
+# figure §1.2 四类做法表（候选路径 + 拆单搜索 = "常见聚合器做法之一"；对偶分解）、§0.1；caption §1.2 注意第 2 点、§8.4（固定快照、无 gas）；
+# findings §0.2 / §3.1（例子 A：150000 vs 200000 USDC）、§4.9 (3) 与 §0.2（例子 B：对偶上界 = 可行值，间隙在 float64 舍入内为 0）；
+# takeaway §1.2 注意第 2 点、§8.4（"数学最优流 ≠ 可执行交易"，论文 §6 把 gas 与状态变化留作未来工作）；
+# tweet 另用 §1.3（共享池重复计算）、§4.8（路径事后从池级资金流读出）、§3.4 与 §9（影子价格不是预言机输入；等于最终边际报价）、
+# §3.1（边际 1333.33 vs 平均 2000）、§1.2 表（候选路径做法"在候选集合里较好"）、§8.4（论文 §6：gas 与状态变化留作未来工作）。
+# 已删：§8.1 的 Mosek "over 50%" 目标差质疑（代码观察、未运行脚本，推文放不下其限定）。
+# astra round-1 fixes: two-pool numbers are a toy no-fee example (source.md §3, §8.2, §11); per-pool subproblem not called 1-D (§6.2 two-token pools only).
+# quote: https://x.com/<handle>/status/<id>   # 要引用的源推文（填上后页面卡片模式会出现“打开源推文”）
+title: "CFMM routing: shadow prices decide each pool's trade"
+background: CFMMs are rule-based trading pools; splitting a large swap can reduce price impact.
+context: "Diamandis et al. (FC 2023) solve routing by dual decomposition: one price per token, pools in parallel."
+figure:
+  caption: "Model: fixed snapshot, known pools, no gas"
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: paths, label: "Candidate paths\n+ share search", x: 0, y: 36, w: 250, h: 84, color: gray, stroke: dashed }
+      - {
+          id: dual,
+          label: "Token shadow prices
+
+            + per-pool arbitrage",
+          x: 290,
+          y: 36,
+          w: 280,
+          h: 84,
+          color: green
+        }
+    texts:
+      - { x: 4, y: 0, text: "Path-first (common)", fontSize: 22, color: gray }
+      - { x: 294, y: 0, text: "Pool-level (this paper)", fontSize: 22, color: green }
+findings:
+  - stat: "200k"
+    text: "Toy no-fee example, sell 100 ETH: one pool 150k USDC; 50/50 split 200k."
+  - stat: "gap ≈ 0"
+    text: "Optimality is certified: in a 3-pool example, dual bound = feasible output."
+takeaway: Optimal here means optimal in the model; turning it into an on-chain trade is a separate step.
+tweet: |-
+  How should a large swap be split across CFMM pools? Diamandis et al. (FC 2023) optimize each pool's trade; paths are read from the resulting flows.
+
+  Why it matters: paths sharing a pool draw on the same liquidity. Pricing them independently can overstate output.
+
+  How to read the figure (fixed snapshot, no gas):
+  • Left: choose candidate paths, then search over shares.
+  • Right: assign token shadow prices, solve each pool's arbitrage independently, then adjust prices to balance net flows.
+
+  Two teaching examples from our guide:
+  • Two no-fee constant-product pools, each holding 100 ETH / 300,000 USDC: selling 100 ETH yields 150k USDC via one pool or 200k split equally. Final marginal quotes are ~1,333 USDC/ETH; the average is 2,000.
+  • In the 3-pool example, the dual upper bound matches feasible output within float64 rounding: optimal within tolerance.
+
+  Caveat: shadow prices are solver unknowns, not oracle inputs. The paper leaves gas and state changes to future work.
