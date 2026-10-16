@@ -1,0 +1,45 @@
+# Tweet card (one-glance summary, English only): node cli/rh.ts card atomic-synchronous-composability -> card.png
+# Spec: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: covers EEZ and its first mainnet tx only; the report's L2<->L3 mapping section is dropped
+# (its rows E33-E58 and G1-G7 are chain-specific or speculative and have no generic counterpart).
+# Ledger rows: background M2/A55-A56; context E18, E23, T1/T17; figure T3, T11, T18, T2/T16 (caption T1);
+# findings T5/T6 (one sig, threshold 1) + T8 (demo sender = rollup owner), T20 (scope of what the tx shows); takeaway M3/M53 (no L1 fork) + T5/M8/T20 (no ZK proof, no L2->L1 call in this tx);
+# tweet also uses M2, A33/A36 (OP interop: two txs, no return value), A56 (flash loans, liquidations),
+# T19 (same-block gate, inferred), M11, M53 (modified L2 client), E32 + T4 (mainnet impl = unaudited core repo).
+# astra round-1 fixes: "first" scoped to EEZ's deployment (T22, E23), not the whole field.
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (shows "Open source tweet" on the page)
+title: "EEZ's first atomic mainnet tx: one signature, no ZK"
+background: "Synchronous composability: one tx calls another chain's contract, uses its result; all commit or revert."
+context: "Oct 5: EEZ (Gnosis + ZisK, EF-funded) posted its first mainnet atomic tx, a 0.001 ETH L1→L2 transfer."
+figure:
+  caption: "EEZ mainnet demo: Ethereum block 26127444"
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: v, label: "postAndVerifyBatch\ntable + proof", x: 0, y: 36, w: 250, h: 84, color: blue }
+      - { id: c, label: "0.001 ETH → proxy\nentry consumed", x: 310, y: 36, w: 260, h: 84, color: green }
+    edges:
+      - { from: v, to: c }
+    texts:
+      - { x: 4, y: 0, text: "tx 31: verify", fontSize: 22, color: blue }
+      - { x: 314, y: 0, text: "tx 32: consume", fontSize: 22, color: green }
+findings:
+  - stat: 1 sig
+    text: "One 65-byte ECDSA sig passes (threshold 1); the tx sender owns the rollup."
+  - stat: L1→L2
+    text: "Shown: a plain deposit. No L1 use of return values, L2→L1 call or nesting."
+takeaway: In-block verify-then-consume needs no L1 fork; ZK proofs and L2→L1 calls are not yet shown.
+tweet: |-
+  "Synchronous" L1↔L2 composability does not mean L1 pauses to read L2. In EEZ, a composer pre-computes the cross-chain result off-chain; L1 verifies and consumes it in the same block, so both sides commit or revert.
+
+  Why it matters: OP interop-style messaging takes two txs and returns no value; flash loans or cross-rollup liquidations need the result in one execution.
+
+  How to read the figure (block 26127444):
+  • Left: tx 31 posts the pre-computed execution table and its proof.
+  • Right: tx 32 sends 0.001 ETH to a proxy for the user's own rollup address and consumes the entry.
+
+  Two details:
+  • Proof: one 65-byte ECDSA signature, threshold 1. Security rests on one signer key and one owner.
+  • Entries work only in the block that verified them; without tx 31 first, tx 32 reverts with no partial state.
+
+  Caveat: a plain deposit only; no return values, L2-to-L1 calls or nesting. No L1 fork is needed, but the rollup needs a modified client. Core contracts are unaudited.
