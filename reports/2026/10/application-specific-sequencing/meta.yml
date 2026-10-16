@@ -1,7 +1,7 @@
 title: 应用特定排序（ASS / ACE）：跨生态实现与 Mantle 的区块空间再分配
 summary: 盘点各生态（重点 EVM）应用特定排序的实现方式、强制力来自哪一层、代价是什么，并据此为 Mantle 设计按应用 / 操作分配区块空间与排序规则的方案
 created: 2026-10-11
-updated: 2026-10-13
+updated: 2026-10-16
 domain: crypto
 tags:
   - mantle
@@ -24,5 +24,7 @@ changelog:
     note: 重新渲染（answer-me-with-html 0.5.2-research.1）
   - date: 2026-10-13
     note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-16
+    note: 推特卡片（英文，Excalidraw 配图 + 推文文案，astra-6 审查通过）
 title_en: "Application-Specific Sequencing (ASS / ACE): Cross-Ecosystem Implementations & Blockspace Reallocation for Mantle"
 summary_en: Surveying application-specific sequencing across EVM ecosystems, enforcement layers, and trade-offs to design application- and operation-level blockspace allocation and ordering rules for Mantle.

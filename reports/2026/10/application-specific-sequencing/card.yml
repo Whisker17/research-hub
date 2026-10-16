@@ -1,0 +1,55 @@
+# Tweet card (English only; tweets go out in English): node cli/rh.ts card application-specific-sequencing -> card.png
+# How to write it / depth control: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: ecosystem-level only; the report's single-chain lane design (D8-D19, F9-F12) is dropped.
+# Ledger: title D2 (rows A1/A18/A40/B30/B20/L9/L17); background A14/L26; context L31 (ACE post: rule violation => block invalid), L8 (Tempo T1 live), L24 (BSC lane scheduled, not active);
+# figure D7 (L9/L17 capacity, X31/X24 segment order; L18/L27/X45 arrival time and censorship not checkable from the block);
+# findings A36 (A18/A26, Base, factor 200); L9/L11 (Tempo 30M of 500M), D3 (L2/L3/L15 for Tempo: no FCFS, no fee isolation);
+# takeaway D6 (X7/X25/X29/X30/B28) + D3;
+# tweet adds D2 (para 1), D1 + overview panel A (what a violation costs per enforcement tier), D7 (figure reading),
+# A33/F3 (tax assumes strict priority-fee ordering), L51 (BSC 5% default), D3/L20 (BSC: no FCFS, full fees), L24,
+# B12/B15 (rollup-boost fallback silently drops builder-level rules); scope date from the report header (2026-10-11).
+# astra round-1 fixes: title scoped to surveyed designs (D2); Angstrom ~99.5% keeps its ~120k-gas premise (A36); figure/tweet say "not checkable from block contents alone" (D7, L41).
+# quote: https://x.com/<handle>/status/<id>
+title: "Surveyed EVM apps rarely control block order"
+background: "App-specific sequencing (ASS): an app sets the order of its own transactions, e.g. cancels before takes."
+context: "ethresear.ch's ACE post proposes consensus-enforced app rules; Tempo runs a payment lane, BSC plans one."
+figure:
+  caption: What a block validity rule can enforce
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - {
+          id: ok,
+          label: "Lane gas caps, floors
+
+            Category segment order",
+          x: 0,
+          y: 36,
+          w: 285,
+          h: 84,
+          color: green
+        }
+      - { id: no, label: "FCFS arrival time\nNo censorship", x: 315, y: 36, w: 255, h: 84, color: red }
+    texts:
+      - { x: 4, y: 0, text: "Checkable from the block", fontSize: 22, color: green }
+      - { x: 319, y: 0, text: "Not checkable", fontSize: 22, color: red }
+findings:
+  - stat: "~99.5%"
+    text: "Base Angstrom L2: factor 200, ~120k gas swaps send ~99.5% of bids to app."
+  - stat: 30M
+    text: "Tempo caps non-payment gas at 30M of 500M; no FCFS, no fee isolation."
+takeaway: "Capacity and order are separate tiers: lanes split space by category, each lane sets its order."
+tweet: |-
+  Surveyed EVM designs mostly use contract locks, fee taxes or builder policies, not protocol-enforced app ordering. Tempo's live payment lane and BSC's planned lane allocate capacity, not order.
+
+  Why it matters: enforcement sets the trust model. Contract locks revert calls; builder rules depend on builder compliance.
+
+  How to read the figure:
+  • Left: gas caps, floors and category order are checkable from block contents.
+  • Right: arrival order and absence of censorship are not checkable from block contents alone.
+
+  Two details:
+  • Base Angstrom L2: factor 200 and ~120k gas per swap yield ~99.5% of bids for the app. The auction relies on priority-fee ordering.
+  • Tempo caps non-payment gas at 30M; BSC plans a default 5% payment reserve. Neither lane adds first-come-first-served (FCFS) ordering or fee isolation.
+
+  Caveat: BSC's lane is not active. Builder-specific ordering can vanish silently on rollup-boost's local fallback. Survey: 2026-10-11.
