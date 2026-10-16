@@ -19,5 +19,7 @@ changelog:
     note: 创建（brief 快照）
   - date: 2026-10-16
     note: 首次发布：EVM 密码学清单、量子与 AI 威胁、PQ 入门、Ethereum / Starknet / Aztec 等路线、Mantle 链上现状与行动建议（中英双语，sol review PASS）
+  - date: 2026-10-16
+    note: 推特卡片（中英文，Excalidraw 配图 + 推文文案）
 title_en: "Post-Quantum from First Principles to Roadmap: What Ethereum, Starknet and Aztec Are Doing, and What Mantle Can Do Now"
 summary_en: Quantum computers threaten signatures and proofs, not hashes. Ethereum's 2029 target covers only the L1 protocol. Mantle's state security rests on one BN254 PLONK verification and a set of ECDSA multisigs with no timelock, and Mantle must migrate both itself. The inventory, permission hardening, PQ account prototypes and proof-path design with Succinct can start now.

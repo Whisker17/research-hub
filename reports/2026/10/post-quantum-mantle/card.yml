@@ -1,0 +1,68 @@
+# 推特卡片（一图速览）：pnpm rh card post-quantum-mantle → card.png / card.en.png
+# 写法与深度控制：.claude/skills/research-hub/references/tweet-card.md
+# 中立研究者口吻：只讲 EVM L2 的共性，不点名 Mantle（rh.config.json 的 cardAvoidTerms）。
+# 台账依据（tweet 另用 E61 与 notes-ethereum.md 的限定：接口兼容不等于验证逻辑不用改）：background T1/F1；context E18、O5/O6；figure E59/E63/E64（caption 写明 E63 的继承条件，右侧只是示例）；
+# findings P54/P57/P58（只说 SP1 / RISC Zero 的包装路线）、P24/P28/P30/P31（未审计实现）；takeaway O54（限“所调研项目”）/E64。
+# quote: https://x.com/<handle>/status/<id>   # 要引用的源推文（填上后页面卡片模式会出现“打开源推文”）
+zh:
+  title: 后量子迁移：L1 升级不等于 L2 全栈安全
+  background: 足够强的量子计算机可攻破 EVM 签名、KZG 和椭圆曲线型 SNARK；哈希主要损失安全余量。
+  context: Aztec 计划 2027 年选定方案、2030 年完成迁移；Ethereum 2029-12 的 PQ 目标只覆盖 L1 协议。
+  figure:
+    caption: 在 L1 结算并跟进新版 blob 的 L2
+    excalidraw:
+      defaults: { fontSize: 22 }
+      nodes:
+        - { id: l1, label: "共识签名 BLS\nblob 承诺 KZG", x: 0, y: 36, w: 250, h: 84, color: green }
+        - { id: l2, label: "升级多签 ECDSA\nSNARK 验证 BN254", x: 300, y: 36, w: 250, h: 84, color: red }
+      texts:
+        - { x: 4, y: 0, text: "随 L1 协议迁移", fontSize: 22, color: green }
+        - { x: 304, y: 0, text: "L2 自迁示例", fontSize: 22, color: red }
+  findings:
+    - stat: BN254
+      text: SP1 / RISC Zero 的 STARK→BN254 外包装，最终链上验证不抗量子。
+    - stat: "~37×"
+      text: ML-DSA-44 签名 2,420 B，~37× ECDSA；未审计验签约 1.2M–8.1M gas。
+  takeaway: 所调研项目尚无全栈 PQ；L2 仍需制定自身迁移计划，不能只等 L1。
+  tweet: |-
+    后量子迁移里有条容易被忽略的分界：Ethereum 2029-12 的 PQ 目标只覆盖 L1 协议。
+
+    图左：在 L1 结算并跟进新版 blob 的 L2，可随 L1 获得；图右：L2 要自己迁，如升级多签、BN254 验证器。
+
+    “跟进新版 blob”：EIP-4844 为 PQ 承诺预留接口；验证逻辑仍可能要改。
+en:
+  title: "Post-quantum: L1 upgrades do not cover all of L2"
+  background: A large quantum computer could break EVM signatures, KZG and curve-based SNARKs; hashes lose margin.
+  context: "Aztec: choose PQ schemes in 2027, migrate by 2030. Ethereum's Dec 2029 target is L1-only."
+  figure:
+    caption: L1-settled L2s adopting new blob formats
+    excalidraw:
+      defaults: { fontSize: 21 }
+      nodes:
+        - { id: l1, label: "BLS consensus\nKZG blobs", x: 0, y: 36, w: 250, h: 84, color: green }
+        - {
+            id: l2,
+            label: "ECDSA upgrade multisig
+
+              BN254 SNARK verifier",
+            x: 300,
+            y: 36,
+            w: 270,
+            h: 84,
+            color: red
+          }
+      texts:
+        - { x: 4, y: 0, text: "L1 protocol migration", fontSize: 22, color: green }
+        - { x: 304, y: 0, text: "L2-managed examples", fontSize: 22, color: red }
+  findings:
+    - stat: BN254
+      text: "SP1 / RISC Zero: STARK-to-BN254 wrapping is not post-quantum."
+    - stat: "~37×"
+      text: "ML-DSA-44: 2,420 B (~37× ECDSA); unaudited verifiers: ~1.2M–8.1M gas."
+  takeaway: No project surveyed is fully PQ; L2s need their own migration plans, not just L1 upgrades.
+  tweet: |-
+    Easy to miss: Ethereum's Dec 2029 PQ target is L1-protocol only.
+
+    Left: what L1-settled L2s get on new blob formats. Right: what each L2 migrates itself, e.g. multisigs, BN254 verifiers.
+
+    "New blob formats": EIP-4844 reserves a PQ switch; verifier logic may need changes.
