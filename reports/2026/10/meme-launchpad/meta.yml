@@ -1,7 +1,7 @@
 title: Meme Launchpad：原理、演进与 Agentic 设计
 summary: 讲清 meme launchpad 的机制与完整生命周期，复盘主要产品，并推导 Mantle 上 agent 第一公民的 launchpad 为什么这样设计
 created: 2026-10-05
-updated: 2026-10-13
+updated: 2026-10-16
 domain: crypto
 tags:
   - meme
@@ -24,5 +24,7 @@ changelog:
     note: 支持中英文双语版（通过 sol subagent 审查校对）
   - date: 2026-10-13
     note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-16
+    note: 推特卡片（英文，Excalidraw 配图 + 推文文案，astra-6 审查通过）
 title_en: "Meme Launchpad: Mechanics, Evolution & Agentic Design"
 summary_en: Explaining meme launchpad mechanics, bonding curve lifecycle, historical post-mortems, and why an agent-first launchpad on Mantle requires verifiable on-chain permissions.

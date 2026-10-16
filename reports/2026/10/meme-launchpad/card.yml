@@ -1,0 +1,65 @@
+# Tweet card (English only; tweets are posted in English): node cli/rh.ts card meme-launchpad -> card.png
+# Writing and depth rules: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: field-level facts about meme launchpads only; no chain-specific proposal content.
+# Ledger: background M1/M7 (lead, panel B); context A6/A7 (Bankr docs);
+# figure M54 (three archetypes, panel C/K), M38/P11/P15 (four.meme ~$183K, external pool pre-initialized), P9/M27/M28 (pump.fun atomic),
+#   M53 (Pons V2 locker), M48/M51 (Clanker/Zora no curve); caption limits it to surveyed launchpads;
+# findings M8/M9 (53.65% in first 30 SOL; sniping follows curve geometry, F2), A14/A15/A13 (Bankr server-side $500 defaults, F8);
+# takeaway M41/P54 (inferred: remove the outside-pool step), F8 table A1/A14/A18-A21 (no surveyed agent platform enforces limits on-chain);
+# tweet also uses M54 + P9/M28/M53 (right bullet), M37/M50/M51/A9 (delays, decaying taxes, wallet caps; F2), A6/A12/A14 (Bankr agents trade under default caps),
+#   panel K + A39 (removing migration leaves curve MEV), M56 (LP burn stops LP rugs; risk shifts to insider selling).
+# astra round-1 fixes: no "top" ranking; background covers curve and no-curve designs (M1/M7, M48/M54); Pons V2 graduation is two-stage and retryable (P35), not one atomic step; Bankr caps are agent spending caps (A14/A15); 53.65% is net inflow (M8).
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (once set, the page card mode shows "Open source tweet")
+title: "Meme launchpads: migration creates an attack surface"
+background: Some launchpads sell tokens on a virtual-reserve curve; others launch directly into liquidity pools.
+context: 'Agents now launch tokens too: Bankr''s docs call it "how agents fund themselves" (Base, Robinhood Chain).'
+figure:
+  caption: Graduation paths, surveyed launchpads
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - {
+          id: ext,
+          label: "Curve → DEX pool
+
+            four.meme: ~$183K lost",
+          x: 0,
+          y: 36,
+          w: 260,
+          h: 84,
+          color: red
+        }
+      - {
+          id: own,
+          label: "Same quote: Pons V2
+
+            No curve: Clanker, Zora",
+          x: 290,
+          y: 36,
+          w: 280,
+          h: 84,
+          color: green
+        }
+    texts:
+      - { x: 4, y: 0, text: "Anyone can init the pool", fontSize: 22, color: red }
+      - { x: 294, y: 0, text: "Alternative designs", fontSize: 22, color: green }
+findings:
+  - stat: "53.65%"
+    text: "Classic pump.fun: the first 30 SOL net inflow buys 53.65% of total supply."
+  - stat: "$500"
+    text: "Bankr's default agent cap ($500/day) is enforced server-side, not on-chain."
+takeaway: Removing migration does not remove sniping; Bankr's agent spending caps remain server-side.
+tweet: |-
+  Some meme launchpads sell tokens on a bonding curve before moving funds into a trading pool. That transition, called graduation, can expose funds to a pool an outsider initializes first.
+
+  Why it matters: in Feb 2025, four.meme lost ~$183K after migration accepted a pre-created pool's distorted price.
+
+  How to read the figure:
+  • Left: four.meme's external-pool migration exposed it to pre-initialization.
+  • Right: Pons V2 keeps the same pricing asset, but graduation has two stages and pool creation is retryable. Clanker and Zora skip the curve.
+
+  Two details:
+  • On the classic pump.fun curve, the first 30 SOL of net inflow buys 53.65% of total supply, favoring early buyers.
+  • Bankr's default $500/24h agent spending cap is enforced server-side, not on-chain.
+
+  Caveat: atomic migration does not stop curve front-running. Burning liquidity-provider tokens prevents liquidity withdrawal, not insider selling. Scope: surveyed launchpads, Oct 2026.
