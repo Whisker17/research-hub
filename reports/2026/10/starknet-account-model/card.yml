@@ -1,0 +1,56 @@
+# Tweet card (one-glance summary, English only; tweets are posted in English): node cli/rh.ts card starknet-account-model → card.png
+# Style and depth rules: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: about Starknet's account model as such; no company named besides Starknet / StarkWare / OZ facts.
+# Ledger: background A1/A2/A3/A34 (F1); context R1/R4 (considering, 2027 target) + R12 (no scope defined);
+# figure A53/A55/A54 (EOA / 7702 root key) vs A1–A3/A30 (account contract decides; F1/F2), caption is the question;
+# findings C43/C45/C47/C49 (Falcon SHAKE-direct ~385×, all variants under the cap, unaudited);
+# W2/W12–W14/W42/W8 (Shadow: keyless, hides link not contents, 173 mainnet deployments by 2026-10-14; F12/F13);
+# takeaway F1 implication (A1–A3, A30) + A49/A50 (existing accounts do not change automatically; F3);
+# tweet also uses the lead (account model as one basis of the PQ claim), A30 (replace_class keeps address/storage), A3/A8 (VALID, 100M L2 gas),
+# A54/A55 (7702 old key still sends / re-delegates), C46/C47 (61.9M of 100M), A46/C49 (one mainnet demo, experimental, unaudited),
+# W13/W17/W42 (Shadow driven via pool/anonymizer; contents public), A50 + A51/X2 (upgrade signed by old ECDSA; other signing paths; F15), A52 (v0.14.4).
+# astra round-1 fixes: ~385x is the SHAKE-direct Falcon variant (C45, C43/C47, A38); old-key upgrade applies to existing Stark-ECDSA accounts (A50).
+# quote: https://x.com/Starknet/status/2108113391525204034   # source tweet (shown as a link on the page only)
+title: "Starknet: post-quantum signatures need no hard fork"
+background: "Starknet has no EOAs: every account is a contract, and its __validate__ picks the signature scheme."
+context: "Oct 8: Starknet is \"actively considering\" an L1 with a 2027 PQ target; no scope has been defined."
+figure:
+  caption: Who decides which signature is valid?
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: evm, label: "secp256k1 root key\nfixed by protocol", x: 0, y: 36, w: 250, h: 84, color: red }
+      - {
+          id: sn,
+          label: "contract picks scheme
+
+            no protocol root key",
+          x: 300,
+          y: 36,
+          w: 270,
+          h: 84,
+          color: green
+        }
+    texts:
+      - { x: 4, y: 0, text: "EOA / EIP-7702", fontSize: 22, color: red }
+      - { x: 304, y: 0, text: "Starknet native account", fontSize: 22, color: green }
+findings:
+  - stat: "~385×"
+    text: "SHAKE-direct Falcon vs Stark-ECDSA validation gas; under cap; unaudited."
+  - stat: "173"
+    text: "Mainnet Shadow Accounts: keyless; they hide the wallet link, not balances."
+takeaway: PQ signatures need no Starknet hard fork, but existing accounts still need explicit migration.
+tweet: |-
+  Starknet's PQ case leans on its account model. The dividing line: for EOAs and EIP-7702 accounts, the protocol fixes a secp256k1 root key. On Starknet, the protocol calls the account contract's __validate__, and the contract picks the scheme.
+
+  So PQ signatures need no hard fork: a new account class, or an in-place class swap that keeps address and storage.
+
+  How to read the figure:
+  • Left: after a 7702 delegation, the old key can still send and re-delegate.
+  • Right: __validate__ must return VALID within a 100M L2 gas cap.
+
+  Two details:
+  • OZ's SHAKE-direct Falcon-512 benchmark: ~385× Stark-ECDSA validation gas (61.9M of 100M). Mainnet demo; experimental, unaudited.
+  • STRK20 Shadow Accounts are keyless proxies driven through the privacy pool. Balances and calls are public; only the wallet link is hidden.
+
+  Caveat: existing Stark-ECDSA accounts need migration authorized by the old key; other legacy signing paths must move too. Scope: mainnet v0.14.4, Oct 2026.
