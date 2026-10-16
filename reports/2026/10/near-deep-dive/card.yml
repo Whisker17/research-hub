@@ -1,0 +1,54 @@
+# Tweet card (one-glance summary, English only — tweets are posted in English): node cli/rh.ts card near-deep-dive → card.png
+# Spec and depth control: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: NEAR facts only; the report's recommendations for a specific chain (O14–O17, F13) are left out.
+# Ledger: background A18/A19 (F1); context I39, N34, E46/A5;
+# figure I9/I10 (one execute_intents receipt, all tokens net to zero), I30/I53 (bridges outside the atomic step), C47/I33 (Omni / PoA / HOT);
+# findings E8/E11 ($4.41B is DefiLlama's figure; explorer $3.26B), E13 (24h referrals) — O1/O4/O5 (10 shards, cap 10), O2 (static boundaries);
+# takeaway O6/O12 (products shaped account and shard layers; consensus/execution follow protocol goals), I53 (ledger works around async calls);
+# tweet also uses A20 (one-contract batch), I30, C48 (Omni exits MPC-signed)/C53 (PoA operator, inferred), E9/E12 (fees, ~52×), E13, I43, N21, E39, E11.
+# astra round-1 fixes: NEAR AI inference is off-chain, not all in TEEs (N2-N3 Incognito route, N21); card date set to the 2026-10-07 data snapshot.
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (fills the "open source tweet" link on the page)
+title: "NEAR Intents: swaps are atomic only inside one contract"
+background: On NEAR, cross-contract calls are async receipts; a failed callee does not roll back the caller's state.
+context: "Since July: Confidential Intents (B2B) and IronClaw 1.0 shipped; gas keys and dynamic sharding are live."
+figure:
+  caption: One cross-chain swap via NEAR Intents
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - {
+          id: in,
+          label: "intents.near ledger
+
+            balanced token changes",
+          x: 0,
+          y: 36,
+          w: 260,
+          h: 84,
+          color: green
+        }
+      - { id: out, label: "Omni / PoA / HOT\nbridge in / out", x: 300, y: 36, w: 270, h: 84, color: red }
+    texts:
+      - { x: 4, y: 0, text: "Atomic: one receipt", fontSize: 22, color: green }
+      - { x: 304, y: 0, text: "Outside the atomic step", fontSize: 22, color: red }
+findings:
+  - stat: "$4.41B"
+    text: "30-day Intents volume (DefiLlama); top 24h referrers: SwapKit, Rango."
+  - stat: "10/10"
+    text: "Shards vs dynamic cap; static splits were set at Sweat, HOT, KaiChing."
+takeaway: Products shaped NEAR's accounts and shard map; the async VM stayed, so Intents works around it.
+tweet: |-
+  NEAR Intents moved $4.41B in 30 days, yet a swap is not atomic end to end. NEAR contract calls are async, so Intents nets balances inside one contract, intents.near. Bridge deposits and exits sit outside that step.
+
+  Why it matters: a failed NEAR callee does not roll back the caller; only a batch on one contract is all-or-nothing.
+
+  How to read the figure:
+  • Left: one execute_intents batch. User and solver sign token_diffs; each token must net to zero or it reverts.
+  • Right: Omni, PoA and HOT bridges, each with its own trust model (MPC-signed Omni exits, a central PoA operator).
+
+  Two details:
+  • Distribution is external: SwapKit and Rango lead 24h referrals; 30-day fees (~$7.38M) are ~52× NEAR L1 gas.
+  • Confidential Intents hides balances from the public chain, not from its operators. NEAR AI inference runs off-chain. Neither publishes usage data.
+
+  Caveat: $4.41B is DefiLlama's count; the Intents explorer shows $3.26B. As of 2026-10-07.
+date: 2026-10-07
