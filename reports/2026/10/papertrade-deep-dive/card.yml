@@ -1,0 +1,44 @@
+# 推特卡片（一图速览，只有英文版——推特统一用英文发）：pnpm rh card papertrade-deep-dive → card.png
+# 写法与深度控制：.claude/skills/research-hub/references/tweet-card.md
+# 中立研究者口吻：只讲 Papertrade 的机制与风险（可核对的链上读数 / 官方文档 / 媒体报道），不写复现可行性，不点名 cardAvoidTerms。
+# 台账依据：background P44/P47（[1] vault 对手方、只对盈利收费）、H9/X1；context H20、H29；
+# figure X1/H11（BBO mid 结算）、M17/M19/M20/P1/P44（盈利：死区 + impact + 2%）、H42/H53/M32（亏损铸 PAPER，最高 100 枚/$）；
+# findings H41/H42（$27.26M ≈ 80% × $34.13M，截至 10-12）、M36/M38/M40（~$100B 每侧、9.5 小时、文档 OI + $1B / H21）；
+# takeaway H11/P42（单一 BBO mid、无偏离熔断）、H33（OI cap 是关键控制量但不是损失上限）；
+# tweet 另用 H35/P44（无 funding）、H19/M19（0.2 bps 死区、0.1% BTC 保留 72.4%）、H53/M31/M32（初期 100 枚/$、10-12 边际约 29）、
+# M28/M42/H45（LP 压在约 $5M，超额划转 + 费用分成归质押者）、H24（媒体转述 ETH 被推高约 0.12%，未独立核实）、M1/M3/M9（可升级、7 天 timelock，铸币规则非写死）。
+# astra round-1 fixes: staker/loss totals dated "by Oct 12" on the image (H41).
+# quote: https://x.com/<handle>/status/<id>   # 要引用的源推文（填上后页面卡片模式会出现“打开源推文”）
+title: "Papertrade: winners pay fees, losers mint the token"
+background: In vault-counterparty perps, no order book matches trades; a protocol vault takes the other side.
+context: "Live on HyperEVM since Oct 10; a day later the team cited manipulation attempts and tightened OI caps."
+figure:
+  caption: Per close, settled vs the vault at BBO mid
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: win, label: "Impact haircut\n+ 2% fee", x: 0, y: 36, w: 250, h: 84, color: blue }
+      - { id: loss, label: "Mints PAPER\nup to 100 per $1", x: 300, y: 36, w: 270, h: 84, color: green }
+    texts:
+      - { x: 4, y: 0, text: "Winning close", fontSize: 22, color: blue }
+      - { x: 304, y: 0, text: "Losing close", fontSize: 22, color: green }
+findings:
+  - stat: "~80%"
+    text: "By Oct 12: $27.26M USDC to stakers vs $34.13M net trader losses (~80%)."
+  - stat: "~$100B"
+    text: "Launch OI cap: ~$100B per side for 9.5 h, not the documented OI + $1B."
+takeaway: Price is one book's BBO mid, no deviation breaker; OI caps are the key control, not a loss cap.
+tweet: |-
+  Papertrade is a synthetic perp venue on HyperEVM. A protocol vault takes the other side of every trade at Hyperliquid's BBO mid. The dividing line is how a close settles: winners pay fees, losers mint PAPER, whose stakers get the vault's surplus.
+
+  Why it matters: the vault is the only counterparty; no funding rate rebalances skew.
+
+  How to read the figure:
+  • Left: profits lose a 0.2 bps deadband, a Rollbit-style impact haircut, then 2%; a 0.1% BTC move keeps 72.4%.
+  • Right: losses mint PAPER, 100 per $1 early, ~29 at the margin by Oct 12.
+
+  Two details:
+  • The vault is capped near $5M; the excess and a fee share went to stakers: $27.26M USDC, ~80% of traders' net loss.
+  • The launch OI cap was ~$100B per side for 9.5 hours. Media report a wallet pushed ETH ~0.12% on Hyperliquid while holding large Papertrade positions.
+
+  Caveat: data as of Oct 12; incident figures are unverified media reports. Contracts are upgradeable (7-day timelock), so "mint only on losses" is not hard-coded.
