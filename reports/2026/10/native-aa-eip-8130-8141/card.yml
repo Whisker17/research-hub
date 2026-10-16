@@ -1,0 +1,46 @@
+# Tweet card (one-glance summary, English only — tweets are posted in English): node cli/rh.ts card native-aa-eip-8130-8141 → card.png
+# Spec and depth control: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: covers the public EIP drafts only; the report's chain-specific recommendation (F6) is dropped.
+# Imported report, no ledger — evidence is explainer.en.md panels:
+# background Lead/panel C (bundlers + EntryPoint removed, native sponsorship, batching);
+# context Lead/panel E/F5 (8141 SFI for Hegota at ACDE #244; 8130 omitted from Base Cobalt mainnet, devnet-only; all drafts per scope);
+# figure Lead/panel A/F/F1/F3 (8130 Actor + Policy Manager at protocol layer; 8141 VERIFY frame + APPROVE in account code);
+# findings F4/panel C (8141 scalar nonce, 8250 keyed nonces), panel D (draft constants 15,000 / 12,000 + 475 × frames);
+# takeaway F5 implication (L1 standards favor 8141, Base favors 8130) + scope "all drafts";
+# tweet also uses F2 (window-based nonce-free txs), F3 (protocol pre-validates signatures; VERIFY inspects later frames),
+# panel C (2D nonce; atomic batching; whitelist auth vs full bytecode), glossary (Policy Manager: target, spend, function whitelists).
+# astra round-1 notes: SFI spelled out as scheduled for inclusion (panel E, F5); gas figures are draft base gas (panel D, J).
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (adds "Open source tweet" on the page card mode)
+title: "Native AA: two drafts split on where agent limits live"
+background: Native account abstraction drops ERC-4337 bundlers and EntryPoint; sponsorship and batching go native.
+context: "Drafts: EIP-8141 is scheduled for inclusion in Hegota; EIP-8130 remains on Base devnets."
+figure:
+  caption: Where a scoped agent's limits are checked
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: p8130, label: "Actor registry\nPolicy Manager gate", x: 0, y: 36, w: 260, h: 84, color: blue }
+      - { id: p8141, label: "VERIFY frame code\ncalls APPROVE", x: 310, y: 36, w: 260, h: 84, color: blue }
+    texts:
+      - { x: 4, y: 0, text: "8130: protocol rules", fontSize: 22, color: blue }
+      - { x: 314, y: 0, text: "8141: account bytecode", fontSize: 22, color: blue }
+findings:
+  - stat: "8250"
+    text: "8141 alone has one scalar nonce; parallel lanes need EIP-8250 keyed nonces."
+  - stat: "15,000"
+    text: "Draft base gas: 8130 AA_BASE_COST 15,000; 8141 12,000 + 475 per frame."
+takeaway: Tracking Ethereum L1 points to 8141; tracking Base points to 8130. Both are still drafts.
+tweet: |-
+  Native account abstraction removes ERC-4337 bundlers and the EntryPoint. EIP-8130 and EIP-8141 agree on that; they split on where a scoped agent's limits are enforced: protocol rules (8130) or account bytecode (8141).
+
+  Why it matters: agent sub-keys need hard limits on targets, functions and spend. Both drafts sponsor gas and batch calls natively.
+
+  How to read the figure:
+  • Left, 8130: Actors are registered in the protocol; a Policy Manager checks scope before calls run.
+  • Right, 8141: the protocol pre-validates signatures; a VERIFY frame runs account code that inspects later frames and calls APPROVE.
+
+  Two details:
+  • 8141 alone has one scalar nonce; parallel lanes need EIP-8250 keyed nonces. 8130 has 2D nonces and windowed nonce-free txs.
+  • Draft base gas: 8130 AA_BASE_COST 15,000; 8141 12,000 + 475 per frame.
+
+  Caveat: all three are drafts. 8141 is an SFI item for Hegota (ACDE #244); 8130 runs only on Base devnets. 8130 allows only whitelisted authenticators.
