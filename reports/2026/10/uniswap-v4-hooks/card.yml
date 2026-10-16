@@ -1,0 +1,58 @@
+# Tweet card (one-glance summary, English only — tweets are posted in English): node cli/rh.ts card uniswap-v4-hooks → card.png
+# Spec and depth control: .claude/skills/research-hub/references/tweet-card.md
+# Neutral researcher voice: ecosystem-level facts about Uniswap v4 hooks only; chain-specific findings (panel O/R) are dropped.
+# Ledger: background M2/M39 (hook is part of PoolKey, fixed), M15/V12 (core calls the enabled callbacks on every swap);
+# context G8 (Permissioned Pools, Jul 2026), G10 (SMBC Nikko + Nethermind gateway, AML/CFT in hooks, announced 2026-10-02);
+# figure: caption = panel C question (unmodified v3 core, all callers); left G16/B-1 (curveless multi-range CL launch), V13 (token-level rules on v3);
+#   right V10/V12 (allowlist must live in hook), V3/V20 + M31 (per-swap dynamic fee), V24/M58/F2 (return-delta curve);
+# findings: 1) M4/V29/V40 (core only checks net-zero deltas), V41/V42 (Cork ~$12M, hookData auth), V44/O22 (Bunni ~$8.4M, multi-step rounding);
+#   2) R4/V14/V15 (token rules miss 6909 claims and multi-hop legs), F4/R2 (pool gating misses transfers after take);
+# takeaway V30/F2 (singleton, flash accounting, return deltas need v4) + V40/O26 (hook owns its accounting correctness);
+# tweet also uses V4/V5/V10 (v3 callback goes to the caller; router rules bypassable), V12 (v4 hook runs for any caller), M4 (net-zero check at unlock end),
+#   V25/G16 (curve -> CL in the same pool is v4-only), R31/R33 (untoll-hook: reference build, testnet, unaudited).
+#   Not used: R39 (no production example; speculative), all chain-specific rows (R54-R58, G12, G20).
+# astra round-1 fixes: hook callbacks skip calls made by the hook itself (M27/V17); v3 can gate at token level (V13), so the right side is pool-level rules (V9/V10); core requires outstanding deltas to clear (M4/V29), it does not verify hook accounting.
+# quote: https://x.com/<handle>/status/<id>   # source tweet to quote (once set, the card page shows "Open source tweet")
+title: "Uniswap v4 hooks: what actually needs v4"
+background: A v4 hook is fixed to a pool at creation; enabled callbacks run except when the hook itself calls.
+context: Uniswap shipped Permissioned Pools in Jul 2026; SMBC Nikko and Nethermind plan a v4-hook gateway.
+figure:
+  caption: Can unmodified v3 do it for every caller?
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - {
+          id: v3,
+          label: "Multi-range CL launch
+
+            Token transfer rules",
+          x: 0,
+          y: 36,
+          w: 260,
+          h: 84,
+          color: green
+        }
+      - { id: v4, label: "Access, fees, curves", x: 300, y: 36, w: 270, h: 84, color: blue }
+    texts:
+      - { x: 4, y: 0, text: "Works on v3", fontSize: 22, color: green }
+      - { x: 304, y: 0, text: "Pool-level: needs v4", fontSize: 22, color: blue }
+findings:
+  - stat: "~$12M"
+    text: "Settlement checks do not catch hook-system bugs: Cork ~$12M, Bunni ~$8.4M."
+  - stat: 2 layers
+    text: "RWA: token rules miss 6909 claims and hops; pool gates miss later transfers."
+takeaway: v4 adds pool-wide rules and custom accounting; proving the accounting sound is the hook's job.
+tweet: |-
+  v3 already has swap callbacks. v4 adds pool-level rules for external callers and lets hooks replace the pricing curve and accounting.
+
+  Why: v3 callbacks go to the caller; router-only rules can be bypassed. v4 runs enabled hook callbacks, except on calls from the hook itself.
+
+  How to read the figure (unmodified v3 core):
+  • Left: multi-range concentrated-liquidity launches and token transfer rules work on v3.
+  • Right: pool-level access checks, per-swap fees and custom curves need hooks.
+
+  Two details:
+  • PoolManager requires each outstanding delta to clear, but does not verify hook accounting. Cork (~$12M) had an authorization bug; Bunni (~$8.4M), a rounding bug.
+  • For tokenized real-world assets, token checks miss internal claims and intermediate trades; pool gates do not govern later transfers.
+
+  Caveat: curve-to-liquidity graduation in the same pool needs v4 rather than v3. untoll-hook is a testnet-only, unaudited example.
