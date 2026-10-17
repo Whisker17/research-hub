@@ -13,6 +13,8 @@ status: published
 visibility: private
 kind: native
 brief_source: Research Briefs/Post-Quantum Mantle.md
+related:
+  - pq-in-mantle
 am_version: 0.5.2-research.1
 changelog:
   - date: 2026-10-16
