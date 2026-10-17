@@ -1,0 +1,35 @@
+# Twitter Card (4:5 canvas summary): pnpm rh card pq-in-mantle -> card.png
+# Neutral researcher tone; avoids 'Mantle' per rh.config.json cardAvoidTerms.
+# Backed by ledger claims #21, #22, #23, #24, #25, #26, #27, #38.
+title: "Why EIP-7702 is not post-quantum disaster recovery"
+background: "Quantum Shor's breaks ECDSA signing. True disaster recovery requires non-bypassable account controls."
+context: "EIP-7702 allows EOAs to delegate execution to smart contracts, sparking claims of instant PQ failover."
+figure:
+  caption: "Why 7702 cannot block a quantum attacker"
+  excalidraw:
+    defaults: { fontSize: 20 }
+    nodes:
+      - { id: eoa, label: "7702 Delegated EOA\nAttacker calls tokens directly", x: 0, y: 36, w: 260, h: 84, color: red }
+      - { id: sc, label: "Smart Contract Account\nEIP-3607 forces PQ execution", x: 300, y: 36, w: 270, h: 84, color: green }
+    texts:
+      - { x: 4, y: 0, text: "Bypasses delegated code", fontSize: 21, color: red }
+      - { x: 304, y: 0, text: "Non-bypassable boundary", fontSize: 21, color: green }
+findings:
+  - stat: "0%"
+    text: "7702 exempts EOAs from EIP-3607: attackers can drain tokens directly."
+  - stat: "500k"
+    text: "ERC-7562 caps gas at 500k; pure EVM ML-DSA (~1.2M) needs native precompiles."
+takeaway: "7702 is a migration helper, not a boundary. Real recovery requires smart accounts."
+tweet: |-
+  It's easy to assume EIP-7702 delegation provides a post-quantum failover for EOAs. It doesn't: 7702 does not strip an EOA's classical ECDSA root authority.
+
+  If an attacker recovers your ECDSA key using Shor's algorithm, 7702 offers zero protection:
+  • Direct call bypass: 7702 EOAs are exempted from EIP-3607 and can still initiate top-level transactions. An attacker calls tokens directly, skipping delegated verification.
+  • Delegation revocation: The attacker can broadcast a new authorization tuple to overwrite or revoke delegation at the protocol level.
+
+  How to read the figure:
+  • Left (7702 EOA): Delegated code never executes when an attacker calls external contracts directly.
+  • Right (Smart Account): Contract accounts cannot be transaction senders under EIP-3607. All outflows must pass internal logic enforcing PQ verification.
+
+  What about on-chain verification?
+  Pure EVM ML-DSA verifiers cost ~1.2M gas, exceeding ERC-7562's 500k mempool cap. L2s need native precompiles.

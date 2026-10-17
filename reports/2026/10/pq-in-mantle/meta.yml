@@ -1,0 +1,25 @@
+title: 后量子在 Mantle 的工程落地：预编译选型、双分叉兼容与账户级容灾方案
+summary: Mantle 无需等待 Native AA 最终定稿，即可先行构建“合约级 PQ 智能账户 + 标准化验签预编译 + 预设应急策略”。7702 无法剥离 EOA 的 ECDSA 根控制权，只能作迁移辅助；真正的账户级容灾必须以合约账户为安全边界，并在 op-geth 与 OP Succinct 证明端实现双向一致性。
+created: 2026-10-17
+updated: 2026-10-17
+domain: crypto
+tags:
+  - post-quantum
+  - mantle
+  - security
+  - account-abstraction
+  - eip
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/pq-in-mantle.md
+am_version: 0.5.2-research.1
+related:
+  - post-quantum-mantle
+changelog:
+  - date: 2026-10-17
+    note: 创建（brief 快照）
+  - date: 2026-10-17
+    note: 首次发布：预编译选型、双分叉兼容、7702 绕过分析与机构 PQ 智能账户模型（中英双语，sol review PASS，推特卡片已烘焙）
+title_en: "Post-Quantum Engineering on Mantle: Precompile Selection, Dual-Fork Compatibility, and Account Disaster Recovery"
+summary_en: Mantle can build contract-level PQ smart accounts, a standardized verification precompile, and emergency failover without waiting for Native AA. EIP-7702 cannot strip ECDSA root authority and serves only as a migration helper; true disaster recovery requires smart contract accounts with dual-client equivalence across op-geth and OP Succinct.
