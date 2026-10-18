@@ -1,0 +1,17 @@
+---
+/** 私有标签页 /p/tags/<tag>/：全部 published 报告（siteView("private")）；只在私有站点。 */
+import Base from "../../../layouts/Base.astro";
+import TagPage from "../../../components/TagPage.astro";
+import { t } from "../../../i18n.ts";
+import { siteView } from "../../../../lib/site-data.ts";
+
+export function getStaticPaths() {
+  const v = siteView("private");
+  return v.usedTags.map((u) => ({ params: { tag: u.key }, props: { tag: v.tag(u.key)! } }));
+}
+
+const { tag } = Astro.props;
+---
+<Base title={t("zh", "tagTitle", { label: tag.label })} titleEn={t("en", "tagTitle", { label: tag.label })} description={tag.description} nav="private">
+  <TagPage site="private" tag={tag} />
+</Base>

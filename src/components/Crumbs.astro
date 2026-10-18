@@ -1,0 +1,26 @@
+---
+/** 面包屑：本站首页 / … / 当前页。私有站点的链接都在 /p/ 下（ADR 0003 §2 导航规则）。 */
+import type { Site } from "../../lib/site-data.ts";
+import { t, type I18nKey, type I18nVars } from "../i18n.ts";
+import T from "./T.astro";
+
+interface Props {
+  site: Site;
+  /** 首页之后的各级：界面文案（k）或内容文字（text，如标签名）；最后一级是当前页，不带 href */
+  trail: { href?: string; k?: I18nKey; vars?: I18nVars; text?: string }[];
+}
+const { site, trail } = Astro.props;
+const home = site === "private" ? { href: "/p/", k: "navPrivateIndex" as const } : { href: "/", k: "navReports" as const };
+---
+<nav class="crumbs" aria-label={t("zh", "crumbsLabel")} data-i18n-attr="aria-label:crumbsLabel">
+  <a href={home.href}><T k={home.k} /></a>
+  {trail.map((c) => {
+    const label = c.k ? <T k={c.k} vars={c.vars} /> : c.text;
+    return (
+      <>
+        <span class="sep" aria-hidden="true">/</span>
+        {c.href ? <a href={c.href}>{label}</a> : <span aria-current="page">{label}</span>}
+      </>
+    );
+  })}
+</nav>

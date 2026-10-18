@@ -54,6 +54,21 @@ export interface TagCount {
   count: number;
 }
 
+/** 标签页（WHI-1932）用的一个标签：全部字段都只从本站投影计算。 */
+export interface TagDetail extends TagCount {
+  /** tags.yml 的可选描述（ADR 0003 §6）；只有本站报告用到的标签才有 */
+  description?: string;
+  description_en?: string;
+  /** 用到该标签的本站报告，按 updated 倒序 */
+  cards: CardData[];
+  /** 这些报告里最新的 updated */
+  updated: string;
+  /** 特色配图：这些报告里最近更新、且有缩略图的一篇；都没有缩略图时为 undefined */
+  featured?: CardData;
+  /** 相关标签：与它同时出现在本站报告上的其他标签及次数（= coTags） */
+  related: TagCount[];
+}
+
 /**
  * 一个站点能看到的全部数据。只给出投影后的数据（CardData），不暴露原始 Report / meta，
  * 免得页面读到 meta.related 之类可能指向私有报告的原始字段。
@@ -67,12 +82,14 @@ export interface SiteView {
   usedTags: TagCount[];
   /** 本站报告用到的领域及篇数（按 DOMAIN_LABELS 的顺序） */
   domains: { key: Domain; label: string; count: number }[];
-  /** 按创建年月分组，新的在前 */
-  months: { ym: string; year: string; month: string; cards: CardData[] }[];
+  /** 按创建年月分组，新的在前；updated 是该月报告里最新的 updated */
+  months: { ym: string; year: string; month: string; updated: string; cards: CardData[] }[];
   /** 本站可见的报告；私有、draft 或不存在时返回 undefined。引用报告的页面（如 Daily）必须经过它。 */
   find(slug: string): CardData | undefined;
   /** 与 tag 同时出现在本站报告上的其他标签及次数 */
   coTags(tag: string): TagCount[];
+  /** 本站报告用到的标签的详情；本站没有用到时返回 undefined */
+  tag(key: string): TagDetail | undefined;
 }
 
 /** 纯函数：从全部报告与标签登记表算出一个站点的投影。 */
@@ -84,15 +101,24 @@ export function projectSite(site: Site, all: Report[], registry: TagRegistry, pu
   const linkBase = site === "private" ? publicUrl : "";
   const cards = reports.map((r) => ({ ...toCard(r, tags, linkBase), related: (r.meta.related ?? []).filter((s) => visible.has(s)) }));
   const bySlug = new Map(cards.map((c) => [c.slug, c]));
+  const tagCounts = usedTags(reports, tags);
+  const coTags = (tag: string) => usedTags(reports.filter((r) => r.meta.tags.includes(tag)), tags).filter((t) => t.key !== tag);
   return {
     site,
     cards,
     tags,
-    usedTags: usedTags(reports, tags),
+    usedTags: tagCounts,
     domains: usedDomains(reports),
-    months: byMonth(reports).map((m) => ({ ym: m.ym, year: m.year, month: m.month, cards: m.reports.map((r) => bySlug.get(r.slug)!) })),
+    months: byMonth(reports).map((m) => ({ ym: m.ym, year: m.year, month: m.month, updated: m.reports[0].meta.updated, cards: m.reports.map((r) => bySlug.get(r.slug)!) })),
     find: (slug) => bySlug.get(slug),
-    coTags: (tag) => usedTags(reports.filter((r) => r.meta.tags.includes(tag)), tags).filter((t) => t.key !== tag),
+    coTags,
+    tag: (key) => {
+      const t = tagCounts.find((u) => u.key === key);
+      if (!t) return undefined;
+      // cards 已按 updated 倒序
+      const tagged = cards.filter((c) => c.tags.some((x) => x.key === key));
+      return { ...t, description: tags[key]?.description, description_en: tags[key]?.description_en, cards: tagged, updated: tagged[0].updated, featured: tagged.find((c) => c.thumb), related: coTags(key) };
+    },
   };
 }
 

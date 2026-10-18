@@ -20,6 +20,15 @@ const { nav } = Astro.props;
         </>
       )
     }
-    {nav === "private" && <a href={`${loadConfig().publicUrl}/`}><T k="navPublicSite" /></a>}
+    {
+      nav === "private" && (
+        <>
+          <a href="/p/"><T k="navPrivateIndex" /></a>
+          <a href="/p/archive/"><T k="footArchive" /></a>
+          <a href="/p/tags/"><T k="footTags" /></a>
+          <a href={`${loadConfig().publicUrl}/`}><T k="navPublicSite" /></a>
+        </>
+      )
+    }
   </div>
 </footer>

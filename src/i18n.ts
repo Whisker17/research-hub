@@ -62,10 +62,24 @@ const zh = {
   archive: "按月归档",
   archiveSub: "按报告的创建月份",
   month: "{y} 年 {m} 月",
-  monthSub: "{n} 篇报告（按创建月份）",
   tags: "标签",
   tagTitle: "标签：{label}",
   privateIndex: "私有索引",
+  crumbsLabel: "当前位置",
+  eyebrowTag: "标签",
+  eyebrowTags: "标签索引",
+  eyebrowArchive: "归档",
+  eyebrowMonth: "月归档",
+  tagsSub: "报告用到的全部标签，按篇数排序",
+  statReports: "报告",
+  statTags: "标签",
+  statMonths: "月份",
+  statUpdated: "最近更新",
+  statRelated: "相关标签",
+  featured: "最新配图",
+  reportsH: "报告",
+  relatedTags: "相关标签",
+  relatedSub: "与本标签同时出现在报告上的标签；数字是同时出现的篇数",
   notFound: "找不到页面",
   notFoundTitle: "找不到这个页面",
   notFoundSub: "链接可能已失效，或报告不是公开的。",
@@ -182,11 +196,25 @@ const en: Partial<Record<I18nKey, string>> = {
   updated: "Updated",
   archive: "Monthly archive",
   archiveSub: "By the month a report was created",
-  month: "{y}-{m}",
-  monthSub: "{n} reports (by creation month)",
+  month: "{y}-{mm}",
   tags: "Tags",
   tagTitle: "Tag: {label}",
   privateIndex: "Private index",
+  crumbsLabel: "Breadcrumb",
+  eyebrowTag: "Tag",
+  eyebrowTags: "Tag index",
+  eyebrowArchive: "Archive",
+  eyebrowMonth: "Monthly archive",
+  tagsSub: "Every tag used by a report, by number of reports",
+  statReports: "Reports",
+  statTags: "Tags",
+  statMonths: "Months",
+  statUpdated: "Last updated",
+  statRelated: "Related tags",
+  featured: "Latest figure",
+  reportsH: "Reports",
+  relatedTags: "Related tags",
+  relatedSub: "Tags that appear on the same reports; the number is how many reports share both",
   notFound: "Page not found",
   notFoundTitle: "This page does not exist",
   notFoundSub: "The link may be outdated, or the report is not public.",
@@ -261,6 +289,9 @@ export function t(lang: Lang, key: I18nKey, vars: I18nVars = {}): string {
   const s = I18N[lang][k] ?? zh[k];
   return s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m));
 }
+
+/** month 文案的变量：中文用不补零的月份（m），英文用两位月份（mm）。 */
+export const monthVars = (year: string, month: string) => ({ y: year, m: Number(month), mm: month });
 
 /** 页面 <title>：“标题 · Research Hub”，首页只有 “Research Hub”。 */
 export const pageTitle = (title: string) => (title === zh.brand ? title : `${title} · ${zh.brand}`);

@@ -1,0 +1,60 @@
+---
+/**
+ * 标签页（WHI-1932，参考 paperswithcode 的 Task 页）：面包屑、TAG eyebrow、大标题、描述（tags.yml，可选）、
+ * 统计条（篇数 · 最近更新 · 相关标签数）、特色配图（最近更新且有缩略图的报告）、报告列表、相关标签（按共现）。
+ * 数据全部来自本站投影 siteView(site).tag(key)（ADR 0003 §3）；公开站点 / 私有站点各用一份，链接只指向本站。
+ */
+import type { Site, TagDetail } from "../../lib/site-data.ts";
+import Crumbs from "./Crumbs.astro";
+import ReportList from "./ReportList.astro";
+import Stats from "./Stats.astro";
+import T from "./T.astro";
+
+interface Props {
+  site: Site;
+  tag: TagDetail;
+}
+const { site, tag } = Astro.props;
+const tagBase = site === "private" ? "/p/tags/" : "/tags/";
+const f = tag.featured;
+---
+<Crumbs site={site} trail={[{ href: tagBase, k: "tags" }, { text: tag.label }]} />
+<header class:list={["task-head", f && "has-figure"]}>
+  <div class="task-main">
+    <p class="eyebrow"><T k="eyebrowTag" /></p>
+    <h1 class="page-title task-title">{tag.label}</h1>
+    {tag.description && <p class="task-desc" data-en={tag.description_en}>{tag.description}</p>}
+    <Stats items={[{ k: "statReports", v: tag.count }, { k: "statUpdated", v: tag.updated }, { k: "statRelated", v: tag.related.length }]} />
+  </div>
+  {
+    f && (
+      <a class="featured" href={f.href} data-en-href={f.href_en} data-featured={f.slug}>
+        <img src={f.thumb} alt="" width="240" height="300" decoding="async" />
+        <span class="featured-cap">
+          <span class="eyebrow"><T k="featured" /></span>
+          <span class="featured-title" data-en={f.title_en}>{f.title}</span>
+        </span>
+      </a>
+    )
+  }
+</header>
+<h2 class="section-h"><T k="reportsH" /></h2>
+<ReportList cards={tag.cards} tagBase={tagBase} showVisibility={site === "private"} />
+{
+  tag.related.length > 0 && (
+    <section class="related" aria-labelledby="related-h">
+      <h2 class="section-h" id="related-h"><T k="relatedTags" /></h2>
+      <p class="page-sub"><T k="relatedSub" /></p>
+      <ul class="related-list">
+        {tag.related.map((r) => (
+          <li>
+            <a class="tag" href={`${tagBase}${r.key}/`} data-related={r.key} data-count={r.count}>
+              <span>{r.label}</span>
+              <span class="n">{r.count}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

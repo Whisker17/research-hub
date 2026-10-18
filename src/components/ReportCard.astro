@@ -9,12 +9,12 @@ import T from "./T.astro";
 
 interface Props {
   card: CardData;
-  /** 公开站点：标签链接到 /tags/<tag>/；私有索引：标签只是文字 */
-  linkTags: boolean;
+  /** 标签链接的前缀：公开站点 "/tags/"、私有站点 "/p/tags/"（ADR 0003 §2 导航规则）；不给时标签只是文字 */
+  tagBase?: string;
   /** 私有索引里显示“私有 / 公开”标记 */
   showVisibility?: boolean;
 }
-const { card, linkTags, showVisibility = false } = Astro.props;
+const { card, tagBase, showVisibility = false } = Astro.props;
 const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.summary_en ?? ""} ${card.tags.map((t) => `${t.key} ${t.label}`).join(" ")}`.toLowerCase();
 const ledgerTitle = card.ledger && `observed ${card.ledger.observed} · inferred ${card.ledger.inferred} · speculative ${card.ledger.speculative}`;
 ---
@@ -45,7 +45,7 @@ const ledgerTitle = card.ledger && `observed ${card.ledger.observed} · inferred
   {
     card.tags.length > 0 && (
       <div class="tags">
-        {card.tags.map((t) => (linkTags ? <a class="tag" href={`/tags/${t.key}/`}>{t.label}</a> : <span class="tag">{t.label}</span>))}
+        {card.tags.map((t) => (tagBase ? <a class="tag" href={`${tagBase}${t.key}/`}>{t.label}</a> : <span class="tag">{t.label}</span>))}
       </div>
     )
   }

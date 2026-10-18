@@ -20,12 +20,13 @@ interface Props {
   filters?: boolean;
   domains?: { key: string; label: string; count: number }[];
   tags?: { key: string; label: string; count: number }[];
-  linkTags: boolean;
+  /** 标签链接的前缀（见 ReportCard）；不给时标签只是文字 */
+  tagBase?: string;
   showVisibility?: boolean;
   /** 没有报告时的提示（src/i18n.ts 的键） */
   emptyKey?: I18nKey;
 }
-const { filters = false, domains = [], tags = [], linkTags, showVisibility = false, emptyKey = "emptyList" } = Astro.props;
+const { filters = false, domains = [], tags = [], tagBase, showVisibility = false, emptyKey = "emptyList" } = Astro.props;
 // 服务端顺序 = 默认的“最近更新 + 全部”，与脚本排出来的一致
 const cards = arrangeCards(Astro.props.cards, "updated", "all", new Date());
 const rail = filters && cards.length > 0;
@@ -84,7 +85,7 @@ const ranges: { v: string; k: I18nKey }[] = [
     {
       cards.length > 0 ? (
         <div class="rows" data-rows>
-          {cards.map((card) => <ReportCard card={card} linkTags={linkTags} showVisibility={showVisibility} />)}
+          {cards.map((card) => <ReportCard card={card} tagBase={tagBase} showVisibility={showVisibility} />)}
           <p class="empty" data-empty hidden><T k="emptyFilter" /></p>
         </div>
       ) : (

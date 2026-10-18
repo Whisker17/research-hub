@@ -97,7 +97,7 @@ a { color: var(--accent-text); }
 
 /* 文字层级 */
 .eyebrow { font-family: var(--font-mono); font-size: var(--fs-2xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 var(--sp-3); }
-.crumbs { font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-faint); margin: 0 0 var(--sp-3); }
+.crumbs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--sp-2); font-family: var(--font-mono); font-size: var(--fs-xs); color: var(--ink-faint); margin: 0 0 var(--sp-3); }
 .crumbs a { color: var(--ink-soft); text-decoration: none; }
 .crumbs a:hover { color: var(--ink); }
 h1.page-title { font-family: var(--font-serif); font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; margin: 0 0 var(--sp-2); text-wrap: balance; }
@@ -257,12 +257,61 @@ a.tag:hover { color: var(--ink); border-color: var(--hairline-strong); }
   .rail-group + .rail-group { border-top: 0; }
 }
 
-/* 归档 / 标签列表（WHI-1932 会重做） */
+/* 索引列表（月归档、Daily 日期列表） */
 .index-list { list-style: none; margin: 0; padding: 0; background: var(--bg-elevated); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; }
 .index-list li + li { border-top: 1px solid var(--hairline); }
 .index-list a { display: flex; justify-content: space-between; gap: var(--sp-3); padding: 13px var(--sp-4); color: inherit; text-decoration: none; }
 .index-list a:hover { background: var(--bg-subtle); }
 .index-list .n { font: var(--fs-sm) var(--font-mono); color: var(--ink-faint); }
+
+/*
+ * 标签页与月归档（WHI-1932，参考 paperswithcode 的 Task 页）：面包屑 → eyebrow → 大标题 → 描述 → 统计条，
+ * 宽屏时特色配图在右边；下面是报告列表与相关标签。标签名、描述可能很长且没有空格：overflow-wrap: anywhere。
+ */
+.crumbs .sep { color: var(--hairline-strong); }
+.crumbs [aria-current] { color: var(--ink-faint); overflow-wrap: anywhere; }
+.stats { display: flex; flex-wrap: wrap; margin: 0 0 var(--sp-5); border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+.stats > div { min-width: 0; padding: var(--sp-3) var(--sp-3) var(--sp-3) 0; }
+.stats > div + div { padding-left: var(--sp-3); border-left: 1px solid var(--hairline); }
+.stats dt { font: 500 var(--fs-2xs)/1.4 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); white-space: nowrap; }
+.stats dd { margin: 2px 0 0; font: 500 var(--fs-base)/1.3 var(--font-mono); color: var(--ink); white-space: nowrap; }
+.task-head { display: grid; gap: var(--sp-4); }
+.task-head + .section-h { margin-top: var(--sp-5); }
+.task-main { min-width: 0; }
+.task-title { font-size: var(--fs-2xl); overflow-wrap: anywhere; }
+.task-desc { margin: 0 0 var(--sp-5); max-width: 62ch; font: var(--fs-md)/1.6 var(--font-serif); color: var(--ink-soft); overflow-wrap: anywhere; }
+.featured { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--sp-3); align-items: start; margin-bottom: var(--sp-5); color: inherit; text-decoration: none; }
+.featured img { display: block; width: 100%; height: auto; border: 1px solid var(--hairline); border-radius: var(--radius-sm); background: var(--bg-subtle); }
+.featured-cap { display: grid; gap: var(--sp-1); min-width: 0; }
+.featured-cap .eyebrow { margin: 0; }
+.featured-title { font: 500 var(--fs-base)/1.4 var(--font-serif); overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+.featured:hover .featured-title { text-decoration: underline; text-decoration-color: var(--hairline-strong); text-underline-offset: 3px; }
+.related { margin-top: var(--sp-2); }
+.related .page-sub { font-size: var(--fs-sm); margin-bottom: var(--sp-3); }
+.related-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.related-list .tag { display: inline-flex; align-items: baseline; gap: var(--sp-2); max-width: 100%; font: var(--fs-sm)/1.8 var(--font-mono); padding: 0 10px; border-radius: var(--radius-sm); border: 1px solid var(--hairline); background: var(--bg-elevated); color: var(--ink-soft); text-decoration: none; overflow-wrap: anywhere; }
+.related-list .n { color: var(--ink-faint); font-size: var(--fs-xs); }
+.tag-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-3); }
+.tag-card { display: grid; gap: var(--sp-1); height: 100%; padding: var(--sp-4); border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--bg-elevated); color: inherit; text-decoration: none; min-width: 0; }
+.tag-card:hover { border-color: var(--hairline-strong); }
+.tag-card-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-3); }
+.tag-card-name { font: 500 var(--fs-md)/1.3 var(--font-serif); overflow-wrap: anywhere; min-width: 0; }
+.tag-card .n { font: var(--fs-sm) var(--font-mono); color: var(--ink-faint); flex: none; }
+.tag-card-desc { color: var(--ink-soft); font-size: var(--fs-sm); line-height: 1.5; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.tag-card-meta { font: var(--fs-xs)/1.5 var(--font-mono); color: var(--ink-faint); }
+.archive-year .section-h { margin-top: var(--sp-5); font-family: var(--font-mono); }
+.month-list a { align-items: baseline; }
+.month-meta { display: inline-flex; align-items: baseline; gap: var(--sp-3); }
+.month-updated { font: var(--fs-xs) var(--font-mono); color: var(--ink-faint); }
+@media (min-width: 720px) {
+  .task-head.has-figure { grid-template-columns: minmax(0, 1fr) 168px; gap: var(--sp-6); }
+  .task-title { font-size: 46px; }
+  .stats > div { padding-right: var(--sp-5); }
+  .stats > div + div { padding-left: var(--sp-5); }
+  .stats dd { font-size: var(--fs-md); }
+  .featured { grid-template-columns: 1fr; }
+  .tag-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 /*
  * Daily（WHI-1936）：一天 = 状态行 + 固定声明 + 公开说明 + topic 列表；topic 复用列表行的 chip 与标签样式。

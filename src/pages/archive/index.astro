@@ -1,23 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
-import T from "../../components/T.astro";
+import ArchiveIndex from "../../components/ArchiveIndex.astro";
 import { t } from "../../i18n.ts";
-import { siteView } from "../../../lib/site-data.ts";
-
-const { months } = siteView("public");
 ---
 <Base title={t("zh", "archive")} titleEn={t("en", "archive")}>
-  <h1 class="page-title"><T k="archive" /></h1>
-  <p class="page-sub"><T k="archiveSub" /></p>
-  {
-    months.length ? (
-      <ul class="index-list">
-        {months.map((m) => (
-          <li><a href={`/${m.year}/${m.month}/`}><T k="month" vars={{ y: m.year, m: Number(m.month) }} /><span class="n"><T k="nShort" vars={{ n: m.cards.length }} /></span></a></li>
-        ))}
-      </ul>
-    ) : (
-      <p class="empty"><T k="emptyPublic" /></p>
-    )
-  }
+  <ArchiveIndex site="public" emptyKey="emptyPublic" />
 </Base>

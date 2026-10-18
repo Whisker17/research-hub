@@ -37,7 +37,7 @@
 | `/tags/`、`/tags/<tag>/` | 公开（改为 Task 页风格） | 只含被 public + published 报告用到的标签 | WHI-1932 |
 | `/p/tags/`、`/p/tags/<tag>/` | 私有（**新增**） | 全部 published | WHI-1932 |
 | `/archive/`、`/YYYY/MM/` | 公开（改样式，URL 不变） | public + published | WHI-1932 |
-| 私有站点的月归档 | 私有 | 全部 published | WHI-1932 决定做不做；做的话放在 `/p/archive/`、`/p/YYYY/MM/` |
+| `/p/archive/`、`/p/YYYY/MM/` | 私有（**新增**：WHI-1932 决定做，私有导航不能指向公开 `/archive/`，与公开归档共用组件） | 全部 published | WHI-1932 |
 | `/r/<slug>/`、`/r/<slug>/en/` | 公开 | 报告原样 + 注入的外壳 | 外壳换样式：WHI-1934 |
 | `/p/<slug>/`、`/p/<slug>/en/` | 私有 | 报告原样 + 注入的外壳 | 外壳换样式：WHI-1934 |
 | `/daily/`、`/daily/<date>/` | 公开 | Daily 数据（ADR 0004） | WHI-1936 |

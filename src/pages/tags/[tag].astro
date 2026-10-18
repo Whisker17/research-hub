@@ -1,21 +1,17 @@
 ---
+/** 公开标签页：只有被 public + published 报告用到的标签（siteView("public")，ADR 0003 §2、§3）。 */
 import Base from "../../layouts/Base.astro";
-import ReportList from "../../components/ReportList.astro";
-import T from "../../components/T.astro";
+import TagPage from "../../components/TagPage.astro";
 import { t } from "../../i18n.ts";
 import { siteView } from "../../../lib/site-data.ts";
 
 export function getStaticPaths() {
-  return siteView("public").usedTags.map((t) => ({ params: { tag: t.key }, props: { label: t.label } }));
+  const v = siteView("public");
+  return v.usedTags.map((u) => ({ params: { tag: u.key }, props: { tag: v.tag(u.key)! } }));
 }
 
-const { tag } = Astro.params;
-const { label } = Astro.props;
-const cards = siteView("public").cards.filter((c) => c.tags.some((t) => t.key === tag));
+const { tag } = Astro.props;
 ---
-<Base title={t("zh", "tagTitle", { label })} titleEn={t("en", "tagTitle", { label })}>
-  <p class="crumbs"><a href="/tags/"><T k="tags" /></a></p>
-  <h1 class="page-title">{label}</h1>
-  <p class="page-sub"><T k="nReports" vars={{ n: cards.length }} /></p>
-  <ReportList cards={cards} linkTags />
+<Base title={t("zh", "tagTitle", { label: tag.label })} titleEn={t("en", "tagTitle", { label: tag.label })} description={tag.description}>
+  <TagPage site="public" tag={tag} />
 </Base>

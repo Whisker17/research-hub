@@ -1,0 +1,51 @@
+---
+/**
+ * 月归档索引（WHI-1932）：按报告的创建月份，按年分组，新的在前。数据来自本站投影 siteView(site)（ADR 0003 §3）；
+ * 公开站点的月份页在 /YYYY/MM/（URL 不变），私有站点在 /p/YYYY/MM/。
+ */
+import { siteView, type Site } from "../../lib/site-data.ts";
+import { monthVars, type I18nKey } from "../i18n.ts";
+import Crumbs from "./Crumbs.astro";
+import Stats from "./Stats.astro";
+import T from "./T.astro";
+
+interface Props {
+  site: Site;
+  emptyKey: I18nKey;
+}
+const { site, emptyKey } = Astro.props;
+const { months, cards } = siteView(site);
+const base = site === "private" ? "/p" : "";
+const years = [...new Set(months.map((m) => m.year))].map((y) => ({ year: y, months: months.filter((m) => m.year === y) }));
+---
+<Crumbs site={site} trail={[{ k: "archive" }]} />
+<p class="eyebrow"><T k="eyebrowArchive" /></p>
+<h1 class="page-title"><T k="archive" /></h1>
+<p class="page-sub"><T k="archiveSub" /></p>
+{
+  months.length ? (
+    <>
+      <Stats items={[{ k: "statReports", v: cards.length }, { k: "statMonths", v: months.length }, { k: "statUpdated", v: cards[0].updated }]} />
+      {years.map((y) => (
+        <section class="archive-year">
+          <h2 class="section-h">{y.year}</h2>
+          <ul class="index-list month-list">
+            {y.months.map((m) => (
+              <li>
+                <a href={`${base}/${m.year}/${m.month}/`} data-month={m.ym}>
+                  <span class="month-name"><T k="month" vars={monthVars(m.year, m.month)} /></span>
+                  <span class="month-meta">
+                    <span class="month-updated"><T k="updated" /> {m.updated}</span>
+                    <span class="n"><T k="nShort" vars={{ n: m.cards.length }} /></span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </>
+  ) : (
+    <p class="empty"><T k={emptyKey} /></p>
+  )
+}
