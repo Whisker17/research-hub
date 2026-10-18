@@ -7,6 +7,7 @@ import { loadConfig } from "../lib/config.ts";
 import { CARD_HELP, cmdCard } from "./commands/card.ts";
 import { CHECK_HELP, cmdCheck } from "./commands/check.ts";
 import { runBuild } from "./commands/build.ts";
+import { DAILY_HELP, cmdDaily } from "./commands/daily.ts";
 import { IMPORT_HELP, cmdImport } from "./commands/import.ts";
 import { NEW_HELP, cmdNew } from "./commands/new.ts";
 import { PATHS_HELP, cmdPaths } from "./commands/paths.ts";
@@ -25,6 +26,7 @@ const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
   rh check [slug…]            检查 schema / 标签 / 台账 / 手机适配（--no-shot 跳过手机检查）
   rh publish <slug>           检查 → 发布 → 构建 → 提交并 push（CI 部署）
   rh build                    构建 dist/public 与 dist/private，并做泄漏检查
+  rh daily check | import | probe   Daily Topics：离线检查 daily/、导入候选（commit job）、在线链接探测（手动）
   rh tags list | add          标签登记表
   rh list                     列出全部报告
   rh paths [slug]             打印已解析的路径（vault brief 目录、am、报告目录、发布地址）
@@ -32,7 +34,7 @@ const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
   rh <命令> --help 查看详细用法。`;
 
 const SUB_HELP: Record<string, string> = {
-  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP,
+  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP, daily: DAILY_HELP,
 };
 
 async function main(argv: string[]): Promise<number> {
@@ -50,6 +52,7 @@ async function main(argv: string[]): Promise<number> {
     case "check": await cmdCheck(cfg, rest); break;
     case "publish": await cmdPublish(cfg, rest); break;
     case "build": runBuild(cfg); break;
+    case "daily": await cmdDaily(cfg, rest); break;
     case "tags": cmdTags(cfg, rest); break;
     case "list": cmdList(cfg); break;
     case "paths": cmdPaths(cfg, rest); break;
