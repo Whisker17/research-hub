@@ -22,6 +22,8 @@ export interface HubConfig {
   amScript: string;
   /** 推特卡片里尽量不出现的词（卡片以中立研究者身份发布）；出现时 rh card / rh check 给警告 */
   cardAvoidTerms: string[];
+  /** Daily topic 公开文字里尽量不出现的词（ADR 0004 §3）；出现时 rh daily 给警告。不设时沿用 cardAvoidTerms */
+  dailyAvoidTerms: string[];
   /** 推特卡片页脚的水印（X 账号，如 @whisker17）；不设时页脚只有日期 */
   cardHandle: string;
   /** 推文文案的 X 计数上限：非会员 280；X 会员可以写长文（超过 280 的部分在信息流里折叠） */
@@ -35,6 +37,7 @@ interface RawConfig {
   briefsDir: string;
   amScript: string;
   cardAvoidTerms?: string[];
+  dailyAvoidTerms?: string[];
   cardHandle?: string;
   cardTweetMax?: number;
 }
@@ -59,6 +62,8 @@ export function repoRoot(): string {
 
 export function loadConfig(root: string = repoRoot()): HubConfig {
   const raw = JSON.parse(readFileSync(join(root, "rh.config.json"), "utf8")) as RawConfig;
+  const terms = (v: unknown): string[] => (Array.isArray(v) ? v.filter((t) => typeof t === "string") : []);
+  const cardAvoidTerms = terms(raw.cardAvoidTerms);
   return {
     root,
     publicUrl: trimSlash(process.env.RH_PUBLIC_URL ?? raw.publicUrl),
@@ -66,7 +71,8 @@ export function loadConfig(root: string = repoRoot()): HubConfig {
     vaultDir: resolve(expandHome(process.env.RH_VAULT_DIR ?? raw.vaultDir)),
     briefsDir: raw.briefsDir,
     amScript: resolve(expandHome(process.env.AM_SCRIPT ?? raw.amScript)),
-    cardAvoidTerms: Array.isArray(raw.cardAvoidTerms) ? raw.cardAvoidTerms.filter((t) => typeof t === "string") : [],
+    cardAvoidTerms,
+    dailyAvoidTerms: Array.isArray(raw.dailyAvoidTerms) ? terms(raw.dailyAvoidTerms) : cardAvoidTerms,
     cardHandle: typeof raw.cardHandle === "string" ? raw.cardHandle.trim() : "",
     cardTweetMax: Number.isInteger(raw.cardTweetMax) && raw.cardTweetMax! > 0 ? raw.cardTweetMax! : 280,
   };

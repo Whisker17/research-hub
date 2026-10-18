@@ -239,3 +239,26 @@ topics:
 - 时间窗依据的是三天样本（背景 4）。如果 WHI-1938 发现日报经常引用 D−1 以外的帖子，回来改这里的时间窗；其他源的跨日去重靠时间窗不重叠，改时间窗时要一起考虑。
 - 运行时刻依据的是 100 期日报的发布时间分布。如果 ETHTAO 的发布习惯变了，调整 `T_last`。
 - 新增配置 `dailyAvoidTerms`（可选，默认沿用 `cardAvoidTerms`）；新增内容路径 `daily/`（GIT_WORKFLOW 的内容通道里已经登记）。
+
+## 实现说明（WHI-1929）
+
+本节是附录，只记录本文留给 WHI-1929 决定的细节，不改变上面的决定。代码在 `lib/daily.ts` 和 `cli/commands/daily.ts`。
+
+- **`rh daily import <D> --manifest <file> --items <items.jsonl> [--candidate <dir>] [--regenerate]`**（决定 7 的导入步骤，commit job 调用）：
+  - `--manifest` 是 ingest 写的 manifest（status 为 `pending`，`generator` 由 job 填好），`--items` 是 ingest 写的 items.jsonl。决定 5 里的 t 取 `run.at`。输出的时间也都取 `run.at`，不读系统时钟，所以同样的输入一定得到同样的输出。
+  - 不带 `--candidate` 表示生成失败（`generator_failed`），或者按决定 5 不该调用生成（还没到 `T_last` 又没有日报，或者没有条目）。不该生成时如果传了候选，命令报错。
+  - **整体拒绝**（`candidate_rejected`）的情况：候选目录不合规；超过字节上限；YAML 不能解析（包括出现 alias）；顶层 schema 不合法；超过 10 个 topic；有不是 http(s) 的 `extra`；`date` 和 D 不一致；当天的 `note` 是转载。
+  - **丢弃单个 topic**：原因代码是 `schema`、`forged_reference`、`duplicate_reference`、`duplicate_topic`、`tag`、`proposed_tag`、`related`、`primary_note`、`evidence`、`verbatim`，记进 `dropped[]` 和 `counts.dropped`。
+  - rh 填入 `id`、引用的默认 `type`、canonical 形式的 `extra`、`evidence` 和 `items`，再按决定 5 的状态表算出状态。终态一定有 `topics.yml`（0 个 topic 时 `topics: []`），`pending` 一定没有。
+  - 已是终态的日期，不带 `--regenerate` 时什么都不做。带 `--regenerate` 时，只有得到可用的候选（0 个 topic 也算）才替换旧结果；生成失败或候选被整体拒绝时保留原结果，退出码 3。
+- **`rh daily check [--base <ref>] [--workflow]`**：
+  - 不带参数时离线检查已提交的 `daily/`，`pnpm verify` 和 CI 跑的就是这个。没有 `daily/` 时直接通过。
+  - `--base <ref>`：`state.yml` 从 `<ref>` 到工作区的每个变化都必须是决定 9 允许的转移；删除条目、`linked` 改 slug 都不合法。
+  - `--workflow`（commit job 用，必须同时给 `--base`）：`state.yml` 必须和 `<ref>` 逐字节相同，包括“不存在”这种状态。
+- **候选目录**：只能是一个真实目录（不能是符号链接），里面只有一个普通文件 `topics.yml`：不能是符号链接，不能有多个硬链接，不超过 64 KiB。文件内容是 `schema: 1`、`date`、可选的 `note` 和 `topics[]`；topic 不能自带 `id` 或 `evidence`，引用的 `type` 可以省略。
+- **`item_id`** 的格式是 `<source>:<源内稳定 id>`，前缀必须等于条目的 `source`，并且已在 `DAILY_SOURCES` 里登记。登记的源和类别：`ethtao`（x，日报二跳的 X 帖子，id 取解析后的原帖 id）、`ethresearch` 和 `magicians`（forum）、`theblock`（news）、`blockbeats` 和 `odaily`（aggregator）。新接入的源要先在那里登记，因为类别决定出处算法和引用的默认类型（决定 8）。
+- **长度上限**（字符数）：`title` 120，`title_en` 200，`why_now` 800，每个 question 300（1–3 个），`angle` 600，引用的 `note` 300，当天的 `note` 600；`tags` ≤ 8，`proposed_tags` ≤ 4，`related` ≤ 6；引用 1–6 条；摘录 ≤ 400。
+- **manifest 在决定 6 的字段之外多两项**，都只有代码或数字，没有自由文本，也都不进公开投影：
+  - `counts.warnings`：`dailyAvoidTerms` 警告的条数（决定 3 说的“内部计数”）；
+  - `dropped[] {topic, reason}`：被丢弃的候选 topic 的下标和原因代码（决定 7 说的“内部原因”）。
+- **可见性变化失败即拒绝**：某篇报告变成 private 或 draft、或者某个标签不再被任何 public + published 报告用到之后，引用它的旧日期在 `rh daily check`（也就是 `pnpm verify`）里报错。报错会写明日期文件、topic id 和 slug 或标签，并说明怎么修：在主克隆里修改那一天的 `topics.yml`（内容通道），或者用 `workflow_dispatch` regenerate 那一天。这样做是故意的：可见性变化必须引起注意，公开页面不能指向非公开报告。

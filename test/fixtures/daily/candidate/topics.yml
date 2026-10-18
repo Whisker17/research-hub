@@ -1,0 +1,84 @@
+# WHI-1929 夹具：生成器（daily-topics skill）为 2026-10-18 写的候选。item_id 指向 test/daily.test.ts 从
+# WHI-1925 的真实样本（ethtao/2026-10-18.json 与 sources/*.json）规范化出的条目。没有 id / evidence：由 rh 填。
+schema: 1
+date: "2026-10-18"
+topics:
+  - title: Glamsterdam 上 Hoodi 测试网：L1 容量提升的前提条件
+    title_en: "Glamsterdam on Hoodi: what the L1 capacity increase depends on"
+    domain: crypto
+    tags: [ethereum]
+    proposed_tags: [glamsterdam]
+    why_now: Hoodi 测试网分叉定在 10 月 26 日，主网日期另行公布；研究者称测试网顺利的话几个月内 L1 容量接近 3.5 倍。
+    questions:
+      - 容量提升来自哪些 EIP，各自的前提和风险是什么？
+      - 测试网分叉需要满足哪些条件才会公布主网日期？
+    angle: 从激活表和客户端发布出发，拆解容量与 blob 空间变化的来源。
+    novelty: { kind: update, related: [glamsterdam-overview] }
+    references:
+      - { item_id: "ethtao:2111165223780454451", type: primary, note: Alex Stokes（EF 协议协调）本人关于升级时间表的公告 }
+      - { item_id: "ethtao:2111527644223127741" }
+      - { item_id: "magicians:29994", type: discussion }
+    confidence: high
+  - title: RapidBlocks：执行证明与状态解耦的流水线共识
+    title_en: "RapidBlocks: pipelined consensus with execution proofs that outlive their state"
+    domain: crypto
+    tags: [ethereum]
+    why_now: ethresear.ch 上同一作者连续发了两篇 RapidBlocks，第二篇给出拆分证明的设计。
+    questions:
+      - 拆分证明如何让区块独立于状态被验证？
+    angle: 对比现有的 ePBS 与 FOCIL 路线，看它改变了哪些时延假设。
+    novelty: { kind: new }
+    references:
+      - { item_id: "ethresearch:26157" }
+      - { item_id: "ethresearch:26152" }
+    confidence: medium
+  - title: EIP-8442：EVM 的 64 位操作码
+    title_en: "EIP-8442: 64-bit opcodes for the EVM"
+    domain: crypto
+    proposed_tags: [evm]
+    why_now: 提案 10 月 15 日在 Ethereum Magicians 上开帖，正在收集反馈。
+    questions:
+      - 64 位操作码对 gas 计价和现有合约有什么影响？
+      - 它和 EVM 对象格式的改动是什么关系？
+    angle: 用基准测试数据评估性能收益是否值得增加的复杂度。
+    novelty: { kind: new }
+    references:
+      - { item_id: "magicians:29982" }
+    confidence: medium
+  - title: 链上 AI agent 身份标准的竞争
+    title_en: Competing standards for on-chain AI agent identity
+    domain: crypto
+    proposed_tags: [ai-agents]
+    why_now: 两份 agent 身份与注册相关的 ERC 草案在同一周内活跃。
+    questions:
+      - 这些草案在身份、声誉和授权上分别解决什么问题？
+    angle: 列出各方案的信任假设，看哪些可以组合。
+    novelty: { kind: new }
+    references:
+      - { item_id: "magicians:29805" }
+      - { item_id: "magicians:29998" }
+    confidence: low
+  - title: secp256k1 的 GLV 优化与后量子证明的指令集
+    title_en: secp256k1 GLV speedups and an ISA for post-quantum proofs
+    domain: crypto
+    tags: [ethereum]
+    why_now: 研究者讨论 secp256k1 曲线结构带来的 GLV 优化，同时 ethresear.ch 上有提案为后量子证明暴露指令集。
+    questions:
+      - 曲线结构带来的优化在后量子迁移后还有多少价值？
+    angle: 把签名验证成本放在后量子迁移的时间线上比较。
+    novelty: { kind: new }
+    references:
+      - { item_id: "ethtao:2111414176597913753" }
+      - { item_id: "ethresearch:26136" }
+    confidence: low
+  - title: Chainlink Fulcrum：代币化证券的抵押融资
+    title_en: "Chainlink Fulcrum: financing against tokenized securities"
+    domain: crypto
+    why_now: Chainlink 介绍了把传统证券抵押融资带入代币化资产的 Fulcrum 产品。
+    questions:
+      - 抵押品的定价、清算和跨链结算由谁负责？
+    angle: 对照传统回购市场，看链上版本改变了哪些对手方风险。
+    novelty: { kind: new }
+    references:
+      - { item_id: "ethtao:2111440953944994000", type: primary, note: Chainlink 官方账号的产品公告 }
+    confidence: medium
