@@ -5,6 +5,7 @@ import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import type { HubConfig } from "../../lib/config.ts";
 import { loadReports, loadTags, type Report } from "../../lib/reports.ts";
+import { isReservedSlug, reservedSlugMessage } from "../../lib/schema.ts";
 import { checkReport, type ReportCheck } from "../lib/checks.ts";
 import { launchBrowser } from "../lib/mobile.ts";
 import { CliError, c, fail, info, ok, warn } from "../lib/util.ts";
@@ -28,6 +29,7 @@ export async function runChecks(cfg: HubConfig, opts: { slugs: string[]; strict:
   const { reports, issues } = loadReports(cfg.root);
   const tagsLoad = loadTags(cfg.root);
   const globalErrors = [...issues, ...tagsLoad.issues].map((i) => `${i.where}: ${i.message}`);
+  for (const r of reports) if (isReservedSlug(r.slug)) globalErrors.push(`${r.relDir}: ${reservedSlugMessage(r.slug)}`);
 
   let selected: Report[] = reports;
   if (opts.slugs.length) {

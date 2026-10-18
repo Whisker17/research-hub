@@ -2,17 +2,14 @@
 import Base from "../../../layouts/Base.astro";
 import ReportList from "../../../components/ReportList.astro";
 import SiteFoot from "../../../components/SiteFoot.astro";
-import { byMonth, siteData, toCard } from "../../../../lib/site-data.ts";
+import { siteView } from "../../../../lib/site-data.ts";
 
 export function getStaticPaths() {
-  const { publicReports } = siteData();
-  return byMonth(publicReports).map((m) => ({ params: { year: m.year, month: m.month }, props: { slugs: m.reports.map((r) => r.slug) } }));
+  return siteView("public").months.map((m) => ({ params: { year: m.year, month: m.month }, props: { cards: m.cards } }));
 }
 
 const { year, month } = Astro.params;
-const { slugs } = Astro.props;
-const { publicReports, tags } = siteData();
-const cards = publicReports.filter((r) => slugs.includes(r.slug)).map((r) => toCard(r, tags));
+const { cards } = Astro.props;
 ---
 <Base title={`${year} 年 ${Number(month)} 月`}>
   <div class="crumbs-bar">

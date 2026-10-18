@@ -9,6 +9,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, before, test } from "node:test";
 import { stringify } from "yaml";
+import { createHash } from "node:crypto";
+import { pngThumbnail } from "../cli/lib/build.ts";
 import { findChrome } from "../cli/lib/mobile.ts";
 import { loadConfig } from "../lib/config.ts";
 
@@ -156,8 +158,14 @@ test("rh check：schema、目录年月、未登记标签都是错误（draft 也
 test("rh build：公开 / 私有分发、返回链接、draft 排除、私有内容不进公开产物", () => {
   assert.equal(rh("tags", "add", "secret-topic", "--label", "机密主题").code, 0);
   assert.equal(rh("tags", "add", "dex", "--label", "DEX").code, 0);
-  writeReport("pub-a", { title: "公开报告甲", summary: "公开摘要甲", tags: ["dex"], updated: TODAY });
-  writeReport("priv-b", { title: "私密报告ZQX", summary: "私密摘要ZQX", visibility: "private", tags: ["secret-topic"], created: "2026-09-12", updated: "2026-09-20" });
+  // 标签描述（ADR 0003 §6）：只被私有报告用到的标签，描述不能出现在公开产物里
+  const tagsYml = readFileSync(join(tmp, "tags.yml"), "utf8");
+  writeFileSync(join(tmp, "tags.yml"), tagsYml.replace("label: 机密主题", "label: 机密主题\n    description: 机密主题的说明文字ABC"));
+  const pubA = writeReport("pub-a", { title: "公开报告甲", summary: "公开摘要甲", tags: ["dex"], updated: TODAY });
+  const privB = writeReport("priv-b", { title: "私密报告ZQX", summary: "私密摘要ZQX", visibility: "private", tags: ["secret-topic"], created: "2026-09-12", updated: "2026-09-20" });
+  const cardPng = readFileSync(join(REPO, "test", "fixtures", "png", "rgb.png"));
+  writeFileSync(join(pubA, "card.png"), cardPng);
+  writeFileSync(join(privB, "card.png"), pngThumbnail(cardPng, "card.png", 30));
   writeReport("draft-c", { title: "草稿标题QQQ", summary: "草稿摘要QQQ", status: "draft" });
   writeReport("draft-d", { title: "私有草稿WWW", summary: "私有草稿摘要WWW", status: "draft", visibility: "private" });
 
@@ -185,6 +193,16 @@ test("rh build：公开 / 私有分发、返回链接、draft 排除、私有内
   assert.equal(existsSync(join(pub, "p")), false);
   assert.equal(existsSync(join(pub, "tags", "secret-topic")), false);
   assert.equal(existsSync(join(pub, "2026", "09")), false, "只有私有报告的月份不生成公开归档页");
+  assert.deepEqual(grepDir(pub, "机密主题的说明文字ABC"), [], "私有专用标签的描述不进公开产物");
+
+  // 缩略图：只进报告所在的站点；私有报告的缩略图与 card.png 不在公开产物里（按内容查）
+  assert.ok(existsSync(join(pub, "r", "pub-a", "thumb.png")));
+  assert.ok(existsSync(join(priv, "p", "priv-b", "thumb.png")));
+  assert.equal(existsSync(join(priv, "r")), false, "公开报告的缩略图不复制到私有站点");
+  const sha = (f: string) => createHash("sha256").update(readFileSync(f)).digest("hex");
+  const publicHashes = new Set([...walk(pub)].map(sha));
+  for (const f of [join(priv, "p", "priv-b", "thumb.png"), join(priv, "p", "priv-b", "card.png")]) assert.ok(!publicHashes.has(sha(f)), `${f} 出现在公开产物里`);
+  for (const shared of ["404.html", "favicon.svg"]) assert.ok(existsSync(join(pub, shared)) && existsSync(join(priv, shared)), `共享资源 ${shared} 进两站`);
 
   // 私有站点
   const b = readFileSync(join(priv, "p", "priv-b", "index.html"), "utf8");
@@ -209,6 +227,12 @@ test("rh build：公开内容里提到私有报告时，泄漏检查失败并删
   const r = rh("build");
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /含有非公开报告 priv-b 的内容/);
+  assert.equal(existsSync(join(tmp, "dist")), false);
+  // 只被私有报告用到的标签的描述出现在公开页面上：真实的 rh build 也失败
+  writeFileSync(join(dir, "meta.yml"), meta.replace("summary: 公开摘要甲", "summary: 见机密主题的说明文字ABC"));
+  const t = rh("build");
+  assert.equal(t.code, 1, t.out);
+  assert.match(t.out, /含有只用于非公开报告的标签 secret-topic 的描述的内容/);
   assert.equal(existsSync(join(tmp, "dist")), false);
   writeFileSync(join(dir, "meta.yml"), meta);
   assert.equal(rh("build").code, 0);
