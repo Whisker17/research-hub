@@ -108,11 +108,13 @@ export async function cmdIngest(cfg: HubConfig, argv: string[], deps: IngestDeps
       let calls: number;
       let skipped: string | null = null;
       if (sc.type === "blockbeats") {
-        const { ledger, warning } = loadLedger(stateDir, at.slice(0, 10));
+        // 账本按请求发生的 UTC 日记账：用此刻的时间，不用 run.at（前面的源可能已经跑过了午夜）
+        const t = now();
+        const { ledger, warning } = loadLedger(stateDir, t.slice(0, 10));
         const key = process.env[sc.credential_env] || undefined;
         if (warning && key) warn(`${id}: ${warning}`);
-        saveLedger(stateDir, ledger, at.slice(0, 10));
-        const r = await runBlockBeats({ id, cfg: sc, ctx, key, ledger, persist: (l) => saveLedger(stateDir, l, at.slice(0, 10)), at, w, cached: coveredIn(prev.spans, w), now });
+        saveLedger(stateDir, ledger, t.slice(0, 10));
+        const r = await runBlockBeats({ id, cfg: sc, ctx, key, ledger, persist: (l) => saveLedger(stateDir, l, t.slice(0, 10)), at: t, w, cached: coveredIn(prev.spans, w), now });
         ({ fetch: fetched, calls, skipped } = r);
       } else {
         const budget = new CallBudget(sc.max_calls_per_run);
