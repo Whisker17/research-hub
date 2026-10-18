@@ -332,6 +332,20 @@ export function transitionError(prev: StateEntry | undefined, next: StateEntry |
   return TOPIC_TRANSITIONS[from].includes(next.state) ? null : `不允许 ${from} → ${next.state}`;
 }
 
+/**
+ * rh topic 的一次状态变更（WHI-1935）。返回新的 state（不改原对象），或者错误。
+ * 幂等：已经是目标状态时原样返回（changed: false），保留原来的 at / reason，不丢人工记录；
+ * linked 到另一个 slug 由 transitionError 拒绝。
+ */
+export function applyTopicState(state: StateFile, id: string, next: StateEntry): { state: StateFile; changed: boolean } | { error: string } {
+  const prev = state.topics[id];
+  const error = transitionError(prev, next);
+  if (error) return { error };
+  if (prev?.state === next.state) return { state, changed: false };
+  const topics = Object.fromEntries(Object.entries({ ...state.topics, [id]: next }).sort(([a], [b]) => a.localeCompare(b)));
+  return { state: { schema: 1, topics }, changed: true };
+}
+
 export function stateChangeErrors(before: StateFile, after: StateFile): string[] {
   const ids = [...new Set([...Object.keys(before.topics), ...Object.keys(after.topics)])].sort();
   return ids.flatMap((id) => {
@@ -807,7 +821,8 @@ function loadDay(dir: string, rel: string, date: string, err: (w: string, m: str
  */
 const VISIBILITY_CODES = new Set<DropCode>(["tag", "proposed_tag", "related"]);
 const VISIBILITY_FIX = (day: Day): string =>
-  `。修复：在主克隆里修改 ${day.relDir}/${DAY_FILES.topics} 的这个 topic（内容通道），或用 workflow_dispatch（date=${day.date}，regenerate）重新生成这一天`;
+  `。修复：先在 items artifact 的 30 天保留期内用 workflow_dispatch（date=${day.date}，regenerate）重新生成这一天；` +
+  `做不到时，只能由所有者在主克隆里删除或改正 ${day.relDir}/${DAY_FILES.topics} 里的这个 topic，作为内容通道的提交`;
 
 /** 一天的不变量：路径与日期、时间窗、状态与数量、重新计算的 id / evidence / items、规则。 */
 export function dayErrors(day: Day, ctx: DailyContext, hasTopicsFile: boolean): { errors: string[]; warnings: string[] } {

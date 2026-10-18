@@ -17,13 +17,14 @@ import { PATHS_HELP } from "../cli/commands/paths.ts";
 import { PUBLISH_HELP } from "../cli/commands/publish.ts";
 import { RENDER_HELP } from "../cli/commands/render.ts";
 import { TAGS_HELP } from "../cli/commands/tags.ts";
+import { TOPIC_HELP } from "../cli/commands/topic.ts";
 import { readFrontmatter } from "../cli/lib/create.ts";
 
 const REPO = join(import.meta.dirname, "..");
 const SKILL_DIR = join(REPO, ".claude", "skills", "research-hub");
 
 const HELP: Record<string, string> = {
-  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP,
+  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP, topic: TOPIC_HELP,
   list: "", build: "",
 };
 

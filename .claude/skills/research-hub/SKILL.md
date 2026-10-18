@@ -195,16 +195,16 @@ pnpm rh import report --html <页面.html> --slug <slug> --domain <domain> --sou
 
 Daily（`/daily/`，ADR 0004）每天由 workflow 自动推荐 5–10 个 topic，**未经人工审阅**。用户挑中一个，就从它开始走正常的报告流程：Daily 只提供起点，**①②③ 一个都不少**，报告照样默认 private（Daily 公开不代表报告公开）。
 
-下面的 `rh topic` 命令由 WHI-1935 实现，按 ADR 0004 §9 描述；具体语法以 WHI-1935 合并后的 `rh topic --help` 为准。
+`rh topic` 的三个命令（ADR 0004 §9）只写 `daily/state.yml`，在主克隆里运行，同样的参数重复执行不做任何改动；改动按内容通道提交（`docs/GIT_WORKFLOW.md`）。
 
-1. **标记选中**：`rh topic select <id>`。它只在 `daily/state.yml` 里记一笔“选中”，并打印起草 brief 用的材料（研究问题、引用）。它不写 vault、不建报告，选中也不等于 brief 已经批准。
+1. **标记选中**：`pnpm rh topic select <id>`。它只在 `daily/state.yml` 里记一笔“选中”，并打印起草 brief 用的材料（why now、研究问题、角度、引用及链接）。它不写 vault、不建报告，选中也不等于 brief 已经批准。
 2. **核对 topic**：topic 的文字是 LLM 根据当天的标题和摘录写的，只是线索，不是证据。打开它的引用链接，确认事件属实、日期和说法对得上；对不上就告诉用户，由用户决定是否继续。
 3. **选路径**：
    - topic 是 `novelty: new`，或用户要做新报告 → 按路径 A 起草 brief（§2）：研究问题从 topic 的 `questions` 和 `angle` 出发重新斟酌，引用列为“初始线索”，brief 里写明来源是哪一天的哪个 Daily topic（id）。
    - topic 是 `novelty: update`，或用户要更新 `related` 里的那篇报告 → 走路径 E 就地更新（§7）：① 里确认的是“这次改什么”。
    - `pnpm rh new` 报 slug 已被使用，说明已有同一题目的报告：按 §8 改走路径 E。
 4. **把关 ①**：照 §2 给用户看 brief 和 meta（visibility 默认 private），**停下等待**。之后照常建报告：写 vault brief、登记标签、`pnpm rh new`。
-5. **关联**：报告建好后（draft 也可以）执行 `rh topic link <id> <slug>`。报告必须已经存在；同一个 topic 只能关联一篇报告，重复执行同样的参数不会改动任何东西。
+5. **关联**：报告建好后（draft 也可以）执行 `pnpm rh topic link <id> <slug>`。报告必须已经存在（不存在时命令报错）；同一个 topic 只能关联一篇报告，重复执行同样的参数不会改动任何东西。
 6. 之后照常走 §3–§5：② 审阅调研、③ 审阅页面、用户明确批准后才 `pnpm rh publish`。
 
-用户看了 topic 决定不做：`rh topic dismiss <id> --reason <理由>`。dismiss 的理由和“哪个 topic 变成了哪篇报告”只记在 `daily/state.yml` 里，不会出现在公开页面上。不要手改 `daily/` 下的任何文件：日期目录只由 workflow 写，`state.yml` 只由 `rh topic` 写。
+用户看了 topic 决定不做：`pnpm rh topic dismiss <id> --reason <理由>`（以后改主意还可以再 select）。dismiss 的理由和“哪个 topic 变成了哪篇报告”只记在 `daily/state.yml` 里，不会出现在公开页面上。不要手改 `daily/` 下的任何文件：日期目录只由 workflow 写，`state.yml` 只由 `rh topic` 写。

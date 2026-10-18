@@ -5,7 +5,7 @@
  */
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -28,6 +28,7 @@ import {
   originator,
   publicDay,
   resolveStatus,
+  stateFileSchema,
   topicId,
   transitionError,
   type Item,
@@ -291,7 +292,8 @@ test("拒绝指向私有报告的 related（draft 与不存在的也不行）", 
   assert.ok(msg, errs.join("\n"));
   // 报错要指出日期文件、topic id 和 slug，并说明怎么修
   assert.ok(msg.startsWith(`daily/2026/10/18/topics.yml: topics[0]（${t.topics[0].id}）`), msg);
-  assert.match(msg, /修复：在主克隆里修改 daily\/2026\/10\/18\/topics\.yml.*regenerate/);
+  // 先 regenerate（artifact 保留期内），做不到才由所有者在主克隆里手改（内容通道）
+  assert.match(msg, /修复：先在 items artifact 的 30 天保留期内用 workflow_dispatch（date=2026-10-18，regenerate）.*；做不到时，只能由所有者在主克隆里删除或改正 daily\/2026\/10\/18\/topics\.yml 里的这个 topic，作为内容通道的提交$/);
   // 标签不再公开时同样失败即拒绝
   const t2 = readTopics(done);
   t2.topics[0].novelty.related = ["glamsterdam-overview"];
@@ -602,6 +604,141 @@ test("state.yml 的不变量：id 必须存在、linked 的报告必须存在（
   const r = rh(root, "daily", "check", "--base", "HEAD");
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /不允许 linked → selected/);
+});
+
+// ───────────────────────── rh topic（WHI-1935） ─────────────────────────
+
+/** 目录里所有文件的相对路径与内容（排除 skip 里的路径）。 */
+function tree(dir: string, skip: string[] = []): Record<string, string> {
+  const out: Record<string, string> = {};
+  const walk = (rel: string) => {
+    for (const n of readdirSync(join(dir, rel)).sort()) {
+      const r = rel ? `${rel}/${n}` : n;
+      if (skip.includes(r) || r === ".git") continue;
+      if (statSync(join(dir, r)).isDirectory()) walk(r);
+      else out[r] = readFileSync(join(dir, r), "utf8");
+    }
+  };
+  walk("");
+  return out;
+}
+
+const readState = (root: string) => readFileSync(join(root, "daily", "state.yml"), "utf8");
+const commitAll = (root: string, m: string) => execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@example.com", "-c", "commit.gpgsign=false", "commit", "-qam", m], { cwd: root });
+const gitAdd = (root: string) => execFileSync("git", ["add", "-A"], { cwd: root });
+
+test("rh topic select：只写 daily/state.yml，不写 vault、不建报告；打印起草材料；重复执行不改动", () => {
+  const vault = mkTmp("rh-vault-");
+  mkdirSync(join(vault, "Research Briefs"));
+  writeFileSync(join(vault, "Research Briefs", "existing.md"), "# existing\n");
+  const root = makeRoot({ vaultDir: vault });
+  assert.equal(rh(root, "daily", "import", DATE, ...ingestInputs(), "--candidate", CANDIDATE).code, 0);
+  const t = readTopics(root).topics[0];
+  const repoBefore = tree(root);
+  const vaultBefore = tree(vault);
+
+  const r = rh(root, "topic", "select", t.id);
+  assert.equal(r.code, 0, r.out);
+  // 起草材料：标题、why now、研究问题、角度、引用链接
+  for (const s of [t.title, t.why_now, ...t.questions, t.angle]) assert.ok(r.out.includes(s), s);
+  const item = readTopics(root).items[t.references.find((x: { item_id?: string }) => x.item_id).item_id];
+  assert.ok(r.out.includes(item.url), item.url);
+  assert.match(r.out, /没有写 vault，也没有建报告/);
+
+  // 只多了 daily/state.yml：vault 与 reports/ 都没变
+  assert.deepEqual(tree(root, ["daily/state.yml"]), repoBefore);
+  assert.deepEqual(tree(vault), vaultBefore);
+  const state = parse(readState(root));
+  assert.deepEqual(state, { schema: 1, topics: { [t.id]: { state: "selected", at: state.topics[t.id].at } } });
+  assert.equal(stateFileSchema.safeParse(state).success, true);
+
+  // 幂等：字节不变（at 不会被今天覆盖）
+  const text = readState(root);
+  const again = rh(root, "topic", "select", t.id);
+  assert.equal(again.code, 0, again.out);
+  assert.match(again.out, /没有改动/);
+  assert.equal(readState(root), text);
+  assert.equal(rh(root, "daily", "check").code, 0);
+
+  // 不存在的 id、格式不对的 id
+  assert.equal(rh(root, "topic", "select", "2026-10-18-ffffff").code, 1);
+  assert.equal(rh(root, "topic", "select", "not-an-id").code, 2);
+  assert.equal(readState(root), text);
+});
+
+test("rh topic dismiss / link：重复执行不改动；link 需要报告存在；每一步都能通过 rh daily check --base", () => {
+  const root = importedRoot();
+  const [a, b, c] = readTopics(root).topics.map((t: { id: string }) => t.id);
+  gitRepo(root);
+  const step = (args: string[], code = 0) => {
+    const r = rh(root, "topic", ...args);
+    assert.equal(r.code, code, `${args.join(" ")}\n${r.out}`);
+    return r.out;
+  };
+  const checkBase = () => {
+    const r = rh(root, "daily", "check", "--base", "HEAD");
+    assert.equal(r.code, 0, r.out);
+    gitAdd(root);
+    commitAll(root, "step");
+  };
+
+  // dismiss：要有理由；重复执行不改动（保留原理由）
+  step(["dismiss", a], 2);
+  step(["dismiss", a, "--reason", "纯行情"]);
+  checkBase();
+  const dismissed = readState(root);
+  assert.match(step(["dismiss", a, "--reason", "纯行情"]), /没有改动/);
+  step(["dismiss", a, "--reason", "换个说法"]);
+  assert.equal(readState(root), dismissed);
+  // dismissed 的 topic 不能直接 link，可以重新 select
+  step(["link", a, "glamsterdam-overview"], 1);
+
+  // link：必须先 select；报告必须存在（draft 也可以）
+  step(["link", b, "draft-report"], 1);
+  step(["select", b]);
+  checkBase();
+  const selected = readState(root);
+  const missing = rh(root, "topic", "link", b, "no-such-report");
+  assert.equal(missing.code, 1, missing.out);
+  assert.match(missing.out, /报告 no-such-report 不存在/);
+  assert.equal(readState(root), selected);
+  step(["link", b, "draft-report"]);
+  checkBase();
+  const linked = readState(root);
+  assert.match(step(["link", b, "draft-report"]), /没有改动/);
+  assert.equal(readState(root), linked);
+  // linked 是终态：不能改关联、不能 select / dismiss
+  assert.match(step(["link", b, "glamsterdam-overview"], 1), /不能改 link/);
+  step(["select", b], 1);
+  step(["dismiss", b, "--reason", "x"], 1);
+  assert.equal(readState(root), linked);
+
+  // dismissed → selected；selected → dismissed
+  step(["select", a]);
+  step(["select", c]);
+  step(["dismiss", c, "--reason", "和已有报告重复"]);
+  checkBase();
+  const s = parse(readState(root)).topics;
+  assert.deepEqual([s[a].state, s[b].state, s[b].report, s[c].state, s[c].reason], ["selected", "linked", "draft-report", "dismissed", "和已有报告重复"]);
+});
+
+test("rh daily import --regenerate 保留人工状态：state.yml 一个字节都不变，check 仍通过", () => {
+  const root = importedRoot();
+  const [a, b, c] = readTopics(root).topics.map((t: { id: string }) => t.id);
+  assert.equal(rh(root, "topic", "select", a).code, 0);
+  assert.equal(rh(root, "topic", "select", b).code, 0);
+  assert.equal(rh(root, "topic", "link", b, "glamsterdam-overview").code, 0);
+  assert.equal(rh(root, "topic", "dismiss", c, "--reason", "纯行情").code, 0);
+  const state = readState(root);
+  gitRepo(root);
+  // 措辞变了的重新生成：引用不变，所以 id 不变
+  const cand = candidate((d) => d.topics.forEach((t) => (t.title = `${t.title}（重写）`)));
+  const r = rh(root, "daily", "import", DATE, ...ingestInputs({ run: { id: "18700000009", attempt: 2, at: "2026-10-18T05:00:00.000Z" } }), "--candidate", cand, "--regenerate");
+  assert.equal(r.code, 0, r.out);
+  assert.ok(readTopics(root).topics[0].title.endsWith("（重写）"));
+  assert.equal(readState(root), state);
+  const chk = rh(root, "daily", "check", "--base", "HEAD", "--workflow");
+  assert.equal(chk.code, 0, chk.out);
 });
 
 // ───────────────────────── 公开投影与泄漏指纹 ─────────────────────────
