@@ -46,7 +46,7 @@ const refs = topic.references.map((r) => {
     note: r.note,
   };
 });
-const tags = topic.tags.map((k) => ({ key: k, label: view.tags[k]?.label, linked: Object.hasOwn(view.tags, k) }));
+const tags = topic.tags.map((k) => ({ key: k, label: view.tags[k]?.label, label_en: view.tags[k]?.label_en, linked: Object.hasOwn(view.tags, k) }));
 const related = topic.novelty.related.flatMap((s) => view.find(s) ?? []);
 ---
 <article class="topic" id={topic.id}>
@@ -71,7 +71,7 @@ const related = topic.novelty.related.flatMap((s) => view.find(s) ?? []);
   {
     (tags.length > 0 || topic.proposed_tags.length > 0) && (
       <div class="tags">
-        {tags.map((t) => (t.linked ? <a class="tag" href={`/tags/${t.key}/`}>{t.label ?? t.key}</a> : <span class="tag">{t.key}</span>))}
+        {tags.map((t) => (t.linked ? <a class="tag" href={`/tags/${t.key}/`} data-en={t.label_en}>{t.label ?? t.key}</a> : <span class="tag">{t.key}</span>))}
         {topic.proposed_tags.map((k) => <span class="tag tag-proposed">{k}</span>)}
       </div>
     )

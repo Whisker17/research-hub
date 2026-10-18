@@ -85,7 +85,8 @@ export const metaSchema = z
 export type Meta = z.infer<typeof metaSchema>;
 
 /**
- * 标签登记表 tags.yml：键是标签 slug，值是展示名与可选的描述（ADR 0003 §6）。
+ * 标签登记表 tags.yml：键是标签 slug，值是展示名（label 中文；label_en 可选，英文界面用它，缺失时回退 label）
+ * 与可选的描述（ADR 0003 §6）。
  * 描述只在标签被 public + published 报告用到时才出现在公开站点；其余标签的描述是公开产物的泄漏指纹。
  */
 export const tagsFileSchema = z.strictObject({
@@ -93,6 +94,7 @@ export const tagsFileSchema = z.strictObject({
     slug,
     z.strictObject({
       label: z.string().trim().min(1),
+      label_en: z.string().trim().min(1).optional(),
       description: z.string().trim().min(1).optional(),
       description_en: z.string().trim().min(1).optional(),
     }),

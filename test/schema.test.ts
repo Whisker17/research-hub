@@ -139,3 +139,42 @@ test("rh tags add 写回 tags.yml 时保留已有标签的描述", () => {
     zk: { label: "零知识" },
   });
 });
+
+test("tags.yml：label_en 可选（WHI-1943）；旧文件仍合法；空的 label_en 被拒绝", () => {
+  assert.deepEqual(tagIssues({ tags: { dex: { label: "去中心化交易所" } } }), [], "旧格式");
+  assert.deepEqual(tagIssues({ tags: { dex: { label: "去中心化交易所", label_en: "DEX" } } }), []);
+  assert.ok(tagIssues({ tags: { dex: { label: "去中心化交易所", label_en: "  " } } }).some((s) => s.startsWith("tags.dex.label_en")));
+  // 仓库里的 tags.yml 照常通过
+  assert.deepEqual(loadTags(join(import.meta.dirname, "..")).issues, []);
+});
+
+test("rh tags add --label-en / set / list：label_en 写入、替换、列出；写回保留其他字段（WHI-1943）", () => {
+  const root = tmpRoot();
+  writeFileSync(join(root, "tags.yml"), stringify({ tags: { dex: { label: "去中心化交易所", description: "描述", description_en: "Description" }, meme: { label: "Meme" } } }));
+  cmdTags(cfgFor(root), ["add", "zk", "--label", "零知识", "--label-en", "  Zero knowledge "]);
+  cmdTags(cfgFor(root), ["set", "dex", "--label-en", "DEX"]);
+  cmdTags(cfgFor(root), ["set", "zk", "--label-en", "ZK proofs"]);
+  const { tags, issues } = loadTags(root);
+  assert.deepEqual(issues, []);
+  assert.deepEqual(tags, {
+    dex: { label: "去中心化交易所", label_en: "DEX", description: "描述", description_en: "Description" },
+    meme: { label: "Meme" },
+    zk: { label: "零知识", label_en: "ZK proofs" },
+  });
+  const lines: string[] = [];
+  const log = console.log;
+  console.log = (m: string) => lines.push(m);
+  try {
+    cmdTags(cfgFor(root), ["list"]);
+  } finally {
+    console.log = log;
+  }
+  assert.deepEqual(lines.map((l) => l.replace(/\s+/g, " ").replace(/\x1b\[[0-9;]*m/g, "").trim()), ["dex 去中心化交易所 / DEX 0 篇", "meme Meme 0 篇", "zk 零知识 / ZK proofs 0 篇"]);
+  // 错误：未登记的标签、空的英文名、缺 --label-en；都不改 tags.yml
+  const before = loadTags(root).tags;
+  assert.throws(() => cmdTags(cfgFor(root), ["set", "nope", "--label-en", "X"]), /没有登记/);
+  assert.throws(() => cmdTags(cfgFor(root), ["set", "dex", "--label-en", " "]), /不能为空/);
+  assert.throws(() => cmdTags(cfgFor(root), ["set", "dex"]), CliError);
+  assert.throws(() => cmdTags(cfgFor(root), ["add", "evm", "--label", "EVM", "--label-en", ""]), /不能为空/);
+  assert.deepEqual(loadTags(root).tags, before);
+});

@@ -11,7 +11,7 @@ research-hub 存放 AI 生成的研究报告，并把它们发布成手机友好
 - **默认私有**：`rh new` / `rh import` 默认 `visibility: private`；只有用户明确要求才设为 `public`。Daily 推荐是公开的（所有者决定），但从它建出的报告仍默认 private。
 - **私有站点已启用**：Cloudflare Access（Cloudflare 账号成员 + Email domain mantle.xyz），Worker 再校验 JWT 与白名单 `demiwhisker@gmail.com,@mantle.xyz`。工作类内容（`domain: work`）一律 private。
 - **论断台账**：原生报告的 `research/ledger.md` 必须有一张“论断 | 证据 | 类型”表，类型只能是 observed / inferred / speculative。explainer 里的每个论断都要在台账里有一行。
-- **标签**：先 `rh tags list` 看已有标签，不要登记同义词；新标签用 `rh tags add <key> --label <展示名>`。
+- **标签**：先 `rh tags list` 看已有标签，不要登记同义词；新标签用 `rh tags add <key> --label <展示名> --label-en <英文名>`（英文界面显示英文名，缺失时回退展示名；已有标签用 `rh tags set <key> --label-en <英文名>` 补上）。
 - **手机适配**：不要往报告 HTML 里注入 CSS 补丁。手机检查不过就修源头（answer-me-with-html 或原仓库的构建脚本）。
 - **已发布报告不自动重新渲染**；需要时 `rh render <slug> --force`。
 - **中英文双语发布**：新报告统一中英文双版一起发。中文写 `explainer.md`，英文写 `explainer.en.md` 并在 `meta.yml` 中填写 `title_en` 与 `summary_en`。英文版需启动 `sol` subagent（`mantle/gpt-6.1-sol`）进行 Review 和 double check，双方就专业术语、论断定性与图文布局交互协商达成一致后再渲染；`rh render <slug>` 与 `rh check <slug>` 自动处理双语输出（`/r/<slug>/` 与 `/r/<slug>/en/`）。

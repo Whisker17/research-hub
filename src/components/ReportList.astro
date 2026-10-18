@@ -19,7 +19,7 @@ interface Props {
   /** 显示左栏、筛选框、排序与时间范围 */
   filters?: boolean;
   domains?: { key: string; label: string; count: number }[];
-  tags?: { key: string; label: string; count: number }[];
+  tags?: { key: string; label: string; label_en?: string; count: number }[];
   /** 标签链接的前缀（见 ReportCard）；不给时标签只是文字 */
   tagBase?: string;
   showVisibility?: boolean;
@@ -72,7 +72,7 @@ const ranges: { v: string; k: I18nKey }[] = [
             <div class="rail-group" role="group" aria-label={t("zh", "tagGroup")} data-i18n-attr="aria-label:tagGroup">
               <h2 class="rail-h"><T k="tagGroup" /></h2>
               {tags.map((t) => (
-                <button class="rail-item" type="button" data-filter="tag" data-value={t.key} data-label={t.label} aria-pressed="false"><span>{t.label}</span><span class="n">{t.count}</span></button>
+                <button class="rail-item" type="button" data-filter="tag" data-value={t.key} data-label={t.label} data-label-en={t.label_en} aria-pressed="false"><span data-en={t.label_en}>{t.label}</span><span class="n">{t.count}</span></button>
               ))}
             </div>
           )}
@@ -128,7 +128,7 @@ const ranges: { v: string; k: I18nKey }[] = [
           for (const b of root.querySelectorAll("[data-filter]")) {
             const on = state[b.dataset.filter] === b.dataset.value;
             b.setAttribute("aria-pressed", String(on));
-            if (on && b.dataset.label) labels.push(b.dataset.label);
+            if (on && b.dataset.label) labels.push((window.rhI18n.lang === "en" && b.dataset.labelEn) || b.dataset.label);
           }
           if (active) active.textContent = labels.length ? ` · ${labels.join(" · ")}` : "";
           // 只在值实际不同（URL 参数、清空）时回写；比较时去掉首尾空白，否则输入的空格会被立刻吞掉
@@ -171,6 +171,8 @@ const ranges: { v: string; k: I18nKey }[] = [
           state[key] = key === "tag" && state.tag === b.dataset.value ? "" : b.dataset.value;
           apply();
         });
+        // 已选标签的名字跟着语言切换（英文名缺失时回退中文）
+        window.addEventListener("rh:langchange", sync);
         q?.addEventListener("input", () => {
           state.q = q.value.trim();
           apply();

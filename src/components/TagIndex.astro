@@ -29,7 +29,7 @@ const tagBase = site === "private" ? "/p/tags/" : "/tags/";
           <li>
             <a class="tag-card" href={`${tagBase}${tag.key}/`} data-tag={tag.key}>
               <span class="tag-card-head">
-                <span class="tag-card-name">{tag.label}</span>
+                <span class="tag-card-name" data-en={tag.label_en}>{tag.label}</span>
                 <span class="n"><T k="nShort" vars={{ n: tag.count }} /></span>
               </span>
               {tag.description && <span class="tag-card-desc" data-en={tag.description_en}>{tag.description}</span>}

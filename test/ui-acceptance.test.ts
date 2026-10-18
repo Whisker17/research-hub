@@ -6,6 +6,7 @@
  *    没有加载失败的字体；首页 / 私有索引的“无结果”、空站点的“空列表”与 Daily 空状态；
  *  - 报告外壳（am 页面与普通导入页面、中英文、没有英文版的报告）：返回链接在文档流里、没被遮住、指向本站索引；
  *    语言切换只显示一份，切换时保留锚点，写入索引页也在读的 localStorage.rh_lang；卡片模式；锚点；
+ *  - 标签名（WHI-1943）：英文模式用 tags.yml 的 label_en，缺失时回退 label；中文模式与没有脚本时是 label；
  *  - 两站所有页面里的站内链接与资源经 HTTP 请求都是 200；
  *  - 报告 HTML 除注入的 data-rh-* 外壳之外与源文件逐字相同（夹具与仓库里的真实报告都查）。
  *
@@ -90,7 +91,18 @@ function repoCopy(prefix: string, publicUrl: string, privateUrl: string): string
   symlinkSync(join(REPO, "node_modules"), join(dir, "node_modules"));
   const cfg = JSON.parse(readFileSync(join(REPO, "rh.config.json"), "utf8"));
   writeFileSync(join(dir, "rh.config.json"), JSON.stringify({ ...cfg, publicUrl, privateUrl }, null, 2));
-  writeFileSync(join(dir, "tags.yml"), stringify({ tags: { dex: { label: "DEX", description: "去中心化交易所。", description_en: "Decentralized exchanges." }, amm: { label: "AMM" }, ethereum: { label: "Ethereum" }, "secret-tag": { label: "Secret" } } }));
+  // 标签名：dex 没有 label_en（英文模式回退 label），其余中英文不同（WHI-1943）
+  writeFileSync(
+    join(dir, "tags.yml"),
+    stringify({
+      tags: {
+        dex: { label: "DEX", description: "去中心化交易所。", description_en: "Decentralized exchanges." },
+        amm: { label: "自动做市商", label_en: "AMM" },
+        ethereum: { label: "以太坊", label_en: "Ethereum" },
+        "secret-tag": { label: "私密标签", label_en: "Secret tag SECRETEN" },
+      },
+    }),
+  );
   return dir;
 }
 
@@ -447,6 +459,75 @@ test("浏览器：语言切换保留锚点并写入索引页也在读的 rh_lang
     assert.equal(await o.page.evaluate(async () => (await navigator.clipboard.read())[0].types.includes("image/png")), true);
     assert.deepEqual(o.errors, []);
     await o.page.close();
+  } finally {
+    await browser.close();
+  }
+});
+
+/** 夹具的标签名：[中文, 英文模式应显示的名字]；secret-tag 只被私有报告用到 */
+const TAG_NAMES: Record<string, [string, string]> = { dex: ["DEX", "DEX"], amm: ["自动做市商", "AMM"], ethereum: ["以太坊", "Ethereum"], "secret-tag": ["私密标签", "Secret tag SECRETEN"] };
+
+/** 页面上文字恰好是某个标签名（任一语言）的叶子元素的文字，以及页面标题、已选标签。 */
+const tagTexts = (p: Page, names: string[]) =>
+  p.evaluate((all: string[]) => {
+    const set = new Set(all);
+    const leaves = [...document.body.querySelectorAll("*")].filter((e) => e.children.length === 0 && set.has(e.textContent?.trim() ?? "")).map((e) => e.textContent!.trim());
+    return { leaves, title: document.title, active: document.querySelector("[data-active]")?.textContent ?? null };
+  }, names);
+
+test("浏览器：标签名在英文模式用 label_en（缺失回退 label），中文模式与没有脚本时是 label；两站；私有标签的名字不进公开站点（WHI-1943）", { skip: noChrome }, async () => {
+  const P = pubSite.origin;
+  const Q = privSite.origin;
+  const all = Object.values(TAG_NAMES).flat();
+  // [地址, 本页应出现的标签键, 页面标题里的标签, ?tag= 选中的标签]
+  const pages: [string, string[], string?, string?][] = [
+    [`${P}/`, ["dex", "amm", "ethereum"]],
+    [`${P}/?tag=amm`, ["dex", "amm", "ethereum"], undefined, "amm"],
+    [`${P}/tags/`, ["dex", "amm", "ethereum"]],
+    [`${P}/tags/amm/`, ["amm", "dex"], "amm"],
+    [`${P}/tags/dex/`, ["dex", "amm"], "dex"],
+    [`${P}/2026/10/`, ["dex", "amm"]],
+    [`${P}/daily/2026-10-18/`, ["ethereum"]],
+    [`${Q}/p/`, ["dex", "amm", "ethereum", "secret-tag"]],
+    [`${Q}/p/?tag=secret-tag`, ["dex", "amm", "ethereum", "secret-tag"], undefined, "secret-tag"],
+    [`${Q}/p/tags/`, ["dex", "amm", "ethereum", "secret-tag"]],
+    [`${Q}/p/tags/secret-tag/`, ["secret-tag", "dex"], "secret-tag"],
+    [`${Q}/p/tags/dex/`, ["dex", "amm", "secret-tag"], "dex"],
+  ];
+  const browser = await launchBrowser();
+  try {
+    for (const lang of ["zh", "en"] as const) {
+      const i = lang === "zh" ? 0 : 1;
+      const o = await open(browser, { width: 1440, dark: false, lang });
+      for (const [url, keys, titleTag, active] of pages) {
+        const where = `${url} ${lang}`;
+        await goto(o, url);
+        const m = await tagTexts(o.page, all);
+        assert.deepEqual(o.errors, [], where);
+        // 每个渲染出来的标签名都是本语言的名字；本页应有的标签都出现了；公开站点没有私有标签
+        const want = keys.map((k) => TAG_NAMES[k][i]);
+        assert.deepEqual([...new Set(m.leaves)].sort(), [...new Set(want)].sort(), where);
+        if (titleTag) assert.equal(m.title, `${t(lang, "tagTitle", { label: TAG_NAMES[titleTag][i] })} · Research Hub`, `${where}：页面标题`);
+        if (active) assert.equal(m.active, ` · ${TAG_NAMES[active][i]}`, `${where}：已选标签`);
+      }
+      await o.page.close();
+    }
+    // 运行时切换：中文 → 英文，已选标签与所有标签名跟着换
+    const o = await open(browser, { width: 390, dark: false, lang: "zh" });
+    await goto(o, `${Q}/p/?tag=amm`);
+    await o.page.click("[data-rh-lang]");
+    const m = await tagTexts(o.page, all);
+    assert.deepEqual([[...new Set(m.leaves)].sort(), m.active], [["AMM", "DEX", "Ethereum", "Secret tag SECRETEN"], " · AMM"], "切换到英文");
+    await o.page.close();
+    // 没有脚本：服务端渲染的是默认语言（中文）
+    const nojs = await open(browser, { width: 1440, dark: false });
+    await nojs.page.setJavaScriptEnabled(false);
+    for (const url of [`${P}/`, `${P}/tags/amm/`, `${Q}/p/tags/`]) {
+      await nojs.page.goto(url, { waitUntil: "load" });
+      const leaves = (await tagTexts(nojs.page, all)).leaves;
+      assert.ok(leaves.length > 0 && leaves.every((l) => Object.values(TAG_NAMES).some(([zh]) => zh === l)), `${url} 没有脚本：${leaves}`);
+    }
+    await nojs.page.close();
   } finally {
     await browser.close();
   }

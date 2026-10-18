@@ -15,7 +15,7 @@ interface Props {
   showVisibility?: boolean;
 }
 const { card, tagBase, showVisibility = false } = Astro.props;
-const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.summary_en ?? ""} ${card.tags.map((t) => `${t.key} ${t.label}`).join(" ")}`.toLowerCase();
+const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.summary_en ?? ""} ${card.tags.map((t) => `${t.key} ${t.label} ${t.label_en ?? ""}`).join(" ")}`.toLowerCase();
 const ledgerTitle = card.ledger && `observed ${card.ledger.observed} · inferred ${card.ledger.inferred} · speculative ${card.ledger.speculative}`;
 ---
 <article
@@ -45,7 +45,7 @@ const ledgerTitle = card.ledger && `observed ${card.ledger.observed} · inferred
   {
     card.tags.length > 0 && (
       <div class="tags">
-        {card.tags.map((t) => (tagBase ? <a class="tag" href={`${tagBase}${t.key}/`}>{t.label}</a> : <span class="tag">{t.label}</span>))}
+        {card.tags.map((t) => (tagBase ? <a class="tag" href={`${tagBase}${t.key}/`} data-en={t.label_en}>{t.label}</a> : <span class="tag" data-en={t.label_en}>{t.label}</span>))}
       </div>
     )
   }
