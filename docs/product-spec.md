@@ -107,12 +107,18 @@ tags.yml                     ← 标签登记表
 
 ## 5. 站点
 
-- **框架**：Astro 静态站。报告 HTML 原样作为静态资源发布；Astro 只生成索引页和归档页，并校验 meta。
+- **框架**：Astro 静态站。报告 HTML 原样作为静态资源发布；Astro 只生成索引页和归档页，并校验 meta。不引入客户端框架 bundle，只用 `is:inline` 小脚本。
+- **0.1.0 改版**（paperswithcode 风格）：只改索引页、注入的站点外壳和 `rh build` 的分发，已发布报告不重新渲染。页面集合、资源归属、保留路由名与公开规则见 [decisions/0003](decisions/0003-index-redesign-scope-routes-publishing.md)。
 - **路由**：
   - `/`：公开索引，**只列 public 报告**，按 `updated` 倒序，可按 domain 和 tag 筛选，卡片显示创建与更新日期。
-  - `/tags/<tag>`、`/YYYY/MM`：归档页。
+  - `/tags/<tag>`、`/YYYY/MM`：归档页。公开站点的标签、月份、计数等派生数据只来自 public 报告。
   - `/r/<slug>`：公开报告，全站 `noindex`。
   - `/p/`、`/p/<slug>`：私有索引（列出全部报告）与私有报告，由 Cloudflare Access 保护。**实现时放在单独的私有 Worker 域名上**（workers.dev 的 Access 只能按整个域名开启），详见 [decisions/0001](decisions/0001-site-architecture.md)。
+  - `/p/tags/<tag>`：私有标签页（0.1.0 新增）。
+  - `/daily/`、`/daily/<date>`：公开的 Daily Topics（0.1.0 新增，设计见 ADR 0004）。
+  - 保留路由名：报告 slug 不能是 `daily`、`tags`、`archive`、`fonts`、`about` 或纯数字；`rh new` 与 `rh check` 拒绝。
+- **标签描述**：`tags.yml` 的每个标签可选填 `description` / `description_en`，显示在标签页上；只有被 public 报告用到的标签，描述才会出现在公开站点。
+- **静态资源**：字体（自托管拉丁子集）、`favicon.svg`、`404.html` 两站共享；报告的图片、卡片图和缩略图只进报告所在的站点。
 - **返回导航**：构建时在报告的输出副本里注入一个 "← Research Hub" 链接。它在文档流里，不用 fixed，也不改样式，源文件不动。不用 iframe 外壳。
 - **语言切换**：有英文版的报告，构建时在右上角（am 工具栏开头；窄屏在返回链接一行的右侧）注入“中文 / EN”切换。切换时保留锚点，并写入与首页共用的 `localStorage.rh_lang`。
 - **推特卡片模式**：报告有 `card.png` 时，构建时在 am 阅读路径（5 分钟 / 30 分钟 / 完整）后面注入“推特卡片”模式：显示推文文案与卡片图、“复制文案”“复制图片”（Clipboard API 写入文本 / PNG）和源推文链接。卡片与推文只有英文版（推特统一用英文发），中英文页共用，卡片图复制到 `<slug>/card.png` 与 `<slug>/en/card.png`。卡片以中立研究者口吻写，尽量不提 Mantle（`cardAvoidTerms`），页脚是日期与水印（`cardHandle`）。详见 [decisions/0002](decisions/0002-lang-toggle-and-tweet-card.md)。
@@ -146,6 +152,12 @@ tags.yml                     ← 标签登记表
 做：第 3–6 节的全部内容，以及 doc-hub 迁移。
 
 不做：视频讲解、全文搜索（v2 用 Pagefind）、评论、多语言、全自动流水线、自定义域名。
+
+### 7.1 0.1.0 范围（站点改版 + Daily Topics）
+
+做：索引站改版（首页、私有索引、标签页、私有标签页、月归档、报告外壳）与公开 Daily 页面，见 [decisions/0003](decisions/0003-index-redesign-scope-routes-publishing.md) 与 ADR 0004。
+
+不做：报告概览页（about）、独立的 `search.json` 与模糊搜索（⌘K 只聚焦现有筛选框）、重新渲染已发布报告、两个站点之间同步主题 / 语言偏好。
 
 ## 8. 迁移
 

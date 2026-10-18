@@ -3,13 +3,15 @@
 AI 研究报告的存放与发布：Obsidian 里的 brief → agent 调研（带论断台账）→ answer-me-with-html 图文页面 → 手机检查 → 发布到 Cloudflare。
 
 - 产品规格：[docs/product-spec.md](docs/product-spec.md)
-- 实现决定：[docs/decisions/0001-site-architecture.md](docs/decisions/0001-site-architecture.md)
+- 实现决定：[docs/decisions/](docs/decisions/)（[0001 站点架构](docs/decisions/0001-site-architecture.md)、[0002 语言切换与推特卡片](docs/decisions/0002-lang-toggle-and-tweet-card.md)、[0003 0.1.0 索引站改版的范围与发布边界](docs/decisions/0003-index-redesign-scope-routes-publishing.md)）
 - Agent 规则：[AGENTS.md](AGENTS.md)
 
 | 站点 | 地址 | 内容 |
 | --- | --- | --- |
 | 公开 | https://research-hub.demiwhisker.workers.dev | public 报告（`/r/<slug>/`）、标签、按月归档；全站 noindex |
 | 私有 | https://research-hub-private.demiwhisker.workers.dev/p/ | 全部已发布报告的索引、private 报告（`/p/<slug>/`）；Cloudflare Access + Worker 校验 JWT |
+
+0.1.0（开发中，[0003](docs/decisions/0003-index-redesign-scope-routes-publishing.md)）：索引页改版，私有站点新增标签页 `/p/tags/`，公开站点新增 Daily Topics `/daily/`。报告 slug 不能用保留名 `daily`、`tags`、`archive`、`fonts`、`about` 或纯数字；`tags.yml` 可选填 `description` / `description_en`（只有被公开报告用到的标签，描述才会公开）。
 
 ## 环境
 
