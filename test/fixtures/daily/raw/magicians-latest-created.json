@@ -1,0 +1,278 @@
+{
+"topic_list": {
+"more_topics_url": "/latest?no_definitions=true&order=created&page=1",
+"per_page": 30,
+"topics": [
+{
+"id": 29998,
+"title": "[Draft ERC] Swarm AI Framework — registry and charter model for purpose-bound agent swarms",
+"fancy_title": "[Draft ERC] Swarm AI Framework — registry and charter model for purpose-bound agent swarms",
+"slug": "draft-erc-swarm-ai-framework-registry-and-charter-model-for-purpose-bound-agent-swarms",
+"created_at": "2026-10-18T05:22:46.416Z",
+"last_posted_at": "2026-10-18T09:45:21.124Z",
+"pinned": false
+},
+{
+"id": 29995,
+"title": "Post-Quantum Stateless Steganography & MTU Bounds: Bridging P2P Censorship Resistance to Quantum Networks",
+"fancy_title": "Post-Quantum Stateless Steganography &amp; MTU Bounds: Bridging P2P Censorship Resistance to Quantum Networks",
+"slug": "post-quantum-stateless-steganography-mtu-bounds-bridging-p2p-censorship-resistance-to-quantum-networks",
+"created_at": "2026-10-17T16:13:25.137Z",
+"last_posted_at": "2026-10-17T16:13:25.302Z",
+"pinned": false
+},
+{
+"id": 29994,
+"title": "All Core Devs - Consensus (ACDC) #190, October 29, 2026",
+"fancy_title": "All Core Devs - Consensus (ACDC) #190, October 29, 2026",
+"slug": "all-core-devs-consensus-acdc-190-october-29-2026",
+"created_at": "2026-10-17T09:16:39.581Z",
+"last_posted_at": "2026-10-17T09:16:39.711Z",
+"pinned": false
+},
+{
+"id": 29991,
+"title": "Dividend-paying equity token",
+"fancy_title": "Dividend-paying equity token",
+"slug": "dividend-paying-equity-token",
+"created_at": "2026-10-17T01:22:08.105Z",
+"last_posted_at": "2026-10-17T01:22:08.318Z",
+"pinned": false
+},
+{
+"id": 29989,
+"title": "ERC-8420: AA-Compatible Solver",
+"fancy_title": "ERC-8420: AA-Compatible Solver",
+"slug": "erc-8420-aa-compatible-solver",
+"created_at": "2026-10-16T08:23:04.596Z",
+"last_posted_at": "2026-10-16T08:23:04.780Z",
+"pinned": false
+},
+{
+"id": 29982,
+"title": "EIP-8442: 64-bit Opcodes for the EVM",
+"fancy_title": "EIP-8442: 64-bit Opcodes for the EVM",
+"slug": "eip-8442-64-bit-opcodes-for-the-evm",
+"created_at": "2026-10-15T22:25:30.254Z",
+"last_posted_at": "2026-10-18T07:01:14.221Z",
+"pinned": false
+},
+{
+"id": 29981,
+"title": "Execution batches of multiple blocks under EIP-7732",
+"fancy_title": "Execution batches of multiple blocks under EIP-7732",
+"slug": "execution-batches-of-multiple-blocks-under-eip-7732",
+"created_at": "2026-10-15T15:34:47.319Z",
+"last_posted_at": "2026-10-15T15:34:47.576Z",
+"pinned": false
+},
+{
+"id": 29970,
+"title": "P2P networking #10 October 21, 2026",
+"fancy_title": "P2P networking #10 October 21, 2026",
+"slug": "p2p-networking-10-october-21-2026",
+"created_at": "2026-10-14T12:08:30.091Z",
+"last_posted_at": "2026-10-14T12:08:30.214Z",
+"pinned": false
+},
+{
+"id": 29969,
+"title": "ERC-8443: Quantum Bridge Shield",
+"fancy_title": "ERC-8443: Quantum Bridge Shield",
+"slug": "erc-8443-quantum-bridge-shield",
+"created_at": "2026-10-14T11:36:14.311Z",
+"last_posted_at": "2026-10-15T17:18:17.347Z",
+"pinned": false
+},
+{
+"id": 29963,
+"title": "ERC-8444: Agentic Resource Discovery (ARD) Onchain",
+"fancy_title": "ERC-8444: Agentic Resource Discovery (ARD) Onchain",
+"slug": "erc-8444-agentic-resource-discovery-ard-onchain",
+"created_at": "2026-10-13T20:12:25.784Z",
+"last_posted_at": "2026-10-16T13:50:32.494Z",
+"pinned": false
+},
+{
+"id": 29961,
+"title": "Frame Transaction Breakout #7, Oct 20, 2026",
+"fancy_title": "Frame Transaction Breakout #7, Oct 20, 2026",
+"slug": "frame-transaction-breakout-7-oct-20-2026",
+"created_at": "2026-10-13T15:35:03.139Z",
+"last_posted_at": "2026-10-13T15:35:03.266Z",
+"pinned": false
+},
+{
+"id": 29957,
+"title": "All Core Devs - Testing (ACDT) #101, October 19, 2026",
+"fancy_title": "All Core Devs - Testing (ACDT) #101, October 19, 2026",
+"slug": "all-core-devs-testing-acdt-101-october-19-2026",
+"created_at": "2026-10-12T15:28:05.011Z",
+"last_posted_at": "2026-10-12T23:50:51.244Z",
+"pinned": false
+},
+{
+"id": 29956,
+"title": "EIP Editing Office Hour (EIP + ERC ) Meeting #116, October 14, 2026",
+"fancy_title": "EIP Editing Office Hour (EIP + ERC ) Meeting #116, October 14, 2026",
+"slug": "eip-editing-office-hour-eip-erc-meeting-116-october-14-2026",
+"created_at": "2026-10-12T15:02:20.877Z",
+"last_posted_at": "2026-10-12T15:02:21.034Z",
+"pinned": false
+},
+{
+"id": 29953,
+"title": "L1-zkEVM breakout #09, October 14, 2026",
+"fancy_title": "L1-zkEVM breakout #09, October 14, 2026",
+"slug": "l1-zkevm-breakout-09-october-14-2026",
+"created_at": "2026-10-12T12:40:09.096Z",
+"last_posted_at": "2026-10-14T19:34:13.066Z",
+"pinned": false
+},
+{
+"id": 29952,
+"title": "FOCIL Breakout #44, October 13, 2026",
+"fancy_title": "FOCIL Breakout #44, October 13, 2026",
+"slug": "focil-breakout-44-october-13-2026",
+"created_at": "2026-10-12T09:59:38.000Z",
+"last_posted_at": "2026-10-13T15:11:58.032Z",
+"pinned": false
+},
+{
+"id": 29946,
+"title": "Private Stablecoin on Ethereum",
+"fancy_title": "Private Stablecoin on Ethereum",
+"slug": "private-stablecoin-on-ethereum",
+"created_at": "2026-10-12T00:24:52.051Z",
+"last_posted_at": "2026-10-13T11:36:24.728Z",
+"pinned": false
+},
+{
+"id": 29945,
+"title": "8415Wallet: an ERC-8415-based wallet, now available for beta testing",
+"fancy_title": "8415Wallet: an ERC-8415-based wallet, now available for beta testing",
+"slug": "8415wallet-an-erc-8415-based-wallet-now-available-for-beta-testing",
+"created_at": "2026-10-11T19:53:27.053Z",
+"last_posted_at": "2026-10-12T16:52:01.856Z",
+"pinned": false
+},
+{
+"id": 29937,
+"title": "All Core Devs - Execution (ACDE) #248, October 22, 2026",
+"fancy_title": "All Core Devs - Execution (ACDE) #248, October 22, 2026",
+"slug": "all-core-devs-execution-acde-248-october-22-2026",
+"created_at": "2026-10-10T09:18:40.895Z",
+"last_posted_at": "2026-10-12T00:35:03.260Z",
+"pinned": false
+},
+{
+"id": 29936,
+"title": "[Pre-ERC] Agent Service Order Amendments — ERC-8001 Profile",
+"fancy_title": "[Pre-ERC] Agent Service Order Amendments — ERC-8001 Profile",
+"slug": "pre-erc-agent-service-order-amendments-erc-8001-profile",
+"created_at": "2026-10-10T09:14:31.388Z",
+"last_posted_at": "2026-10-13T10:50:11.750Z",
+"pinned": false
+},
+{
+"id": 29934,
+"title": "EIP-8437: eth/73 - Proof wrapper propagation",
+"fancy_title": "EIP-8437: eth/73 - Proof wrapper propagation",
+"slug": "eip-8437-eth-73-proof-wrapper-propagation",
+"created_at": "2026-10-10T00:18:39.918Z",
+"last_posted_at": "2026-10-10T00:18:40.053Z",
+"pinned": false
+},
+{
+"id": 29930,
+"title": "EIP-8440: Execution Chain Proofs",
+"fancy_title": "EIP-8440: Execution Chain Proofs",
+"slug": "eip-8440-execution-chain-proofs",
+"created_at": "2026-10-09T16:50:11.043Z",
+"last_posted_at": "2026-10-09T16:50:11.202Z",
+"pinned": false
+},
+{
+"id": 29926,
+"title": "EIP-8247: Ancestor-Indexed BALs",
+"fancy_title": "EIP-8247: Ancestor-Indexed BALs",
+"slug": "eip-8247-ancestor-indexed-bals",
+"created_at": "2026-10-09T09:46:40.684Z",
+"last_posted_at": "2026-10-09T09:46:40.838Z",
+"pinned": false
+},
+{
+"id": 29923,
+"title": "ERC-8441: Hybrid post-quantum stealth address scheme",
+"fancy_title": "ERC-8441: Hybrid post-quantum stealth address scheme",
+"slug": "erc-8441-hybrid-post-quantum-stealth-address-scheme",
+"created_at": "2026-10-09T04:18:09.374Z",
+"last_posted_at": "2026-10-16T22:15:16.405Z",
+"pinned": false
+},
+{
+"id": 29920,
+"title": "EIP-8301: MATMUL Opcode - Sharded Tensor State Transition Engine",
+"fancy_title": "EIP-8301: MATMUL Opcode - Sharded Tensor State Transition Engine",
+"slug": "eip-8301-matmul-opcode-sharded-tensor-state-transition-engine",
+"created_at": "2026-10-08T15:26:53.031Z",
+"last_posted_at": "2026-10-08T15:26:53.277Z",
+"pinned": false
+},
+{
+"id": 29919,
+"title": "ERC-8439: Settlement-Decoupled Nanopayment Ledger",
+"fancy_title": "ERC-8439: Settlement-Decoupled Nanopayment Ledger",
+"slug": "erc-8439-settlement-decoupled-nanopayment-ledger",
+"created_at": "2026-10-08T04:02:06.827Z",
+"last_posted_at": "2026-10-08T04:02:07.051Z",
+"pinned": false
+},
+{
+"id": 29905,
+"title": "ERC-8438: Storage-Aware Beacon Proxies",
+"fancy_title": "ERC-8438: Storage-Aware Beacon Proxies",
+"slug": "erc-8438-storage-aware-beacon-proxies",
+"created_at": "2026-10-07T17:29:33.299Z",
+"last_posted_at": "2026-10-07T17:29:33.462Z",
+"pinned": false
+},
+{
+"id": 29903,
+"title": "All Core Devs - Testing (ACDT) #100, October 12, 2026",
+"fancy_title": "All Core Devs - Testing (ACDT) #100, October 12, 2026",
+"slug": "all-core-devs-testing-acdt-100-october-12-2026",
+"created_at": "2026-10-07T15:20:01.571Z",
+"last_posted_at": "2026-10-12T16:07:46.854Z",
+"pinned": false
+},
+{
+"id": 29902,
+"title": "P2P networking #9 October 07, 2026",
+"fancy_title": "P2P networking #9 October 07, 2026",
+"slug": "p2p-networking-9-october-07-2026",
+"created_at": "2026-10-07T14:32:12.440Z",
+"last_posted_at": "2026-10-07T20:07:38.238Z",
+"pinned": false
+},
+{
+"id": 29894,
+"title": "Ownership Module",
+"fancy_title": "Ownership Module",
+"slug": "ownership-module",
+"created_at": "2026-10-06T15:01:12.776Z",
+"last_posted_at": "2026-10-06T15:01:12.962Z",
+"pinned": false
+},
+{
+"id": 29893,
+"title": "The Invariant Boundary Theorem",
+"fancy_title": "The Invariant Boundary Theorem",
+"slug": "the-invariant-boundary-theorem",
+"created_at": "2026-10-06T12:54:06.188Z",
+"last_posted_at": "2026-10-06T12:54:06.337Z",
+"pinned": false
+}
+]
+}
+}
