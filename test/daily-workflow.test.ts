@@ -3,8 +3,8 @@
  * 与 scripts/daily-isolation.ts（generate job 的隔离自检：假网关的协议和判定）。全部离线：不联网、不调用 LLM。
  */
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { request } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -99,6 +99,46 @@ test("context.json 只有公开上下文：公开报告与标签、D−14..D−1
   assert.deepEqual(ctx.avoid_terms, ["Mantle"]);
   const text = JSON.stringify(ctx);
   for (const leak of ["secret-report", "secret-tag", "SITEFIXTURE", '"inputs_sha256"', '"sources"', '"run"', '"dropped"']) assert.ok(!text.includes(leak), `context.json 不能含 ${leak}`);
+});
+
+// R1-F1：私有 / draft 报告的 meta 一旦进了 context.json 就已经交给了模型，之后的检查撤不回来，所以打包必须失败即关闭
+const CANARY = { title: "PRIVATE CANARY TITLE", summary: "PRIVATE CANARY SUMMARY", title_en: "PRIVATE CANARY EN" };
+function addReport(root: string, ym: string, slug: string, over: Record<string, unknown>): void {
+  const dir = join(root, "reports", ...ym.split("-"), slug);
+  mkdirSync(dir, { recursive: true });
+  const day = `${ym}-01`;
+  writeFileSync(join(dir, "meta.yml"), stringify({ summary: "摘要", created: day, updated: day, changelog: [{ date: day, note: "导入" }], domain: "crypto", tags: ["ethereum"], kind: "imported", source_repo: "https://example.com/r", ...over }));
+}
+const day19 = (root: string) => join(root, "daily", "2026", "10", "19", "manifest.json");
+const packCli = (root: string, out: string) =>
+  spawnSync(process.execPath, [join(REPO, "scripts", "daily.ts"), "context", "--manifest", day19(root), "--out", out], { cwd: root, encoding: "utf8", env: { ...process.env, RH_ROOT: root } });
+
+for (const [name, over] of [
+  ["private", { status: "published", visibility: "private" }],
+  ["draft", { status: "draft", visibility: "public" }],
+] as const) {
+  test(`context：${name} 报告与公开报告同 slug（不同月份目录）→ 打包失败，任何输出都没有它的 meta`, () => {
+    const root = repo();
+    addReport(root, "2026-09", "glamsterdam-overview", { ...CANARY, ...over });
+    const manifest = manifestSchema.parse(JSON.parse(readFileSync(day19(root), "utf8")));
+    assert.throws(() => buildContext(root, manifest), (e: unknown) => e instanceof DailyError && /slug 与 .* 重复/.test((e as Error).message));
+    const out = join(mkTmp("rh-daily-ctx-"), "context.json");
+    const r = packCli(root, out);
+    assert.notEqual(r.status, 0, "context 必须非零退出");
+    assert.ok(!existsSync(out), "失败时不能写出 context.json");
+    for (const leak of Object.values(CANARY)) assert.ok(!`${r.stdout}${r.stderr}`.includes(leak), `输出不能含 ${leak}`);
+  });
+}
+
+test("context：正常夹具只打包 public + published 报告（public draft、private 都不进）", () => {
+  const root = repo();
+  addReport(root, "2026-09", "public-draft", { ...CANARY, status: "draft", visibility: "public" });
+  const out = join(mkTmp("rh-daily-ctx-"), "context.json");
+  const r = packCli(root, out);
+  assert.equal(r.status, 0, r.stderr);
+  const text = readFileSync(out, "utf8");
+  assert.deepEqual((JSON.parse(text).public_reports as { slug: string; title: string }[]).map((p) => [p.slug, p.title]), [["glamsterdam-overview", "glamsterdam-overview 标题"]]);
+  for (const leak of [...Object.values(CANARY), "public-draft", "secret-report"]) assert.ok(!text.includes(leak), `context.json 不能含 ${leak}`);
 });
 
 test("skill_version 与目录哈希：和评估 runner、references/input.md 的 shell 算法一致", () => {
