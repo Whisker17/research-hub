@@ -156,7 +156,7 @@ function toCard(r: Report, tags: TagRegistry, linkBase: string): Omit<CardData, 
     updated: r.meta.updated,
     domain: r.meta.domain,
     domainLabel: DOMAIN_LABELS[r.meta.domain],
-    tags: r.meta.tags.map((k) => ({ key: k, label: tags[k]?.label ?? k, label_en: tags[k]?.label_en })),
+    tags: r.meta.tags.map((k) => ({ key: k, ...tagName(tags, k) })),
     visibility: r.meta.visibility,
     href: `${base}${reportPath(r)}`,
     href_en: hasEn ? `${base}${reportEnPath(r)}` : undefined,
@@ -190,7 +190,13 @@ function usedTags(reports: Report[], tags: TagRegistry): TagCount[] {
   for (const r of reports) for (const t of r.meta.tags) count.set(t, (count.get(t) ?? 0) + 1);
   return [...count.entries()]
     .sort(([a, x], [b, y]) => y - x || a.localeCompare(b))
-    .map(([key, n]) => ({ key, label: tags[key]?.label ?? key, label_en: tags[key]?.label_en, count: n }));
+    .map(([key, n]) => ({ key, ...tagName(tags, key), count: n }));
+}
+
+/** 标签的展示名：label（未登记时用键）；有 label_en 时才带上这个字段。 */
+function tagName(tags: TagRegistry, key: string): { label: string; label_en?: string } {
+  const t = tags[key];
+  return t?.label_en ? { label: t.label, label_en: t.label_en } : { label: t?.label ?? key };
 }
 
 function usedDomains(reports: Report[]) {
