@@ -15,6 +15,7 @@ import { PATHS_HELP, cmdPaths } from "./commands/paths.ts";
 import { PUBLISH_HELP, cmdPublish } from "./commands/publish.ts";
 import { RENDER_HELP, cmdRender } from "./commands/render.ts";
 import { TAGS_HELP, cmdList, cmdTags } from "./commands/tags.ts";
+import { TOPIC_HELP, cmdTopic } from "./commands/topic.ts";
 import { CliError, fail } from "./lib/util.ts";
 
 const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
@@ -29,6 +30,7 @@ const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
   rh build                    构建 dist/public 与 dist/private，并做泄漏检查
   rh ingest --date <D>        Daily Topics：抓取并规范化日期 D 的条目（联网；BlockBeats 按账本限次）
   rh daily check | import | probe   Daily Topics：离线检查 daily/、导入候选（commit job）、在线链接探测（手动）
+  rh topic select | dismiss | link   Daily Topics：选中（打印起草材料）、不做、关联到报告（只写 daily/state.yml）
   rh tags list | add          标签登记表
   rh list                     列出全部报告
   rh paths [slug]             打印已解析的路径（vault brief 目录、am、报告目录、发布地址）
@@ -36,7 +38,7 @@ const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
   rh <命令> --help 查看详细用法。`;
 
 const SUB_HELP: Record<string, string> = {
-  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP, daily: DAILY_HELP, ingest: INGEST_HELP,
+  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP, daily: DAILY_HELP, ingest: INGEST_HELP, topic: TOPIC_HELP,
 };
 
 async function main(argv: string[]): Promise<number> {
@@ -56,6 +58,7 @@ async function main(argv: string[]): Promise<number> {
     case "build": runBuild(cfg); break;
     case "daily": await cmdDaily(cfg, rest); break;
     case "ingest": await cmdIngest(cfg, rest); break;
+    case "topic": cmdTopic(cfg, rest); break;
     case "tags": cmdTags(cfg, rest); break;
     case "list": cmdList(cfg); break;
     case "paths": cmdPaths(cfg, rest); break;
