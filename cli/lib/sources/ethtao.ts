@@ -87,7 +87,8 @@ async function findDigest(o: { cfg: XDigestConfig; ctx: HttpCtx; budget: CallBud
         for (const s of statuses) if (!s.reposted_by && s.author?.screen_name?.toLowerCase() === acct.toLowerCase() && digestDate(s.text ?? "") === o.date) found.push(s);
         const oldest = Math.min(...statuses.map((s) => s.created_timestamp * 1000));
         cursor = typeof d.cursor?.bottom === "string" ? d.cursor.bottom : null;
-        reached = found.length > 0 || !statuses.length || !cursor || oldest < cutoff;
+        // 找到了也继续翻到 D 00:00 之前：同一个 D 的更早一条可能在后面的页里（ADR 0004 §4 用最早的一条）
+        reached = !statuses.length || !cursor || oldest < cutoff;
       }
     } catch (e) {
       errors.push(`${acct}: ${errorText(e, [])}`);

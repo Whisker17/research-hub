@@ -477,6 +477,33 @@ test("日报的格式变了（找到了日报，却解析不出任何链接）�
   assert.match(r.error!, /format: 日报里没有解析出任何 \[原文\] 链接/);
 });
 
+test("同一天两条日报分在两页、较新的在前 → 继续翻到 D 00:00（UTC+8）之前，用最早的一条，另一条记下（R1-F4）", async () => {
+  const fx = readJson(join(FX, "ethtao", "duplicate-across-pages.json"));
+  const paths: string[] = [];
+  const ctx: HttpCtx = {
+    fetch: async (url) => {
+      const u = new URL(String(url));
+      paths.push(u.pathname + u.search);
+      if (u.pathname.endsWith("/statuses")) return new Response(JSON.stringify(fx.pages[u.searchParams.get("cursor") === "page-1" ? 1 : 0]), { status: 200 });
+      const hit = STATUS[u.pathname.split("/").pop()!];
+      return hit ? new Response(JSON.stringify(hit), { status: 200 }) : new Response("{}", { status: 404 });
+    },
+    userAgent: "t",
+    timeoutMs: 1000,
+    backoffMs: 0,
+    sleep: async () => {},
+    secrets: [],
+  };
+  const cfg = sourcesFileSchema.parse(sourcesYml()).sources.ethtao as XDigestConfig;
+  const r = await runDigest({ id: "ethtao", cfg, ctx, date: "2026-10-18", cached: undefined, now: () => AT });
+  assert.equal(paths.filter((p) => p.includes("/statuses")).length, 2, "第二页也要翻");
+  assert.deepEqual(r.digest, { status: "found", url: "https://x.com/Ethtao_Ethtao/status/2111600000000000001", posted_at: "2026-10-17T19:00:00.000Z" });
+  assert.equal(r.cached!.id, "2111600000000000001");
+  assert.deepEqual(r.items.map((i) => i.id), ["ethtao:2111165223780454451"], "条目来自最早那条日报的引用");
+  assert.equal(r.status, "ok");
+  assert.match(r.error!, /同一天还有 1 条日报，用最早的一条（忽略 2111700000000000002）/);
+});
+
 // ───────────────────────── BlockBeats 预算账本 ─────────────────────────
 
 /** 只开 BlockBeats（其他源关掉，测试更快更聚焦）。srv.base 要在服务器启动后才有，所以是函数。 */
