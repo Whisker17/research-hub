@@ -1,0 +1,499 @@
+{
+ "issue": "WHI-1925",
+ "runner_run_id": "39128600115",
+ "runner_fetched_at": "2026-10-18T12:45:21.148Z",
+ "via": "https://api.fxtwitter.com/2 (FxTwitter v2, keyless)",
+ "raw_text_fetched_at": "2026-10-18T12:33:41Z (residential IP, same status id)",
+ "input": {
+  "id": "2110934550000132186",
+  "url": "https://x.com/Ethtao_Ethtao/status/2110934550000132186",
+  "created_at": "Fri Oct 16 03:23:10 +0000 2026",
+  "created_timestamp": 1792120990,
+  "is_note_tweet": true,
+  "text": "🗓️以太坊日报 2026-10-16\n\n【区块链技术讨论】\n1⃣@lightclients 与 @nero_eth、@pcaversaccio 就EIP-7997发生激烈技术争论：核心开发者解释选择最简CREATE2部署器而非将CreateX纳入协议的原因，强调避免用户合约与系统合约混淆及最小化协议负债；@pcaversaccio反驳称CreateX已在200余条EVM链验证部署，方案成熟且扩展性更优，质疑增加客户端代码负担的必要性 [原文] (https://x.com/lightclients/status/2110853972865298912)\n\n2⃣@asanso 发布Daisugi v0.3，基于LeanSPHINCS与LeanVM实现20笔交易签名的后量子聚合证明，已在Daisugi上线，执行层客户端仅需集成LeanVM验证器与LeanSPHINCS客户程序 [原文] (https://x.com/asanso/status/2110726152192983148)\n\n3⃣@ignaciohagopian 针对以太坊核心开发者会议（ACD）决策发表评论，认为应在规范中明确禁止将Optional Proofs用于attestations以确保安全，但指出该提议当日未获通过 [原文] (https://x.com/ignaciohagopian/status/2110873363300388953)\n\n4⃣@corcoranwill 在剑桥会见微软研究员Srinath并观摩其介绍Magnetar，该zkVM采用SHA3哈希并在后量子通用计算方面取得进展 [原文] (https://x.com/corcoranwill/status/2110805980837806591)\n\n5⃣@pcaversaccio 对比Osaka与Amsterdam升级中CREATE2部署ERC-20模拟合约的Gas差异，指出EIP-8037将带来额外的SSTORE状态Gas成本（约97,920），提醒开发者赶在Glamsterdam生效前完成存储初始化 [原文] (https://x.com/pcaversaccio/status/2110742093861724530)\n\n6⃣@asanso 透露LeanVM更多信息即将发布，确认其采用标准哈希函数（非Poseidon） [原文] (https://x.com/asanso/status/2110793872330662280)\n\n7⃣@barnabemonnot 介绍Inclusion tracing概念，认为其可为用户提供链上路径透明视图以优化交易包含监控体验，并指出提前执行可加速信息反馈与决策 [原文] (https://x.com/barnabemonnot/status/2110668855676912021)\n\n8⃣@leolarav 推介基于Lean4编写的以太坊共识规范（Consensus Specs），该项目由@invisiblgarden社区与Ethereum Protocol Fellows共同构建，寻求形式化验证反馈 [原文] (https://x.com/leolarav/status/2110628127286378915)\n\n9⃣@nixorokish 转推@beaconcha_in关于以太坊验证者退出队列的数据异常提醒，反映信标链质押机制运行状况引发社区关注 [原文] (https://x.com/nixorokish/status/2110753818795500014)\n\n【行业观点碰撞】\n1⃣@techbro_ccoli 发布对比实验数据，将以太坊L1（7.1万亿美元）与以太坊L2（9.65万亿美元）分别类比传统金融的Fedwire/CHAPS与CHIPS/ACH，显示以太坊生态结算体量已接近传统主流清算系统 [原文] (https://x.com/techbro_ccoli/status/2110750845235069173)\n\n2⃣@base 与 @jessepollak 持续推动代币化股票战略，Aerodrome单日交易量已突破1亿美元，且Base上股票担保贷款利率比传统金融低4%至5%；同时Aave V4在Base的股票支持贷款规模接近400万美元 [原文] (https://x.com/base/status/2110686087169626442)\n\n3⃣@jchaskin22 评论Balaji收购Farcaster事件，强调去中心化社交协议的核心价值在于用户可携社交图谱与规则自主性，认为当前比以往任何时候都更需要去中心化社交基础设施 [原文] (https://x.com/jchaskin22/status/2110834539677553142)\n\n4⃣@growthepie_eth 分析指出以太坊L1月活地址持续增长，而部分L2网络活跃度出现降温 [原文] (https://x.com/growthepie_eth/status/2110826478137184452)\n\n5⃣@growthepie_eth 转推@LeonWaidmann数据指出以太坊应用收入正强劲复苏，已从前期低点大幅反弹 [原文] (https://x.com/growthepie_eth/status/2110664437116097015)\n\n6⃣@BitDigital_BTBT 引用@ethereumJoseph观点：机器对机器支付是百万倍级机会，但最终仍需以人为中心构建价值 [原文] (https://x.com/BitDigital_BTBT/status/2110788312554446978)\n\n【开发者生态】\n1⃣@austingriffith 披露其发起的@clawdbotatg（Leftclaw）已完成1000份智能合约安全审计，并强调相关工具链与Pashov审计技能库均已开源 [原文] (https://x.com/austingriffith/status/2110813488646160754)\n\n2⃣@austingriffith 宣布其ethskills ChatGPT插件获批，可帮助用户在ChatGPT中增强以太坊相关知识查询能力 [原文] (https://x.com/austingriffith/status/2110843733931602426)"
+ },
+ "expected": {
+  "digest_date": "2026-10-16",
+  "status_id": "2110934550000132186",
+  "url": "https://x.com/Ethtao_Ethtao/status/2110934550000132186",
+  "posted_at": "2026-10-16T03:23:10.000Z",
+  "first_line": "🗓️以太坊日报 2026-10-16",
+  "format": "bracket-ref",
+  "sections": [
+   {
+    "name": "区块链技术讨论",
+    "items": [
+     {
+      "text": "@lightclients 与 @nero_eth、@pcaversaccio 就EIP-7997发生激烈技术争论：核心开发者解释选择最简CREATE2部署器而非将CreateX纳入协议的原因，强调避免用户合约与系统合约混淆及最小化协议负债；@pcaversaccio反驳称CreateX已在200余条EVM链验证部署，方案成熟且扩展性更优，质疑增加客户端代码负担的必要性",
+      "mention": "lightclients",
+      "refs": [
+       {
+        "handle": "lightclients",
+        "id": "2110853972865298912",
+        "url": "https://x.com/lightclients/status/2110853972865298912",
+        "hop": {
+         "ref": "https://x.com/lightclients/status/2110853972865298912",
+         "status": 200,
+         "code": 200,
+         "ms": 106,
+         "resolved_id": "2110853972865298912",
+         "resolved_url": "https://x.com/lightclients/status/2110853972865298912",
+         "author": "lightclients",
+         "reposted_by": null,
+         "created_at": "2026-10-15T22:02:59.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "@Zodomo @pcaversaccio the reason to not enshrine CreateX is 2 points i) it does more than we minimally need, which as protocol designers every extra functionality is a liability and ii) we don't own CreateX so we don't want to go mixing up user and system contracts.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@asanso 发布Daisugi v0.3，基于LeanSPHINCS与LeanVM实现20笔交易签名的后量子聚合证明，已在Daisugi上线，执行层客户端仅需集成LeanVM验证器与LeanSPHINCS客户程序",
+      "mention": "asanso",
+      "refs": [
+       {
+        "handle": "asanso",
+        "id": "2110726152192983148",
+        "url": "https://x.com/asanso/status/2110726152192983148",
+        "hop": {
+         "ref": "https://x.com/asanso/status/2110726152192983148",
+         "status": 200,
+         "code": 200,
+         "ms": 153,
+         "resolved_id": "2110726152192983148",
+         "resolved_url": "https://x.com/asanso/status/2110726152192983148",
+         "author": "asanso",
+         "reposted_by": null,
+         "created_at": "2026-10-15T13:35:04.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "20 SIGNATURES. ONE PROOF.\nDaisugi v0.3 aggregates 20 transaction signatures using LeanSPHINCS and LeanVM.\n20 SPHINCS signatures are verified through a single aggregate proof.\nFor EL clients, verification requires the LeanVM verifier plus the LeanSPHINCS guest program.\nPost quantum signature aggregation is live on Daisugi. Kudos to @Nethermind @Gianluca_Felli",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@ignaciohagopian 针对以太坊核心开发者会议（ACD）决策发表评论，认为应在规范中明确禁止将Optional Proofs用于attestations以确保安全，但指出该提议当日未获通过",
+      "mention": "ignaciohagopian",
+      "refs": [
+       {
+        "handle": "ignaciohagopian",
+        "id": "2110873363300388953",
+        "url": "https://x.com/ignaciohagopian/status/2110873363300388953",
+        "hop": {
+         "ref": "https://x.com/ignaciohagopian/status/2110873363300388953",
+         "status": 200,
+         "code": 200,
+         "ms": 110,
+         "resolved_id": "2110873363300388953",
+         "resolved_url": "https://x.com/ignaciohagopian/status/2110873363300388953",
+         "author": "ignaciohagopian",
+         "reposted_by": null,
+         "created_at": "2026-10-15T23:20:02.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "As I said in today's presentation, I think it is safer for Ethereum to add a clear rule in the specs that it must not be used for attestations. And yes, people can use proofs today anyway, and they might, since today it was decided that stating this clearly and upstreaming safe specs wasn't worth it.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@corcoranwill 在剑桥会见微软研究员Srinath并观摩其介绍Magnetar，该zkVM采用SHA3哈希并在后量子通用计算方面取得进展",
+      "mention": "corcoranwill",
+      "refs": [
+       {
+        "handle": "corcoranwill",
+        "id": "2110805980837806591",
+        "url": "https://x.com/corcoranwill/status/2110805980837806591",
+        "hop": {
+         "ref": "https://x.com/corcoranwill/status/2110805980837806591",
+         "status": 200,
+         "code": 200,
+         "ms": 161,
+         "resolved_id": "2110805980837806591",
+         "resolved_url": "https://x.com/corcoranwill/status/2110805980837806591",
+         "author": "corcoranwill",
+         "reposted_by": null,
+         "created_at": "2026-10-15T18:52:17.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "It was an honor getting to meet Srinath and see him present Magnetar earlier this week in Cambridge. Very cool to see a top Microsoft researcher pushing the bounds of zkVM design w/ SHA3 hashes 🚀",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@pcaversaccio 对比Osaka与Amsterdam升级中CREATE2部署ERC-20模拟合约的Gas差异，指出EIP-8037将带来额外的SSTORE状态Gas成本（约97,920），提醒开发者赶在Glamsterdam生效前完成存储初始化",
+      "mention": "pcaversaccio",
+      "refs": [
+       {
+        "handle": "pcaversaccio",
+        "id": "2110742093861724530",
+        "url": "https://x.com/pcaversaccio/status/2110742093861724530",
+        "hop": {
+         "ref": "https://x.com/pcaversaccio/status/2110742093861724530",
+         "status": 200,
+         "code": 200,
+         "ms": 106,
+         "resolved_id": "2110742093861724530",
+         "resolved_url": "https://x.com/pcaversaccio/status/2110742093861724530",
+         "author": "pcaversaccio",
+         "reposted_by": null,
+         "created_at": "2026-10-15T14:38:25.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "osaka vs. amsterdam gas diff for a simple CREATE2ed erc-20 mock contract (note that the additional state gas for the SSTOREs of 64*1,530=97,920 from EIP-8037 is only visible in the CREATE2 line for the amsterdam line, tenderly should fix this tbh). welcome to the hypergas world and well, i guess, hurry up and initialise your storage before Glamsterdam goes live 🙃",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@asanso 透露LeanVM更多信息即将发布，确认其采用标准哈希函数（非Poseidon）",
+      "mention": "asanso",
+      "refs": [
+       {
+        "handle": "asanso",
+        "id": "2110793872330662280",
+        "url": "https://x.com/asanso/status/2110793872330662280",
+        "hop": {
+         "ref": "https://x.com/asanso/status/2110793872330662280",
+         "status": 200,
+         "code": 200,
+         "ms": 105,
+         "resolved_id": "2110793872330662280",
+         "resolved_url": "https://x.com/asanso/status/2110793872330662280",
+         "author": "asanso",
+         "reposted_by": null,
+         "created_at": "2026-10-15T18:04:10.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "@Czar102 @VitalikButerin Is a standard hash function (not Poseidon).more info on LeanVM soon",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@barnabemonnot 介绍Inclusion tracing概念，认为其可为用户提供链上路径透明视图以优化交易包含监控体验，并指出提前执行可加速信息反馈与决策",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2110668855676912021",
+        "url": "https://x.com/barnabemonnot/status/2110668855676912021",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2110668855676912021",
+         "status": 200,
+         "code": 200,
+         "ms": 149,
+         "resolved_id": "2110668855676912021",
+         "resolved_url": "https://x.com/barnabemonnot/status/2110668855676912021",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-15T09:47:24.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Inclusion tracing gives the user a view into their path onchain. More transparent UX for monitoring inclusion!\n\nSeparately, I really like this \"295 hours saved\" statistic :) action produces information, pulling actions earlier means faster information, means faster action etc.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@leolarav 推介基于Lean4编写的以太坊共识规范（Consensus Specs），该项目由@invisiblgarden社区与Ethereum Protocol Fellows共同构建，寻求形式化验证反馈",
+      "mention": "leolarav",
+      "refs": [
+       {
+        "handle": "leolarav",
+        "id": "2110628127286378915",
+        "url": "https://x.com/leolarav/status/2110628127286378915",
+        "hop": {
+         "ref": "https://x.com/leolarav/status/2110628127286378915",
+         "status": 200,
+         "code": 200,
+         "ms": 131,
+         "resolved_id": "2110628127286378915",
+         "resolved_url": "https://x.com/leolarav/status/2110628127286378915",
+         "author": "leolarav",
+         "reposted_by": null,
+         "created_at": "2026-10-15T07:05:33.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "@fede_intern Have a look at the Consensus Specs in Lean4, we built with @invisiblgarden community and also Ethereum Protocol Fellows.\n\nFeedback appreciated, even negative one will help us to make it better :-)\n\nWe will try \"a relaxing cafe con-leche in plaza mayor\"\n\nhttps://x.com/invisiblgarden/status/2102279360917237912?s=20",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@nixorokish 转推@beaconcha_in关于以太坊验证者退出队列的数据异常提醒，反映信标链质押机制运行状况引发社区关注",
+      "mention": "nixorokish",
+      "refs": [
+       {
+        "handle": "nixorokish",
+        "id": "2110753818795500014",
+        "url": "https://x.com/nixorokish/status/2110753818795500014",
+        "hop": {
+         "ref": "https://x.com/nixorokish/status/2110753818795500014",
+         "status": 200,
+         "code": 200,
+         "ms": 263,
+         "resolved_id": "2110659560457302083",
+         "resolved_url": "https://x.com/beaconcha_in/status/2110659560457302083",
+         "author": "beaconcha_in",
+         "reposted_by": "nixorokish",
+         "created_at": "2026-10-15T09:10:28.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Ethereum Validator Queue\n\nWe've received several messages about validator queue exit times not matching the validatorqueue site.\n\nValidatorqueue site counts consolidations as exits, so Lido's consolidations wave inflates its exit wait.\n\nLive numbers: https://beaconcha.in/validators/queues",
+         "external_url": null
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "行业观点碰撞",
+    "items": [
+     {
+      "text": "@techbro_ccoli 发布对比实验数据，将以太坊L1（7.1万亿美元）与以太坊L2（9.65万亿美元）分别类比传统金融的Fedwire/CHAPS与CHIPS/ACH，显示以太坊生态结算体量已接近传统主流清算系统",
+      "mention": "techbro_ccoli",
+      "refs": [
+       {
+        "handle": "techbro_ccoli",
+        "id": "2110750845235069173",
+        "url": "https://x.com/techbro_ccoli/status/2110750845235069173",
+        "hop": {
+         "ref": "https://x.com/techbro_ccoli/status/2110750845235069173",
+         "status": 200,
+         "code": 200,
+         "ms": 117,
+         "resolved_id": "2110750845235069173",
+         "resolved_url": "https://x.com/techbro_ccoli/status/2110750845235069173",
+         "author": "techbro_ccoli",
+         "reposted_by": null,
+         "created_at": "2026-10-15T15:13:12.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Tradfi 2026 Q2 stats as a thought experiment :D\n\nL1s\n- Fedwire (US) $304T\n- T2 (EU) ~$143T\n- CHAPS (UK) ~$34T\n- Ethereum $7.1T\n\nL2s (settle on an L1)\n- CHIPS ~$125T\n- ACH $25.9T\n- Ethereum L2s $9.65T\n\nL3s (settle via banks)\n- Visa $4.0T\n- Mastercard $2.4T",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@base 与 @jessepollak 持续推动代币化股票战略，Aerodrome单日交易量已突破1亿美元，且Base上股票担保贷款利率比传统金融低4%至5%；同时Aave V4在Base的股票支持贷款规模接近400万美元",
+      "mention": "base",
+      "refs": [
+       {
+        "handle": "base",
+        "id": "2110686087169626442",
+        "url": "https://x.com/base/status/2110686087169626442",
+        "hop": {
+         "ref": "https://x.com/base/status/2110686087169626442",
+         "status": 200,
+         "code": 200,
+         "ms": 121,
+         "resolved_id": "2110686087169626442",
+         "resolved_url": "https://x.com/base/status/2110686087169626442",
+         "author": "base",
+         "reposted_by": null,
+         "created_at": "2026-10-15T10:55:52.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "AGM on the launch of tokenized stocks\n\n\"We had our first $100 million day in trading volume on Aerodrome\"\n\n\"We're not even fully launched. Imagine once it's inside the actual retail app\"",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@jchaskin22 评论Balaji收购Farcaster事件，强调去中心化社交协议的核心价值在于用户可携社交图谱与规则自主性，认为当前比以往任何时候都更需要去中心化社交基础设施",
+      "mention": "jchaskin22",
+      "refs": [
+       {
+        "handle": "jchaskin22",
+        "id": "2110834539677553142",
+        "url": "https://x.com/jchaskin22/status/2110834539677553142",
+        "hop": {
+         "ref": "https://x.com/jchaskin22/status/2110834539677553142",
+         "status": 200,
+         "code": 200,
+         "ms": 133,
+         "resolved_id": "2110834539677553142",
+         "resolved_url": "https://x.com/jchaskin22/status/2110834539677553142",
+         "author": "jchaskin22",
+         "reposted_by": null,
+         "created_at": "2026-10-15T20:45:46.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "The world needs decentralized social now more than ever\n\nPeople see the harm social media causes. Fewer connect it to walled gardens and algorithms designed to keep us addicted\n\nReally excited for this next chapter of Farcaster. See you there",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@growthepie_eth 分析指出以太坊L1月活地址持续增长，而部分L2网络活跃度出现降温",
+      "mention": "growthepie_eth",
+      "refs": [
+       {
+        "handle": "growthepie_eth",
+        "id": "2110826478137184452",
+        "url": "https://x.com/growthepie_eth/status/2110826478137184452",
+        "hop": {
+         "ref": "https://x.com/growthepie_eth/status/2110826478137184452",
+         "status": 200,
+         "code": 200,
+         "ms": 128,
+         "resolved_id": "2110826478137184452",
+         "resolved_url": "https://x.com/growthepie_eth/status/2110826478137184452",
+         "author": "growthepie_eth",
+         "reposted_by": null,
+         "created_at": "2026-10-15T20:13:44.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Ethereum layer 1 continues to grow its monthly active addresses, while we have seen a cool-down for some layer 2s.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@growthepie_eth 转推@LeonWaidmann数据指出以太坊应用收入正强劲复苏，已从前期低点大幅反弹",
+      "mention": "growthepie_eth",
+      "refs": [
+       {
+        "handle": "growthepie_eth",
+        "id": "2110664437116097015",
+        "url": "https://x.com/growthepie_eth/status/2110664437116097015",
+        "hop": {
+         "ref": "https://x.com/growthepie_eth/status/2110664437116097015",
+         "status": 200,
+         "code": 200,
+         "ms": 121,
+         "resolved_id": "2110592506731581526",
+         "resolved_url": "https://x.com/LeonWaidmann/status/2110592506731581526",
+         "author": "LeonWaidmann",
+         "reposted_by": "growthepie_eth",
+         "created_at": "2026-10-15T04:44:01.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Ethereum application revenue is making a STRONG comeback! 📈\n\n🔹 Revenue has recovered significantly from previous lows\n🔹 Now generating $28.37M\n🔹 Layer 2s account for 27% of total revenue\n\nDespite all the volatility, the broader trend is looking increasingly positive.\n\nI wouldn't be surprised to see NEW ALL-TIME HIGHS in the coming months.\n\nThe Ethereum economy is heating up again.\n\nGreat chart",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@BitDigital_BTBT 引用@ethereumJoseph观点：机器对机器支付是百万倍级机会，但最终仍需以人为中心构建价值",
+      "mention": "BitDigital_BTBT",
+      "refs": [
+       {
+        "handle": "BitDigital_BTBT",
+        "id": "2110788312554446978",
+        "url": "https://x.com/BitDigital_BTBT/status/2110788312554446978",
+        "hop": {
+         "ref": "https://x.com/BitDigital_BTBT/status/2110788312554446978",
+         "status": 200,
+         "code": 200,
+         "ms": 116,
+         "resolved_id": "2110788312554446978",
+         "resolved_url": "https://x.com/BitDigital_BTBT/status/2110788312554446978",
+         "author": "BitDigital_BTBT",
+         "reposted_by": null,
+         "created_at": "2026-10-15T17:42:04.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Machine to machine payments are the million x opportunity, says @SamirTabar, and @ethereumJoseph follows with why people end up at the center of what those machines build.\n#TOKEN2049",
+         "external_url": null
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "开发者生态",
+    "items": [
+     {
+      "text": "@austingriffith 披露其发起的@clawdbotatg（Leftclaw）已完成1000份智能合约安全审计，并强调相关工具链与Pashov审计技能库均已开源",
+      "mention": "austingriffith",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2110813488646160754",
+        "url": "https://x.com/austingriffith/status/2110813488646160754",
+        "hop": {
+         "ref": "https://x.com/austingriffith/status/2110813488646160754",
+         "status": 200,
+         "code": 200,
+         "ms": 140,
+         "resolved_id": "2110813488646160754",
+         "resolved_url": "https://x.com/austingriffith/status/2110813488646160754",
+         "author": "austingriffith",
+         "reposted_by": null,
+         "created_at": "2026-10-15T19:22:07.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "1000 smart contracts secured by @clawdbotatg",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@austingriffith 宣布其ethskills ChatGPT插件获批，可帮助用户在ChatGPT中增强以太坊相关知识查询能力",
+      "mention": "austingriffith",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2110843733931602426",
+        "url": "https://x.com/austingriffith/status/2110843733931602426",
+        "hop": {
+         "ref": "https://x.com/austingriffith/status/2110843733931602426",
+         "status": 200,
+         "code": 200,
+         "ms": 123,
+         "resolved_id": "2110843733931602426",
+         "resolved_url": "https://x.com/austingriffith/status/2110843733931602426",
+         "author": "austingriffith",
+         "reposted_by": null,
+         "created_at": "2026-10-15T21:22:18.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "my ethskills chatgpt plugin just got approved!!!\n\nmake your chatgpt way smarter about ethereum \n\nwith this one simple trick:\n\nhttps://chatgpt.com/share/6ad14382-a128-83e8-a217-4b838cc0d7f5",
+         "external_url": "https://chatgpt.com/share/6ad14382-a128-83e8-a217-4b838cc0d7f5"
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}
