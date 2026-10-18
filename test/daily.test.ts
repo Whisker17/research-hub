@@ -286,7 +286,19 @@ test("拒绝指向私有报告的 related（draft 与不存在的也不行）", 
   const t = readTopics(done);
   t.topics[0].novelty.related = ["secret-report"];
   writeTopics(done, t);
-  assert.ok(checkErrors(done).some((e) => e.includes("secret-report 不是 public + published 报告")), checkErrors(done).join("\n"));
+  const errs = checkErrors(done);
+  const msg = errs.find((e) => e.includes("secret-report 不是 public + published 报告"));
+  assert.ok(msg, errs.join("\n"));
+  // 报错要指出日期文件、topic id 和 slug，并说明怎么修
+  assert.ok(msg.startsWith(`daily/2026/10/18/topics.yml: topics[0]（${t.topics[0].id}）`), msg);
+  assert.match(msg, /修复：在主克隆里修改 daily\/2026\/10\/18\/topics\.yml.*regenerate/);
+  // 标签不再公开时同样失败即拒绝
+  const t2 = readTopics(done);
+  t2.topics[0].novelty.related = ["glamsterdam-overview"];
+  t2.topics[0].tags = ["secret-tag"];
+  writeTopics(done, t2);
+  const tagMsg = checkErrors(done).find((e) => e.includes("标签 secret-tag 不在公开标签投影里"));
+  assert.ok(tagMsg?.includes(t2.topics[0].id) && tagMsg.includes("修复："), String(tagMsg));
 });
 
 function gitRepo(root: string): (...a: string[]) => string {

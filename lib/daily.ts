@@ -801,6 +801,14 @@ function loadDay(dir: string, rel: string, date: string, err: (w: string, m: str
   return day;
 }
 
+/**
+ * 报告或标签的可见性变化（变成 private / draft、标签不再被公开报告用到）会让旧日期的检查失败：失败即拒绝，
+ * 公开页面不能链接到非公开报告。报错时说明怎么修。
+ */
+const VISIBILITY_CODES = new Set<DropCode>(["tag", "proposed_tag", "related"]);
+const VISIBILITY_FIX = (day: Day): string =>
+  `。修复：在主克隆里修改 ${day.relDir}/${DAY_FILES.topics} 的这个 topic（内容通道），或用 workflow_dispatch（date=${day.date}，regenerate）重新生成这一天`;
+
 /** 一天的不变量：路径与日期、时间窗、状态与数量、重新计算的 id / evidence / items、规则。 */
 export function dayErrors(day: Day, ctx: DailyContext, hasTopicsFile: boolean): { errors: string[]; warnings: string[] } {
   const errors: string[] = [];
@@ -847,7 +855,7 @@ export function dayErrors(day: Day, ctx: DailyContext, hasTopicsFile: boolean): 
     for (const r of t.references) if ("extra" in r && r.extra !== canonicalUrl(r.extra)) te(`${where}: extra 应该是 canonical 形式 ${canonicalUrl(r.extra)}`);
     const ev = independentSources(t.references, tf.items);
     if (t.evidence.independent_sources !== ev) te(`${where}: evidence.independent_sources 应该是 ${ev}（重新计算）`);
-    for (const p of topicProblems(t, tf.items, ctx)) te(`${where}: ${p.message}`);
+    for (const p of topicProblems(t, tf.items, ctx)) te(`${where}: ${p.message}${VISIBILITY_CODES.has(p.code) ? VISIBILITY_FIX(day) : ""}`);
     for (const term of avoidTermHits(topicPublicTexts(t), ctx.avoidTerms)) warnings.push(`${at(DAY_FILES.topics)} ${where}: 公开文字里有 dailyAvoidTerms 的“${term}”`);
   });
   if (tf.note) for (const term of avoidTermHits([tf.note], ctx.avoidTerms)) warnings.push(`${at(DAY_FILES.topics)} note: 有 dailyAvoidTerms 的“${term}”`);
