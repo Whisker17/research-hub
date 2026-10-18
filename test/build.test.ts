@@ -6,7 +6,7 @@ import { join, relative } from "node:path";
 import { after, test } from "node:test";
 import { inflateSync } from "node:zlib";
 import { stringify } from "yaml";
-import { BACK_LINK_ATTR, assemble, decorateReport, fingerprints, leakCheck, pngThumbnail, type DecorateOptions, type PublicForbidden } from "../cli/lib/build.ts";
+import { BACK_LINK_ATTR, FONT_RANGE, assemble, decorateReport, fingerprints, leakCheck, pngThumbnail, type DecorateOptions, type PublicForbidden } from "../cli/lib/build.ts";
 import { loadReports, type Report } from "../lib/reports.ts";
 import type { TagRegistry } from "../lib/schema.ts";
 import { projectSite } from "../lib/site-data.ts";
@@ -22,7 +22,7 @@ const amPage =
 
 test("decorateReport：返回链接插在 <body> 开头，补 robots，幂等", () => {
   const once = decorateReport(page, opts());
-  assert.match(once, /<body class="x"><nav data-rh-back[^>]*><a href="\/"[^>]*>← Research Hub<\/a><\/nav><h1>/);
+  assert.match(once, /<body class="x"><nav data-rh-back[^>]*><a href="\/"[^>]*><span aria-hidden="true"[^>]*>←<\/span><span aria-hidden="true"[^>]*><\/span><span[^>]*>Research Hub<\/span><\/a><\/nav><h1>/);
   assert.match(once, /<meta name="robots" content="noindex, nofollow">/);
   assert.equal(decorateReport(once, opts()), once);
   assert.equal(once.split(`${BACK_LINK_ATTR} `).length, 2);
@@ -33,14 +33,18 @@ test("decorateReport：不改页面样式——没有语言 / 卡片的普通页
   assert.doesNotMatch(plain, /<style/);
   assert.doesNotMatch(plain, /<script/);
   const amOnly = decorateReport(amPage, opts());
-  assert.match(amOnly, /<style data-rh-style>@media \(max-width:760px\)\{nav\[data-rh-back\]\{padding-top:50px!important\}\}<\/style>/);
+  assert.match(amOnly, /<style data-rh-style>(@font-face\{[^}]*\})+@media \(max-width:760px\)\{nav\[data-rh-back\]\{padding-top:50px!important\}\}<\/style>/);
 });
 
 test("decorateReport：注入的样式规则只作用于注入的元素（外加卡片模式隐藏正文的一条）", () => {
   const full = decorateReport(amPage, opts({ altHref: "./en/", card: { src: "card.png" } }));
   const styles = full.match(/<style data-rh-style>[^<]*<\/style>/g) ?? [];
   assert.equal(styles.length, 1);
-  const css = styles[0].replace(/<\/?style[^>]*>/g, "").replace(/@media[^{]*\{/g, "");
+  // 共享字体（ADR 0003 §1）：只用外壳专用的字体名（rh-*），不会替换报告自己用的同名字体；字体文件来自站点的 /fonts/
+  const faces = [...styles[0].matchAll(/@font-face\{([^}]*)\}/g)].map((m) => m[1]);
+  assert.deepEqual(faces.map((f) => f.match(/font-family:"([^"]+)"/)?.[1]), ["rh-inter", "rh-newsreader"]);
+  for (const f of faces) assert.match(f, /src:url\("\/fonts\/[a-z-]+\.woff2"\)/);
+  const css = styles[0].replace(/<\/?style[^>]*>/g, "").replace(/@font-face\{[^}]*\}/g, "").replace(/@media[^{]*\{/g, "");
   for (const rule of css.split("}").filter((r) => r.includes("{"))) {
     const selector = rule.slice(0, rule.indexOf("{"));
     for (const sel of selector.split(",")) {
@@ -49,9 +53,20 @@ test("decorateReport：注入的样式规则只作用于注入的元素（外加
   }
 });
 
+test("decorateReport：外壳字体与索引页同一份字体文件、同一个 unicode-range；只用在注入的元素上", () => {
+  const tokens = readFileSync(join(import.meta.dirname, "..", "src", "styles", "tokens.css"), "utf8");
+  const ranges = new Set([...tokens.matchAll(/unicode-range:\s*([^;]+);/g)].map((m) => m[1].trim()));
+  assert.deepEqual([...ranges], [FONT_RANGE]);
+  for (const f of ["inter.woff2", "newsreader.woff2"]) assert.ok(existsSync(join(import.meta.dirname, "..", "public", "fonts", f)), f);
+  const full = decorateReport(amPage, opts({ altHref: "./en/", card: { src: "card.png" } }));
+  // 报告自己的元素（注入之外的部分）里不出现外壳字体名
+  const withoutShell = full.replace(/<style data-rh-style>[^<]*<\/style>/, "").replace(/<nav data-rh-back[\s\S]*?<\/nav>/, "");
+  assert.doesNotMatch(withoutShell, /rh-inter|rh-newsreader/);
+});
+
 test("decorateReport：没有 <body> 时报错；href 会转义", () => {
   assert.throws(() => decorateReport("<html></html>", opts({ backLabel: "x" })));
-  assert.match(decorateReport(page, opts({ backHref: '/"x', backLabel: "a<b" })), /href="\/&quot;x"[^>]*>← a&lt;b/);
+  assert.match(decorateReport(page, opts({ backHref: '/"x', backLabel: "a<b" })), /href="\/&quot;x"[^>]*>.*<span[^>]*>a&lt;b<\/span><\/a>/);
 });
 
 test("decorateReport：中文 / EN 切换在右上角工具栏开头（桌面）与返回链接一行（窄屏），当前语言高亮", () => {

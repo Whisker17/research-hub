@@ -80,31 +80,46 @@ const UI: Record<PageLang, Record<string, string>> = {
   },
 };
 
+/** 外壳专用的字体名：和报告自己的字体互不影响（ADR 0003 §1：共享字体只用在 data-rh-* 元素上）。 */
+const SHELL_UI = `"rh-inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif`;
+const SHELL_SERIF = `"rh-newsreader",Georgia,"Times New Roman","PingFang SC",serif`;
+/** 与 src/styles/tokens.css 的 @font-face 同一个 unicode-range（拉丁子集；中文落到系统字体）。 */
+export const FONT_RANGE =
+  "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-2013, U+2015-2017, U+2020-2025, U+2027-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD";
+const fontFace = (family: string, file: string) =>
+  `@font-face{font-family:"${family}";src:url("/fonts/${file}") format("woff2");font-weight:400 600;font-style:normal;font-display:swap;unicode-range:${FONT_RANGE}}`;
+
 /**
  * 注入的样式只作用于注入的元素（data-rh-*），外加卡片模式下隐藏正文的一条规则；不改报告自身的排版。
+ * 颜色取报告自己的 am 主题变量（跟着报告的主题与明暗走），没有时回退到系统颜色。
  * am 页面：语言切换在桌面放进右上角工具栏，在窄屏（工具栏占满一行）放在返回链接那一行的右侧。
  */
 function injectedStyle(o: { amToolbar: boolean; amPaths: boolean; lang: boolean; card: boolean }): string {
-  const font = `var(--font-sans,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif)`;
+  const font = SHELL_UI;
   const langRules = [
-    `[data-rh-lang]{display:inline-flex;align-items:stretch;flex:none;border:1px solid var(--line-2,rgba(127,127,127,.45));border-radius:var(--radius,6px);overflow:hidden;background:var(--paper,transparent);font:12px/1 ${font}}`,
-    `[data-rh-lang]>*{display:flex;align-items:center;padding:7px 10px;color:var(--ink,inherit);text-decoration:none;opacity:1}`,
-    `[data-rh-lang]>a:hover{background:var(--line-2,rgba(127,127,127,.15))}`,
-    `[data-rh-lang]>[aria-current]{background:var(--head-bg,#16181d);color:var(--head-fg,#fff);font-weight:600}`,
+    `[data-rh-lang]{display:inline-flex;align-items:stretch;flex:none;min-height:32px;border:1px solid var(--line,rgba(127,127,127,.45));border-radius:8px;overflow:hidden;background:var(--paper,Canvas);font:500 12px/1 ${font};letter-spacing:.01em}`,
+    `[data-rh-lang]>*{display:flex;align-items:center;padding:0 11px;color:var(--ink-2,inherit);text-decoration:none;opacity:1}`,
+    `[data-rh-lang]>a:hover{color:var(--ink,inherit);background:var(--fill,rgba(127,127,127,.12))}`,
+    `[data-rh-lang]>[aria-current]{background:var(--ink,CanvasText);color:var(--paper,Canvas);font-weight:600}`,
   ];
+  const btn = `font:500 13px/1 ${font};min-height:36px;padding:0 14px;display:inline-flex;align-items:center;border-radius:8px;border:1px solid var(--line,rgba(127,127,127,.45));background:var(--paper,Canvas);color:var(--ink,inherit);text-decoration:none;cursor:pointer`;
   const cardRules = [
     `[data-rh-card][hidden],[data-rh-card-msg][hidden]{display:none!important}`,
     `[data-rh-card]{max-width:620px;margin:0 0 28px}`,
     `[data-rh-card-bar]{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}`,
-    `[data-rh-card-bar] .am-btn,[data-rh-card-bar]>a,[data-rh-card-bar]>button{font:13px/1 ${font};padding:9px 14px;border-radius:var(--radius,6px);border:1px solid var(--line-2,rgba(127,127,127,.45));background:var(--paper,transparent);color:var(--ink,inherit);text-decoration:none;cursor:pointer}`,
-    `[data-rh-card-bar]>[data-rh-card-copy]{background:var(--head-bg,#16181d);color:var(--head-fg,#fff);border-color:var(--head-bg,#16181d);font-weight:600}`,
+    `[data-rh-card-bar] .am-btn,[data-rh-card-bar]>a,[data-rh-card-bar]>button{${btn}}`,
+    // 非 am 页面：卡片按钮在返回条里（am 页面上它在阅读路径里，用 am 自己的按钮样式）
+    `nav[${BACK_LINK_ATTR}] [data-rh-card-btn]{${btn};min-height:32px;font-size:12px}`,
+    `nav[${BACK_LINK_ATTR}] [data-rh-card-btn][aria-pressed="true"]{background:var(--ink,CanvasText);color:var(--paper,Canvas);border-color:var(--ink,CanvasText)}`,
+    `[data-rh-card-bar]>a:hover,[data-rh-card-bar]>button:hover{background:var(--fill,rgba(127,127,127,.12))}`,
+    `[data-rh-card-bar]>[data-rh-card-copy],[data-rh-card-bar]>[data-rh-card-copy]:hover{background:var(--ink,CanvasText);color:var(--paper,Canvas);border-color:var(--ink,CanvasText);font-weight:600}`,
     `[data-rh-card-bar]>[data-rh-card-copy]:disabled{opacity:.6;cursor:default}`,
-    `[data-rh-card-hint]{flex:1 1 220px;font:13px/1.5 ${font};color:var(--ink-3,#888)}`,
+    `[data-rh-card-hint]{flex:1 1 220px;font:13px/1.5 ${font};color:var(--ink-3,GrayText)}`,
     `[data-rh-card-msg]{margin:0 0 12px;font:14px/1.5 ${font};color:var(--warn,#b45309)}`,
-    `[data-rh-card-tweet]{margin:0 0 14px;padding:12px 14px;border:1px solid var(--line-2,rgba(127,127,127,.35));border-radius:12px;background:var(--paper,transparent)}`,
-    `[data-rh-card-tweet]>figcaption{margin:0 0 6px;font:12px/1.4 ${font};color:var(--ink-3,#888)}`,
+    `[data-rh-card-tweet]{margin:0 0 14px;padding:14px 16px;border:1px solid var(--line,rgba(127,127,127,.35));border-radius:8px;background:var(--paper,Canvas)}`,
+    `[data-rh-card-tweet]>figcaption{margin:0 0 8px;font:500 11px/1.4 ${font};letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3,GrayText)}`,
     `[data-rh-card-tweet-text]{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:15px/1.6 ${font};color:var(--ink,inherit)}`,
-    `[data-rh-card-img]{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line-2,rgba(127,127,127,.35));box-shadow:0 10px 30px rgba(0,0,0,.18)}`,
+    `[data-rh-card-img]{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--line,rgba(127,127,127,.35));box-shadow:0 10px 30px rgba(0,0,0,.18)}`,
     o.amPaths
       ? `html[data-rh-view="card"] .am-research>:not(.am-paths):not([data-rh-card]){display:none!important}`
       : `html[data-rh-view="card"] body>:not([${BACK_LINK_ATTR}]):not([data-rh-card]):not(.am-toolbar):not(script):not(style){display:none!important}`,
@@ -115,7 +130,8 @@ function injectedStyle(o: { amToolbar: boolean; amPaths: boolean; lang: boolean;
     rules.push(`@media (max-width:760px){nav[${BACK_LINK_ATTR}]{padding-top:50px!important}${o.lang ? ".am-toolbar>[data-rh-lang]{display:none}" : ""}}`);
     if (o.lang) rules.push(`@media (min-width:761px){nav[${BACK_LINK_ATTR}] [data-rh-lang]{display:none}}`);
   }
-  return rules.length ? `<style data-rh-style>${rules.join("")}</style>` : "";
+  // 只要注入了样式，就带上外壳字体（字体只在用到时才下载）
+  return rules.length ? `<style data-rh-style>${fontFace("rh-inter", "inter.woff2")}${fontFace("rh-newsreader", "newsreader.woff2")}${rules.join("")}</style>` : "";
 }
 
 function langToggle(lang: PageLang, altHref: string, ui: Record<string, string>): string {
@@ -213,9 +229,13 @@ export function decorateReport(html: string, opts: DecorateOptions): string {
     const section = opts.card ? cardSection(opts.card, ui) : "";
 
     const right = `${amPaths ? "" : cardBtn}${toggle}`;
+    // 返回条：和索引页页头同一套标志（方块 + 衬线 “Research Hub”）；行内样式，没有样式块的页面也成立
     const nav =
-      `<nav ${BACK_LINK_ATTR} style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0;padding:12px 16px 0;font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif;">` +
-      `<a href="${escapeHtml(opts.backHref)}" style="color:inherit;opacity:.72;text-decoration:none;">← ${escapeHtml(opts.backLabel)}</a>` +
+      `<nav ${BACK_LINK_ATTR} style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0;padding:12px 16px 0;font:500 13px/1.5 ${SHELL_UI.replace(/"/g, "'")};">` +
+      `<a href="${escapeHtml(opts.backHref)}" style="display:inline-flex;align-items:center;gap:8px;min-height:32px;color:var(--ink,inherit);text-decoration:none;">` +
+      `<span aria-hidden="true" style="color:var(--ink-3,inherit);">←</span>` +
+      `<span aria-hidden="true" style="width:12px;height:12px;flex:none;background:currentColor;"></span>` +
+      `<span style="font:600 16px/1 ${SHELL_SERIF.replace(/"/g, "'")};letter-spacing:-.02em;">${escapeHtml(opts.backLabel)}</span></a>` +
       (right ? `<span style="display:flex;gap:8px;align-items:center;">${right}</span>` : "") +
       `</nav>`;
 
