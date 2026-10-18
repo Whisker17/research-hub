@@ -101,7 +101,9 @@ async function findDigest(o: { cfg: XDigestConfig; ctx: HttpCtx; budget: CallBud
     }
   }
   found.sort((a, b) => a.created_timestamp - b.created_timestamp || a.id.localeCompare(b.id));
-  return { found: found[0] ?? null, dupes: found.slice(1).map((s) => s.id), error: errors.length ? errors.join("; ").slice(0, 500) : null, notPosted: allReached };
+  // 没翻到停止边界（某页失败、页数或调用上限）就不算找到：更早的一条可能在没读到的页里，这次记 fetch_failed，下次重找（R2-F1）
+  if (!allReached) return { found: null, dupes: [], error: errors.join("; ").slice(0, 500), notPosted: false };
+  return { found: found[0] ?? null, dupes: found.slice(1).map((s) => s.id), error: null, notPosted: true };
 }
 
 export async function runDigest(o: { id: SourceId; cfg: XDigestConfig; ctx: HttpCtx; date: string; cached: CachedDigest | undefined; now: () => string }): Promise<DigestRun> {
@@ -120,7 +122,6 @@ export async function runDigest(o: { id: SourceId; cfg: XDigestConfig; ctx: Http
       return { digest: { status: failed ? "fetch_failed" : "not_posted", url: null, posted_at: null }, cached: null, items: [], calls: budget.used, status: failed ? "failed" : "ok", error: f.error };
     }
     if (f.dupes.length) notes.push(`同一天还有 ${f.dupes.length} 条日报，用最早的一条（忽略 ${f.dupes.join(", ")}）`);
-    if (f.error) notes.push(f.error);
     const s = f.found;
     entry = { id: s.id, url: `https://x.com/${s.author!.screen_name}/status/${s.id}`, posted_at: new Date(s.created_timestamp * 1000).toISOString(), text: s.text ?? "", items: [], missing: [] };
     toHop = [];

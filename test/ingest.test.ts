@@ -18,7 +18,7 @@ import { collectWindow, type WindowAdapter } from "../cli/lib/sources/feeds.ts";
 import type { HttpCtx } from "../cli/lib/sources/http.ts";
 import { coveredIn, loadLedger, type Ledger } from "../cli/lib/sources/state.ts";
 import { digestDate, parseDigest } from "../cli/lib/sources/x-digest.ts";
-import { dailyWindow, manifestSchema, originator, parseItemsJsonl, type Item } from "../lib/daily.ts";
+import { dailyWindow, manifestSchema, originator, parseItemsJsonl, shouldGenerate, type Item } from "../lib/daily.ts";
 
 const REPO = join(import.meta.dirname, "..");
 const FX = join(REPO, "test", "fixtures", "daily");
@@ -512,6 +512,70 @@ test("同一天两条日报分在两页、较新的在前 → 继续翻到 D 00:
   assert.deepEqual(r.items.map((i) => i.id), ["ethtao:2111165223780454451"], "条目来自最早那条日报的引用");
   assert.equal(r.status, "ok");
   assert.match(r.error!, /同一天还有 1 条日报，用最早的一条（忽略 2111700000000000002）/);
+});
+
+/** 两页的 duplicate-across-pages 时间线；page1 给出第二页这次怎么回（null = 正常）。 */
+function pagedCtx(page1: () => number | null) {
+  const fx = readJson(join(FX, "ethtao", "duplicate-across-pages.json"));
+  const paths: string[] = [];
+  const ctx: HttpCtx = {
+    fetch: async (url) => {
+      const u = new URL(String(url));
+      paths.push(u.pathname + u.search);
+      if (u.pathname.endsWith("/statuses")) {
+        const second = u.searchParams.get("cursor") === "page-1";
+        const code = second ? page1() : null;
+        return code ? new Response(JSON.stringify({ code, results: [] }), { status: code }) : new Response(JSON.stringify(fx.pages[second ? 1 : 0]), { status: 200 });
+      }
+      const hit = STATUS[u.pathname.split("/").pop()!];
+      return hit ? new Response(JSON.stringify(hit), { status: 200 }) : new Response("{}", { status: 404 });
+    },
+    userAgent: "t",
+    timeoutMs: 1000,
+    backoffMs: 0,
+    sleep: async () => {},
+    secrets: [],
+  };
+  return { ctx, paths };
+}
+
+test("翻页中断（第二页 503）→ 不缓存第一页的日报、digest fetch_failed；上游恢复后的下一次运行选最早的一条（R2-F1）", async () => {
+  let down = true;
+  const { ctx, paths } = pagedCtx(() => (down ? 503 : null));
+  const cfg = sourcesFileSchema.parse(sourcesYml()).sources.ethtao as XDigestConfig;
+  const first = await runDigest({ id: "ethtao", cfg, ctx, date: "2026-10-18", cached: undefined, now: () => AT });
+  assert.deepEqual(first.digest, { status: "fetch_failed", url: null, posted_at: null });
+  assert.equal(first.cached, null, "没翻到 D 00:00 之前，不能把第一页那条当成选定的日报缓存下来");
+  assert.equal(first.status, "failed");
+  assert.deepEqual(first.items, []);
+  assert.match(first.error!, /HTTP 503/);
+  assert.equal(shouldGenerate(first.digest.status, false, 10), false, "T_last 之前不生成（非终态）");
+  // 第二次运行：ingest 只在 r.cached 非空时写回 cache，所以照样翻时间线
+  down = false;
+  paths.length = 0;
+  const second = await runDigest({ id: "ethtao", cfg, ctx, date: "2026-10-18", cached: first.cached ?? undefined, now: () => AT });
+  assert.equal(paths.filter((p) => p.includes("/statuses")).length, 2);
+  assert.deepEqual(second.digest, { status: "found", url: "https://x.com/Ethtao_Ethtao/status/2111600000000000001", posted_at: "2026-10-17T19:00:00.000Z" });
+  assert.equal(second.cached!.id, "2111600000000000001");
+  assert.equal(second.status, "ok");
+});
+
+test("翻页上限内没翻到 D 00:00 之前 → 同样不缓存、fetch_failed；放宽上限后的下一次运行选最早的一条（R2-F1）", async () => {
+  const { ctx, paths } = pagedCtx(() => null);
+  const base = sourcesFileSchema.parse(sourcesYml()).sources.ethtao as XDigestConfig;
+  const first = await runDigest({ id: "ethtao", cfg: { ...base, max_timeline_pages: 1 }, ctx, date: "2026-10-18", cached: undefined, now: () => AT });
+  assert.equal(paths.filter((p) => p.includes("/statuses")).length, 1);
+  assert.deepEqual(first.digest, { status: "fetch_failed", url: null, posted_at: null });
+  assert.equal(first.cached, null);
+  assert.equal(first.status, "failed");
+  assert.match(first.error!, /翻了 1 页还没翻到 2026-10-18 之前/);
+  // 调用预算用完也是中断
+  const budget = await runDigest({ id: "ethtao", cfg: { ...base, max_calls_per_run: 1 }, ctx, date: "2026-10-18", cached: undefined, now: () => AT });
+  assert.deepEqual([budget.digest.status, budget.cached, budget.status], ["fetch_failed", null, "failed"]);
+  assert.match(budget.error!, /max_calls_per_run（1）用完/);
+  const second = await runDigest({ id: "ethtao", cfg: base, ctx, date: "2026-10-18", cached: first.cached ?? undefined, now: () => AT });
+  assert.equal(second.cached!.id, "2111600000000000001");
+  assert.equal(second.digest.status, "found");
 });
 
 // ───────────────────────── BlockBeats 预算账本 ─────────────────────────
