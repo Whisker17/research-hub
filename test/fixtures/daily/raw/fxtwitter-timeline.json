@@ -1,0 +1,470 @@
+{
+ "code": 200,
+ "results": [
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2111652016124784867",
+   "id": "2111652016124784867",
+   "text": "🗓️以太坊日报 2026-10-18\n\n【区块链技术讨论】\n1⃣@ralexstokes 宣布以太坊Hoodi测试网升级定于10月26日进行，主网日期将随后确定，\"Glamsterdam\"升级持续推进 [原文] (https://x.com/nero_eth/status/2111528856737702274)\n\n2⃣@barnabemonnot 透露以太坊L1即将进行重大升级，若10天后测试网分叉顺利，未来几个月L1容量将提升近3.5倍，blob空间也将显著增加 [原文] (https://x.com/barnabemonnot/status/2111527644223127741)\n\n3⃣@barnabemonnot 阐述以太坊L1应成为资产发行与部署的最佳场所，利用L1与L2之间的特权连接实现高安全性桥接，并强调ETH作为原生核心资产的地位 [原文] (https://x.com/barnabemonnot/status/2111568540985647419)\n\n4⃣@nero_eth 与@dapplion 及@OisinKyne 讨论以太坊共识细节，指出提议者与证明者在slot内对最新头部区块执行/验证的确定性需求，以及证明截止时间与slot末尾投票的区别 [原文] (https://x.com/nero_eth/status/2111437146758291705)\n\n5⃣@asanso 指出secp256k1曲线因采用CM方法构建而天然具备GLV优化特性，回应该曲线参数起源的讨论 [原文] (https://x.com/asanso/status/2111414176597913753)\n@leolarav 回应形式化验证讨论，提出等价类划分分析可作为辅助手段，帮助\"调试\"对规范的理解并与形式化验证声明匹配 [原文] (https://x.com/leolarav/status/2111600681471877409)\n\n6⃣@barnabemonnot 提及Core与Lighter EVM的联合结算及其互操作性 [原文] (https://x.com/barnabemonnot/status/2111344180467298570)\n\n【行业观点碰撞】\n1⃣@tayvano_ 回应@devanshmehta 与@joonian，指出中国矿工对以太坊在2015-2016年熊市中生存至关重要，Devcon II在上海举办是其中一部分，并纠正中国ICO禁令时间线认知 [原文] (https://x.com/tayvano_/status/2111508711047086577)\n\n2⃣@ilblackdragon 称格密码学正成为互联网标准，区块链领域重新发明新加密原语是在做无用功 [原文] (https://x.com/evan_van_ness/status/2111556470726701157)\n\n3⃣@chainlink 介绍Fulcrum产品，主张将传统证券抵押融资能力带入代币化资产，使机构能够跨区块链24/7获取融资并管理抵押品 [原文] (https://x.com/chainlink/status/2111440953944994000)\n\n4⃣@barnabemonnot 回应@0x1_0NE，强调ETH不仅是价值存储，更是以太坊生态中最容易从任何地方兑换的硬资产 [原文] (https://x.com/barnabemonnot/status/2111365818575622307)\n\n5⃣@clix81ne 警告人们正用AI重复Web2错误，在不知情的情况下将数据交给ChatGPT和Claude [原文] (https://x.com/austingriffith/status/2111569118734516668)\n\n【开发者生态】\n1⃣@gakonst 强调应用应集成passkeys/P256-backed signers以改善加密用户体验 [原文] (https://x.com/austingriffith/status/2111570808124694680)\n\n2⃣@jaosef 称P256 passkeys已被Claude证明安全，从此不再需要助记词 [原文] (https://x.com/austingriffith/status/2111282792441188668)\n\n3⃣@UmbraCash 在OctantApp隐私轮次中构建隐私保护工具 [原文] (https://x.com/BenDiFrancesco/status/2111486157297181069)\n\n4⃣@austingriffith 展示Wedgie外壳设计，提及由@clawdbotatg 构建，并分享相关探索与案例链接 [原文] (https://x.com/austingriffith/status/2111552534192288009)\n\n其他有趣内容：\n1⃣@barnabemonnot 提及@yannvon 拥有\"Ethereum博士学位\"（PhD in Ethereum） [原文] (https://x.com/barnabemonnot/status/2111421408752398484)",
+   "created_at": "Sun Oct 18 02:54:07 +0000 2026",
+   "created_timestamp": 1792292047,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/ralexstokes/status/2111165223780454451",
+    "id": "2111165223780454451",
+    "text": "Glamsterdam charges ahead!\n\nThe Hoodi testnet upgrade is scheduled for the 26th of October while the mainnet date will be announced separately. Activation table, client releases, and info on the bug bounty program can be found here: https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+    "created_at": "Fri Oct 16 18:39:47 +0000 2026",
+    "created_timestamp": 1792175987,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "ralexstokes"
+    },
+    "card": {
+     "url": "https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+     "title": "Glamsterdam Hoodi Testnet Announcement | Ethereum Foundation Blog",
+     "domain": "blog.ethereum.org"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2111292354196099556",
+   "id": "2111292354196099556",
+   "text": "🗓️以太坊日报 2026-10-17\n\n【区块链技术讨论】\n1⃣@nero_eth、@kevaundray、@lightclients与@ignaciohagopian就EIP-8025展开激烈争论，核心分歧在于是否应以非承载方式提前引入SNARK/zkVM概念，以及该提案应归类为信息性EIP还是核心硬分叉议程，同时涉及对后续提案规范约束与状态丢弃风险的权衡 [原文] (https://x.com/nero_eth/status/2110955329139757262)\n\n2⃣@nero_eth披露明年Hegotá分叉已有23个EIPs进入CFI/SFI状态，但仅FOCIL与Frame Transactions为SFI'd；强调AI虽加速开发，但治理协调需防范范围蔓延以确保安全可控 [原文] (https://x.com/nero_eth/status/2111038056597712979)\n\n3⃣@pcaversaccio分析EIP-8246拟移除SELFDESTRUCT燃烧机制，指出当前超26,792 ETH存于主要燃烧地址但开发者普遍不知协议级不可逆燃烧，主张引入一级燃烧原语真正从供应中移除ETH [原文] (https://x.com/pcaversaccio/status/2111108120990892251)\n\n4⃣@ralexstokes宣布Glamsterdam升级推进，Hoodi测试网定于10月26日激活，主网日期待另行公布，相关客户端版本与漏洞赏金计划已发布 [原文] (https://x.com/ralexstokes/status/2111165223780454451)\n\n5⃣@gballet称\"Lean is the new rust\"，暗示形式验证语言Lean正成为以太坊协议开发的新范式 [原文] (https://x.com/gballet/status/2111041690916057345)\n\n6⃣@nero_eth与@BenDiFrancesco等认为某测试网钱包使用公开开发者恢复短语派生密钥并非严重安全问题，属已知测试惯例 [原文] (https://x.com/nero_eth/status/2110996334064873474)\n\n【行业观点碰撞】\n1⃣@fradamt提出AI正使以太坊更有野心以应对后AI世界挑战，该观点获@barnabemonnot、@casparschwa、@_julianma、@corcoranwill等广泛认同与传播 [原文] (https://x.com/barnabemonnot/status/2111136356126925188)\n\n2⃣@barnabemonnot建议AMC应在以太坊L1原生发行自身股份以获得最大安全性与可组合性，并通过L2与DeFi进行分销；@casparschwa转推支持 [原文] (https://x.com/barnabemonnot/status/2111060880733454664)\nCharles Schwab已完成直接以太坊原生交易推广，所有客户现可访问Schwab Crypto进行以太坊交易 [原文] (https://x.com/davwals/status/2111096163869049265)\n\n3⃣@growthepie_eth转推指出数万亿美元稳定币将在以太坊上流动；@base同日推动代币化股票、代理支付（x402）及稳定币企业卡等链上金融创新 [原文] (https://x.com/growthepie_eth/status/2111103906692391332)\n\n4⃣@chainlink推出Fulcrum连接代币化证券与跨链融资场所，并宣布与Pacific Meta达成战略合作在日本推广机构代币化，采用CCIP与自动合规引擎 [原文] (https://x.com/chainlink/status/2111079920436674579)\n\n5⃣@Asbet0s强调以太坊是面向企业与公共部门的开放、中立数字基础设施；@nloureiro转推ethdotorg新上线的组织使用指南 [原文] (https://x.com/Asbet0s/status/2111026495363903573)\n\n6⃣@corcoranwill转推@ethereum官方表示，以太坊正以形式验证等手段实现更快升级且更少bug；@soispoke等从剑桥研讨会反馈称后量子安全与快速终结技术正加速落地 [原文] (https://x.com/corcoranwill/status/2111144070953468224)\n\n7⃣@barnabemonnot调侃AI代理正在解决以太坊的\"千年难题\"——获取Sepolia测试网ETH，反映测试网资源分配与AI代理需求的碰撞 [原文] (https://x.com/barnabemonnot/status/2110990946125095398)\n\n【开发者生态】\n1⃣@austingriffith发布\"Wedgie\"开源DIY硬件钱包，使用三种常见零件与3D打印外壳（MIT许可），可作为@safe签名者并采用VRGDA定价；获@dankrad认可并将在Devcon开放硬件区展示 [原文] (https://x.com/austingriffith/status/2111105390368948680)\n\n2⃣@ignaciohagopian转推@ethrex_client立场，认为ACDC将EIP-8025 DFI是错误的决定，不利于以太坊长期利益 [原文] (https://x.com/ignaciohagopian/status/2111089453146292538)\n\n3⃣@DavideCrapis透露与@binji_x合作的dAI项目正推进v1，后续还将实现安全性、私有问责等改进 [原文] (https://x.com/DavideCrapis/status/2111177680070877516)@nixorokish转推提及Lighter EVM公共devnet已上线，为开发者提供新的测试与实验环境 [原文] (https://x.com/nixorokish/status/2110930474143268915)\n\n4⃣@nixorokish转推@austingriffith的ethskills ChatGPT插件已获批，可增强AI对以太坊技术与生态的理解 [原文] (https://x.com/nixorokish/status/2110949080818147758)\n\n5⃣@matteoikari宣布@Zac_Aztec项目达到Stage 2 L2里程碑，标志着去中心化与安全性进一步提升 [原文] (https://x.com/matteoikari/status/2111089285218566372)\n\n6⃣@DavideCrapis转推VitalikButerin关于Wrapped zkAPI结合Tor、覆盖流量与本地LLM提示重写的隐私方案，为开发者提供抗审查与隐私保护思路 [原文] (https://x.com/DavideCrapis/status/2111081178186870833)\n\n其他有趣内容：\n1⃣@corcoranwill公布剑桥研讨会69个参与组织名单，涵盖全球顶尖大学、研究机构与行业团队，展现以太坊研究生态的广度与深度 [原文] (https://x.com/corcoranwill/status/2111105812097564797)\n\n2⃣@growthepie_eth监测到Ronin L2出现740万笔交易与725万个地址的活动激增，但交易成本低导致链上利润暂时转负 [原文] (https://x.com/growthepie_eth/status/2111060869530427618)\n\n3⃣@evan_van_ness转推指出，AI彻底打破了电子媒介的人类信任系统，因此区块链比以往任何时候都更加必要 [原文] (https://x.com/evan_van_ness/status/2110981884146831684)\n\n4⃣@austingriffith转推@petejkim指出，比特币与以太坊选择secp256k1而非P-256深受对NSA后门恐惧的影响 [原文] (https://x.com/austingriffith/status/2111215339455623455)",
+   "created_at": "Sat Oct 17 03:04:57 +0000 2026",
+   "created_timestamp": 1792206297,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/austingriffith/status/2111215339455623455",
+    "id": "2111215339455623455",
+    "text": "RT @petejkim: the choice of secp256k1 over r1 (P-256) in bitcoin (and ethereum) was heavily influenced by the fear of an NSA backdoor. this…",
+    "created_at": "Fri Oct 16 21:58:56 +0000 2026",
+    "created_timestamp": 1792187936,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "austingriffith"
+    },
+    "card": {
+     "url": "https://t.co/e8UaEwJQhg",
+     "title": "Claude reveals ECDSA curve origins",
+     "domain": "www.anthropic.com"
+    },
+    "reposted_by": {
+     "screen_name": "austingriffith"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2110934550000132186",
+   "id": "2110934550000132186",
+   "text": "🗓️以太坊日报 2026-10-16\n\n【区块链技术讨论】\n1⃣@lightclients 与 @nero_eth、@pcaversaccio 就EIP-7997发生激烈技术争论：核心开发者解释选择最简CREATE2部署器而非将CreateX纳入协议的原因，强调避免用户合约与系统合约混淆及最小化协议负债；@pcaversaccio反驳称CreateX已在200余条EVM链验证部署，方案成熟且扩展性更优，质疑增加客户端代码负担的必要性 [原文] (https://x.com/lightclients/status/2110853972865298912)\n\n2⃣@asanso 发布Daisugi v0.3，基于LeanSPHINCS与LeanVM实现20笔交易签名的后量子聚合证明，已在Daisugi上线，执行层客户端仅需集成LeanVM验证器与LeanSPHINCS客户程序 [原文] (https://x.com/asanso/status/2110726152192983148)\n\n3⃣@ignaciohagopian 针对以太坊核心开发者会议（ACD）决策发表评论，认为应在规范中明确禁止将Optional Proofs用于attestations以确保安全，但指出该提议当日未获通过 [原文] (https://x.com/ignaciohagopian/status/2110873363300388953)\n\n4⃣@corcoranwill 在剑桥会见微软研究员Srinath并观摩其介绍Magnetar，该zkVM采用SHA3哈希并在后量子通用计算方面取得进展 [原文] (https://x.com/corcoranwill/status/2110805980837806591)\n\n5⃣@pcaversaccio 对比Osaka与Amsterdam升级中CREATE2部署ERC-20模拟合约的Gas差异，指出EIP-8037将带来额外的SSTORE状态Gas成本（约97,920），提醒开发者赶在Glamsterdam生效前完成存储初始化 [原文] (https://x.com/pcaversaccio/status/2110742093861724530)\n\n6⃣@asanso 透露LeanVM更多信息即将发布，确认其采用标准哈希函数（非Poseidon） [原文] (https://x.com/asanso/status/2110793872330662280)\n\n7⃣@barnabemonnot 介绍Inclusion tracing概念，认为其可为用户提供链上路径透明视图以优化交易包含监控体验，并指出提前执行可加速信息反馈与决策 [原文] (https://x.com/barnabemonnot/status/2110668855676912021)\n\n8⃣@leolarav 推介基于Lean4编写的以太坊共识规范（Consensus Specs），该项目由@invisiblgarden社区与Ethereum Protocol Fellows共同构建，寻求形式化验证反馈 [原文] (https://x.com/leolarav/status/2110628127286378915)\n\n9⃣@nixorokish 转推@beaconcha_in关于以太坊验证者退出队列的数据异常提醒，反映信标链质押机制运行状况引发社区关注 [原文] (https://x.com/nixorokish/status/2110753818795500014)\n\n【行业观点碰撞】\n1⃣@techbro_ccoli 发布对比实验数据，将以太坊L1（7.1万亿美元）与以太坊L2（9.65万亿美元）分别类比传统金融的Fedwire/CHAPS与CHIPS/ACH，显示以太坊生态结算体量已接近传统主流清算系统 [原文] (https://x.com/techbro_ccoli/status/2110750845235069173)\n\n2⃣@base 与 @jessepollak 持续推动代币化股票战略，Aerodrome单日交易量已突破1亿美元，且Base上股票担保贷款利率比传统金融低4%至5%；同时Aave V4在Base的股票支持贷款规模接近400万美元 [原文] (https://x.com/base/status/2110686087169626442)\n\n3⃣@jchaskin22 评论Balaji收购Farcaster事件，强调去中心化社交协议的核心价值在于用户可携社交图谱与规则自主性，认为当前比以往任何时候都更需要去中心化社交基础设施 [原文] (https://x.com/jchaskin22/status/2110834539677553142)\n\n4⃣@growthepie_eth 分析指出以太坊L1月活地址持续增长，而部分L2网络活跃度出现降温 [原文] (https://x.com/growthepie_eth/status/2110826478137184452)\n\n5⃣@growthepie_eth 转推@LeonWaidmann数据指出以太坊应用收入正强劲复苏，已从前期低点大幅反弹 [原文] (https://x.com/growthepie_eth/status/2110664437116097015)\n\n6⃣@BitDigital_BTBT 引用@ethereumJoseph观点：机器对机器支付是百万倍级机会，但最终仍需以人为中心构建价值 [原文] (https://x.com/BitDigital_BTBT/status/2110788312554446978)\n\n【开发者生态】\n1⃣@austingriffith 披露其发起的@clawdbotatg（Leftclaw）已完成1000份智能合约安全审计，并强调相关工具链与Pashov审计技能库均已开源 [原文] (https://x.com/austingriffith/status/2110813488646160754)\n\n2⃣@austingriffith 宣布其ethskills ChatGPT插件获批，可帮助用户在ChatGPT中增强以太坊相关知识查询能力 [原文] (https://x.com/austingriffith/status/2110843733931602426)",
+   "created_at": "Fri Oct 16 03:23:10 +0000 2026",
+   "created_timestamp": 1792120990,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/austingriffith/status/2110843733931602426",
+    "id": "2110843733931602426",
+    "text": "my ethskills chatgpt plugin just got approved!!!\n\nmake your chatgpt way smarter about ethereum \n\nwith this one simple trick:\n\nhttps://chatgpt.com/share/6ad14382-a128-83e8-a217-4b838cc0d7f5",
+    "created_at": "Thu Oct 15 21:22:18 +0000 2026",
+    "created_timestamp": 1792099338,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "austingriffith"
+    },
+    "card": {
+     "url": "https://chatgpt.com/share/6ad14382-a128-83e8-a217-4b838cc0d7f5",
+     "title": "Check out this chat",
+     "domain": "chatgpt.com"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2110597268730740744",
+   "id": "2110597268730740744",
+   "text": "Zksync 团队完成单 GPU 实时证明以太坊 Block（12秒内），这是个标志性的事件，意味着 zk 技术在扩展和性能上达到成熟标志，未来以太坊主网转为 zkvm 就可以不需要所有节点重新执行一遍交易，只需要产生证明，全网验证即可，是未来以太坊主网升级最重要的计划之一。",
+   "created_at": "Thu Oct 15 05:02:56 +0000 2026",
+   "created_timestamp": 1792040576,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/VitalikButerin/status/2110576209658548683",
+    "id": "2110576209658548683",
+    "text": "Big congratulations to the @zksync airbender team for this milestone.\n\nAt this point, I consider the battle for speed to be definitively won, and the top priority for zkEVMs should shift fully to security.\n\nTo me that means formally verifying\n\n(i) equivalence of the arithmetization to the ethereum spec\n(ii) a hard maximum bound on (prover cost) / (amount of gas in block)\n(iii) security of the proof system itself\n https://firefly.social/post/x/2110011544360607842",
+    "created_at": "Thu Oct 15 03:39:15 +0000 2026",
+    "created_timestamp": 1792035555,
+    "is_note_tweet": true,
+    "author": {
+     "screen_name": "VitalikButerin"
+    },
+    "card": {
+     "url": "https://firefly.social/post/x/2110011544360607842",
+     "title": "View @zksync's post on Firefly",
+     "domain": "firefly.social"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2110567371090129131",
+   "id": "2110567371090129131",
+   "text": "🗓️以太坊日报 2026-10-15\n\n【区块链技术讨论】\n1⃣@barnabemonnot 披露以太坊L1计划将自身数据发布至Blob，使L1向\"rollup\"形态演进，同时强调Blob机制既支持私有L2用例也改善L1核心属性 [原文] (https://x.com/barnabemonnot/status/2110405994882756667)\n\n2⃣@growthepie_eth 发布ETH应用数据，显示ETH在30天内位列以太坊及L2应用活跃地址、L1交易量第一，并推出独立ETH应用追踪页面；同时说明当前统计尚未包含wETH [原文] (https://x.com/growthepie_eth/status/2110355184840827135) [原文] (https://x.com/growthepie_eth/status/2110411094292349049)\n\n3⃣@DavideCrapis 提及更多API正独立采用zkAPI实现隐私支付，该方案易于集成且支持实时私密聊天 [原文] (https://x.com/DavideCrapis/status/2110373765028651023)\n\n4⃣@Asbet0s 转发 @ethdotorg 宣布其AI驱动搜索功能进入Beta测试，用户可直接获取答案而无需翻阅搜索结果 [原文] (https://x.com/Asbet0s/status/2110388334917005588)\n\n5⃣@DrewVdW 评论区块构建透明度问题，暗示当前单方区块构建流程需要改进 [原文] (https://x.com/DrewVdW/status/2110467288671326242)\n\n【行业观点碰撞】\n1⃣@barnabemonnot 阐述以太坊核心价值在于去中心化与状态积累，区分\"利用去中心化获取安全性\"与\"利用流动性\"两类用例，认为L2成功是对以太坊价值的肯定，不应混淆技术包装与实际属性 [原文] (https://x.com/barnabemonnot/status/2110311863963492833)\n\n2⃣@matteoikari 提出\"以太坊最大化而非去中心化最大化\"观点，主张L1保持无需许可的去中心化，而上层运营者需接受更严格的许可与监管 [原文] (https://x.com/matteoikari/status/2110312129832075521)\n\n3⃣@base 引用Xen观点称2026年将成为代币化股票的拐点，将实现资产的全球准入与新型金融产品；同时Jesse Pollak表示代币化股权规模已在18个月内从零增长至33亿美元，形成新一轮超级周期 [原文] (https://x.com/base/status/2110319647656468749) [原文] (https://x.com/base/status/2110287718148145443)\n\n4⃣@matthuang 宣布Tempo Zones首个实例已上线，与Deel合作为其全球承包商支付增加链上隐私，并指出在AI时代伪匿名不足，链上隐私是现实世界资金流转规模化的前提；提及 @privy_io @Morpho 等合作伙伴无缝兼容该方案 [原文] (https://x.com/matthuang/status/2110373917957505379) [原文] (https://x.com/matthuang/status/2110384084707127735)\n\n5⃣@chainlink 发布DTCC数字资产全球负责人Nadine Chakar与Sergey Nazarov在SIBOS 2026的对谈，讨论代币化资产的市场规模化路径，Nadine强调应关注互操作性与合规感知而非底层轨道，Sergey指出机构级股权代币化将加速代币化股票应用 [原文] (https://x.com/chainlink/status/2110423952787214461)\n\n6⃣@motypes 参与 @ethereumhkhub 活动讨论，指出企业级采用的关键不仅是技术扩容，还需满足保密性、合规性与内控要求 [原文] (https://x.com/motypes/status/2110280455073484966)\n\n7⃣@ameensol 转发讨论指出隐私倡导者因担心暴露钱包而回避ENS，反映链上身份与隐私保护的持续张力 [原文] (https://x.com/ameensol/status/2110370888004641208)",
+   "created_at": "Thu Oct 15 03:04:08 +0000 2026",
+   "created_timestamp": 1792033448,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/barnabemonnot/status/2110405994882756667",
+    "id": "2110405994882756667",
+    "text": "Blobs are one of these things that both support the success of use cases mediated via private L2s, as well as improve the L1's own core properties.\n\nThe plan for the L1 is to turn itself into \"a rollup\", namely to post its own data into blobs. https://x.com/decentrek/status/2110363999560970421",
+    "created_at": "Wed Oct 14 16:22:53 +0000 2026",
+    "created_timestamp": 1791994973,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "barnabemonnot"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2110201103052898582",
+   "id": "2110201103052898582",
+   "text": "🗓️以太坊日报 2026-10-14\n\n【区块链技术讨论】\n1⃣@barnabemonnot 解释Quick slots必须随网络升级捆绑发布，以太坊网络升级周期为6-12个月，因此功能打包发布更具工程合理性 [原文] (https://x.com/barnabemonnot/status/2109967282222854560)\n\n2⃣Gnosis Chain将以太坊跨链时间从约13分钟压缩至12-24秒，@ethlabs_org交付了显著的性能优化 [原文] (https://x.com/barnabemonnot/status/2109955508740428048)\n\n3⃣@ralexstokes 分享\"agentic age\"技术观察，提出工程师将向\"intent managers\"演进、\"superfan\"经济及main分支持续测试或成CI未来方向 [原文] (https://x.com/ralexstokes/status/2110088821874532715)\n\n4⃣@fbwoolf 转推\"四骑士\"技术方向：后量子密码、快速最终性、密码分析与形式验证 [原文] (https://x.com/fbwoolf/status/2109985608269803765)\n\n5⃣@matteoikari 转推关于量子计算威胁密码学的讨论，引发对以太坊长期安全架构的前瞻思考 [原文] (https://x.com/matteoikari/status/2110045507762688304)\n\n【学术合作动态】\n1⃣@ittaia 与Jennifer Welch合作启动Decentralized Thoughts系列，聚焦分布式时钟同步的理论极限 [原文] (https://x.com/luca_zanolini/status/2109956232505340306)\n\n【行业观点碰撞】\n1⃣@matteoikari 表达\"以太坊maxi而非去中心化maxi\"立场，认为世界只需要一个完全去中心化且无需许可的链 [原文] (https://x.com/matteoikari/status/2110123528616018058)\n\n2⃣@DavideCrapis 参与AI伦理讨论，主张应以人类、社区和下一代为\"指南针\"引导AI发展，避免在能力指数级增长中迷失方向 [原文] (https://x.com/DavideCrapis/status/2109848433028943958)\n\n3⃣@growthepie_eth 发布数据洞察：链上AI服务注册量激增使独立所有者首破5万，Base占新增主导；历史前十大AI服务按评论者计分布于Celo、Base与Ethereum L1 [原文] (https://x.com/growthepie_eth/status/2110009261363278057)\n\n4⃣@DeFiRate 披露Kalshi单周合约量达190.3亿美元，Polymarket美国交易量近六周三倍增长，预测市场热度攀升 [原文] (https://x.com/DeFiRate/status/2109887678309454141)\n\n5⃣@intangiblecoins 呼吁\"构建开放货币与开放智能\"，主张以开源方式捍卫自由 [原文] (https://x.com/intangiblecoins/status/2109953432778100880)\n\n6⃣@evan_van_ness 转推@duelinggalois观点，认为Ledger事件暴露零售上链痛点，像@infinex这类钱包或成安全入口关键 [原文] (https://x.com/evan_van_ness/status/2110016748569428218)\n\n【开发者生态】\n1⃣@base 推出Earn & Borrow端到端堆栈，支持开发者为终端用户提供稳定币收益与加密货币抵押贷款 [原文] (https://x.com/base/status/2110054191419027932)\n\n2⃣@austingriffith 发布Sage快速决策工具及SageWisdom技能，支持在AI应用中集成0.3秒级决策能力，覆盖路由、审核与语音指令等场景 [原文] (https://x.com/austingriffith/status/2110041876091072608)\n\n3⃣@MartinBreiten 转推@SourcifyEth推出Onay，一款本地优先的以太坊交易安全签名伴侣工具 [原文] (https://x.com/MartinBreiten/status/2110013509136515352)\n\n4⃣@motypes 披露团队9月交付进展，正为机构使用以太坊构建兼顾保密性、合规性与互操作性的开放标准基础设施 [原文] (https://x.com/motypes/status/2110006936095891688)\n\n5⃣Aave DAO批准对Base上Coinbase Tokenized Stocks市场的激励，推动RWA交易场景 [原文] (https://x.com/base/status/2110075926520173032)\n\n6⃣@chainlink 公布Link:NYC会议五大议程，涵盖代币化资产规模化、agentic finance、数字现金新架构与资本市场互操作性 [原文] (https://x.com/chainlink/status/2110076212504600798)",
+   "created_at": "Wed Oct 14 02:48:43 +0000 2026",
+   "created_timestamp": 1791946123,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/barnabemonnot/status/2109967282222854560",
+    "id": "2109967282222854560",
+    "text": "@sakulstra @binji_x Quick slots cannot be shipped outside of a network upgrade, and these happen every 6-12 months. Because there is upfront work to do to ship a network upgrade in the first place, it makes sense to ship a bundle of features as opposed to a single one.\n\nAlso https://x.com/barnabemonnot/status/2103237576496681227",
+    "created_at": "Tue Oct 13 11:19:36 +0000 2026",
+    "created_timestamp": 1791890376,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "barnabemonnot"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109979863612535014",
+   "id": "2109979863612535014",
+   "text": "https://x.com/i/article/2109959447267438592",
+   "created_at": "Tue Oct 13 12:09:35 +0000 2026",
+   "created_timestamp": 1791893375,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "article": {
+    "id": "2109959447267438592",
+    "title": "ETH Shenzhen 2026｜硅基生命遇上以太坊，一场属于协议的辛亥",
+    "preview_text": "硅基生命遇上 Ethereum\n—— 一场关于协议的辛亥 ——\n在科幻作家特德·姜的笔下，人类最深刻的震撼，往往发生在认知与工具的极限边缘："
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109875254671847709",
+   "id": "2109875254671847709",
+   "text": "🚀 ETH Shenzhen 2026 黑客松正式启动！\n@Ethtao_Ethtao 与 @OpenBuildxyz、@0xSZUBA 联合主办的ETH Shenzhen 2026 将于 10 月 24–25 日在深圳举行，汇聚以太坊建设者、开发者与社区，共同探索 AI、Web3 与开源创新的未来。\n\n感谢赞助商 @GCCofCommons @chainlink 提供本次黑客松奖金！\n\n现已开放报名！\n💰 3,000 美元主奖池，另有额外悬赏奖励与开发者资源支持\n📅 10 月 22 日｜报名截止\n💻 10 月 24 日｜共创开发日 & 项目演示评审\n🏆 10 月 25 日｜大会 & 颁奖典礼\n\n不设固定赛道。带上你的想法，做出真正的作品，展示你的想法与实力！\n\n🔗 立即报名：https://tinyurl.com/mrxau8zh\n年轻一代的以太坊开发者们。深圳见！\n\n#ETHShenzhen2026 #Ethereum #Hackathon #Web3 #AI",
+   "created_at": "Tue Oct 13 05:13:54 +0000 2026",
+   "created_timestamp": 1791868434,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109838302744584270",
+   "id": "2109838302744584270",
+   "text": "🗓️以太坊日报 2026-10-13\n\n【区块链技术讨论】\n1⃣@barnabemonnot 透露 @fradamt 已利用AI取得以太坊共识协议的正式验证证明 [原文] (https://x.com/barnabemonnot/status/2109745062003306660)\n\n2⃣@corcoranwill 梳理当前以太坊研究四大前沿方向：后量子密码、快速最终性、密码分析与形式验证，涉及研究者 @drakefjustin @yannvon @asanso @alexanderlhicks [原文] (https://x.com/corcoranwill/status/2109747187039314423)\n\n3⃣@ameensol 转发Privacy Pools v2进展，该项目可将ETH与稳定币的隐私保护成本降至净资产的0.25-1.00%以下 [原文] (https://x.com/ameensol/status/2109762838042673653)\n\n4⃣@casparschwa 转发L2BEAT上线Blobs实时监控页面，用于替代DABEAT追踪以太坊blob活动 [原文] (https://x.com/casparschwa/status/2109657893859373332)\n\n【行业观点碰撞】\n1⃣@casparschwa 提出以太坊应成为全球链上经济的引力中心 [原文] (https://x.com/casparschwa/status/2109656188430229626)\n\n2⃣@matteoikari 回顾@BrianknowsAI团队2023年行业预判：基于意图的UI钱包、链上智能体、Web3领域特定模型及分布式推理网络将逐步落地 [原文] (https://x.com/matteoikari/status/2109569662111330516)\n\n3⃣@base 分享AGM对资产代币化的展望，认为借贷、杠杆做多与做空功能将推动链下资产上链 [原文] (https://x.com/base/status/2109720683672469718)\n\n4⃣@fundstrat 称ETH为2026年第三季度表现最佳的宏观资产，并引发对第四季度领涨资产的讨论 [原文] (https://x.com/fundstrat/status/2109500357680521459)\n\n5⃣@evan_van_ness 批评现有硬件钱包存在数据泄露与恶意植入风险，并推荐Infinex作为替代方案 [原文] (https://x.com/evan_van_ness/status/2109674222423298103)\n\n6⃣@base 说明代币化股票目前仅向美国以外符合条件的司法管辖区开放 [原文] (https://x.com/base/status/2109720686298280403)\n\n【开发者生态】\n1⃣@growthepie_eth 数据显示上周以太坊生态共有929个活跃应用，其中超过半数活跃于以太坊L1 [原文] (https://x.com/growthepie_eth/status/2109641174562611243)\n\n2⃣@nixorokish 转发@trent_vanepps内容，提及隐私赛道新项目加入支持以太坊核心开发的行列 [原文] (https://x.com/nixorokish/status/2109791651094991078)",
+   "created_at": "Tue Oct 13 02:47:04 +0000 2026",
+   "created_timestamp": 1791859624,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/barnabemonnot/status/2109745062003306660",
+    "id": "2109745062003306660",
+    "text": "@camiinthisthang @fradamt obtained a formally verified proof of the upcoming Ethereum consensus protocol using AI https://x.com/fradamt/status/2103501375279706556",
+    "created_at": "Mon Oct 12 20:36:34 +0000 2026",
+    "created_timestamp": 1791837394,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "barnabemonnot"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109615279332602145",
+   "id": "2109615279332602145",
+   "text": "https://x.com/i/article/2109576725973897216",
+   "created_at": "Mon Oct 12 12:00:52 +0000 2026",
+   "created_timestamp": 1791806452,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "article": {
+    "id": "2109576725973897216",
+    "title": "ETH Shenzhen 2026 Hackathon ",
+    "preview_text": "10 月 24–25 日 Ethtao 联合 openbuild ，深大链协共同举办ETH Shenzhen 。汇聚 Ethereum 生态开发者、技术社区与 Builder，共同探索 AI、Web3 与开源技术的更多可能。\n作为大会的重要组成部分，ETH Shenzhen 2026"
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109469520494797202",
+   "id": "2109469520494797202",
+   "text": "🗓️以太坊日报 2026-10-12\n\n【区块链技术讨论】\n1⃣@asanso 转推 @corcoranwill 关于后量子密码学生态系统（涵盖Ethereum、Bitcoin、Zcash等）的行业聚会 [原文] (https://x.com/asanso/status/2109271510405800332)\n\n2⃣@MessariCrypto 披露AQA储备收益已占Hyperliquid周收入约20%，并提及对齐稳定币（Aligned stablecoins）与协议的收入分享机制 [原文] (https://x.com/MessariCrypto/status/2109291877690196080)\n\n3⃣@chainlink 强调安全性是解锁链上市场的决定性需求 [原文] (https://x.com/chainlink/status/2109348593807093952)\n\n4⃣@tayvano_ 就Ledger硬件钱包安全问题向用户提供建议，建议保留收据、包装并教育销售人员识别可疑产品 [原文] (https://x.com/tayvano_/status/2109381862749782043)\n\n【行业观点碰撞】\n1⃣@evan_van_ness 力荐Infinex为当前最佳加密钱包，批评Metamask用户体验落后，认为钱包体验问题阻碍以太坊发展 [原文] (https://x.com/evan_van_ness/status/2109377938390982847)\n\n2⃣@evan_van_ness 回应关于Pearl代币的质疑，强调其社区关注完全有机增长，并提及\"构建全球最大计算网络\"的愿景 [原文] (https://x.com/evan_van_ness/status/2109359566181847326)\n\n3⃣@TrustlessState 评论当前加密市场具有\"剧情护甲\"（plot armor），对利空消息免疫，认为牛市趋势明显 [原文] (https://x.com/TrustlessState/status/2109326176313336092)\n\n【开发者生态】\n1⃣@base 发布推文\"周末建设者们，我们看到你们了\"，鼓励开发者社区持续建设 [原文] (https://x.com/base/status/2109304295116153223)",
+   "created_at": "Mon Oct 12 02:21:40 +0000 2026",
+   "created_timestamp": 1791771700,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/corcoranwill/status/2109028056145056062",
+    "id": "2109028056145056062",
+    "text": "ecosystem gathering…\n\nthe post-quantum cryptography ecosystem\n\nethereum / bitcoin / zcash / world / aztec",
+    "created_at": "Sat Oct 10 21:07:27 +0000 2026",
+    "created_timestamp": 1791666447,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "corcoranwill"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109139904634773907",
+   "id": "2109139904634773907",
+   "text": "🗓️以太坊日报 2026-10-11\n\n【区块链技术讨论】\n1⃣@barnabemonnot 讨论ETH分布增加是否增强其SoV属性 [原文] (https://x.com/barnabemonnot/status/2108861011801546765)\n\n2⃣@evan_van_ness 转发 @andyyy 关于Tom Schmidt讨论Proof-of-Verifiable Work及Pearl看涨论点的完整对话 [原文] (https://x.com/evan_van_ness/status/2108952502905225672)\n\n【行业观点碰撞】\n1⃣@corcoranwill 组织后量子密码学生态系统聚会，涉及ethereum/bitcoin/zcash/world/aztec等多链项目 [原文] (https://x.com/corcoranwill/status/2109028056145056062)\n\n2⃣@chainlink 举办Link:NYC活动，汇聚DTCC、CFTC、Swift、Fidelity、Citi等35+位传统金融与数字资产领域领袖 [原文] (https://x.com/chainlink/status/2109011082287161817)\n@chainlink 引用DTCC CTO Dan Doney观点，称此类系统可释放52万亿美元资产价值 [原文] (https://x.com/chainlink/status/2108929896622043641)\n\n3⃣@TrustlessState 高度评价Infinex钱包，称其使用一年多以来体验极佳，解决了自托管风险且不受单一设备限制，同时讨论Kain与积分农民叙事之争及当前钱包赛道现状 [原文] (https://x.com/TrustlessState/status/2108947848607756290) [原文] (https://x.com/TrustlessState/status/2108920209587503522)\n\n4⃣@BenDiFrancesco 转发 @UmbraCash 观点，主张以太坊应成为隐私避风港，涵盖支付、私密对话和秘密投票 [原文] (https://x.com/BenDiFrancesco/status/2108939064703598867)\n\n5⃣@fbwoolf 转发 @kassandraETH 呼吁TORN持有者在提案#71中投赞成票，以新增0.01至30 ETH多档Tornado Cash资金池 [原文] (https://x.com/fbwoolf/status/2108975398759362570)\n\n6⃣@evan_van_ness 转发 @degennQuant 分享关于 $PRL (Pearl) 的研究与早期矿工访谈内容 [原文] (https://x.com/evan_van_ness/status/2109008068629393423)\n\n【开发者生态】\n1⃣@austingriffith 总结 @lex_node 关于\"slop computer\"的核心观点：分叉默认技能、AI辅助写作但需人工核查、削减中间商环节 [原文] (https://x.com/austingriffith/status/2108941261034148177)\n\n2⃣@BenDiFrancesco 呼吁开发开源iMessage客户端，推动通信基础设施开放化 [原文] (https://x.com/BenDiFrancesco/status/2109027904889798793)",
+   "created_at": "Sun Oct 11 04:31:53 +0000 2026",
+   "created_timestamp": 1791693113,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/andyyy/status/2108826365243838756",
+    "id": "2108826365243838756",
+    "text": "FULL CONVERSATION: Tom Schmidt on Proof-of-Verifiable Work & The Pearl Bull Thesis\n\n@tomhschmidt @dragonfly @therollupco \n\npearl-2:native ",
+    "created_at": "Sat Oct 10 07:46:00 +0000 2026",
+    "created_timestamp": 1791618360,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "andyyy"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2108751310191243768",
+   "id": "2108751310191243768",
+   "text": "🗓️以太坊日报 2026-10-10\n\n【区块链技术讨论】\n1⃣@barnabemonnot 讨论以太坊质押节点角色，主张质押者应参与状态与历史数据服务及内存池，而非仅运行ZK证明 [原文] (https://x.com/barnabemonnot/status/2108549586587643940)\n\n2⃣@_julianma 宣布Gnosis Chain成为首个采用以太坊快速确认规则(FCR)的L2，首批FCR交易已成功通过 [原文] (https://x.com/_julianma/status/2108413401810792811)\n\n3⃣@soispoke 发布关于以太坊后量子证明ISA的帖子，介绍EIP-8288支持用户证明私有的后量子交易 [原文] (https://x.com/soispoke/status/2108560669033594993)\n\n4⃣@asanso 讨论同源椭圆曲线攻击局限性，指出无法通过同源将P-256转移至光滑阶曲线以应用Pohlig-Hellman攻击 [原文] (https://x.com/asanso/status/2108505131788419473)\n\n【行业观点碰撞】\n1⃣@TrustlessState 引用@hosseeb观点，评价Justin Drake对密码学威胁的诊断方向正确，但提出的解决方案非常错误 [原文] (https://x.com/TrustlessState/status/2108406616798220414)\n\n2⃣@corcoranwill 长文驳斥@lex_node对@drakefjustin的批评，列举Drake过去24个月对以太坊的核心贡献，包括beam chain、形式化验证团队、$20M资助、@eth_proofs、Poseidon倡议、PQ团队等 [原文] (https://x.com/corcoranwill/status/2108594698122059815)\n\n3⃣@BenDiFrancesco 分析AI对密码学的潜在威胁，认同@EliBenSasson的观点，认为AI可能使某些密码学系统破解难度降低数个数量级，引发社区对未知弱点的担忧 [原文] (https://x.com/BenDiFrancesco/status/2108645921965695359)\n\n4⃣@tayvano_ 批评硬件钱包制造商不应在保密协议下秘密出售用户数据，呼吁更新合同条款防止此类事件发生 [原文] (https://x.com/tayvano_/status/2108607272805151099)\n\n5⃣@TrustlessState 提出\"进攻性黑帽数学\"概念，指利用AI攻击密码学系统 [原文] (https://x.com/TrustlessState/status/2108520365844763057)\n\n【开发者生态】\n1⃣@nixorokish 转发@ready4merge，发布关于ePBS最终设计的完整播客，参与者包括@christine_dkim、@mikeneuder [原文] (https://x.com/nixorokish/status/2108568592044474722)\n\n2⃣@austingriffith 预告与zk工程师@ceciliaz030的直播，讨论\"与钱包对话\"及reth相关开发话题 [原文] (https://x.com/austingriffith/status/2108556610151096808)\n\n3⃣@matteoikari 宣布AI资产选择工具Synthetick完全开源，并呼吁该领域应保持开源 [原文] (https://x.com/matteoikari/status/2108454392664096879)\n\n4⃣@nloureiro 转发以太坊基金会关于运行以太坊节点所需ETH数量的科普测验 [原文] (https://x.com/nloureiro/status/2108584455661064468)",
+   "created_at": "Sat Oct 10 02:47:45 +0000 2026",
+   "created_timestamp": 1791600465,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/barnabemonnot/status/2108549586587643940",
+    "id": "2108549586587643940",
+    "text": "@dapplion I’d like Ethereum stake to run on ZK proofs but I’d not prefer them specifically to not run an EL, I’d like them to participate in the mempool and serve state too. So I chose 0%",
+    "created_at": "Fri Oct 09 13:26:11 +0000 2026",
+    "created_timestamp": 1791552371,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "barnabemonnot"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2108389010406343148",
+   "id": "2108389010406343148",
+   "text": "🗓️以太坊日报 2026-10-09\n\n【区块链技术讨论】\n1⃣@soispoke 发布EIP-8288研究，提出通过标准化指令集架构（ISA）实现以太坊后量子隐私证明，用户可在本地设备生成STARK证明，节点在链外验证，候选ISA包括EVM、RISC-V与定制eISA，并通过program_id机制解决合约不可升级难题 [原文] (https://x.com/soispoke/status/2108225737991795099)\n\n2⃣@barnabemonnot 宣布以太坊快速确认规则（FCR）已正式集成至Gnosis桥，存款速度提升20-30倍，显著增强以太坊与周边生态的资产流动效率 [原文] (https://x.com/barnabemonnot/status/2108281024149078254)\n\n3⃣@asanso 系统梳理五大前量子密码学攻击目标，涵盖1024位整数分解、Poseidon哈希原像、虚二次域类数计算、配对求逆与二进制域ECDLP，按主观难度排序并评估算法突破空间 [原文] (https://x.com/asanso/status/2108128919387820278)\n\n4⃣@matteoikari 发布科普视频详解AI与量子计算对以太坊EOA密钥的威胁机制，汇总Google Quantum AI、Drake及以太坊基金会2029年量子抵抗L1路线图等多方预测 [原文] (https://x.com/matteoikari/status/2108181582896914596)\n\n5⃣@barnabemonnot 与 @lex_node 就数据可用性（DA）在以太坊整合中的权重展开讨论，认为技术架构、产品特性与市场策略均为重要维度，但对Stage 2的安全诉求与采用Celestia等外部DA的额外信任假设之间存在张力 [原文] (https://x.com/barnabemonnot/status/2108182184271978794)\n\n6⃣@corcoranwill 与 @apriori0x 讨论以太坊客户端多样性带来的开发开销，解释6个共识层与6个执行层客户端的异构性使协调成本远高于Zcash等单体式架构，但核心开发者社区正全力加速交付 [原文] (https://x.com/corcoranwill/status/2108262926213841087)\n\n7⃣@escottalexander 补充量子准备讨论，强调即使协议层快速升级，若终端用户不主动迁移暴露地址，资产仍面临被盗风险，用户层行动与协议层改进同等重要 [原文] (https://x.com/escottalexander/status/2108167804373422086)\n\n【行业观点碰撞】\n1⃣@davwals 宣布以太坊机构倡议（@ethereuminsti）全新网站与品牌上线，已追踪逾100家机构在以太坊及其生态的部署，并设立活动、研究与出版物板块 [原文] (https://x.com/davwals/status/2108207948275085588)\n\n2⃣@BitDigital_BTBT 在Token2049主办下一代ETH晚餐俱乐部，@ethereumJoseph 与 @PaulFrambot 等参与小组讨论，指出机构虽加速上链，但以太坊社区对如何承接这些ETH尚未形成统一共识 [原文] (https://x.com/BitDigital_BTBT/status/2108255042817921431)\n\n3⃣@chainlink 正式发布CCIP Vault Adapters，支持用户从80余条链一键跨链存入以太坊等链上的ERC-4626金库，Aave、Lombard、Maple、Venus等主流协议已集成采用 [原文] (https://x.com/chainlink/status/2108169684721807413)\n\n4⃣@TrustlessState 在量子x隐私日提出AI价值捕获的行业命题，探讨OpenAI式单一巨型模型与 @AskVenice 多元模型组合的路径分歧，并参与 @balajis 与 @ilblackdragon 关于Code-Based Order的讨论 [原文] (https://x.com/TrustlessState/status/2108182513378341337)\n\n5⃣@fundstrat（Tom Lee）透露旗下BitMine将在ETH持仓达到约5%供应硬上限（距当前约10万ETH）时停止增持，引发市场对机构ETH购买节奏的讨论 [原文] (https://x.com/fundstrat/status/2108089185789989193)\n\n6⃣@growthepie_eth 指出Celo在所有追踪时段内稳居稳定币转账量第一，同时强调其仍向以太坊L1支付结算租金，暗示L2/L1经济关系的持续性 [原文] (https://x.com/growthepie_eth/status/2108152885389214145)\n\n7⃣@nero_eth 明确表态\"Ethereum isn't slowing down. It's accelerating\"，回应市场对以太坊开发节奏的质疑 [原文] (https://x.com/nero_eth/status/2108142385704370457)\n\n8⃣@DrewVdW 推荐 @apriori0x 播客，聚焦ePBS（enshrined Proposer-Builder Separation）机制对以太坊市场结构的深远影响 [原文] (https://x.com/DrewVdW/status/2108275926740140387)\n\n9⃣@jchaskin22 转推 @ethereuminsti 基于 @VitalikButerin 文章提出的前瞻判断：到2030年\"区块链\"一词将不再足以涵盖以太坊的形态 [原文] (https://x.com/jchaskin22/status/2108235580647801046)\n\n【开发者生态】\n1⃣@austingriffith 推出Learning Lab，内置浏览器端EVM执行环境与AI导师，旨在降低智能合约与以太坊开发的学习门槛 [原文] (https://x.com/austingriffith/status/2108238000018899459)\n\n2⃣@austingriffith 基于 @safe 核心合约与 @candidelabs 已审计社交恢复方案，组装面向新手的\"即时钱包\"，支持硬件钱包与多签交易 [原文] (https://x.com/austingriffith/status/2108280686994178183)\n\n3⃣@jchaskin22 转推 @OctantApp 隐私资助轮，该轮次提供100 ETH匹配资金，支持以太坊生态内的隐私项目建设 [原文] (https://x.com/jchaskin22/status/2108192576138620951)\n\n4⃣@matteoikari 将其用于制作以太坊量子威胁科普视频的Claude skill开源至GitHub，供开发者社区复用与二次开发 [原文] (https://x.com/matteoikari/status/2108181596700598423)\n\n5⃣@jchaskin22 阐述开源协作模式如何加速全球开发者共同建设，体现以太坊社区开放透明的开发文化 [原文] (https://x.com/jchaskin22/status/2108252891043565864)",
+   "created_at": "Fri Oct 09 02:48:06 +0000 2026",
+   "created_timestamp": 1791514086,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/jchaskin22/status/2108252891043565864",
+    "id": "2108252891043565864",
+    "text": "open source is cool because you can think of stuff and start building stuff and then someone halfway around the world thinks your stuff is cool and helps you build stuff and now the stuff gets built faster and the stuff is better",
+    "created_at": "Thu Oct 08 17:47:13 +0000 2026",
+    "created_timestamp": 1791481633,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "jchaskin22"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2108023489429180738",
+   "id": "2108023489429180738",
+   "text": "🗓️以太坊日报 2026-10-08\n\n【区块链技术讨论】\n1⃣@drakefjustin 呼吁区块链行业启动\"bunker mode\"规划，建议将资产迁移至未暴露公钥的新地址以应对ECDSA可能被AI或量子计算破解的风险，并指出以太坊路线图已全面拥抱基于哈希的密码学 [原文] (https://x.com/drakefjustin/status/2107837081313505768)\n\n2⃣@nero_eth 公布Glamsterdam硬分叉包含的23个EIP已进入\"Last Call\"阶段，涵盖EIP-7732（原生提议者-构建者分离）、EIP-7708（ETH转账事件日志）、EIP-7928（区块级访问列表）等关键协议改进 [原文] (https://x.com/nero_eth/status/2107703998408990742)\n\n3⃣@weboftrees 更新EIP-8046（UPIL，统一价格拍卖覆盖包含列表），新增对VOPS配置文件和EIP-8037双gas维度的支持，旨在增强审查抵抗力并改善费用市场公平性 [原文] (https://x.com/weboftrees/status/2107800537643053495)\n\n4⃣@nero_eth 与@pcaversaccio就Tornado Cash新增面额（0.01、0.3、3、30 ETH等）的提案进行技术讨论，@nero_eth担忧此举将碎片化匿名性集并削弱隐私保护，建议仅保留10、1和0.1 ETH池 [原文] (https://x.com/nero_eth/status/2107852526603190486)\n\n5⃣@barnabemonnot 论证以太坊的抗审查特性：即使1/3+1的节点消失，网络仍保持活性，反驳了关于以太坊活性的错误指控 [原文] (https://x.com/barnabemonnot/status/2107733953918452110)\n\n6⃣@vdWijden 披露Geth执行客户端经@JonnyRhea优化后成为第二快的客户端，且更多性能改进即将推出 [原文] (https://x.com/vdWijden/status/2107792307290317099)\n\n【行业观点碰撞】\n1⃣@drakefjustin 警告数学超智能可能在未来数月（而非数年）内破解ECDSA，建议Binance、Bitfinex、Tether等大型机构立即启动资产迁移至受保护地址，并推动最大防御性加速（maximum defensive acceleration） [原文] (https://x.com/drakefjustin/status/2107837081313505768)\n\n2⃣@matteoikari 质疑以太坊PQ（后量子）准备工作的紧迫性不足，认为若真相信AI或量子计算将在2030年前破解现有加密，整个路线图应完全聚焦于PQ就绪而非扩展和隐私 [原文] (https://x.com/matteoikari/status/2107843961356272039)\n\n3⃣@corcoranwill 回应PQ准备质疑，确认整个稻草图（strawmap）确实正在专注于使以太坊PQ就绪，研究人员和核心开发者已为此努力数月 [原文] (https://x.com/corcoranwill/status/2107864578453303322)\n\n4⃣@VitalikButerin（经由@casparschwa转发）重申ETH作为价值存储（SoV）的核心定位，强调其是以太坊生态最重要的应用之一 [原文] (https://x.com/casparschwa/status/2107884906663547083)\n\n5⃣@corcoranwill 提出\"历史的长弧倾向于哈希\"（the long arc of history bends towards hashes），强调基于哈希的密码学是以太坊应对未来威胁的根本方向 [原文] (https://x.com/corcoranwill/status/2107954489504526361)\n\n【开发者生态】\n1⃣@DrewVdW 宣布Commit-Boost支持出价流（bid streaming）功能，经过与提议者协作和反馈整合，可增强以太坊质押基础设施的稳定性与稳健性 [原文] (https://x.com/DrewVdW/status/2107838956675215382)\n\n2⃣@matteoikari 开源Supertake项目，提供完全开源的AI资产筛选工具，开放API和MCP服务器供开发者无许可使用 [原文] (https://x.com/matteoikari/status/2107770985671954812)\n\n3⃣@pcaversaccio 推动Tornado Cash新增面额（0.01、0.3、3、30 ETH）的DAO治理提案部署，旨在提升零售用户可访问性并增加协议使用率 [原文] (https://x.com/pcaversaccio/status/2107801221071507671)",
+   "created_at": "Thu Oct 08 02:35:39 +0000 2026",
+   "created_timestamp": 1791426939,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/drakefjustin/status/2107837081313505768",
+    "id": "2107837081313505768",
+    "text": "Today I call upon the blockchain industry to calmly begin planning for \"bunker mode\". My personal recommendation is to set in motion a controlled mass migration of assets to fresh addresses, i.e. addresses whose pubkeys remain hidden behind a hash.\n\nHolders, starting with large and sophisticated ones, should consider moving the bulk of their funds to addresses that have never signed a transaction. And when they do sign one, they should also move remaining funds to a new address (possibly generated from the same seed phrase).\n\nDon't rush. While I believe there is cause for action a rushed migration would do more harm than good. Don't panic either. Moving assets to protected addresses is a simple, preventative step which does not require new cryptography or new wallets.\n\nIMO it is now reasonable to brace for the possibility that ECDSA breaks before qday, in the worst case in months not years. By \"break\" I mean fast private key recovery (e.g. in one week) on available hardware (e.g. a large GPU cluster).\n\nRecent days have been humbling for human mathematical intuition. Long-held, unquestioned hypotheses have fallen. This includes the n log(n) bound for integer multiplication and the 3SUM conjecture. In hindsight, May's unexpected disproof of the Erdős unit distance conjecture was our warning shot.\n\nYesterday's OpenAI drop made it clear that mathematical superintelligence is upon us. They say there are weeks where decades happen. We are about to live through weeks where centuries of mathematical progress happen. Could our magic 64-byte ECDSA signatures be too good to be true? Was it just security through obscurity all this time?\n\nElliptic curves feel especially vulnerable to superintelligence. Curves carry rich structure, with room for fancy tricks like Schoof, Frobenius, pairings. (By contrast, hashes are designed to minimise algebraic structure.)\n\nSeparately, as Ewin Tang can attest, an efficient quantum algorithm sometimes foreshadows an efficient classical one. We should be open to the possibility of a classical counterpart to Shor that breaks elliptic curves and RSA at once.\n\nAlso noteworthy is the striking under-representation of cryptographic breakthroughs among the 722 mathematical results OpenAI published. I've witnessed first-hand the US government censoring academic quantum cryptanalysis results. Backroom interventionism is my base case.\n\nI urge large, sophisticated actors to lead by example. Project11's \"risq list\" (bitcoin-risq-list.projecteleven[.]com) is a great tracker of exposed BTC pubkeys. Binance, Bitbank, Robinhood, Bitfinex, and Tether have an opportunity to harden their cold storage. Next month I'll address institutions in London in a live Q&A (forum.ethereuminstitutional[.]org/london-2026).\n\nAgain, please do not rush. Wallets holding under 50 BTC enjoy partial cover from \"Satoshi's shield\", i.e. his 20K exposed addresses that hold 50 BTC each. Load-bearing signers like oracles and L2 security councils should consider rotating ECDSA pubkeys with every signed message and/or multi-signing with a hash-based schemes like SPHINCS.\n\nExiting bunker mode safely will require post-AI cryptography. My inclination is to go all-in on hash-based cryptography and avoid structured mathematical assumptions entirely, whether from curves, lattices, or isogenies. A single battle-tested hash (e.g. from the SHA or BLAKE families) yields plausible post-AI security.\n\nThe Ethereum roadmap on strawmap[.]org fully embraces hash-based cryptography with end-to-end formal verification as a response to the quantum threat. Those timelines must now be revisited and accelerated in light of mathematical superintelligence. I'll be pushing for maximum defensive acceleration.",
+    "created_at": "Wed Oct 07 14:14:56 +0000 2026",
+    "created_timestamp": 1791382496,
+    "is_note_tweet": true,
+    "author": {
+     "screen_name": "drakefjustin"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2107724375055327253",
+   "id": "2107724375055327253",
+   "text": "🗓️以太坊日报 2026-10-07\n\n【区块链技术讨论】\n1⃣@nero_eth 宣布 Glamsterdam (Gloas + Amsterdam) 在 Sepolia 测试网正式上线，称这是以太坊自上线以来最大的吞吐量增长，也是自 Merge 以来最大规模的升级；核心聚焦扩容并降低信任需求、改进同步、协调资源定价以增强抗 DoS 能力，包含 ePBS、BALs 及 EVM 重新定价，且 AI 在研究、测试、客户端实现等全流程发挥重要作用 [原文] (https://x.com/nero_eth/status/2107391098297471335)\n\n2⃣@barnabemonnot 评价 Glamsterdam 将带来至少 3 倍 L1 扩容、2.5 倍合约大小提升及大量实用功能改进 [原文] (https://x.com/barnabemonnot/status/2107487147641000304)\n\n3⃣@barnabemonnot 阐述以太坊互操作性与桥接安全观点，提出\"Private trains, public rails\"框架：L2 阶段 2 规范桥接可保持 L1 安全端到端，而 zk 轻客户端可改善以太坊资产向 alt-L1 的分布；CCIP 2.0 和 FCR（快速确认规则）正推动以太坊结算层更快、更便宜、更安全 [原文] (https://x.com/barnabemonnot/status/2107428074681762008)\n\n4⃣@barnabemonnot 反驳 THORChain 比比特币和以太坊更去中心化的说法，解释以太坊动态可用性机制（1/3+1 离线不会停止出块，仅影响最终确认），并分析 Lido、Binance、Coinbase 等质押实体分布，强调不活动泄漏可确保最终确认快速恢复 [原文] (https://x.com/barnabemonnot/status/2107398728403312970)\n\n5⃣@nero_eth 解释 Glamsterdam 分叉后 gas limit 调整机制：分叉瞬间负载不会立即激增，但数小时后随着验证者投票上调 gas limit 才会解锁吞吐量；在重新定价生效但 gas limit 尚未爬升的几小时内，吞吐量反而会暂时下降 [原文] (https://x.com/nero_eth/status/2107440326214320265)\n\n6⃣@gballet 宣布首个 WASM 支持 PR 已合并至 @ziskvm，为实现 @go_ethereum 在其上运行迈出重要里程碑 [原文] (https://x.com/gballet/status/2107524875669905805)\n\n7⃣@chainlink 发布 CCIP 2.0 与 Fulcrum 基础设施细节，提出跨链互操作标准使金融机构能在公链和私链间安全转移资产与数据，同时分离融资协议管理与现金抵押品结算层 [原文] (https://x.com/chainlink/status/2107548827846852735)\n\n8⃣@codytouchgrass 援引 @ignaciohagopian 指出 EIP-8025 规范工作不仅推动 L1 发展，也助力原生 Rollup 实验 [原文] (https://x.com/codytouchgrass/status/2107537307347632254)\n\n【行业观点碰撞】\n1⃣@matteoikari 批评加密领域资本配置失衡，认为应更多支持 EVM 生态应用建设，而非将资金涌入无用的 alt-L1 和 L2 [原文] (https://x.com/matteoikari/status/2107544536029483390)\n\n2⃣@matteoikari 指出 VCs 并未意识到 ENS 与去中心化命名系统的革命性价值 [原文] (https://x.com/matteoikari/status/2107544760567083113)\n\n3⃣@tayvano_ 分析 Tether 冻结 Conduit 地址事件，认为巴西执法部门的冻结指令可能存在沟通混乱，Conduit 可能选择性地向美法院呈现情况以试图解冻地址 [原文] (https://x.com/tayvano_/status/2107551087809233253)\n\n4⃣@evan_van_ness 评论 L2 竞争格局，指出 Abstract 已抢先于 Linea 推出 [原文] (https://x.com/evan_van_ness/status/2107615794842517940)\n\n5⃣@DeFiRate 报道 CFTC 就现货加密交易规则征求公众意见，此前 Clarity Act 在参议院投票失败，国会仍需确定监管边界 [原文] (https://x.com/DeFiRate/status/2107617731931468108)\n\n6⃣@DeFiRate 报道 ProphetX 向 CFTC 提交三项新申请，拟推出基于 Polymarket US、Rothera 和 DKeX 等预测市场 11 月交易量的衍生品合约 [原文] (https://x.com/DeFiRate/status/2107588916131840028)\n\n【开发者生态】\n1⃣@base 公布 9 月生态 25 项进展，涵盖 Aave 代币化股票抵押借贷、Cloudflare 代理计费 API、Citi 机构稳定币支付、Morpho/Alchemix 等 DeFi 集成及多国法币出入金方案 [原文] (https://x.com/base/status/2107418741524815878)\n\n2⃣@moritz_fluidkey 介绍 fluidkey 采用与 ERC-5564 对齐的 ENS data() 记录方案，而非 text record，以实现更好的隐私支付集成 [原文] (https://x.com/moritz_fluidkey/status/2107331305289732274)\n\n3⃣@austingriffith 与 @nxt3d 直播讨论 ENS 与代理身份系统，探索代理 NFT 发展 [原文] (https://x.com/austingriffith/status/2107521936280719531)\n\n4⃣@ameensol 援引 @daonamic 介绍 money league 在以太坊上构建无许可中央银行，支持任意人部署自己的货币策略 [原文] (https://x.com/ameensol/status/2107527709802787200)\n\n5⃣@nixorokish 援引 @ethrex_client 宣布 ethrex 与 ethlambda 达成合作，将发布 Sepolia 过渡完整报告 [原文] (https://x.com/nixorokish/status/2107491061518278786)\n\n6⃣@nixorokish 援引 @prylabs 发布 v7.2.1，聚焦 Glamsterdam 验证者客户端的 Gloas 构建器配置 [原文] (https://x.com/nixorokish/status/2107322170359865585)",
+   "created_at": "Wed Oct 07 06:47:05 +0000 2026",
+   "created_timestamp": 1791355625,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/nixorokish/status/2107322170359865585",
+    "id": "2107322170359865585",
+    "text": "RT @prylabs: Release v7.2.1 is now live.\n\nThis release focuses on Gloas builder configuration in the validator client.\n\nThe release also ad…",
+    "created_at": "Tue Oct 06 04:08:52 +0000 2026",
+    "created_timestamp": 1791259732,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "nixorokish"
+    },
+    "reposted_by": {
+     "screen_name": "nixorokish"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2107312167511060558",
+   "id": "2107312167511060558",
+   "text": "🗓️以太坊日报 2026-10-06\n\n【区块链技术讨论】\n1⃣@nixorokish 汇总CFTC最新提案要点：拟建立联邦注册路径，将ETH等六种资产视为商品，非托管钱包转账豁免交易限制，并保护被动软件开发者免于注册 [原文] (https://x.com/nixorokish/status/2107144346114134106)\n\n2⃣@VivekVentures 指出主流交易所均选择以太坊L2作为股票代币化基础设施：Coinbase(Base)、Robinhood(Robinhood Chain)、Kraken(Ink)、OKX与ICE(X Layer) [原文] (https://x.com/VivekVentures/status/2107081894873432422)\n\n3⃣@_julianma 回应FCR（快速确认规则）进展：该机制已从研究文档进入主要桥接代码，团队正与EF合作优化状态展示网站，并计划公开内部追踪器以方便验证首笔FCR交易 [原文] (https://x.com/_julianma/status/2107159952234074206)\n\n4⃣@DavideCrapis 表示正与以太坊基金会dAI团队合作推出CROPS AI基础设施，并呼吁更多研究人员参与贡献 [原文] (https://x.com/DavideCrapis/status/2107103421660598496)\n\n5⃣@ignaciohagopian 透露EIP-8025规范工作正在推动L1原生Rollup实验进展 [原文] (https://x.com/ignaciohagopian/status/2107154169354440705)\n\n6⃣@barnabemonnot 与 @casparschwa 等多位开发者传播@decentrek对L2的访谈，核心开发者正在收集L2关于以太坊DA/blobs扩展的反馈以指导扩容路线 [原文] (https://x.com/barnabemonnot/status/2107189158603268221)\n\n7⃣@DavideCrapis 透露将在EIP-8004之上构建隐私功能模块，推动该标准更广泛采用 [原文] (https://x.com/DavideCrapis/status/2107196135005999111)\n\n8⃣@nixorokish 指出最大合约大小增加是社区长期诉求，验证者迁移至0x02格式将加速合并轮转 [原文] (https://x.com/nixorokish/status/2107135805999517826)\n\n【学术合作动态】\n1⃣@arantxazapico 与 @AditiPartap97 合作发布ethresearch博客，探讨BPR25叛徒追踪技术在Paillier加密及加密内存池问责中的应用 [原文] (https://x.com/arantxazapico/status/2107180253273620920)\n\n2⃣@DavideCrapis 与以太坊基金会dAI团队联合推进CROPS AI基础设施研发，呼吁更多研究者加入 [原文] (https://x.com/DavideCrapis/status/2107103421660598496)\n\n3⃣@_julianma 团队与以太坊基金会合作改进协议状态展示网站，并计划将内部FCR追踪器公开 [原文] (https://x.com/_julianma/status/2107159952234074206)\n\n4⃣@BitDigital_BTBT 与 @ethereuminsti 在新加坡Token2049等多项活动中展开机构级合作 [原文] (https://x.com/BitDigital_BTBT/status/2107112575016288733)\n\n【行业观点碰撞】\n1⃣@fundstrat (Tom Lee) 连续发声认为市场存在\"过度悲观\"，科技股与加密货币是金融条件宽松的领先指标，当前市场如同\"盘绕的弹簧\"具备上行潜力 [原文] (https://x.com/fundstrat/status/2107102328318800323)\n\n2⃣@corcoranwill 抨击无许可监控体系建立在\"人们永远需要中介进行交易\"的前提之上，暗示加密货币削弱该前提 [原文] (https://x.com/corcoranwill/status/2107113420244099446)\n\n3⃣@matteoikari 提出以太坊是对金融体系的代际升级，并主张RWA代币化应垂直深耕股权、债券、商品等具体领域而非笼统推进 [原文] (https://x.com/matteoikari/status/2107005927614222690)\n\n4⃣@nixorokish 解读CFTC拟将ETH等主流加密资产纳入商品监管框架，认为此举将显著改善非托管交易与开发者保护的法律环境 [原文] (https://x.com/nixorokish/status/2107144346114134106)\n\n5⃣@intangiblecoins 发布《货币树》纪录片，梳理1695年至2026年西方货币哲学从洛克到聪的演变史 [原文] (https://x.com/intangiblecoins/status/2107071438746489067)\n\n【开发者生态】\n1⃣@donnoh_eth 宣布推出基于frames-devnet-0的封闭开发网，运行半模拟原生Rollup，@soispoke与@ladislaus0x等多位开发者转发关注 [原文] (https://x.com/soispoke/status/2107135946416116056)\n\n2⃣@growthepie_eth 公布上周以太坊生态系统活跃应用达960个，其中跨链394个、以太坊L1 218个、Base 95个，并表示愿为开发者免费添加合约标签 [原文] (https://x.com/growthepie_eth/status/2107078248223908209)\n\n3⃣@austingriffith 总结@kaiynne关于\"slop computer\"的开发者经验：让单一代理生成内容、悲观模型审查、注意20万token后模型质量下降、以结果而非计划评判 [原文] (https://x.com/austingriffith/status/2107128843895247003)\n\n4⃣@nixorokish 分享Keycard与Ambire钱包组合使用体验，认为该自托管方案解决了账户管理需求，仅在多账户UI流程上有优化空间 [原文] (https://x.com/nixorokish/status/2107166873758626051)",
+   "created_at": "Tue Oct 06 03:29:07 +0000 2026",
+   "created_timestamp": 1791257347,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/nixorokish/status/2107144346114134106",
+    "id": "2107144346114134106",
+    "text": "the CFTC announced today that it's implementing what it can from the Clarity Act that congress failed to pass, denouncing the 'regulation by enforcement' strategy of the past\n\nthe proposal creates a federal registration pathway for crypto exchanges, treats btc, eth, sol, xlm, xtc, and xrp as commodities, exempts non-custodial wallet transfers from trading  restrictions, and shields passive software developers from registration\n\nonly pending sign-off by the CFTC Commissioners after the comment period - no congressional vote needed\n\nhow does this square with @rstormsf's case?!\n\nhttps://www.cftc.gov/PressRoom/SpeechesTestimony/opaselig12",
+    "created_at": "Mon Oct 05 16:22:15 +0000 2026",
+    "created_timestamp": 1791217335,
+    "is_note_tweet": true,
+    "author": {
+     "screen_name": "nixorokish"
+    },
+    "card": {
+     "url": "https://www.cftc.gov/PressRoom/SpeechesTestimony/opaselig12",
+     "title": "Remarks at the Fordham Law Blockchain Regulatory Symposium",
+     "domain": "www.cftc.gov"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2106944155213803972",
+   "id": "2106944155213803972",
+   "text": "🗓️以太坊日报 2026-10-05\n\n【区块链技术讨论】\n1⃣Chainlink宣布CCIP 2.0进展，超150亿美元资产正迁移至该跨链基础设施，机构可通过单一安全标准在多条网络间分发代币化资产 [原文] (https://x.com/chainlink/status/2106746227513864408)\n\n2⃣@barnabemonnot 公布Ethlabs第15周进展，包括完成首个FCR与Chainlink的集成、Quick slots进入CFI阶段，以及更多L1与L2相关讨论 [原文] (https://x.com/barnabemonnot/status/2106881208810631371)\n\n3⃣@matteoikari 透露其团队此前专注Web3开源AI基础设施，已将早期模型发布至Hugging Face，目前正为IFT第二阶段筹集资金，以开发面向Solidity、交易识别与知识场景的专用小模型 [原文] (https://x.com/matteoikari/status/2106863659754615160)\n\n【行业观点碰撞】\n1⃣@matteoikari 指出近两年后Web3领域仍缺乏面向Solidity、人类可读交易与意图识别的开源领域特定模型，认为生态中项目获得关注度往往与产品质量或技术无关，并透露投资者曾普遍看衰开源模型前景 [原文] (https://x.com/matteoikari/status/2106679378323116087)\n\n2⃣@matthuang 预测未来许多系统将从先到先得（first-come-first-serve）机制向拍卖机制演进 [原文] (https://x.com/matthuang/status/2106893266138591520)\n\n3⃣DeFiRate宣布完成预测市场交易量数据类别的重大升级，现已支持快照、图片与CSV数据导出 [原文] (https://x.com/DeFiRate/status/2106783655972774295)\n\n【开发者生态】\n1⃣@luca_zanolini 介绍NousResearch的bot安全架构设计，每个bot作为独立principal运行，拥有独立的工具允许列表与MCP服务器，且不具备任何部署权限 [原文] (https://x.com/luca_zanolini/status/2106685688800485736)\n\n2⃣@moritz_fluidkey 就ENSIP标准公开征求意见，计划基于该标准构建智能合约与相关库，以支持钱包集成此功能 [原文] (https://x.com/moritz_fluidkey/status/2106648504890282495)\n\n3⃣@nixorokish 评价Ambire钱包界面简洁且注重隐私保护，未推送赌博功能，同时分享其通过QR-based流程连接Keycard硬件钱包的技术细节 [原文] (https://x.com/nixorokish/status/2106802889226322273)",
+   "created_at": "Mon Oct 05 03:06:46 +0000 2026",
+   "created_timestamp": 1791169606,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/chainlink/status/2106746227513864408",
+    "id": "2106746227513864408",
+    "text": "$15B+ is migrating to Chainlink CCIP as leading teams upgrade their cross-chain infra.\n\nWith CCIP 2.0, institutions can distribute tokenized assets across networks through a single, secure standard built for global scale.\n\nThe standard for tokenized asset distribution.",
+    "created_at": "Sun Oct 04 14:00:16 +0000 2026",
+    "created_timestamp": 1791122416,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "chainlink"
+    }
+   }
+  },
+  {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2106583069956444375",
+   "id": "2106583069956444375",
+   "text": "🗓️以太坊日报 2026-10-04\n\n【区块链技术讨论】\n1⃣@z0r0zzz 发布anon.wei，首个完全链上ETH隐私工具，整个Dapp运行于智能合约之上 [原文] (https://x.com/corcoranwill/status/2106500633184411918)\n\n2⃣@nixorokish 转发@mysticryuujin：ENRScout工具新增支持跟踪Glamsterdam升级在Sepolia测试网的以太坊客户端准备情况 [原文] (https://x.com/nixorokish/status/2106208957245374952)\n\n3⃣@tayvano_ 分析链上安全事件，强调不同攻击者身份识别的重要性，并指出逃避KYT合规导致重大资金损失（83万美元案例） [原文] (https://x.com/tayvano_/status/2106326826276819074)\n\n【行业观点碰撞】\n1⃣@evan_van_ness 转发@grebby：预测Abstract、Scroll、MegaETH、Linea等L2网络可能在未来一年内面临关停风险，引发市场对L2可持续性的讨论 [原文] (https://x.com/evan_van_ness/status/2106417476028518569)\n\n2⃣@matteoikari 就股票代币化发表深度观点，强调\"股票成为构建模块\"的愿景，并称\"ethereum:native是我一生的唯一信念\"；同时就相关技术标准与@fubuloubu展开讨论 [原文] (https://x.com/matteoikari/status/2106274382024732854)\n\n3⃣@evan_van_ness 转发@krugman87：给出以太坊Q4价格预期，看至4400-4800美元区间，预计2027年Q1盘整后恢复上涨趋势 [原文] (https://x.com/evan_van_ness/status/2106245575481933888)\n\n4⃣@VivekVentures 回应市场质疑，表示ETH价值被低估，认为当前价格较合理估值仍有10倍空间 [原文] (https://x.com/VivekVentures/status/2106210220750106998)\n\n5⃣@evan_van_ness 转发@DanDeFiEd：Rysk衍生品协议数据显示98%名义交易量来自跨期交易用户，揭示DeFi期权市场成熟化特征 [原文] (https://x.com/evan_van_ness/status/2106406708902031419)\n\n6⃣@fundstrat 提出\"Private AI On @ethereum\"概念，强调以太坊在私有AI领域的基础设施价值 [原文] (https://x.com/fundstrat/status/2106311506677907810)\n\n7⃣@fundstrat 转发@mariuslsmith：指出仅统计交易所外的链上代币持有量才能准确反映加密资产分布，质疑当前市场分析结论 [原文] (https://x.com/fundstrat/status/2106302236976615882)\n\n8⃣@DefiIgnas 分析15个代币销售表现，指出尽管多数破发，但均等投资因$CAP的610%涨幅可实现盈亏平衡，暗示市场并非典型ICO热潮 [原文] (https://x.com/DefiIgnas/status/2106391221610643890)\n\n9⃣@evan_van_ness 引用数据指出某以太坊地址呈现\"最完美的反向曲棍球棒\"走势，讽刺相关代币经济模型缺陷 [原文] (https://x.com/evan_van_ness/status/2106451602358116648)\n\n【开发者生态】\n1⃣@tsu_kareta 介绍@RAILGUN_Project建设者社区活跃，@anondotinc正基于该隐私钱包开发实用工具 [原文] (https://x.com/tsu_kareta/status/2106299412016234735)",
+   "created_at": "Sun Oct 04 03:11:56 +0000 2026",
+   "created_timestamp": 1791083516,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/z0r0zzz/status/2106332725292732550",
+    "id": "2106332725292732550",
+    "text": "weekend privacy launch: { anon.wei }\n\nanon.wei is the first fully onchain privacy tool for ETH.\n\nThe entire dapp runs on smart contracts (ERC-8244).\n\nLog in. Shield. Pay people by name (.wei). Super simple.\n\nZero fees. Always online. Shield ETH on multiple chains.",
+    "created_at": "Sat Oct 03 10:37:10 +0000 2026",
+    "created_timestamp": 1791023830,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "z0r0zzz"
+    }
+   }
+  }
+ ],
+ "cursor": {
+  "top": "DAAHCgABHU6x9MLAJxELAAIAAAATMjExMTY1MjAxNjEyNDc4NDg2NwgAAwAAAAEAAA",
+  "bottom": "DAAHCgABHU6x9MK__-wLAAIAAAATMjEwNjU4MzA2OTk1NjQ0NDM3NQgAAwAAAAIAAA"
+ }
+}

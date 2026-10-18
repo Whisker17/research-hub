@@ -1,0 +1,358 @@
+{
+ "2109979863612535014": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109979863612535014",
+   "id": "2109979863612535014",
+   "text": "https://x.com/i/article/2109959447267438592",
+   "created_at": "Tue Oct 13 12:09:35 +0000 2026",
+   "created_timestamp": 1791893375,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "Ethtao_Ethtao"
+   },
+   "article": {
+    "id": "2109959447267438592",
+    "title": "ETH Shenzhen 2026｜硅基生命遇上以太坊，一场属于协议的辛亥",
+    "preview_text": "硅基生命遇上 Ethereum\n—— 一场关于协议的辛亥 ——\n在科幻作家特德·姜的笔下，人类最深刻的震撼，往往发生在认知与工具的极限边缘："
+   }
+  }
+ },
+ "2111282792441188668": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/jaosef/status/2111215671476379891",
+   "id": "2111215671476379891",
+   "text": "P256 passkeys just got proved secure by Claude. \n\nThere is now no reason to have a seed phrase ever.",
+   "created_at": "Fri Oct 16 22:00:15 +0000 2026",
+   "created_timestamp": 1792188015,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "jaosef"
+   },
+   "reposted_by": {
+    "screen_name": "austingriffith"
+   }
+  }
+ },
+ "2111344180467298570": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/barnabemonnot/status/2111344180467298570",
+   "id": "2111344180467298570",
+   "text": "Very interesting to see the joint settlement of Core with Lighter EVM, and the interoperability it offers between the two",
+   "created_at": "Sat Oct 17 06:30:54 +0000 2026",
+   "created_timestamp": 1792218654,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "barnabemonnot"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/Lighter_xyz/status/2111110126807511058",
+    "id": "2111110126807511058",
+    "text": "Lighter EVM devnet is live! An EVM-equivalent rollup built in collaboration with @axiom_xyz, powered by OpenVM. It runs alongside Lighter Core, and the two are designed to settle jointly to Ethereum with a single ZK proof  🧵",
+    "created_at": "Fri Oct 16 15:00:51 +0000 2026",
+    "created_timestamp": 1792162851,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "Lighter_xyz"
+    }
+   }
+  }
+ },
+ "2111365818575622307": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/barnabemonnot/status/2111365818575622307",
+   "id": "2111365818575622307",
+   "text": "@0x1_0NE ETH is a store of value, and the easiest hard asset to swap into from anywhere on Ethereum",
+   "created_at": "Sat Oct 17 07:56:53 +0000 2026",
+   "created_timestamp": 1792223813,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "barnabemonnot"
+   }
+  }
+ },
+ "2111414176597913753": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/asanso/status/2111414176597913753",
+   "id": "2111414176597913753",
+   "text": "Guys, guys , let’s not forget that the secp256k1 curve “gave us” GLV optimization (because it was built using CM method)",
+   "created_at": "Sat Oct 17 11:09:02 +0000 2026",
+   "created_timestamp": 1792235342,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "asanso"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/buchmanster/status/2111260787033727266",
+    "id": "2111260787033727266",
+    "text": "Unreal. Satoshi prob chose secp256k1 instead of NSA's P-256 because of this mystery - its a lot easier to just trust the number 7 (coefficient in secp256k1) than the mysterious possibly backdoored monster coefficient in P-256\n\nnow we know where the monster came from! its benign!",
+    "created_at": "Sat Oct 17 00:59:31 +0000 2026",
+    "created_timestamp": 1792198771,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "buchmanster"
+    }
+   }
+  }
+ },
+ "2111421408752398484": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/barnabemonnot/status/2111421408752398484",
+   "id": "2111421408752398484",
+   "text": "TIL @yannvon has a PhD in Ethereum",
+   "created_at": "Sat Oct 17 11:37:46 +0000 2026",
+   "created_timestamp": 1792237066,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "barnabemonnot"
+   }
+  }
+ },
+ "2111437146758291705": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/nero_eth/status/2111437146758291705",
+   "id": "2111437146758291705",
+   "text": "You propose rarely but you still need certainty in every slot that as the proposer you could have fully executed/validated the most recent head to do proposer fork choice. While most of the network won't be proposer and only need it a few s later, we cannot assume that as proposer and attesters are all from the same set of validators.",
+   "created_at": "Sat Oct 17 12:40:19 +0000 2026",
+   "created_timestamp": 1792240819,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "nero_eth"
+   }
+  }
+ },
+ "2111440953944994000": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/chainlink/status/2111440953944994000",
+   "id": "2111440953944994000",
+   "text": "Financial institutions borrow against securities to fund their operations.\n\nChainlink Fulcrum brings that capability to tokenized assets, enabling institutions to access financing and manage collateral 24/7 across blockchains.\n\nChainlink Labs’ Ryan Lovell shows it end to end ↓",
+   "created_at": "Sat Oct 17 12:55:26 +0000 2026",
+   "created_timestamp": 1792241726,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "chainlink"
+   }
+  }
+ },
+ "2111486157297181069": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/UmbraCash/status/2111442102940729670",
+   "id": "2111442102940729670",
+   "text": "Good neighbors respect your privacy.\n\nGreat ones build tools to protect it.\n\nIn @OctantApp’s Privacy Round, we’re lucky to be part of this excellent neighborhood.\n\nBack Umbra and the 12 other Epoch 13 builders before Wednesday, Oct 21 👇",
+   "created_at": "Sat Oct 17 13:00:00 +0000 2026",
+   "created_timestamp": 1792242000,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "UmbraCash"
+   },
+   "reposted_by": {
+    "screen_name": "BenDiFrancesco"
+   }
+  }
+ },
+ "2111508711047086577": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/tayvano_/status/2111508711047086577",
+   "id": "2111508711047086577",
+   "text": "They were basically responsible for Ethereum surviving 2015-2016 bear market. Devcon II being in Shanghai was part of this.\n\nAlso shit wasn’t banned until later. ICOs (but not mining or trading) was banned in mid 2017. They weren’t loudly doing bribes and disappearing crypto people until later (star in 2020 etc)",
+   "created_at": "Sat Oct 17 17:24:41 +0000 2026",
+   "created_timestamp": 1792257881,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "tayvano_"
+   }
+  }
+ },
+ "2111527644223127741": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/barnabemonnot/status/2111527644223127741",
+   "id": "2111527644223127741",
+   "text": "Huge upgrade coming! Close to 3.5x more capacity coming on L1 in the next few months, if this last testnet fork goes well in ten days\n\nQuite a bit more room for blobs too.. Stay tuned for more user research on this very soon\n\nhttps://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+   "created_at": "Sat Oct 17 18:39:55 +0000 2026",
+   "created_timestamp": 1792262395,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "barnabemonnot"
+   },
+   "card": {
+    "url": "https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+    "title": "Glamsterdam Hoodi Testnet Announcement | Ethereum Foundation Blog",
+    "domain": "blog.ethereum.org"
+   }
+  }
+ },
+ "2111528856737702274": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/ralexstokes/status/2111165223780454451",
+   "id": "2111165223780454451",
+   "text": "Glamsterdam charges ahead!\n\nThe Hoodi testnet upgrade is scheduled for the 26th of October while the mainnet date will be announced separately. Activation table, client releases, and info on the bug bounty program can be found here: https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+   "created_at": "Fri Oct 16 18:39:47 +0000 2026",
+   "created_timestamp": 1792175987,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "ralexstokes"
+   },
+   "card": {
+    "url": "https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+    "title": "Glamsterdam Hoodi Testnet Announcement | Ethereum Foundation Blog",
+    "domain": "blog.ethereum.org"
+   },
+   "reposted_by": {
+    "screen_name": "nero_eth"
+   }
+  }
+ },
+ "2111552534192288009": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/austingriffith/status/2111552534192288009",
+   "id": "2111552534192288009",
+   "text": "@gregthegreek @safe wait, it looks right to me \n\nbuilt buy @clawdbotatg ofc\n\nhttps://github.com/clawdbotatg/wedgie-dev.  .",
+   "created_at": "Sat Oct 17 20:18:49 +0000 2026",
+   "created_timestamp": 1792268329,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "austingriffith"
+   },
+   "card": {
+    "url": "https://github.com/clawdbotatg/wedgie-dev",
+    "title": "GitHub - clawdbotatg/wedgie-dev",
+    "domain": "github.com"
+   }
+  }
+ },
+ "2111556470726701157": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/ilblackdragon/status/2111554632036348043",
+   "id": "2111554632036348043",
+   "text": "Lattice cryptography is becoming standard on the Internet. Blockchain space reinventing new crypto primitives plainly won’t get as much GPU hours of defense on them.\n\nUse lattice cryptography to secure your NEAR accounts today.",
+   "created_at": "Sat Oct 17 20:27:09 +0000 2026",
+   "created_timestamp": 1792268829,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "ilblackdragon"
+   },
+   "reposted_by": {
+    "screen_name": "evan_van_ness"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/a16zcrypto/status/2111233645948342778",
+    "id": "2111233645948342778",
+    "text": "The case for lattices 👇",
+    "created_at": "Fri Oct 16 23:11:40 +0000 2026",
+    "created_timestamp": 1792192300,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "a16zcrypto"
+    }
+   }
+  }
+ },
+ "2111568540985647419": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/barnabemonnot/status/2111568540985647419",
+   "id": "2111568540985647419",
+   "text": "This is how Ethereum exports its assets faster, with high security guarantees for the bridge operator.\n\nThe L1 is already the most secure place to hold assets on, it should also be the best place to issue and deploy them from, leveraging the privileged connections between L1, L2s and others.\n\nAnd guess which asset is at the centre of the L1? Yep, ethereum:native everywhere.",
+   "created_at": "Sat Oct 17 21:22:25 +0000 2026",
+   "created_timestamp": 1792272145,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "barnabemonnot"
+   },
+   "quote": {
+    "type": "status",
+    "url": "https://x.com/blockscout/status/2111459988845855199",
+    "id": "2111459988845855199",
+    "text": "Ethereum-@gnosischain bridge just got ~65x faster.\n\nOmnibridge deposits from Ethereum dropped from at least 13 minutes to ~12 seconds. The change: Ethereum's Fast Confirmation Rule (FCR).\n\nSee the transfers on Blockscout Multichain explorer ↓\n\nhttps://explorer.blockscout.com/token-transfers?tab=index",
+    "created_at": "Sat Oct 17 14:11:05 +0000 2026",
+    "created_timestamp": 1792246265,
+    "is_note_tweet": false,
+    "author": {
+     "screen_name": "blockscout"
+    }
+   }
+  }
+ },
+ "2111569118734516668": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/clix81ne/status/2111567236922024321",
+   "id": "2111567236922024321",
+   "text": "Chaskin warns we're repeating the same mistakes of Web2 with AI, handing over our data to ChatGPT and Claude without knowing what they'll do with it.\n\n“What scares me is that we're repeating kind of the same mistakes from Web two.”\n\n“I think we're kind of repeating this”\n“And like, what scares me is what they're going to do with that. That scares me a lot.”",
+   "created_at": "Sat Oct 17 21:17:14 +0000 2026",
+   "created_timestamp": 1792271834,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "clix81ne"
+   },
+   "reposted_by": {
+    "screen_name": "austingriffith"
+   }
+  }
+ },
+ "2111570808124694680": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/gakonst/status/2111530145601462417",
+   "id": "2111530145601462417",
+   "text": "no excuse to not have passkeys / p256-backed signers in your apps to improve crypto UX - we've been saying it for a couple years now but hopefully the last skeptics can rest",
+   "created_at": "Sat Oct 17 18:49:51 +0000 2026",
+   "created_timestamp": 1792262991,
+   "is_note_tweet": false,
+   "author": {
+    "screen_name": "gakonst"
+   },
+   "reposted_by": {
+    "screen_name": "austingriffith"
+   }
+  }
+ },
+ "2111600681471877409": {
+  "code": 200,
+  "status": {
+   "type": "status",
+   "url": "https://x.com/leolarav/status/2111600681471877409",
+   "id": "2111600681471877409",
+   "text": "Something that helps tremendously for this is Equivalence Partition analysis. Not applicable everywhere, for cryptographic primitives would not work. Where it works, it gives you another version of what the specs are actually saying, so you can \"debug\" your understanding and match it with the FV claims. https://steel.ethereum.foundation/blog/2026-06-11_specs-as-models/",
+   "created_at": "Sat Oct 17 23:30:08 +0000 2026",
+   "created_timestamp": 1792279808,
+   "is_note_tweet": true,
+   "author": {
+    "screen_name": "leolarav"
+   }
+  }
+ }
+}
