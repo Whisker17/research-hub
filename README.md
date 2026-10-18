@@ -43,6 +43,7 @@ pnpm dev         # 本地预览索引页（报告页需先 pnpm build，再看 d
 
 ### 报告页上的站点功能（构建时注入，源 HTML 不动）
 
+- **返回条**：每篇报告页顶部（文档流里，不悬浮）是返回本站索引的“← ■ Research Hub”，和索引页页头同一套标志；外壳样式只作用于注入的 `data-rh-*` 元素，颜色跟着报告自己的主题与明暗，字体用站点的 `/fonts/`（外壳专用的字体名，不影响报告正文）。
 - **中文 / EN 切换**：有英文版的报告，右上角工具栏（手机上在返回链接那一行）有中文 / EN 切换；会保留当前锚点，并和首页共用语言偏好。
 - **推特卡片模式**：有 `card.png` 的报告，阅读路径（5 分钟 / 30 分钟 / 完整）后面多一个“推特卡片”。卡片和推文只有英文版（推特统一用英文发），中英文页展示同一份。点开后有推文文案（`card.yml` 的 `tweet`，X 计数 ≤ `rh.config.json` 的 `cardTweetMax`）和“复制文案”“复制图片”：在 X 里引用源推文，先粘贴文案，再粘贴图片（PNG 直接写进剪贴板，不用下载）；`#tweet-card` 锚点直接打开这个模式。复制需要 https（线上站点）或 localhost；不支持的浏览器会提示手动复制。卡片页脚是日期与水印（`cardHandle`）。卡片以中立研究者口吻写，尽量不提 Mantle（`cardAvoidTerms`）。卡片写法与深度控制见 [references/tweet-card.md](.claude/skills/research-hub/references/tweet-card.md)。给已发布报告补卡片：写 `card.yml` → `rh card <slug>` → `rh publish <slug> --note "推特卡片"`。
 
@@ -84,3 +85,10 @@ push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型�
 ## 回滚
 
 `pnpm exec wrangler rollback -c wrangler.public.jsonc`（或 `wrangler.private.jsonc`），或 revert 对应提交后 push。
+
+索引页与报告外壳（0.1.0 改版）只是代码：revert 对应提交后 push 即可，不需要重新渲染报告（`rh render`），也没有内容迁移——报告源 HTML 从未改动，外壳在每次 `rh build` 时重新注入。
+
+### 构建后的验收与局域网预览
+
+- `RH_UI_SHOTS=.rh/shots/ui node --test test/ui-acceptance.test.ts`：在夹具上真实构建两站，经 HTTP 用 Chrome 检查所有路由（390 / 1440 × 明暗 × 中英文）、报告外壳、链接与字体，并保存截图；先 `node cli/rh.ts build` 再加 `RH_UI_REAL=1`，还会检查 `dist/private` 里每篇真实报告的外壳。
+- `node scripts/preview.ts [端口]`：把已构建的 `dist/private`（端口）与 `dist/public`（端口 + 1）发到局域网，打印手机可打开的地址。没有 Access，只在本机评审时用，看完就停掉；复制卡片图片需要 https 或 localhost，局域网地址上会提示手动复制。
