@@ -6,8 +6,8 @@ import T from "./T.astro";
 
 interface Props {
   site: Site;
-  /** 首页之后的各级：界面文案（k）或内容文字（text，如标签名）；最后一级是当前页，不带 href */
-  trail: { href?: string; k?: I18nKey; vars?: I18nVars; text?: string }[];
+  /** 首页之后的各级：界面文案（k）或内容文字（text，如标签名；textEn 是它的英文，可缺）；最后一级是当前页，不带 href */
+  trail: { href?: string; k?: I18nKey; vars?: I18nVars; text?: string; textEn?: string }[];
 }
 const { site, trail } = Astro.props;
 const home = site === "private" ? { href: "/p/", k: "navPrivateIndex" as const } : { href: "/", k: "navReports" as const };
@@ -19,7 +19,7 @@ const home = site === "private" ? { href: "/p/", k: "navPrivateIndex" as const }
     return (
       <>
         <span class="sep" aria-hidden="true">/</span>
-        {c.href ? <a href={c.href}>{label}</a> : <span aria-current="page">{label}</span>}
+        {c.href ? <a href={c.href} data-en={c.textEn}>{label}</a> : <span aria-current="page" data-en={c.textEn}>{label}</span>}
       </>
     );
   })}

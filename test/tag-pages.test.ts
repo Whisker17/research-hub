@@ -5,6 +5,7 @@
  *  - 公开产物的目录（不含 /r/）与改版前（基线 65ae857）相同：已有的公开归档 URL 不变；
  *  - 私有站点的 /p/tags/、/p/tags/<tag>/、/p/archive/、/p/YYYY/MM/：计数与共现与 projectSite("private") 一致；
  *    私有页面的站内导航不指向公开的 /tags/、/archive/、/YYYY/MM/；
+ *  - 英文标签名（label_en，WHI-1943）也服从公开规则：私有 / draft 专用标签的英文名不进公开产物；
  *  - 浏览器：390 / 1440 × 明暗 × 中英文没有横向溢出、没有脚本错误。设置 RH_TAG_SHOTS=<目录> 时保存截图。
  */
 import assert from "node:assert/strict";
@@ -78,11 +79,11 @@ before(() => {
     stringify({
       tags: {
         dex: { label: "DEX", description: "去中心化交易所：订单簿、AMM 与聚合器。", description_en: "Decentralized exchanges: order books, AMMs and aggregators." },
-        amm: { label: "AMM", description: "自动做市商" },
+        amm: { label: "AMM", label_en: "Automated market makers", description: "自动做市商" },
         lending: { label: "Lending" },
-        shared: { label: "共享标签", description: "公开与私有报告都用到的标签" },
-        "secret-topic": { label: "机密主题TOPIC", description: "只给私有报告用的描述PRIVDESC", description_en: "Private-only description PRIVDESCEN" },
-        "draft-only": { label: "草稿专用TAG", description: "只被草稿用到的描述DRAFTDESC" },
+        shared: { label: "共享标签", label_en: "Shared tag SHAREDEN", description: "公开与私有报告都用到的标签" },
+        "secret-topic": { label: "机密主题TOPIC", label_en: "Secret topic PRIVLABELEN", description: "只给私有报告用的描述PRIVDESC", description_en: "Private-only description PRIVDESCEN" },
+        "draft-only": { label: "草稿专用TAG", label_en: "Draft-only DRAFTLABELEN", description: "只被草稿用到的描述DRAFTDESC" },
       },
     }),
   );
@@ -158,9 +159,15 @@ test("公开标签页与月归档：只来自 public + published；私有 / draf
   const oct = readFileSync(join(pub(), "2026", "10", "index.html"), "utf8");
   assert.deepEqual([rows(oct), stats(oct)], [["pub-c", "pub-a"], [["statReports", "2"], ["statUpdated", "2026-10-15"]]]);
   // 负向：私有 / draft 的标签、描述、标题、slug、月份
-  for (const needle of ["secret-topic", "机密主题TOPIC", "PRIVDESC", "PRIVDESCEN", "draft-only", "草稿专用TAG", "DRAFTDESC", "私密报告PRIVX", "私密报告PRIVY", "草稿报告DRAFTZ", "priv-x", "priv-y", "draft-z", "/p/"]) {
+  for (const needle of ["secret-topic", "机密主题TOPIC", "PRIVLABELEN", "DRAFTLABELEN", "PRIVDESC", "PRIVDESCEN", "draft-only", "草稿专用TAG", "DRAFTDESC", "私密报告PRIVX", "私密报告PRIVY", "草稿报告DRAFTZ", "priv-x", "priv-y", "draft-z", "/p/"]) {
     assert.deepEqual(grep(pub(), needle), [], `公开产物不应包含“${needle}”`);
   }
+  // 公开标签的英文名（label_en）在所有渲染标签名的公开页面上；私有站点同样带着私有标签的英文名
+  for (const f of ["index.html", "tags/index.html", "tags/shared/index.html", "tags/dex/index.html", "2026/10/index.html"]) {
+    assert.ok(readFileSync(join(pub(), f), "utf8").includes('data-en="Shared tag SHAREDEN"'), `${f} 有 shared 的英文名`);
+  }
+  assert.deepEqual(grep(pub(), "PRIVLABELEN"), []);
+  assert.ok(grep(priv(), 'data-en="Secret topic PRIVLABELEN"').length > 0, "私有站点有私有标签的英文名");
   for (const d of ["tags/secret-topic", "tags/draft-only", "2026/08", "2026/07", "2025", "p"]) assert.equal(existsSync(join(pub(), d)), false, d);
 });
 
@@ -206,7 +213,7 @@ test("/p/tags/ 与 /p/archive/：全部 published；计数与共现与 projectSi
     assert.deepEqual(bad, [], `${relative(priv(), f)} 指向了私有站点以外的站内路径`);
   }
   // draft 不进私有站点
-  for (const needle of ["draft-only", "DRAFTDESC", "草稿报告DRAFTZ", "draft-z"]) assert.deepEqual(grep(priv(), needle), [], needle);
+  for (const needle of ["draft-only", "DRAFTLABELEN", "DRAFTDESC", "草稿报告DRAFTZ", "draft-z"]) assert.deepEqual(grep(priv(), needle), [], needle);
 });
 
 const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".png": "image/png" };

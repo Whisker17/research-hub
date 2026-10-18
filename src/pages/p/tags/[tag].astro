@@ -12,6 +12,6 @@ export function getStaticPaths() {
 
 const { tag } = Astro.props;
 ---
-<Base title={t("zh", "tagTitle", { label: tag.label })} titleEn={t("en", "tagTitle", { label: tag.label })} description={tag.description} nav="private">
+<Base title={t("zh", "tagTitle", { label: tag.label })} titleEn={t("en", "tagTitle", { label: tag.label_en ?? tag.label })} description={tag.description} nav="private">
   <TagPage site="private" tag={tag} />
 </Base>

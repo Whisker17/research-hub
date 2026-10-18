@@ -18,11 +18,11 @@ const { site, tag } = Astro.props;
 const tagBase = site === "private" ? "/p/tags/" : "/tags/";
 const f = tag.featured;
 ---
-<Crumbs site={site} trail={[{ href: tagBase, k: "tags" }, { text: tag.label }]} />
+<Crumbs site={site} trail={[{ href: tagBase, k: "tags" }, { text: tag.label, textEn: tag.label_en }]} />
 <header class:list={["task-head", f && "has-figure"]}>
   <div class="task-main">
     <p class="eyebrow"><T k="eyebrowTag" /></p>
-    <h1 class="page-title task-title">{tag.label}</h1>
+    <h1 class="page-title task-title" data-en={tag.label_en}>{tag.label}</h1>
     {tag.description && <p class="task-desc" data-en={tag.description_en}>{tag.description}</p>}
     <Stats items={[{ k: "statReports", v: tag.count }, { k: "statUpdated", v: tag.updated }, { k: "statRelated", v: tag.related.length }]} />
   </div>
@@ -49,7 +49,7 @@ const f = tag.featured;
         {tag.related.map((r) => (
           <li>
             <a class="tag" href={`${tagBase}${r.key}/`} data-related={r.key} data-count={r.count}>
-              <span>{r.label}</span>
+              <span data-en={r.label_en}>{r.label}</span>
               <span class="n">{r.count}</span>
             </a>
           </li>
