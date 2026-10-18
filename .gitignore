@@ -6,3 +6,7 @@ dist/
 .wrangler/
 .DS_Store
 reports/**/.rh-mobile-check.html
+
+# Python (dispatcher test)
+__pycache__/
+.pytest_cache/
