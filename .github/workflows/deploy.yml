@@ -35,6 +35,8 @@ jobs:
         run: pnpm test
       - name: rh check (schema / tags / ledger / completeness; no screenshots)
         run: node cli/rh.ts check --no-shot
+      - name: rh daily check (Daily Topics schema / references / state; offline, no link probing)
+        run: node cli/rh.ts daily check
       - name: rh build (public / private split + leak check)
         run: node cli/rh.ts build
       - uses: actions/upload-artifact@v7
