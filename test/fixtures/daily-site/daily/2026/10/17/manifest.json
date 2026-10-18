@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "date": "2026-10-17",
+  "status": "degraded",
+  "reasons": [
+    "digest_not_posted",
+    "few_topics"
+  ],
+  "window": {
+    "from": "2026-10-16T00:00:00.000Z",
+    "to": "2026-10-17T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "not_posted",
+    "url": null,
+    "posted_at": null
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "failed",
+      "items": 17,
+      "calls": 19,
+      "covered": null,
+      "error": "SITEFIXTURE digest timeline 404 detail 17"
+    },
+    {
+      "id": "blockbeats",
+      "status": "skipped",
+      "items": 0,
+      "calls": 0,
+      "covered": null,
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 3,
+    "cited_items": 3,
+    "topics": 2,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": {
+    "skill_version": "daily-topics@0.1.0-site-2026-10-17",
+    "model": "claude-sonnet-5-5-fixture-17",
+    "inputs_sha256": "20261017aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "run": {
+    "id": "18700000017",
+    "attempt": 1,
+    "at": "2026-10-17T13:31:00.000Z"
+  },
+  "generated_at": "2026-10-17T13:31:00.000Z",
+  "updated_at": "2026-10-17T13:31:00.000Z"
+}

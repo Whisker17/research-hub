@@ -1,0 +1,73 @@
+---
+/**
+ * 一天的 Daily 推荐（WHI-1936）：状态、生成时间、时间窗、topic 数、固定声明、公开说明，然后是 topic 列表。
+ * 只渲染 publicDay(day)（ADR 0004 §10）：原因代码映射成固定说明，不显示源状态、调用次数、错误信息等内部字段。
+ */
+import type { PublicDay, Reason } from "../../lib/daily.ts";
+import { DAY_STATUS, utcMinute } from "../daily.ts";
+import type { I18nKey } from "../i18n.ts";
+import DailyTopic from "./DailyTopic.astro";
+import T from "./T.astro";
+
+interface Props {
+  day: PublicDay;
+  /** 日期标题链接到 /daily/<date>/（/daily/ 上的“最新一天”） */
+  link?: boolean;
+}
+const { day, link = false } = Astro.props;
+
+const REASON: Record<Reason, I18nKey> = {
+  digest_not_posted: "rsDigestNotPosted",
+  digest_fetch_failed: "rsDigestFetchFailed",
+  generator_failed: "rsGeneratorFailed",
+  candidate_rejected: "rsCandidateRejected",
+  few_topics: "rsFewTopics",
+  no_qualifying_topic: "rsNoQualifyingTopic",
+  no_items: "rsNoItems",
+};
+const st = DAY_STATUS[day.status];
+---
+<section class="day" data-status={day.status}>
+  <header class="day-head">
+    <h2 class="day-date">{link ? <a href={`/daily/${day.date}/`}>{day.date}</a> : day.date}</h2>
+    <div class="day-meta">
+      <span class={st.chip}><T k={st.k} /></span>
+      <span><T k="dayTopics" vars={{ n: day.counts.topics }} /></span>
+      <span>{day.generated_at ? <T k="dayGenerated" vars={{ at: utcMinute(day.generated_at) }} /> : <T k="dayNotGenerated" />}</span>
+      <span><T k="dayWindow" vars={{ from: utcMinute(day.window.from), to: utcMinute(day.window.to) }} /></span>
+    </div>
+  </header>
+  <p class="disclaimer"><T k="dailyDisclaimer" /></p>
+  {
+    st.why && (
+      <div class="day-status">
+        <T k={st.why} />
+        {day.reasons.length > 0 && <ul>{day.reasons.map((r) => <li><T k={REASON[r]} /></li>)}</ul>}
+      </div>
+    )
+  }
+  {
+    day.note && (
+      <p class="day-note"><span class="topic-h"><T k="dayNote" /></span> {day.note}</p>
+    )
+  }
+  {day.topics.length > 0 && <div class="topics">{day.topics.map((topic) => <DailyTopic topic={topic} items={day.items} />)}</div>}
+</section>
+<script is:inline>
+  // 复制 topic ID（选题命令要用，ADR 0004 §9）；剪贴板不可用时选中 ID 文字
+  document.addEventListener("click", async (e) => {
+    const b = e.target instanceof Element && e.target.closest("[data-copy]");
+    if (!b) return;
+    try {
+      await navigator.clipboard.writeText(b.dataset.copy);
+      b.textContent = window.rhI18n.t("topicCopied");
+      setTimeout(() => (b.textContent = window.rhI18n.t("topicCopy")), 1800);
+    } catch {
+      const code = b.previousElementSibling;
+      const r = document.createRange();
+      r.selectNodeContents(code);
+      getSelection().removeAllRanges();
+      getSelection().addRange(r);
+    }
+  });
+</script>

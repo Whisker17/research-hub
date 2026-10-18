@@ -1,0 +1,264 @@
+schema: 1
+date: 2026-10-18
+topics:
+  - id: 2026-10-18-846954
+    title: Glamsterdam 上 Hoodi 测试网：L1 容量提升的前提条件
+    title_en: "Glamsterdam on Hoodi: what the L1 capacity increase depends on"
+    domain: crypto
+    tags:
+      - ethereum
+    proposed_tags:
+      - glamsterdam
+    why_now: Hoodi 测试网分叉定在 10 月 26 日，主网日期另行公布；研究者称测试网顺利的话几个月内 L1 容量接近 3.5 倍。
+    questions:
+      - 容量提升来自哪些 EIP，各自的前提和风险是什么？
+      - 测试网分叉需要满足哪些条件才会公布主网日期？
+    angle: 从激活表和客户端发布出发，拆解容量与 blob 空间变化的来源。
+    novelty:
+      kind: update
+      related:
+        - glamsterdam-overview
+    references:
+      - item_id: ethtao:2111165223780454451
+        type: primary
+        note: Alex Stokes（EF 协议协调）本人关于升级时间表的公告
+      - item_id: ethtao:2111527644223127741
+        type: secondary
+      - item_id: magicians:29994
+        type: discussion
+    evidence:
+      independent_sources: 2
+    confidence: high
+  - id: 2026-10-18-1dc25d
+    title: RapidBlocks：执行证明与状态解耦的流水线共识
+    title_en: "RapidBlocks: pipelined consensus with execution proofs that outlive their state"
+    domain: crypto
+    tags:
+      - ethereum
+    proposed_tags: []
+    why_now: ethresear.ch 上同一作者连续发了两篇 RapidBlocks，第二篇给出拆分证明的设计。
+    questions:
+      - 拆分证明如何让区块独立于状态被验证？
+    angle: 对比现有的 ePBS 与 FOCIL 路线，看它改变了哪些时延假设。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethresearch:26157
+        type: primary
+      - item_id: ethresearch:26152
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: medium
+  - id: 2026-10-18-d9cf83
+    title: EIP-8442：EVM 的 64 位操作码
+    title_en: "EIP-8442: 64-bit opcodes for the EVM"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - evm
+    why_now: 提案 10 月 15 日在 Ethereum Magicians 上开帖，正在收集反馈。
+    questions:
+      - 64 位操作码对 gas 计价和现有合约有什么影响？
+      - 它和 EVM 对象格式的改动是什么关系？
+    angle: 用基准测试数据评估性能收益是否值得增加的复杂度。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: magicians:29982
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: medium
+  - id: 2026-10-18-1da876
+    title: <script>window.__pwned=1</script>链上 AI agent 身份标准 <img src=x onerror="window.__pwned=2">
+    title_en: '"><svg onload="window.__pwned=3">Competing standards for on-chain AI agent identity'
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - ai-agents
+    why_now: 两份 agent 身份与注册相关的 ERC 草案在同一周内活跃。
+    questions:
+      - 这些草案在身份、声誉和授权上分别解决什么问题？
+    angle: 列出各方案的信任假设，看哪些可以组合。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: magicians:29805
+        type: primary
+        note: <a href="javascript:window.__pwned=4">注入的 note</a> & 引号 "q"
+      - item_id: magicians:29998
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: low
+  - id: 2026-10-18-001696
+    title: secp256k1 的 GLV 优化与后量子证明的指令集
+    title_en: secp256k1 GLV speedups and an ISA for post-quantum proofs
+    domain: crypto
+    tags:
+      - ethereum
+    proposed_tags: []
+    why_now: 研究者讨论 secp256k1 曲线结构带来的 GLV 优化，同时 ethresear.ch 上有提案为后量子证明暴露指令集。
+    questions:
+      - 曲线结构带来的优化在后量子迁移后还有多少价值？
+    angle: 把签名验证成本放在后量子迁移的时间线上比较。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2111414176597913753
+        type: secondary
+      - item_id: ethresearch:26136
+        type: primary
+    evidence:
+      independent_sources: 2
+    confidence: low
+  - id: 2026-10-18-19b549
+    title: Chainlink Fulcrum：代币化证券的抵押融资
+    title_en: "Chainlink Fulcrum: financing against tokenized securities"
+    domain: crypto
+    tags: []
+    proposed_tags: []
+    why_now: Chainlink 介绍了把传统证券抵押融资带入代币化资产的 Fulcrum 产品。
+    questions:
+      - 抵押品的定价、清算和跨链结算由谁负责？
+    angle: 对照传统回购市场，看链上版本改变了哪些对手方风险。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2111440953944994000
+        type: primary
+        note: Chainlink 官方账号的产品公告
+      - extra: https://example.com/fulcrum?a=1&b=%3C2%3E
+        type: secondary
+        note: 外部链接：Fulcrum 介绍页
+    evidence:
+      independent_sources: 1
+    confidence: medium
+items:
+  ethresearch:26136:
+    source: ethresearch
+    url: https://ethresear.ch/t/exposing-an-isa-for-post-quantum-proofs-on-ethereum/26136
+    origin_url: null
+    title: Exposing an ISA for post-quantum proofs on Ethereum
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-08T15:34:01.226Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  ethresearch:26152:
+    source: ethresearch
+    url: https://ethresear.ch/t/rapidblocks-take-two-a-pipelined-consensus-for-independent-blocks/26152
+    origin_url: null
+    title: "Rapidblocks, take two: a pipelined consensus for independent blocks"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-13T08:27:07.291Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  ethresearch:26157:
+    source: ethresearch
+    url: https://ethresear.ch/t/rapidblocks-with-split-proofs-execution-proofs-that-outlive-their-state/26157
+    origin_url: null
+    title: "Rapidblocks with split proofs: execution proofs that outlive their state"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-14T07:58:50.097Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  ethtao:2111165223780454451:
+    source: ethtao
+    url: https://x.com/ralexstokes/status/2111165223780454451
+    origin_url: https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement
+    title: null
+    author: ralexstokes
+    reposted_by: nero_eth
+    via: https://x.com/Ethtao_Ethtao/status/2111652016124784867
+    published_at: 2026-10-16T18:39:47.000Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  ethtao:2111414176597913753:
+    source: ethtao
+    url: https://x.com/asanso/status/2111414176597913753
+    origin_url: null
+    title: null
+    author: asanso
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2111652016124784867
+    published_at: 2026-10-17T11:09:02.000Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  ethtao:2111440953944994000:
+    source: ethtao
+    url: https://x.com/chainlink/status/2111440953944994000
+    origin_url: null
+    title: null
+    author: chainlink
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2111652016124784867
+    published_at: 2026-10-17T12:55:26.000Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  ethtao:2111527644223127741:
+    source: ethtao
+    url: https://x.com/barnabemonnot/status/2111527644223127741
+    origin_url: https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement
+    title: null
+    author: barnabemonnot
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2111652016124784867
+    published_at: 2026-10-17T18:39:55.000Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  magicians:29805:
+    source: magicians
+    url: https://ethereum-magicians.org/t/erc-8434-agent-identity-aid/29805
+    origin_url: null
+    title: "ERC-8434: Agent Identity (AID)"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-09-30T03:43:47.133Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  magicians:29982:
+    source: magicians
+    url: https://ethereum-magicians.org/t/eip-8442-64-bit-opcodes-for-the-evm/29982
+    origin_url: null
+    title: "EIP-8442: 64-bit Opcodes for the EVM"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-15T22:25:30.254Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  magicians:29994:
+    source: magicians
+    url: https://ethereum-magicians.org/t/all-core-devs-consensus-acdc-190-october-29-2026/29994
+    origin_url: null
+    title: "All Core Devs - Consensus (ACDC) #190, October 29, 2026"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-17T09:16:39.581Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  magicians:29998:
+    source: magicians
+    url: https://ethereum-magicians.org/t/draft-erc-swarm-ai-framework-registry-and-charter-model-for-purpose-bound-agent-swarms/29998
+    origin_url: null
+    title: "[Draft ERC] Swarm AI Framework — registry and charter model for purpose-bound agent swarms"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-18T05:22:46.416Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false

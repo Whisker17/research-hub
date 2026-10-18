@@ -1,0 +1,44 @@
+---
+/**
+ * /daily/（WHI-1936）：最新一天的推荐 + 全部日期。没有 daily/ 时仍然生成本页，显示空状态（导航里的 Daily 链接不会 404）。
+ */
+import Base from "../../layouts/Base.astro";
+import DailyDay from "../../components/DailyDay.astro";
+import T from "../../components/T.astro";
+import { DAY_STATUS, dailyDays } from "../../daily.ts";
+import { t } from "../../i18n.ts";
+
+const days = dailyDays();
+const [latest] = days;
+---
+<Base title={t("zh", "dailyTitle")} titleEn={t("en", "dailyTitle")} description={t("zh", "dailySub")}>
+  <h1 class="page-title"><T k="dailyTitle" /></h1>
+  <p class="page-sub"><T k="dailySub" /></p>
+  {
+    latest ? (
+      <>
+        <p class="eyebrow"><T k="dailyLatest" /></p>
+        <DailyDay day={latest} link />
+        <h2 class="section-h"><T k="dailyAll" /> <span class="n"><T k="dailyDays" vars={{ n: days.length }} /></span></h2>
+        <ul class="index-list day-list">
+          {days.map((d) => (
+            <li>
+              <a href={`/daily/${d.date}/`}>
+                <span>{d.date}</span>
+                <span class="day-list-meta">
+                  <span class={DAY_STATUS[d.status].chip}><T k={DAY_STATUS[d.status].k} /></span>
+                  <span class="n"><T k="dayTopics" vars={{ n: d.counts.topics }} /></span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : (
+      <>
+        <p class="disclaimer"><T k="dailyDisclaimer" /></p>
+        <p class="empty"><T k="dailyEmpty" /></p>
+      </>
+    )
+  }
+</Base>
