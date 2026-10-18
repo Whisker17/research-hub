@@ -172,6 +172,8 @@ test("rh build：公开 / 私有分发、返回链接、draft 排除、私有内
   const cardPng = readFileSync(join(REPO, "test", "fixtures", "png", "rgb.png"));
   writeFileSync(join(pubA, "card.png"), cardPng);
   writeFileSync(join(privB, "card.png"), pngThumbnail(cardPng, "card.png", 30));
+  // 私有、没有 card.png、没有英文版、只在 9 月创建：列表行的占位图、排序与时间范围要用到（WHI-1930）
+  writeReport("priv-n", { title: "私有无卡片NNN", summary: "私有无卡片的摘要NNN", visibility: "private", domain: "ai", tags: ["dex"], created: "2026-09-01", updated: "2026-10-08" });
   writeReport("draft-c", { title: "草稿标题QQQ", summary: "草稿摘要QQQ", status: "draft" });
   writeReport("draft-d", { title: "私有草稿WWW", summary: "私有草稿摘要WWW", status: "draft", visibility: "private" });
 
@@ -193,7 +195,7 @@ test("rh build：公开 / 私有分发、返回链接、draft 排除、私有内
   assert.equal(readFileSync(join(pub, "robots.txt"), "utf8"), "User-agent: *\nDisallow: /\n");
 
   // 验收 2：公开产物里搜不到私有报告的标题 / 摘要 / 路径 / 专属标签页
-  for (const needle of ["私密报告ZQX", "私密摘要ZQX", "/p/priv-b/", "priv-b", "机密主题"]) {
+  for (const needle of ["私密报告ZQX", "私密摘要ZQX", "/p/priv-b/", "priv-b", "机密主题", "私有无卡片NNN", "priv-n"]) {
     assert.deepEqual(grepDir(pub, needle), [], `公开产物不应包含“${needle}”`);
   }
   assert.equal(existsSync(join(pub, "p")), false);
@@ -276,7 +278,7 @@ test("站点外壳（WHI-1928）：中英文 × 明暗 × localStorage 不可用
           card: [card.textContent, card.getAttribute("href")],
           summary: document.querySelector("[data-card] .summary")!.textContent,
           toggles: shown("[data-rh-lang], [data-rh-theme]"),
-          filters: shown(".filters"),
+          filters: shown(".search, .toolbar, .rail"),
         };
       });
     const LIGHT = "rgb(250, 248, 244)";
@@ -351,6 +353,207 @@ test("站点外壳（WHI-1928）：中英文 × 明暗 × localStorage 不可用
     assert.deepEqual([s.lang, s.card, s.toggles, s.filters], ["zh-CN", ["公开报告甲", "/r/pub-a/"], 0, 0]);
     assert.deepEqual(s.nav, [["报告", "/"], ["标签", "/tags/"], ["归档", "/archive/"]]);
     await nojs.page.close();
+  } finally {
+    await browser.close();
+  }
+});
+
+test("首页与私有索引（WHI-1930）：各站的报告集合、左栏筛选、中英文搜索、URL 参数、排序与时间范围、390px 单列、无结果 / 无卡片 / 空列表", { skip: findChrome() ? false : "没有 Chrome" }, async () => {
+  const pub = join(tmp, "dist", "public");
+  const priv = join(tmp, "dist", "private");
+  const { publicUrl } = JSON.parse(readFileSync(join(tmp, "rh.config.json"), "utf8"));
+  // 浏览器里的“现在”：UTC 2026-10-08 周四中午 → 本周 10-05…10-11，本月 10-01…10-31
+  const NOW = Date.UTC(2026, 9, 8, 12);
+  const browser = await launchBrowser();
+  try {
+    const open = async (file: string, query = "", width = 390) => {
+      const page = await browser.newPage();
+      const errors: string[] = [];
+      page.on("pageerror", (e) => errors.push(String(e)));
+      await page.emulateTimezone("UTC");
+      await page.evaluateOnNewDocument((now: number) => {
+        const Real = Date;
+        // 只替换“现在”：new Date() / Date.now()；带参数的构造照常
+        window.Date = class extends Real {
+          constructor(...args: unknown[]) {
+            super(...((args.length ? args : [now]) as []));
+          }
+          static now() {
+            return now;
+          }
+        } as DateConstructor;
+      }, NOW);
+      await page.setViewport({ width, height: 900 });
+      await page.goto(`${pathToFileURL(file).href}${query}`);
+      return { page, errors };
+    };
+    const shown = (page: import("puppeteer-core").Page) =>
+      page.$$eval("[data-card]", (els) => els.filter((e) => !(e as HTMLElement).hidden).map((e) => (e as HTMLElement).dataset.slug));
+    const search = (page: import("puppeteer-core").Page) => page.evaluate(() => location.search);
+    const pressed = (page: import("puppeteer-core").Page) =>
+      page.$$eval("[data-filter][aria-pressed=true]", (els) => els.map((e) => `${(e as HTMLElement).dataset.filter}=${(e as HTMLElement).dataset.value}`).sort());
+    const pIndex = join(priv, "p", "index.html");
+
+    // 私有索引，390px：全部 published（含公开报告，链接与缩略图用公开站点的绝对地址），默认“最近更新”
+    const { page, errors } = await open(pIndex);
+    assert.deepEqual(await shown(page), ["priv-n", "pub-a", "priv-b"]);
+    const rows = await page.$$eval("[data-card]", (els) =>
+      els.map((e) => ({
+        slug: (e as HTMLElement).dataset.slug,
+        href: e.querySelector("h2 a")!.getAttribute("href"),
+        img: e.querySelector(".row-thumb img")?.getAttribute("src") ?? null,
+        lazy: e.querySelector(".row-thumb img")?.getAttribute("loading") ?? null,
+        placeholder: e.querySelector(".thumb-ph")?.textContent ?? null,
+        meta: [...e.querySelector(".row-meta")!.children].map((c) => c.textContent!.replace(/\s+/g, " ").trim()).join(" | "),
+      })),
+    );
+    const bySlug = Object.fromEntries(rows.map((r) => [r.slug, r]));
+    assert.equal(bySlug["pub-a"].href, `${publicUrl}/r/pub-a/`);
+    assert.equal(bySlug["pub-a"].img, `${publicUrl}/r/pub-a/thumb.png`);
+    assert.equal(bySlug["pub-a"].lazy, "lazy");
+    assert.equal(bySlug["priv-b"].href, "/p/priv-b/");
+    assert.equal(bySlug["priv-b"].img, "/p/priv-b/thumb.png");
+    // 无卡片：领域占位图，没有“卡片”和 EN 标记
+    assert.deepEqual([bySlug["priv-n"].img, bySlug["priv-n"].placeholder], [null, "AI"]);
+    assert.match(bySlug["priv-n"].meta, /^AI \| 更新于 2026-10-08 · 创建于 2026-09-01 \| 论断 n\/a \| 私有$/);
+    assert.match(bySlug["pub-a"].meta, /^Crypto \| 创建于 2026-10-05 \| 论断 n\/a \| EN \| 卡片 \| 公开$/);
+
+    // 390px：单列、摘要占满整行、没有横向溢出；左栏收起，列表紧跟在后面
+    const layout = await page.evaluate(() => {
+      const box = (e: Element) => e.getBoundingClientRect();
+      const rows = [...document.querySelectorAll("[data-card]")];
+      const rail = document.querySelector<HTMLDetailsElement>("[data-rail]")!;
+      return {
+        scrollWidth: document.documentElement.scrollWidth,
+        lefts: [...new Set(rows.map((r) => Math.round(box(r).left)))],
+        rowWidths: rows.map((r) => Math.round(box(r).width)),
+        sumWidths: rows.map((r) => Math.round(box(r.querySelector(".summary")!).width)),
+        sumClamp: getComputedStyle(rows[0].querySelector(".summary")!).webkitLineClamp,
+        railOpen: rail.open,
+        railHeight: Math.round(box(rail).height),
+        firstRowTop: Math.round(box(rows[0]).top),
+      };
+    });
+    assert.ok(layout.scrollWidth <= 390, `横向溢出：${layout.scrollWidth}`);
+    assert.equal(layout.lefts.length, 1, "单列");
+    assert.deepEqual(layout.sumWidths, layout.rowWidths, "摘要与整行同宽");
+    assert.equal(layout.sumClamp, "3");
+    assert.equal(layout.railOpen, false, "窄屏左栏默认收起");
+    assert.ok(layout.railHeight < 60 && layout.firstRowTop < 900, `列表在首屏内：${JSON.stringify(layout)}`);
+
+    // 左栏：领域与标签及篇数（含私有）；点击筛选并写进 URL
+    await page.click("[data-rail] summary");
+    const rail = await page.$$eval(".rail-item", (els) => els.map((e) => [...e.children].map((c) => c.textContent).join(" ")));
+    assert.deepEqual(rail, ["全部 3", "AI 1", "Crypto 2", "DEX 2", "机密主题 1"]);
+    await page.click('[data-filter="domain"][data-value="crypto"]');
+    assert.deepEqual(await shown(page), ["pub-a", "priv-b"]);
+    await page.click('[data-filter="tag"][data-value="dex"]');
+    assert.deepEqual(await shown(page), ["pub-a"]);
+    assert.equal(await search(page), "?domain=crypto&tag=dex");
+    assert.equal(await page.$eval("[data-count]", (e) => e.textContent), "1 / 3 篇报告");
+    assert.equal(await page.$eval("[data-active]", (e) => e.textContent), " · Crypto · DEX", "收起时也能看到当前筛选");
+    await page.click('[data-filter="tag"][data-value="dex"]'); // 再点一次取消
+    await page.click('[data-filter="domain"][data-value=""]');
+    assert.deepEqual([await shown(page), await search(page)], [["priv-n", "pub-a", "priv-b"], ""]);
+
+    // 中英文搜索：英文标题、中文摘要；多个词（输入空格时不能被吞掉）
+    await page.type("[data-q]", "public report");
+    assert.equal(await page.$eval("[data-q]", (e) => (e as HTMLInputElement).value), "public report");
+    assert.deepEqual(await shown(page), ["pub-a"]);
+    assert.equal(await search(page), "?q=public+report");
+    await page.$eval("[data-q]", (e) => ((e as HTMLInputElement).value = ""));
+    await page.type("[data-q]", "私有无卡片的摘要");
+    assert.deepEqual(await shown(page), ["priv-n"]);
+    // 无结果
+    await page.$eval("[data-q]", (e) => ((e as HTMLInputElement).value = ""));
+    await page.type("[data-q]", "zzzz-no-match");
+    assert.deepEqual(await shown(page), []);
+    assert.equal(await page.$eval("[data-empty]", (e) => (e as HTMLElement).hidden), false);
+    assert.equal(await page.$eval("[data-count]", (e) => e.textContent), "0 / 3 篇报告");
+    await page.$eval("[data-q]", (e) => ((e as HTMLInputElement).value = ""));
+    await page.type("[data-q]", " ");
+    assert.equal(await page.$eval("[data-empty]", (e) => (e as HTMLElement).hidden), true);
+
+    // 排序：最新创建按 created；时间范围按当前排序的日期字段与浏览器本地日历（本周 10-05…10-11）
+    await page.click('[data-filter="sort"][data-value="created"]');
+    assert.deepEqual(await shown(page), ["pub-a", "priv-b", "priv-n"]);
+    assert.deepEqual(await page.$$eval("[data-card]", (els) => els.map((e) => (e as HTMLElement).dataset.slug)), ["pub-a", "priv-b", "priv-n"], "DOM 顺序跟着排序");
+    await page.click('[data-filter="range"][data-value="week"]');
+    assert.deepEqual(await shown(page), ["pub-a"], "本周创建的只有 pub-a（10-05）");
+    assert.equal(await search(page), "?sort=created&range=week");
+    await page.click('[data-filter="sort"][data-value="updated"]');
+    assert.deepEqual(await shown(page), ["priv-n", "pub-a"], "本周更新的：10-08、10-05；priv-b 在 9 月");
+    await page.click('[data-filter="range"][data-value="month"]');
+    assert.deepEqual(await shown(page), ["priv-n", "pub-a"]);
+    await page.click('[data-filter="range"][data-value="all"]');
+    assert.equal(await search(page), "");
+
+    // 英文界面：控件文字、计数与“n/a”跟着换
+    await page.click("[data-rh-lang]");
+    assert.deepEqual(await page.$$eval(".tab, .seg-btn", (els) => els.map((e) => e.textContent)), ["Recently updated", "Newest", "This week", "This month", "All time"]);
+    assert.equal(await page.$eval('[data-slug="priv-n"] .ledger', (e) => e.textContent), "Claims n/a");
+    await page.evaluate(() => localStorage.clear());
+    assert.deepEqual(errors, []);
+    await page.close();
+
+    // URL 参数直接打开：筛选、排序、时间范围都生效；无效值回到默认
+    const linked = await open(pIndex, "?tag=secret-topic");
+    assert.deepEqual(await shown(linked.page), ["priv-b"]);
+    assert.deepEqual(await pressed(linked.page), ["domain=", "range=all", "sort=updated", "tag=secret-topic"]);
+    assert.equal(await linked.page.$eval("[data-active]", (e) => e.textContent), " · 机密主题");
+    await linked.page.close();
+    const sorted = await open(pIndex, "?sort=created&range=month&domain=ai");
+    assert.deepEqual(await shown(sorted.page), [], "priv-n 在 9 月创建，不在本月");
+    assert.deepEqual(await pressed(sorted.page), ["domain=ai", "range=month", "sort=created"]);
+    await sorted.page.close();
+    const bogus = await open(pIndex, "?sort=bogus&range=year");
+    assert.deepEqual([await shown(bogus.page), await pressed(bogus.page), await search(bogus.page)], [["priv-n", "pub-a", "priv-b"], ["domain=", "range=all", "sort=updated"], ""]);
+    assert.deepEqual(bogus.errors, []);
+    await bogus.page.close();
+
+    // 1440px：左栏常开、在列表左边，没有横向溢出
+    const wide = await open(pIndex, "", 1440);
+    const w = await wide.page.evaluate(() => {
+      const rail = document.querySelector<HTMLDetailsElement>("[data-rail]")!;
+      return {
+        open: rail.open,
+        railRight: rail.getBoundingClientRect().right,
+        listLeft: document.querySelector(".list")!.getBoundingClientRect().left,
+        toggle: getComputedStyle(rail.querySelector("summary")!).display,
+        scrollWidth: document.documentElement.scrollWidth,
+      };
+    });
+    assert.ok(w.open && w.toggle === "none" && w.railRight < w.listLeft && w.scrollWidth <= 1440, JSON.stringify(w));
+    await wide.page.close();
+
+    // 公开首页：只有 public + published
+    const home = await open(join(pub, "index.html"));
+    assert.deepEqual(await shown(home.page), ["pub-a"]);
+    assert.deepEqual(await home.page.$$eval(".rail-item", (els) => els.map((e) => [...e.children].map((c) => c.textContent).join(" "))), ["DEX 1"], "公开站点的左栏计数只来自公开报告");
+    await home.page.close();
+
+    // 空列表：没有公开报告时，公开首页显示空态、不显示筛选；私有索引照常
+    const dir = join(tmp, "reports", "2026", "10", "pub-a");
+    const meta = readFileSync(join(dir, "meta.yml"), "utf8");
+    writeFileSync(join(dir, "meta.yml"), meta.replace("visibility: public", "visibility: private"));
+    try {
+      const r = rh("build");
+      assert.equal(r.code, 0, r.out);
+      const empty = await open(join(pub, "index.html"));
+      assert.equal(await empty.page.$eval(".empty", (e) => e.textContent), t("zh", "emptyPublic"));
+      assert.equal(await empty.page.$$eval("[data-card], [data-q], [data-rail], .toolbar", (els) => els.length), 0);
+      const box = await empty.page.evaluate(() => {
+        const r = (sel: string) => document.querySelector(sel)!.getBoundingClientRect();
+        return { scrollWidth: document.documentElement.scrollWidth, empty: [r(".empty").left, r(".empty").width], main: [r("main h1").left, r("main").width] };
+      });
+      assert.ok(box.scrollWidth <= 390 && box.empty[0] === box.main[0] && box.empty[1] > 300, `空态占满内容宽度：${JSON.stringify(box)}`);
+      await empty.page.close();
+      const all = await open(pIndex);
+      assert.deepEqual(await shown(all.page), ["priv-n", "pub-a", "priv-b"]);
+      await all.page.close();
+    } finally {
+      writeFileSync(join(dir, "meta.yml"), meta);
+    }
   } finally {
     await browser.close();
   }

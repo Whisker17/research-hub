@@ -12,6 +12,7 @@ import { siteView } from "../../../lib/site-data.ts";
 const { cards, domains, usedTags } = siteView("private");
 ---
 <Base title={t("zh", "privateIndex")} titleEn={t("en", "privateIndex")} nav="private">
+  <h1 class="page-title"><T k="privateIndex" /></h1>
   <p class="page-sub"><T k="taglinePrivate" /></p>
   <ReportList cards={cards} filters domains={domains} tags={usedTags} linkTags={false} showVisibility emptyKey="emptyPublished" />
 </Base>

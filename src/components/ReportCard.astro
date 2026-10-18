@@ -1,4 +1,9 @@
 ---
+/**
+ * 列表行（WHI-1930，参考 paperswithcode Trending）：缩略图、等宽元信息行、衬线标题、三行摘要、标签 chip。
+ * 次要信息在元信息行里：台账论断数（导入报告显示 n/a）、EN 标记、卡片标记、私有索引里的“私有 / 公开”。
+ * 整行可点（标题链接的 ::after 盖住整行）；标签链接浮在上面。
+ */
 import type { CardData } from "../../lib/site-data.ts";
 import T from "./T.astro";
 
@@ -11,10 +16,27 @@ interface Props {
 }
 const { card, linkTags, showVisibility = false } = Astro.props;
 const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.summary_en ?? ""} ${card.tags.map((t) => `${t.key} ${t.label}`).join(" ")}`.toLowerCase();
+const ledgerTitle = card.ledger && `observed ${card.ledger.observed} · inferred ${card.ledger.inferred} · speculative ${card.ledger.speculative}`;
 ---
-<article class="card" data-card data-domain={card.domain} data-tags={card.tags.map((t) => t.key).join(" ")} data-search={searchText}>
-  <div class="card-top">
+<article
+  class="row"
+  data-card
+  data-slug={card.slug}
+  data-created={card.created}
+  data-updated={card.updated}
+  data-domain={card.domain}
+  data-tags={card.tags.map((t) => t.key).join(" ")}
+  data-search={searchText}
+>
+  <div class="row-thumb" aria-hidden="true">
+    {card.thumb ? <img src={card.thumb} alt="" width="240" height="300" loading="lazy" decoding="async" /> : <span class="thumb-ph" data-domain={card.domain}>{card.domainLabel}</span>}
+  </div>
+  <div class="row-meta">
     <span class="domain">{card.domainLabel}</span>
+    <span>{card.updated !== card.created && <><T k="updated" /> {card.updated} · </>}<T k="created" /> {card.created}</span>
+    <span class="ledger" title={ledgerTitle}>{card.ledger ? <T k="claims" vars={{ n: card.ledger.total }} /> : <T k="claimsNa" />}</span>
+    {card.href_en && <span class="chip-info" lang="en">EN</span>}
+    {card.thumb && <span class="chip-highlight"><T k="cardBadge" /></span>}
     {showVisibility && card.visibility === "private" && <span class="chip-neutral"><T k="private" /></span>}
     {showVisibility && card.visibility === "public" && <span class="chip-positive"><T k="public" /></span>}
   </div>
@@ -27,7 +49,4 @@ const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.
       </div>
     )
   }
-  <div class="dates">
-    {card.updated !== card.created && <><T k="updated" /> {card.updated} · </>}<T k="created" /> {card.created}
-  </div>
 </article>
