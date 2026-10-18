@@ -262,3 +262,4 @@ topics:
   - `counts.warnings`：`dailyAvoidTerms` 警告的条数（决定 3 说的“内部计数”）；
   - `dropped[] {topic, reason}`：被丢弃的候选 topic 的下标和原因代码（决定 7 说的“内部原因”）。
 - **可见性变化失败即拒绝**：某篇报告变成 private 或 draft、或者某个标签不再被任何 public + published 报告用到之后，引用它的旧日期在 `rh daily check`（也就是 `pnpm verify`）里报错。报错会写明日期文件、topic id 和 slug 或标签，并说明怎么修：在主克隆里修改那一天的 `topics.yml`（内容通道），或者用 `workflow_dispatch` regenerate 那一天。这样做是故意的：可见性变化必须引起注意，公开页面不能指向非公开报告。
+- **手动修正的例外（所有者决定，2026-10-18；WHI-1937 记录）**：上面这种报错，30 天内（items artifact 还在）先用 `workflow_dispatch`（date、regenerate）重做；超过 30 天，只有所有者可以在主克隆里删除或改正那一天 `topics.yml` 里出问题的 topic，作为只改 `daily/` 的内容通道提交，agent 不主动做；这是“`daily/YYYY/MM/DD/` 只由 commit job 写”的唯一例外（runbook：README → Daily Topics 运行手册）。
