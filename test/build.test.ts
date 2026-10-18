@@ -131,7 +131,7 @@ function mixedRepo() {
   const root = mkdtempSync(join(tmpdir(), "rh-proj-"));
   tmpRoots.push(root);
   const card = readFileSync(join(FIXTURE_PNG, "rgb.png"));
-  const write = (slug: string, meta: Record<string, unknown>, opts: { card?: Buffer; asset?: string } = {}) => {
+  const write = (slug: string, meta: Record<string, unknown>, opts: { card?: Buffer; asset?: string; ledger?: string } = {}) => {
     const created = String(meta.created ?? "2026-10-05");
     const dir = join(root, "reports", created.slice(0, 4), created.slice(5, 7), slug);
     mkdirSync(join(dir, "assets"), { recursive: true });
@@ -145,10 +145,16 @@ function mixedRepo() {
     writeFileSync(join(dir, "index.html"), HTML);
     writeFileSync(join(dir, "index.en.html"), HTML);
     if (opts.card) writeFileSync(join(dir, "card.png"), opts.card);
+    if (opts.ledger) {
+      mkdirSync(join(dir, "research"), { recursive: true });
+      writeFileSync(join(dir, "research", "ledger.md"), opts.ledger);
+    }
     writeFileSync(join(dir, "assets", "fig.svg"), opts.asset ?? `<svg>${slug}</svg>`);
   };
   write("pub-a", { title: "公开报告甲", tags: ["dex", "shared"], related: ["priv-b", "pub-e", "draft-c"], updated: "2026-10-09" }, { card });
-  write("pub-e", { title: "公开报告戊", domain: "ai", tags: ["dex"] });
+  // 原生报告带台账：列表行显示论断数；导入报告显示 n/a
+  const ledger = "| # | 论断 | 证据 | 类型 |\n|---|---|---|---|\n| C1 | a | https://x | observed |\n| C2 | b | https://y | observed |\n| C3 | c | C1 | inferred |\n| C4 | d | C2 | speculative |\n";
+  write("pub-e", { title: "公开报告戊", domain: "ai", tags: ["dex"], kind: "native", brief_source: "Research Briefs/e.md" }, { ledger });
   // 私有报告：card.png 与 assets 的字节和公开报告都不同，便于按内容查找
   write("priv-b", { title: "私密报告ZQX", visibility: "private", domain: "work", tags: ["shared", "secret"], created: "2026-09-12", updated: "2026-09-20", related: ["pub-a"] }, { card: pngThumbnail(card, "card.png", 30), asset: "<svg>机密图ZQX</svg>" });
   write("draft-c", { title: "草稿标题QQQ", status: "draft", domain: "finance", tags: ["draft-only", "shared"] }, { card });
@@ -191,6 +197,9 @@ test("projectSite：公开站点的列表、计数、标签、共现、缩略图
   assert.equal(a.href_en, "/r/pub-a/en/");
   assert.equal(a.thumb, "/r/pub-a/thumb.png");
   assert.equal(v.cards[1].thumb, undefined, "没有 card.png 就没有缩略图");
+  assert.equal(a.ledger, null, "导入报告没有台账统计（页面显示 n/a）");
+  assert.deepEqual(v.cards[1].ledger, { total: 4, observed: 2, inferred: 1, speculative: 1 }, "原生报告按台账类型计数");
+  assert.deepEqual(v.domains, [{ key: "ai", label: "AI", count: 1 }, { key: "crypto", label: "Crypto", count: 1 }], "领域计数只来自公开报告");
   // Daily 之类引用报告的页面经过 find：私有、draft、不存在的报告被过滤
   assert.equal(v.find("pub-a")?.slug, "pub-a");
   for (const s of ["priv-b", "draft-c", "draft-p", "nope"]) assert.equal(v.find(s), undefined, s);
@@ -203,6 +212,7 @@ test("projectSite：私有站点用全部 published（不含 draft），公开�
   assert.deepEqual(slugsOf(v.cards), ["priv-b", "pub-a", "pub-e"]);
   assert.deepEqual(v.months.map((m) => [m.ym, slugsOf(m.cards)]), [["2026-10", ["pub-a", "pub-e"]], ["2026-09", ["priv-b"]]]);
   assert.deepEqual(Object.keys(v.tags).sort(), ["dex", "secret", "shared"], "draft 专用与没人用的标签不出现");
+  assert.deepEqual(v.domains.map((d) => [d.key, d.count]), [["ai", 1], ["crypto", 1], ["work", 1]], "领域计数含私有、不含 draft（draft-c 的 finance 不出现）");
   assert.deepEqual(v.coTags("shared").map((t) => t.key), ["dex", "secret"]);
   const a = v.cards.find((c) => c.slug === "pub-a")!;
   assert.equal(a.href, `${PUBLIC_URL}/r/pub-a/`);

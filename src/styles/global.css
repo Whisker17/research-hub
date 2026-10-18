@@ -121,9 +121,15 @@ h1.page-title { font-family: var(--font-serif); font-size: var(--fs-xl); font-we
 .chip-highlight { background: var(--highlight-bg); color: var(--highlight-text); border-color: var(--highlight-border); }
 .chip-info { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
 
-/* 筛选（ReportList；版式由 WHI-1930 重做） */
-.filters { display: grid; gap: var(--sp-3); margin: 0 0 var(--sp-4); }
+/*
+ * 报告列表（ReportList / ReportCard，WHI-1930，参考 paperswithcode Trending）。
+ * 窄屏：筛选框 → 排序 / 时间范围 → 收起的“领域与标签” → 列表（单列，摘要占满整行）。
+ * 宽屏（≥1080px）：左栏是领域与标签，右边是筛选框、排序和列表。
+ */
+.report-list { display: grid; gap: var(--sp-3); min-width: 0; }
+.report-list.has-rail { grid-template-areas: "search" "toolbar" "rail" "list"; }
 .search {
+  grid-area: search;
   width: 100%;
   font: inherit;
   font-size: 16px; /* iOS 低于 16px 会在聚焦时放大页面 */
@@ -135,49 +141,121 @@ h1.page-title { font-family: var(--font-serif); font-size: var(--fs-xl); font-we
 }
 .search::placeholder { color: var(--ink-faint); }
 .search:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-.chip-row { display: flex; gap: var(--sp-2); overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-.chip-row::-webkit-scrollbar { display: none; }
-.chip {
-  flex: none;
-  font: inherit;
-  font-size: var(--fs-sm);
-  line-height: 1.2;
-  padding: 7px 12px;
-  border-radius: 99px;
-  border: 1px solid var(--hairline);
+.toolbar { grid-area: toolbar; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-2) var(--sp-4); border-bottom: 1px solid var(--hairline); }
+.tabs { display: flex; gap: var(--sp-4); }
+.tab {
+  font: 500 var(--fs-sm)/1.2 var(--font-ui);
+  padding: var(--sp-2) 0;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.seg { display: inline-flex; margin: var(--sp-1) 0; border: 1px solid var(--hairline); border-radius: var(--radius-sm); overflow: hidden; }
+.seg-btn {
+  font: 500 var(--fs-xs)/1.2 var(--font-mono);
+  padding: 6px 10px;
+  border: 0;
   background: var(--bg-elevated);
   color: var(--ink-soft);
   cursor: pointer;
-  text-decoration: none;
   -webkit-tap-highlight-color: transparent;
 }
-.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-.chip .n { opacity: 0.7; margin-left: var(--sp-1); font: var(--fs-xs) var(--font-mono); }
-.result-count { font: var(--fs-xs) var(--font-mono); color: var(--ink-faint); margin: 0 0 var(--sp-3); }
-
-/* 报告卡片（WHI-1930 会换成列表行） */
-.cards { display: grid; gap: var(--sp-3); }
-.card {
-  position: relative;
-  background: var(--bg-elevated);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius);
-  padding: var(--sp-4);
+.seg-btn + .seg-btn { border-left: 1px solid var(--hairline); }
+.seg-btn:hover { color: var(--ink); }
+.seg-btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.rail { grid-area: rail; min-width: 0; border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--bg-elevated); }
+.rail-toggle { cursor: pointer; padding: 10px var(--sp-4); font: 500 var(--fs-sm)/1.4 var(--font-ui); color: var(--ink-soft); }
+.rail[open] .rail-toggle { border-bottom: 1px solid var(--hairline); }
+.rail-active { color: var(--accent-text); }
+.rail-group { display: grid; gap: 2px; padding: var(--sp-3) var(--sp-4); }
+.rail-group + .rail-group { border-top: 1px solid var(--hairline); }
+.rail-h { font: 500 var(--fs-2xs)/1.4 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 var(--sp-1); }
+.rail-item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  width: 100%;
+  text-align: left;
+  font: var(--fs-sm)/1.3 var(--font-ui);
+  padding: 7px var(--sp-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.card[hidden] { display: none; }
-.card:active { opacity: 0.85; }
-.card-top { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: 6px; }
+.rail-item:hover { background: var(--bg-subtle); color: var(--ink); }
+.rail-item[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+.rail-item .n { font: var(--fs-xs)/1.3 var(--font-mono); color: var(--ink-faint); }
+.list { min-width: 0; }
+.has-rail > .list { grid-area: list; }
+.result-count { font: var(--fs-xs) var(--font-mono); color: var(--ink-faint); margin: 0 0 var(--sp-2); }
+
+/* 列表行：缩略图在左；窄屏缩略图只与元信息、标题并排，摘要与标签占满整行 */
+.rows { display: grid; border-top: 1px solid var(--hairline); }
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-areas: "thumb meta" "thumb title" "sum sum" "tags tags";
+  align-content: start;
+  column-gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.row[hidden] { display: none; }
+.row:active { opacity: 0.85; }
+.row-thumb { grid-area: thumb; align-self: start; aspect-ratio: 4 / 3; overflow: hidden; border: 1px solid var(--hairline); border-radius: var(--radius-sm); background: var(--bg-subtle); }
+.row-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.thumb-ph { display: flex; align-items: center; justify-content: center; height: 100%; font: 600 var(--fs-2xs)/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; background: var(--bg-subtle); color: var(--ink-faint); }
+.thumb-ph[data-domain="crypto"] { background: var(--highlight-bg); color: var(--highlight-text); }
+.thumb-ph[data-domain="ai"] { background: var(--info-bg); color: var(--info-text); }
+.thumb-ph[data-domain="work"] { background: var(--positive-bg); color: var(--positive-text); }
+.thumb-ph[data-domain="finance"] { background: var(--accent-soft); color: var(--accent-text); }
+.row-meta { grid-area: meta; display: flex; flex-wrap: wrap; align-items: center; gap: 2px var(--sp-2); min-width: 0; font: var(--fs-xs)/1.5 var(--font-mono); color: var(--ink-faint); }
 .domain { font: 500 var(--fs-xs) var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-text); }
-.card h2 { margin: 0; font-family: var(--font-serif); font-size: var(--fs-md); line-height: 1.4; font-weight: 600; }
-.card h2 a { color: inherit; text-decoration: none; }
-.card h2 a::after { content: ""; position: absolute; inset: 0; border-radius: var(--radius); }
-.card h2 a:focus-visible { outline: none; }
-.card h2 a:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
-.card .summary { margin: 6px 0 0; color: var(--ink-soft); font-size: var(--fs-base); line-height: 1.55; }
-.card .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.card .tag { position: relative; z-index: 1; font-size: 12.5px; padding: 1px 8px; border-radius: var(--radius-sm); border: 1px solid var(--hairline); background: var(--bg-subtle); color: var(--ink-soft); text-decoration: none; }
-.card .dates { margin-top: 10px; font: var(--fs-xs) var(--font-mono); color: var(--ink-faint); }
+.row h2 { grid-area: title; margin: 2px 0 0; font-family: var(--font-serif); font-size: var(--fs-md); line-height: 1.35; font-weight: 500; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.row h2 a { color: inherit; text-decoration: none; }
+.row h2 a:hover { text-decoration: underline; text-decoration-color: var(--hairline-strong); text-underline-offset: 3px; }
+.row h2 a::after { content: ""; position: absolute; inset: 0; }
+.row h2 a:focus-visible { outline: none; }
+.row h2 a:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
+.row .summary {
+  grid-area: sum;
+  margin: var(--sp-2) 0 0;
+  color: var(--ink-soft);
+  font-size: var(--fs-base);
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+.row .tags { grid-area: tags; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.row .tag { position: relative; z-index: 1; font: var(--fs-xs)/1.6 var(--font-mono); padding: 0 8px; border-radius: var(--radius-sm); border: 1px solid var(--hairline); background: var(--bg-subtle); color: var(--ink-soft); text-decoration: none; }
+a.tag:hover { color: var(--ink); border-color: var(--hairline-strong); }
 .empty { padding: 28px var(--sp-4); text-align: center; color: var(--ink-soft); background: var(--bg-elevated); border: 1px dashed var(--hairline-strong); border-radius: var(--radius); }
+.rows .empty { margin-top: var(--sp-4); }
+@media (min-width: 720px) {
+  .row { grid-template-columns: 144px minmax(0, 1fr); grid-template-areas: "thumb meta" "thumb title" "thumb sum" "thumb tags"; column-gap: var(--sp-5); padding: var(--sp-5) 0; }
+  .row h2 { font-size: 20px; }
+}
+@media (min-width: 1080px) {
+  .wrap:has(.has-rail) { max-width: var(--page-max); padding-left: var(--sp-6); padding-right: var(--sp-6); }
+  .report-list.has-rail { grid-template-columns: 220px minmax(0, 1fr); grid-template-areas: "rail search" "rail toolbar" "rail list"; grid-template-rows: auto auto 1fr; column-gap: var(--sp-7); align-items: start; }
+  .rail { position: sticky; top: 72px; max-height: calc(100vh - 88px); overflow-y: auto; border: 0; background: none; }
+  .rail-toggle { display: none; }
+  .rail-group { padding: 0 0 var(--sp-5); }
+  .rail-group + .rail-group { border-top: 0; }
+}
 
 /* 归档 / 标签列表（WHI-1932 会重做） */
 .index-list { list-style: none; margin: 0; padding: 0; background: var(--bg-elevated); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; }

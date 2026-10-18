@@ -7,9 +7,10 @@
  *  - 私有站点：全部 published 报告；public 报告的链接与缩略图用公开站点的绝对地址（不复制）。
  *  - draft 不出现在任何站点。
  */
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadConfig } from "./config.ts";
+import { parseLedger } from "./ledger.ts";
 import { REPORT_FILES, isPublicPublished, isPublished, loadReports, loadTags, reportEnPath, reportPath, sortByUpdated, type Report } from "./reports.ts";
 import { DOMAIN_LABELS, type Domain, type TagRegistry } from "./schema.ts";
 
@@ -36,6 +37,15 @@ export interface CardData {
   thumb?: string;
   /** related 里本站可见的报告 slug */
   related: string[];
+  /** 论断台账（research/ledger.md）按类型计数；导入报告（kind: imported）没有台账，是 null（页面显示 n/a） */
+  ledger: LedgerCount | null;
+}
+
+export interface LedgerCount {
+  total: number;
+  observed: number;
+  inferred: number;
+  speculative: number;
 }
 
 export interface TagCount {
@@ -55,7 +65,8 @@ export interface SiteView {
   /** 只含本站报告用到的标签（含描述） */
   tags: TagRegistry;
   usedTags: TagCount[];
-  domains: { key: Domain; label: string }[];
+  /** 本站报告用到的领域及篇数（按 DOMAIN_LABELS 的顺序） */
+  domains: { key: Domain; label: string; count: number }[];
   /** 按创建年月分组，新的在前 */
   months: { ym: string; year: string; month: string; cards: CardData[] }[];
   /** 本站可见的报告；私有、draft 或不存在时返回 undefined。引用报告的页面（如 Daily）必须经过它。 */
@@ -122,7 +133,15 @@ function toCard(r: Report, tags: TagRegistry, linkBase: string): Omit<CardData, 
     href: `${base}${reportPath(r)}`,
     href_en: hasEn ? `${base}${reportEnPath(r)}` : undefined,
     thumb: hasCard ? `${base}${reportPath(r)}${THUMB_FILE}` : undefined,
+    ledger: r.meta.kind === "imported" ? null : ledgerCount(join(r.dir, REPORT_FILES.ledger)),
   };
+}
+
+/** 台账里各类型论断的条数；台账缺失时全是 0（已发布的原生报告由 rh check 保证有台账）。 */
+function ledgerCount(file: string): LedgerCount {
+  const rows = existsSync(file) ? parseLedger(readFileSync(file, "utf8")).rows : [];
+  const n = (k: string) => rows.filter((r) => r.kind === k).length;
+  return { total: rows.length, observed: n("observed"), inferred: n("inferred"), speculative: n("speculative") };
 }
 
 /** 按创建年月分组：[{ ym: "2026-10", year, month, reports }]，新的在前。 */
@@ -147,6 +166,38 @@ function usedTags(reports: Report[], tags: TagRegistry): TagCount[] {
 }
 
 function usedDomains(reports: Report[]) {
-  const set = new Set(reports.map((r) => r.meta.domain));
-  return (Object.keys(DOMAIN_LABELS) as Domain[]).filter((d) => set.has(d)).map((d) => ({ key: d, label: DOMAIN_LABELS[d] }));
+  const count = (d: Domain) => reports.filter((r) => r.meta.domain === d).length;
+  return (Object.keys(DOMAIN_LABELS) as Domain[]).filter((d) => count(d) > 0).map((d) => ({ key: d, label: DOMAIN_LABELS[d], count: count(d) }));
+}
+
+/*
+ * 列表的排序与时间范围（ADR 0003 §7，WHI-1930）。
+ *
+ * - 排序：sort = "updated"（最近更新，默认）或 "created"（最新创建）。按该日期倒序；同一天再按另一个日期倒序；
+ *   再相同按 slug 升序——结果与输入顺序无关。"updated" 的顺序与 projectSite 给出的 cards 顺序（sortByUpdated）一致，
+ *   所以没有脚本时服务端渲染的顺序就是默认顺序。
+ * - 时间范围：range = "week"（本周）/ "month"（本月）/ "all"。比较的日期字段就是当前排序用的字段
+ *   （最近更新 → updated，最新创建 → created）。报告日期是不带时区的日历日期（YYYY-MM-DD），直接按日期比较。
+ *   本周 = 浏览者本地时区的当前日历周，周一到周日（含两端）；本月 = 本地时区的当前日历月，1 日到月末（含两端）。
+ * - 何时计算：在浏览器里、打开页面时按浏览者本地时间计算（now = new Date()），不在构建时算——站点只在发布时
+ *   重新构建，构建时算出的“本周”过几天就错了。没有脚本时不显示排序与时间范围控件，列表是全部 + 最近更新。
+ *
+ * 这个函数会以源码形式内联进 ReportList 的 <script is:inline>（arrangeCards.toString()），
+ * 所以必须自成一体：不引用模块里的其他变量，也不用嵌套的具名函数。
+ */
+export type SortKey = "updated" | "created";
+export type RangeKey = "week" | "month" | "all";
+
+export function arrangeCards<T extends { slug: string; created: string; updated: string }>(cards: T[], sort: SortKey, range: RangeKey, now: Date): T[] {
+  const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  // 周一 = 0 … 周日 = 6
+  const monday = now.getDate() - ((now.getDay() + 6) % 7);
+  const lo = range === "week" ? ymd(new Date(y, m, monday)) : ymd(new Date(y, m, 1));
+  const hi = range === "week" ? ymd(new Date(y, m, monday + 6)) : ymd(new Date(y, m + 1, 0));
+  const other = sort === "created" ? "updated" : "created";
+  return cards
+    .filter((c) => range === "all" || (c[sort] >= lo && c[sort] <= hi))
+    .sort((a, b) => (a[sort] !== b[sort] ? (a[sort] < b[sort] ? 1 : -1) : a[other] !== b[other] ? (a[other] < b[other] ? 1 : -1) : a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0));
 }
