@@ -42,6 +42,8 @@ before(() => {
   root = mkdtempSync(join(tmpdir(), "rh-prepush-"));
   const remote = join(root, "remote.git");
   spawnSync("git", ["init", "-q", "--bare", "-b", "main", remote]);
+  // 让远端本身允许删除当前分支，删除测试才只靠 hook 拦截（否则 git 默认的 denyDeleteCurrent 也会拒绝）。
+  spawnSync("git", ["config", "receive.denyDeleteCurrent", "ignore"], { cwd: remote });
   work = join(root, "work");
   spawnSync("git", ["clone", "-q", remote, work]);
   git(["checkout", "-q", "-b", "main"]);
@@ -64,6 +66,7 @@ test("pre-push：改代码的提交不能直推 main", () => {
   const r = git(["push", "origin", "main"]);
   assert.notEqual(r.code, 0);
   assert.match(r.out, /non-content path 'lib\/a\.ts'/);
+  assert.match(r.out, /refusing to push directly to 'main'/);
   resetMain();
 });
 
@@ -101,6 +104,8 @@ test("pre-push：release/v* 默认拒绝；ALLOW_DIRECT_PUSH=1 放行（fan-in /
   resetMain();
 });
 
-test("pre-push：删除 main 被拒绝", () => {
-  assert.notEqual(git(["push", "origin", ":main"]).code, 0);
+test("pre-push：删除 main 被 hook 拒绝", () => {
+  const r = git(["push", "origin", ":main"]);
+  assert.notEqual(r.code, 0);
+  assert.match(r.out, /refusing to push directly to 'main'/);
 });

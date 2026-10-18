@@ -4,7 +4,7 @@ Fill every `{{PLACEHOLDER}}`; drop a section only where its placeholder says it 
 omitted. One prompt per issue, dispatched as `IMPLEMENTER` with the issue's effort.
 
 These `{{…}}` markers are **launch-template slots**, not project-bootstrap placeholders.
-`SETUP.md`'s placeholder sweep must not rewrite this file.
+A placeholder sweep must not rewrite this file.
 
 ---
 
@@ -51,8 +51,8 @@ not hold. Omit if none.}}
 Assert that `git merge-base HEAD origin/{{BASE}}` == `git rev-parse origin/{{BASE}}`, then
 confirm `git config core.hooksPath` prints `.githooks` (shared repository config; do not
 override it) and run `pnpm install --frozen-lockfile`. Every `gh` call uses
-`--repo {{OWNER_REPO}}`. From a nested worktree, also pass
-`--head {{OWNER_REPO}}:{{BRANCH_NAME}}`.
+`--repo {{OWNER_REPO}}` and `gh pr create` also passes `--head {{OWNER_LOGIN}}:{{BRANCH_NAME}}`
+(the owner **login**, e.g. `Whisker17`, not `owner/repo` — `docs/TRAPS.md` entry 2).
 
 ## Scope
 

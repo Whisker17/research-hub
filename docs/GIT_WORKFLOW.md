@@ -88,7 +88,7 @@ content work run under stale rules:
 - `docs/GIT_WORKFLOW.md`
 - `docs/agents/` (issue template, tracker binding, triage labels, runtime, domain)
 - `docs/TRAPS.md` and `docs/DEFERRED_ISSUES.md` entries that are process-layer
-- `.githooks/`
+- `.githooks/` and its test `test/pre-push.test.ts`
 - `.github/pull_request_template.md`
 - `config/agent-roles.conf`
 - `scripts/agent-dispatch.sh` and `test/test_agent_dispatch.py`
@@ -211,7 +211,7 @@ Tracker: set the issue to **`In Progress`**. The hooks path is shared repository
 ```bash
 git push -u origin HEAD
 gh pr create --repo Whisker17/research-hub --base "$PR_BASE" \
-  --head "$BRANCH" \
+  --head "Whisker17:$BRANCH" \
   --title "feat(WHI-123): short description" \
   --body-file <filled .github/pull_request_template.md>
 ```
@@ -271,9 +271,15 @@ Drive these from the **primary clone**.
    a finished `release/v*` → `main`
 2. **Remove the worktree:** `git worktree remove <worktree-path>` then `git worktree prune`
 3. **Delete the local branch:** `git branch -D <branch>`
-4. **Fast-forward `main`** in the primary clone: `git fetch origin --prune` then
-   `git merge --ff-only origin/main` (only when the merge landed on `main`; if it would not
-   fast-forward, stop — the primary clone holds unpushed content commits: push them first)
+4. **Bring the primary clone's `main` up to date** (only when the merge landed on `main`):
+   `git fetch origin --prune` then `git merge --ff-only origin/main`. If that refuses, the
+   primary clone holds unpushed content commits made before the merge. Replay them on top:
+   `git rebase origin/main` (content-only commits rebase without touching code; uncommitted
+   drafts stay in the working tree — use `--autostash` only if git asks), then
+   `pnpm rh check --no-shot` and `git push origin main`. **Never** force-push, never merge
+   `origin/main` into local `main` (the hook refuses merge commits), and never rerun
+   `rh publish` for a report that is already committed (`.claude/skills/research-hub/`
+   SKILL.md § 发布)
 5. **Fan in whenever `main` advanced through a PR** (governance, hotfix) — in this same
    session ([§ Fan-in](#fan-in-main-into-live-version-branches))
 6. **Tracker → `Done`**

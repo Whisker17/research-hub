@@ -8,7 +8,8 @@ one edit point.
 
 - **Mapping (the only place a model ID lives):** `config/agent-roles.conf`
 - **Executable seam:** `scripts/agent-dispatch.sh`
-- **Tests (fake runtimes, no model calls):** `tests/test_agent_dispatch.py`
+- **Tests (fake runtimes, no model calls):** `test/test_agent_dispatch.py`
+  (`uv run --no-project --with pytest python -m pytest test/test_agent_dispatch.py`)
 
 ## Roles
 
@@ -98,13 +99,16 @@ Cross-vendor review is the preferred configuration: independent failure modes ca
 than a stronger model sharing the implementer's blind spots. `--probe` notes when
 `IMPLEMENTER` and `REVIEWER` use the same model.
 
-The template ships every role **unconfigured**, so each fails closed until `SETUP.md`
-step 1.9 fills in the exact model ID and effort values the target runtime accepts and a real
-call succeeds. The selection intent recorded in the config (implementer on Claude Opus 5.5,
-reviewer on GPT-6 Astra) is not a verified default.
+This repository's bindings (ORCHESTRATOR and IMPLEMENTER on `claude/claude-opus-5-5`,
+REVIEWER on `mantle/gpt-6-astra`, all through `pi`) were verified with real calls at
+adoption (`docs/references/template-sync.md`). Re-run § Preflight when the config changes.
 
 When a generation turns over, edit `config/agent-roles.conf` and nothing else. A model name
-inside `.claude/skills/` is drift; fix the skill to name a role.
+inside a **process skill** (`docs/GIT_WORKFLOW.md` § Repo-wide governance carve-out) is
+drift; fix the skill to name a role. The team skill `.claude/skills/research-hub/` is
+exempt: its content-review bindings (English explainer review on `mantle/gpt-6.1-sol`,
+tweet-card review on `mantle/gpt-6-astra`) are product rules from `AGENTS.md`, not
+process roles.
 
 ## Per-runtime notes
 
