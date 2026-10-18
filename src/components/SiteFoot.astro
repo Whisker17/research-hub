@@ -1,7 +1,25 @@
 ---
+import { loadConfig } from "../../lib/config.ts";
+import type { Nav } from "./SiteHead.astro";
+import T from "./T.astro";
+
+interface Props {
+  nav: Nav;
+}
+const { nav } = Astro.props;
 ---
 <footer class="site-foot">
-  <a href="/">全部报告</a>
-  <a href="/archive/">按月归档</a>
-  <a href="/tags/">标签</a>
+  <div class="site-foot-inner">
+    <span class="foot-brand">Research Hub</span>
+    {
+      nav === "public" && (
+        <>
+          <a href="/"><T k="footAll" /></a>
+          <a href="/archive/"><T k="footArchive" /></a>
+          <a href="/tags/"><T k="footTags" /></a>
+        </>
+      )
+    }
+    {nav === "private" && <a href={`${loadConfig().publicUrl}/`}><T k="navPublicSite" /></a>}
+  </div>
 </footer>

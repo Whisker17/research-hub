@@ -1,7 +1,8 @@
 ---
 import Base from "../../../layouts/Base.astro";
 import ReportList from "../../../components/ReportList.astro";
-import SiteFoot from "../../../components/SiteFoot.astro";
+import T from "../../../components/T.astro";
+import { t } from "../../../i18n.ts";
 import { siteView } from "../../../../lib/site-data.ts";
 
 export function getStaticPaths() {
@@ -10,14 +11,11 @@ export function getStaticPaths() {
 
 const { year, month } = Astro.params;
 const { cards } = Astro.props;
+const ym = { y: year, m: Number(month) };
 ---
-<Base title={`${year} 年 ${Number(month)} 月`}>
-  <div class="crumbs-bar">
-    <p class="crumbs"><a href="/">Research Hub</a> / <a href="/archive/">按月归档</a></p>
-    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
-  </div>
-  <h1 class="page-title">{year} 年 {Number(month)} 月</h1>
-  <p class="page-sub">{cards.length} 篇报告（按创建月份）</p>
+<Base title={t("zh", "month", ym)} titleEn={t("en", "month", ym)}>
+  <p class="crumbs"><a href="/archive/"><T k="archive" /></a></p>
+  <h1 class="page-title"><T k="month" vars={ym} /></h1>
+  <p class="page-sub"><T k="monthSub" vars={{ n: cards.length }} /></p>
   <ReportList cards={cards} linkTags />
-  <SiteFoot />
 </Base>

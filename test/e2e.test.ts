@@ -11,8 +11,10 @@ import { after, before, test } from "node:test";
 import { stringify } from "yaml";
 import { createHash } from "node:crypto";
 import { pngThumbnail } from "../cli/lib/build.ts";
-import { findChrome } from "../cli/lib/mobile.ts";
+import { pathToFileURL } from "node:url";
+import { findChrome, launchBrowser } from "../cli/lib/mobile.ts";
 import { loadConfig } from "../lib/config.ts";
+import { t } from "../src/i18n.ts";
 
 const REPO = join(import.meta.dirname, "..");
 const TODAY = "2026-10-05";
@@ -161,7 +163,11 @@ test("rh build：公开 / 私有分发、返回链接、draft 排除、私有内
   // 标签描述（ADR 0003 §6）：只被私有报告用到的标签，描述不能出现在公开产物里
   const tagsYml = readFileSync(join(tmp, "tags.yml"), "utf8");
   writeFileSync(join(tmp, "tags.yml"), tagsYml.replace("label: 机密主题", "label: 机密主题\n    description: 机密主题的说明文字ABC"));
-  const pubA = writeReport("pub-a", { title: "公开报告甲", summary: "公开摘要甲", tags: ["dex"], updated: TODAY });
+  const pubA = writeReport(
+    "pub-a",
+    { title: "公开报告甲", summary: "公开摘要甲", title_en: "Public Report A", summary_en: "Public summary A", tags: ["dex"], updated: TODAY },
+    { "index.en.html": goodHtml },
+  );
   const privB = writeReport("priv-b", { title: "私密报告ZQX", summary: "私密摘要ZQX", visibility: "private", tags: ["secret-topic"], created: "2026-09-12", updated: "2026-09-20" });
   const cardPng = readFileSync(join(REPO, "test", "fixtures", "png", "rgb.png"));
   writeFileSync(join(pubA, "card.png"), cardPng);
@@ -217,6 +223,136 @@ test("rh build：公开 / 私有分发、返回链接、draft 排除、私有内
   // 验收 3：draft 不出现在任何产物
   for (const needle of ["草稿标题QQQ", "草稿摘要QQQ", "draft-c", "私有草稿WWW", "draft-d", "meme-launchpad"]) {
     assert.deepEqual([...grepDir(pub, needle), ...grepDir(priv, needle)], [], `产物不应包含 draft“${needle}”`);
+  }
+});
+
+test("站点外壳（WHI-1928）：中英文 × 明暗 × localStorage 不可用；语言切换覆盖文字、无障碍名与报告链接；没有脚本时链接可用", { skip: findChrome() ? false : "没有 Chrome" }, async () => {
+  const pub = join(tmp, "dist", "public");
+  // 不发外部请求、没有客户端框架 bundle
+  for (const f of [...walk(pub)].filter((f) => f.endsWith(".html") && !f.includes(`${join(pub, "r")}`))) {
+    const html = readFileSync(f, "utf8");
+    assert.doesNotMatch(html, /<script[^>]+(type="module"|src=)|_astro\/|<link[^>]+stylesheet/, f);
+    assert.doesNotMatch(html, /fonts\.googleapis|fonts\.gstatic|cdn\.|unpkg|jsdelivr/, f);
+  }
+  for (const font of ["inter.woff2", "jetbrains-mono.woff2", "newsreader.woff2", "OFL-Inter.txt"]) assert.ok(existsSync(join(pub, "fonts", font)), font);
+
+  const url = pathToFileURL(join(pub, "index.html")).href;
+  const browser = await launchBrowser();
+  try {
+    const open = async (opts: { noStorage?: boolean; js?: boolean; dark?: boolean } = {}) => {
+      const page = await browser.newPage();
+      const errors: string[] = [];
+      page.on("pageerror", (e) => errors.push(String(e)));
+      if (opts.js === false) await page.setJavaScriptEnabled(false);
+      await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: opts.dark ? "dark" : "light" }]);
+      if (opts.noStorage) {
+        await page.evaluateOnNewDocument(() => {
+          Object.defineProperty(window, "localStorage", {
+            get() {
+              throw new DOMException("denied", "SecurityError");
+            },
+          });
+        });
+      }
+      await page.goto(url);
+      return { page, errors };
+    };
+    const state = (page: import("puppeteer-core").Page) =>
+      page.evaluate(() => {
+        const card = document.querySelector<HTMLAnchorElement>("[data-card] h2 a")!;
+        const shown = (sel: string) => [...document.querySelectorAll<HTMLElement>(sel)].filter((e) => e.offsetParent !== null).length;
+        return {
+          lang: document.documentElement.lang,
+          theme: document.documentElement.dataset.theme ?? null,
+          bg: getComputedStyle(document.body).backgroundColor,
+          nav: [...document.querySelectorAll(".site-nav a")].map((a) => [a.textContent, a.getAttribute("href")]),
+          navLabel: document.querySelector(".site-nav")!.getAttribute("aria-label"),
+          searchLabel: document.querySelector("[data-q]")!.getAttribute("aria-label"),
+          placeholder: document.querySelector("[data-q]")!.getAttribute("placeholder"),
+          langBtn: document.querySelector("[data-rh-lang]")!.getAttribute("aria-label"),
+          themeBtn: document.querySelector("[data-rh-theme]")!.getAttribute("aria-label"),
+          themePressed: document.querySelector("[data-rh-theme]")!.getAttribute("aria-pressed"),
+          count: document.querySelector("[data-count]")!.textContent,
+          card: [card.textContent, card.getAttribute("href")],
+          summary: document.querySelector("[data-card] .summary")!.textContent,
+          toggles: shown("[data-rh-lang], [data-rh-theme]"),
+          filters: shown(".filters"),
+        };
+      });
+    const LIGHT = "rgb(250, 248, 244)";
+    const DARK = "rgb(17, 16, 14)";
+
+    // 默认：中文、跟随系统（浅色）
+    const { page, errors } = await open();
+    let s = await state(page);
+    assert.equal(s.lang, "zh-CN");
+    assert.equal(s.bg, LIGHT);
+    assert.deepEqual(s.nav, [["报告", "/"], ["标签", "/tags/"], ["归档", "/archive/"]]);
+    assert.deepEqual(s.card, ["公开报告甲", "/r/pub-a/"]);
+    assert.equal(s.searchLabel, t("zh", "searchLabel"));
+    assert.equal(s.toggles, 2);
+
+    // 切到英文：文字、属性（aria-label / placeholder）、报告链接都换掉，并记在本站 localStorage
+    await page.click("[data-rh-lang]");
+    s = await state(page);
+    assert.equal(s.lang, "en");
+    assert.deepEqual(s.nav, [["Reports", "/"], ["Tags", "/tags/"], ["Archive", "/archive/"]]);
+    assert.equal(s.navLabel, t("en", "navLabel"));
+    assert.equal(s.searchLabel, t("en", "searchLabel"));
+    assert.equal(s.placeholder, t("en", "searchPlaceholder"));
+    assert.equal(s.langBtn, t("en", "langSwitchLabel"));
+    assert.equal(s.themeBtn, t("en", "theme"));
+    assert.equal(s.count, "1 report");
+    assert.deepEqual(s.card, ["Public Report A", "/r/pub-a/en/"]);
+    assert.equal(s.summary, "Public summary A");
+    assert.equal(await page.evaluate(() => localStorage.getItem("rh_lang")), "en");
+
+    // 深色：手动切换，刷新后仍是英文 + 深色
+    await page.click("[data-rh-theme]");
+    await page.reload();
+    s = await state(page);
+    assert.deepEqual([s.lang, s.theme, s.bg, s.themePressed], ["en", "dark", DARK, "true"]);
+    assert.deepEqual(s.card, ["Public Report A", "/r/pub-a/en/"]);
+    // 切回中文：原来的中文文字与链接回来
+    await page.click("[data-rh-lang]");
+    s = await state(page);
+    assert.deepEqual([s.lang, s.card, s.summary, s.count], ["zh-CN", ["公开报告甲", "/r/pub-a/"], "公开摘要甲", "1 篇报告"]);
+    // ⌘K 与 “/” 把焦点移到筛选框
+    await page.focus("body");
+    await page.keyboard.press("/");
+    assert.equal(await page.evaluate(() => document.activeElement?.hasAttribute("data-q")), true);
+    assert.deepEqual(errors, []);
+    await page.evaluate(() => localStorage.clear());
+    await page.close();
+
+    // 系统深色、没有手动选择：跟随系统
+    const dark = await open({ dark: true });
+    s = await state(dark.page);
+    assert.deepEqual([s.theme, s.bg, s.themePressed], [null, DARK, "true"]);
+    await dark.page.close();
+
+    // localStorage 不可用：照常显示中文，切换在本页有效，筛选照常工作
+    const ns = await open({ noStorage: true });
+    s = await state(ns.page);
+    assert.deepEqual([s.lang, s.bg, s.card[0]], ["zh-CN", LIGHT, "公开报告甲"]);
+    await ns.page.click("[data-rh-lang]");
+    await ns.page.click("[data-rh-theme]");
+    s = await state(ns.page);
+    assert.deepEqual([s.lang, s.card[0], s.theme, s.bg], ["en", "Public Report A", "dark", DARK]);
+    await ns.page.type("[data-q]", "zzzz-no-match");
+    assert.equal(await ns.page.$eval("[data-empty]", (e) => (e as HTMLElement).hidden), false);
+    assert.equal(await ns.page.$eval("[data-count]", (e) => e.textContent), "0 / 1 reports");
+    assert.deepEqual(ns.errors, []);
+    await ns.page.close();
+
+    // 没有 JavaScript：中文内容与导航链接都在，要脚本的切换按钮和筛选框不显示
+    const nojs = await open({ js: false });
+    s = await state(nojs.page);
+    assert.deepEqual([s.lang, s.card, s.toggles, s.filters], ["zh-CN", ["公开报告甲", "/r/pub-a/"], 0, 0]);
+    assert.deepEqual(s.nav, [["报告", "/"], ["标签", "/tags/"], ["归档", "/archive/"]]);
+    await nojs.page.close();
+  } finally {
+    await browser.close();
   }
 });
 

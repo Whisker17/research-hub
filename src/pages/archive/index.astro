@@ -1,27 +1,23 @@
 ---
 import Base from "../../layouts/Base.astro";
-import SiteFoot from "../../components/SiteFoot.astro";
+import T from "../../components/T.astro";
+import { t } from "../../i18n.ts";
 import { siteView } from "../../../lib/site-data.ts";
 
 const { months } = siteView("public");
 ---
-<Base title="按月归档">
-  <div class="crumbs-bar">
-    <p class="crumbs"><a href="/">Research Hub</a></p>
-    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
-  </div>
-  <h1 class="page-title">按月归档</h1>
-  <p class="page-sub">按报告的创建月份</p>
+<Base title={t("zh", "archive")} titleEn={t("en", "archive")}>
+  <h1 class="page-title"><T k="archive" /></h1>
+  <p class="page-sub"><T k="archiveSub" /></p>
   {
     months.length ? (
       <ul class="index-list">
         {months.map((m) => (
-          <li><a href={`/${m.year}/${m.month}/`}><span>{m.year} 年 {Number(m.month)} 月</span><span class="n">{m.cards.length} 篇</span></a></li>
+          <li><a href={`/${m.year}/${m.month}/`}><T k="month" vars={{ y: m.year, m: Number(m.month) }} /><span class="n"><T k="nShort" vars={{ n: m.cards.length }} /></span></a></li>
         ))}
       </ul>
     ) : (
-      <p class="empty">还没有公开报告。</p>
+      <p class="empty"><T k="emptyPublic" /></p>
     )
   }
-  <SiteFoot />
 </Base>

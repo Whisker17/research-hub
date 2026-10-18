@@ -1,0 +1,11 @@
+---
+/** 一段界面文案：服务端渲染中文，语言切换时按 data-i18n 换成词典里的另一种语言（src/i18n.ts）。 */
+import { t, type I18nKey, type I18nVars } from "../i18n.ts";
+
+interface Props {
+  k: I18nKey;
+  vars?: I18nVars;
+}
+const { k, vars } = Astro.props;
+---
+<span data-i18n={k} data-i18n-vars={vars && JSON.stringify(vars)}>{t("zh", k, vars)}</span>
