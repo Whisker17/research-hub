@@ -18,7 +18,7 @@ import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
 import { loadConfig } from "../lib/config.ts";
 import { DAILY_DIR, DAY_FILES, isFinalStatus, isLate, loadDaily, manifestSchema, parseItemsJsonl, publicDay, shouldGenerate, type Manifest } from "../lib/daily.ts";
-import { loadReports, loadTags } from "../lib/reports.ts";
+import { isPublicPublished, loadReports, loadTags } from "../lib/reports.ts";
 import { isValidDate } from "../lib/schema.ts";
 import { projectSite } from "../lib/site-data.ts";
 
@@ -66,13 +66,19 @@ export function plan(root: string, o: { event: Event; now: string; date?: string
 
 // ───────── context ─────────
 
-/** generate job 的 context.json（references/input.md § 输入文件：context.json）。只有公开上下文。 */
+/**
+ * generate job 的 context.json（references/input.md § 输入文件：context.json）。只有公开上下文。
+ * 失败即关闭（ADR 0004 §2）：报告或标签有任何校验问题（如 slug 重复）就不打包；报告按它自己的 visibility / status 选，不按 slug 查投影。
+ */
 export function buildContext(root: string, manifest: Manifest): Record<string, unknown> {
   const cfg = loadConfig(root);
-  const { reports } = loadReports(root);
-  const view = projectSite("public", reports, loadTags(root).tags, cfg.publicUrl);
+  const { reports, issues } = loadReports(root);
+  const tagLoad = loadTags(root);
+  const bad = [...issues, ...tagLoad.issues];
+  if (bad.length) throw new DailyError(`报告数据不合法，不打包 context（先运行 rh check）：\n${bad.map((i) => `  ${i.where}: ${i.message}`).join("\n")}`);
+  const view = projectSite("public", reports, tagLoad.tags, cfg.publicUrl);
   const publicReports = reports
-    .filter((r) => view.find(r.slug))
+    .filter(isPublicPublished)
     .sort((a, b) => a.slug.localeCompare(b.slug))
     .map((r) => {
       const m = r.meta;
