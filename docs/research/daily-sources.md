@@ -79,17 +79,23 @@ quota).
 
 ### 1.3 Fallback ladder (each rung is an assumption with its evidence)
 
+**Owner decision 2026-10-18: no ETHTAO fallback in 0.1.0.** A FxTwitter failure (after the
+bounded retries) marks ETHTAO `degraded` for that day; nothing else is tried. Rung 1
+(self-hosted FxEmbed) is **rejected**: it needs X login cookies, which is against X's terms.
+Rungs 2–3 (paid APIs) stay documented here only as a future option; they are not built in
+0.1.0.
+
 | Rung | What | Evidence (2026-10-18) | Cost | Unverified |
 | --- | --- | --- | --- | --- |
 | 0 | Public `api.fxtwitter.com` + bounded retry | Runner run above; [API overview](https://docs.fxembed.com/api/introduction/): 1000 req/min/IP, cursor paging; FxEmbed is MIT ([GitHub](https://github.com/FxEmbed/FxEmbed), pushed 2026-10-18) | Free | No SLA; a shared runner IP pool could hit the per-IP limit (daily need ≈ 2 timeline + ~25 hop calls) |
-| 1 | Self-hosted FxEmbed on Cloudflare Workers | [Self-hosting](https://docs.fxembed.com/deployment/): Workers free tier 100k req/day, Node 24, `npm run deploy`. [Credentials](https://docs.fxembed.com/deployment/credentials/): "works best with X/Twitter account credentials … Without them, you will have lower rate limits" — credentials are browser `auth_token` / `ct0` cookies | Free tier; an X account | Whether the timeline endpoint works at all without credentials; using session cookies of an X account is against X's terms and risks the account. Treat as last free resort, owner decision |
+| 1 | Self-hosted FxEmbed on Cloudflare Workers | [Self-hosting](https://docs.fxembed.com/deployment/): Workers free tier 100k req/day, Node 24, `npm run deploy`. [Credentials](https://docs.fxembed.com/deployment/credentials/): "works best with X/Twitter account credentials … Without them, you will have lower rate limits" — credentials are browser `auth_token` / `ct0` cookies | Free tier; an X account | **Rejected (owner decision 2026-10-18):** X login cookies are against X's terms and risk the account |
 | 2 | [twitterapi.io](https://twitterapi.io/pricing) | $0.15 / 1k tweets, **minimum $0.00015 per request "even if no data returned"**; invalid search queries → 400 "not charged"; out of credits → **402**, do not retry ([errors](https://docs.twitterapi.io/errors)); no minimum spend, ~$1 free credit; 20 QPS default | ≈ 27 req/day ≈ <$0.01/day | Not called (no key) |
 | 3 | [GetXAPI](https://getxapi.com/pricing) | $0.001 per standard call (~20 tweets), "complete timeline" $0.003, threads/articles $0.005; $0.10 free credit; credits from $10 (or one-time $5 Starter) | ≈ $0.03/day | Whether failed calls bill is **not documented**; not called |
 | — | Degrade | No digest by the last run → manifest `pending`/`degraded`, other sources still ship | — | — |
 
-Recommendation: ship rung 0 with retries; keep rung 2 as the paid fallback behind a config
-switch (cheapest documented failure semantics: 402 is explicit, empty results still bill the
-minimum). Rung 1 needs an owner decision because of the cookie credential.
+Decision (owner decision 2026-10-18): ship rung 0 with retries, then degrade. If a paid
+fallback is wanted later, rung 2 has the clearest documented failure semantics (402 is
+explicit; empty results still bill the minimum).
 
 ### 1.4 Other X accounts the adapter's list could take (not in the first batch)
 
@@ -128,13 +134,13 @@ these; following them directly would add volume, not coverage. Not recommended f
 - **Quota size, reset period and the over-quota response are not published.** The API doc only
   says "免费额度即刻可用，订阅后解锁更高调用上限"; neither the docs, the official skill / MCP package
   (`blockbeats-mcp` 1.0.4) nor the response headers state a number. Finding it empirically would
-  mean exhausting the owner's key, which the pipeline needs, so it was not done. **Open question
-  for the owner:** read the quota and reset period from the BlockBeats dashboard.
-- **Recommended daily budget: 4 calls/day, hard cap 6**, persisted across runs (retries,
+  mean exhausting the owner's key, which the pipeline needs, so it was not done. **Owner decision
+  2026-10-18:** the owner does not know the quota either; record it as **undisclosed**.
+- **Daily budget (owner decision 2026-10-18): 4 calls/day, hard cap 6/day**, counted and persisted across runs (retries,
   backfills and regenerations count): one `important?size=50` call per scheduled run (3 runs),
   plus at most one retry per day. Skip the call when the previous successful call is < 6 h old
   (one call covers ~24 h). Treat HTTP ≠ 200 or body `status ≠ 0` as `degraded` for BlockBeats;
-  do not retry `100–103`. Revisit the budget once the owner reports the quota.
+  do not retry `100–103`. The numbers are adjustable later in `sources.yml`.
 - Keyless BlockBeats routes, both excluded: `api.theblockbeats.news/v1/open-api/open-flash`
   answers `{"status":0,"data":[]}` (runner and local; dead); RSSHub's route signs requests to the
   app API with a hard-coded demo app secret — reverse-engineered, no terms basis.
@@ -176,7 +182,7 @@ our own summary; no body text); "stored" is the gitignored cache (excerpt ≤ 40
 
 | Source | Originality | API & paging | Time semantics | Auth | Rate limit | Cost | Terms evidence | Stored / shown publicly | Degradation |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| ETHTAO digest | aggregator (curated, CN) over primary X posts | FxTwitter `/2/profile/…/statuses`, `cursor.bottom`; `since` gate; hop `/2/status/<id>` | `created_timestamp` (s, UTC); digest date in first line (UTC+8 day) | none | 1000/min/IP (docs) | free | FxEmbed MIT; X content under X terms; FxTwitter is a third-party proxy | stored: digest item text, ref excerpts ≤400; shown: our summary + link to the original X post | retry → `pending` → paid rung (§ 1.3) |
+| ETHTAO digest | aggregator (curated, CN) over primary X posts | FxTwitter `/2/profile/…/statuses`, `cursor.bottom`; `since` gate; hop `/2/status/<id>` | `created_timestamp` (s, UTC); digest date in first line (UTC+8 day) | none | 1000/min/IP (docs) | free | FxEmbed MIT; X content under X terms; FxTwitter is a third-party proxy | stored: digest item text, ref excerpts ≤400; shown: our summary + link to the original X post | retry → `pending` → `degraded` (no fallback in 0.1.0, § 1.3) |
 | BlockBeats important | aggregator/newsroom (CN), `url` = origin | `/v1/newsflash/important`, `page`/`size≤50` | `create_time` UTC+8, no zone | `api-key` header | quota unpublished | free tier (unknown size) | [apiDoc](https://www.theblockbeats.info/apiDoc); no redistribution terms found | stored: title, link, origin, excerpt; shown: title + link | budget exhausted / status≠0 → `degraded`, Odaily covers |
 | Odaily newsflash | aggregator/newsroom (CN), `sourceUrl` = origin | REST `page`/`size`, `hasMore` | `publishTimestamp` ms UTC | none | 429 documented, no number | free | [ODAILY/REST-API](https://github.com/ODAILY/REST-API) (no licence file; "公开接口") | same as BlockBeats | skip source, `degraded` |
 | The Block | primary journalism (EN) | RSS, 20 items, no paging | `pubDate` RFC 2822 | none | none stated | free | ToS not reviewed (page returned 403 to a scripted fetch, local); headline + link use only | title + link only | skip source |
@@ -210,8 +216,12 @@ duplicate resolved originals across days; 0 hop failures.
 
 ## 6. First batch (decision)
 
-1. **ETHTAO digest** via FxTwitter (rung 0 + retries) with the second hop. Mandatory.
-2. **BlockBeats** `/v1/newsflash/important`, ≤ 4 calls/day (cap 6), persisted budget.
+Owner decision 2026-10-18: the owner agrees with this first batch.
+
+1. **ETHTAO digest** via FxTwitter (rung 0 + retries) with the second hop. Mandatory. No
+   fallback in 0.1.0: FxTwitter failure ⇒ `degraded` (§ 1.3).
+2. **BlockBeats** `/v1/newsflash/important`, ≤ 4 calls/day (hard cap 6/day), persisted budget;
+   quota undisclosed (§ 2).
 3. **ethresear.ch + Ethereum Magicians** (one Discourse adapter, two instances): primary,
    keyless, stable JSON, matches ETHTAO's protocol focus and gives the "≥ 1 primary source"
    path.
@@ -236,8 +246,8 @@ Exclusions:
 
 ## 7. Owner-judged topic value (sampled digests 2026-10-16…18)
 
-Owner to judge in session. Agent's assessment: the technical section is the value; industry
-items are mixed; the closing section is mostly noise.
+Owner decision 2026-10-18: the owner agrees with the agent's assessment below. The technical
+section is the value; industry items are mixed; the closing section is mostly noise.
 
 - **Strong candidates** (protocol, primary refs): Glamsterdam on Hoodi testnet 2026-10-26 (10-17, 10-18) and
   the ~3.5× L1 capacity claim (10-18); EIP-8025 debate (optional proofs / zkVM, ACDC #189
