@@ -1,0 +1,37 @@
+# WHI-1925 throwaway probe. Lives only on branch probe/whi-1925-sources (never merged).
+# Re-run daily with: gh run rerun <run-id> --repo Whisker17/research-hub
+name: probe-daily-sources
+
+on:
+  push:
+    branches: [probe/whi-1925-sources]
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - name: Keyless sources (FxTwitter ETHTAO + candidates)
+        run: node probe/daily-sources.mjs public probe-out
+      # Only on the first attempt, so daily `gh run rerun` does not spend BlockBeats quota.
+      # Prints status codes, header names, limit-like headers and counts only.
+      - name: BlockBeats (keyed; first attempt only)
+        if: github.run_attempt == 1
+        env:
+          BB_KEY: ${{ secrets.BLOCKBEATS_API_KEY }}
+        run: node probe/daily-sources.mjs blockbeats probe-out
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: probe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: probe-out/
+          retention-days: 90
