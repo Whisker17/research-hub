@@ -1,10 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
 import SiteFoot from "../../components/SiteFoot.astro";
-import { byMonth, siteData } from "../../../lib/site-data.ts";
+import { siteView } from "../../../lib/site-data.ts";
 
-const { publicReports } = siteData();
-const months = byMonth(publicReports);
+const { months } = siteView("public");
 ---
 <Base title="按月归档">
   <div class="crumbs-bar">
@@ -17,7 +16,7 @@ const months = byMonth(publicReports);
     months.length ? (
       <ul class="index-list">
         {months.map((m) => (
-          <li><a href={`/${m.year}/${m.month}/`}><span>{m.year} 年 {Number(m.month)} 月</span><span class="n">{m.reports.length} 篇</span></a></li>
+          <li><a href={`/${m.year}/${m.month}/`}><span>{m.year} 年 {Number(m.month)} 月</span><span class="n">{m.cards.length} 篇</span></a></li>
         ))}
       </ul>
     ) : (

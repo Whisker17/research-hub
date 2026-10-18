@@ -2,17 +2,15 @@
 import Base from "../../layouts/Base.astro";
 import ReportList from "../../components/ReportList.astro";
 import SiteFoot from "../../components/SiteFoot.astro";
-import { siteData, toCard, usedTags } from "../../../lib/site-data.ts";
+import { siteView } from "../../../lib/site-data.ts";
 
 export function getStaticPaths() {
-  const { publicReports, tags } = siteData();
-  return usedTags(publicReports, tags).map((t) => ({ params: { tag: t.key }, props: { label: t.label } }));
+  return siteView("public").usedTags.map((t) => ({ params: { tag: t.key }, props: { label: t.label } }));
 }
 
 const { tag } = Astro.params;
 const { label } = Astro.props;
-const { publicReports, tags } = siteData();
-const cards = publicReports.filter((r) => r.meta.tags.includes(tag)).map((r) => toCard(r, tags));
+const cards = siteView("public").cards.filter((c) => c.tags.some((t) => t.key === tag));
 ---
 <Base title={`标签：${label}`}>
   <div class="crumbs-bar">

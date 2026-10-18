@@ -1,10 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
 import SiteFoot from "../../components/SiteFoot.astro";
-import { siteData, usedTags } from "../../../lib/site-data.ts";
+import { siteView } from "../../../lib/site-data.ts";
 
-const { publicReports, tags } = siteData();
-const list = usedTags(publicReports, tags);
+const list = siteView("public").usedTags;
 ---
 <Base title="标签">
   <div class="crumbs-bar">

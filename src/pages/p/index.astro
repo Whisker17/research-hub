@@ -7,19 +7,18 @@ import Base from "../../layouts/Base.astro";
 import ReportList from "../../components/ReportList.astro";
 import SiteHead from "../../components/SiteHead.astro";
 import { loadConfig } from "../../../lib/config.ts";
-import { siteData, toCard, usedDomains, usedTags } from "../../../lib/site-data.ts";
+import { siteView } from "../../../lib/site-data.ts";
 
-const { allPublished, tags } = siteData();
+const { cards, domains, usedTags } = siteView("private");
 const { publicUrl } = loadConfig();
-const cards = allPublished.map((r) => toCard(r, tags, publicUrl));
 ---
 <Base title="私有索引">
   <SiteHead home="/p/" tagline="全部已发布报告（含私有）" private />
   <ReportList
     cards={cards}
     filters
-    domains={usedDomains(allPublished)}
-    tags={usedTags(allPublished, tags)}
+    domains={domains}
+    tags={usedTags}
     linkTags={false}
     showVisibility
     emptyText="还没有已发布的报告。"

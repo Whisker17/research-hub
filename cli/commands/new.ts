@@ -6,6 +6,7 @@ import { basename, isAbsolute, join, relative, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import type { HubConfig } from "../../lib/config.ts";
 import { LEDGER_TEMPLATE } from "../../lib/ledger.ts";
+import { isReservedSlug, reservedSlugMessage } from "../../lib/schema.ts";
 import { createReportDir, ensureTags, readFrontmatter, readText, str, strList } from "../lib/create.ts";
 import { CliError, info, ok, slugify, splitList, today, warn } from "../lib/util.ts";
 
@@ -55,6 +56,7 @@ export async function cmdNew(cfg: HubConfig, argv: string[]): Promise<void> {
 
   const slug = values.slug ?? str(fm.slug) ?? slugify(name);
   if (!slug) throw new CliError(`无法从文件名“${name}”生成 slug，请用 --slug 指定（如 --slug meme-launchpad）`);
+  if (isReservedSlug(slug)) throw new CliError(`${reservedSlugMessage(slug)}（用 --slug 指定）`);
   const domain = values.domain ?? str(fm.domain);
   if (!domain) throw new CliError("缺少 domain：用 --domain 指定，或写在 brief 的 frontmatter 里");
   const tags = values.tags !== undefined ? splitList(values.tags) : (strList(fm.tags) ?? []);

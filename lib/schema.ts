@@ -22,6 +22,17 @@ export const DOMAIN_LABELS: Record<Domain, string> = {
 /** 小写 ASCII + 连字符。用于报告 slug 与标签键，避免大小写 / 同义写法分裂。 */
 export const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+/**
+ * 保留路由名（ADR 0003 §5）：报告与站点页面共用 /p/<name>/（将来合并域名后是根路径），所以报告 slug
+ * 不能用这些名字，也不能是纯数字（与 /YYYY/ 归档路径冲突）。新增站点路由时先把名字加进这里。
+ */
+export const RESERVED_SLUGS = ["daily", "tags", "archive", "fonts", "about"] as const;
+
+export const isReservedSlug = (s: string): boolean => (RESERVED_SLUGS as readonly string[]).includes(s) || /^\d+$/.test(s);
+
+export const reservedSlugMessage = (s: string): string =>
+  `slug“${s}”是保留的路由名（${RESERVED_SLUGS.join("、")} 与纯数字不能作报告 slug），换一个`;
+
 export function isValidDate(s: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
   const d = new Date(`${s}T00:00:00Z`);
@@ -73,9 +84,19 @@ export const metaSchema = z
 
 export type Meta = z.infer<typeof metaSchema>;
 
-/** 标签登记表 tags.yml：键是标签 slug，值是展示名。 */
+/**
+ * 标签登记表 tags.yml：键是标签 slug，值是展示名与可选的描述（ADR 0003 §6）。
+ * 描述只在标签被 public + published 报告用到时才出现在公开站点；其余标签的描述是公开产物的泄漏指纹。
+ */
 export const tagsFileSchema = z.strictObject({
-  tags: z.record(slug, z.strictObject({ label: z.string().trim().min(1) })),
+  tags: z.record(
+    slug,
+    z.strictObject({
+      label: z.string().trim().min(1),
+      description: z.string().trim().min(1).optional(),
+      description_en: z.string().trim().min(1).optional(),
+    }),
+  ),
 });
 
 export type TagRegistry = z.infer<typeof tagsFileSchema>["tags"];

@@ -30,7 +30,7 @@ export function runBuild(cfg: HubConfig): void {
   if (r.status !== 0) throw new CliError(`astro build 失败（退出码 ${r.status}）`);
 
   const res = assemble(cfg.root, astroOut, reports);
-  const leaks = leakCheck(res, reports);
+  const leaks = leakCheck(res, reports, tags.tags);
   if (leaks.length) {
     for (const e of leaks) fail(e);
     rmSync(join(cfg.root, "dist"), { recursive: true, force: true });
