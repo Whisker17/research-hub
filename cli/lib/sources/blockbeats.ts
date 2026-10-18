@@ -66,7 +66,6 @@ export async function runBlockBeats(o: {
   const { cfg, ledger, at } = o;
   const skipped = planCall(ledger, cfg, at, o.w, o.cached, Boolean(o.key));
   if (skipped) return { fetch: null, calls: 0, skipped };
-  const today = utcDay(at);
   const budget = new CallBudget(cfg.max_calls_per_run);
   const items: Item[] = [];
   const oldest: number[] = [];
@@ -74,8 +73,13 @@ export async function runBlockBeats(o: {
   let bad = 0;
   let error: string | null = null;
   for (const ep of cfg.endpoints) {
-    const day = (ledger.days[today] ??= { calls: 0 });
-    if (day.blocked || day.calls >= cfg.max_calls_per_day) break;
+    // 记到发出这次请求的 UTC 日（运行可能跨过午夜），上限和停止调用也按那一天判断
+    const t = o.now();
+    const day = (ledger.days[utcDay(t)] ??= { calls: 0 });
+    if (day.blocked || day.calls >= cfg.max_calls_per_day) {
+      if (!calls) return { fetch: null, calls: 0, skipped: planCall(ledger, cfg, t, o.w, o.cached, true) };
+      break;
+    }
     day.calls++;
     o.persist(ledger);
     calls++;
@@ -120,7 +124,7 @@ export async function runBlockBeats(o: {
     } catch (e) {
       error = errorText(e, o.key ? [o.key] : []);
       if (e instanceof SourceError && (e.kind === "auth" || e.kind === "quota")) {
-        ledger.days[today].blocked = `${e.kind}: ${e.message}`;
+        day.blocked = `${e.kind}: ${e.message}`;
         o.persist(ledger);
       }
       break;

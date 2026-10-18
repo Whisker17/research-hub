@@ -603,6 +603,47 @@ test("先记账再调用：账本在请求发出之前就已落盘", async () =>
   assert.equal(planCall(ledger, cfg, AT, w, w, true), "skipped: 时间窗已被之前的调用覆盖");
 });
 
+test("跨 UTC 午夜：请求记到发出请求的那一天，并受那一天的上限约束（R1-F5）", async () => {
+  const cfg = sourcesFileSchema.parse(sourcesYml()).sources.blockbeats as BlockBeatsConfig;
+  let requests = 0;
+  const ctx: HttpCtx = {
+    fetch: async () => {
+      requests++;
+      return new Response(JSON.stringify({ status: 0, data: { data: [] } }));
+    },
+    userAgent: "t",
+    timeoutMs: 1000,
+    backoffMs: 0,
+    sleep: async () => {},
+    secrets: [KEY],
+  };
+  // 运行在 10-18 23:59:59 开始，请求在 10-19 00:00:01 才发出
+  const at = "2026-10-18T23:59:59.000Z";
+  const run = (ledger: Ledger) =>
+    runBlockBeats({ id: "blockbeats", cfg, ctx, key: KEY, ledger, persist: () => {}, at, w: dailyWindow("2026-10-19"), cached: null, now: () => "2026-10-19T00:00:01.000Z" });
+
+  const fresh: Ledger = { schema: 1, days: {}, last_success_at: null };
+  const r = await run(fresh);
+  assert.deepEqual([r.calls, requests], [1, 1]);
+  assert.deepEqual(fresh.days, { "2026-10-19": { calls: 1 } }, "记到请求发生的 10-19，不是运行开始的 10-18");
+
+  // 10-19 的 4 次已用完：即使运行开始时（10-18）还有预算，也不能再发请求
+  requests = 0;
+  const full: Ledger = { schema: 1, days: { "2026-10-18": { calls: 0 }, "2026-10-19": { calls: cfg.max_calls_per_day } }, last_success_at: null };
+  const r2 = await run(full);
+  assert.deepEqual([r2.calls, requests], [0, 0]);
+  assert.match(r2.skipped!, /预算 4 次已用完/);
+  assert.deepEqual(full.days, { "2026-10-18": { calls: 0 }, "2026-10-19": { calls: cfg.max_calls_per_day } });
+
+  // 10-19 已停止调用（auth/quota）同样生效
+  requests = 0;
+  const blocked: Ledger = { schema: 1, days: { "2026-10-19": { calls: 1, blocked: "auth: body status 101" } }, last_success_at: null };
+  const r3 = await run(blocked);
+  assert.equal(r3.calls, 0);
+  assert.match(r3.skipped!, /已停止调用/);
+  assert.equal(requests, 0);
+});
+
 test("sources.yml：max_calls_per_day 不能超过硬上限，endpoint 只能是两个 important 接口，源必须已登记", () => {
   const bad = (over: Record<string, unknown>) => !sourcesFileSchema.safeParse(sourcesYml(over)).success;
   const bbCfg = sourcesYml().sources.blockbeats;
