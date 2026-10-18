@@ -1,15 +1,72 @@
 ---
+/**
+ * 站点页头：标志、导航（窄屏收进“菜单”）、主题与语言切换。
+ * 导航只是链接，没有 JavaScript 也能用（窄屏菜单是 <details>）；两个切换按钮要脚本，没有脚本时隐藏（.needs-js）。
+ * 私有站点的站内导航只指向 /p/…，“公开站点”用 publicUrl 绝对地址（ADR 0003 §2）。
+ */
+import { loadConfig } from "../../lib/config.ts";
+import { t, type I18nKey } from "../i18n.ts";
+import T from "./T.astro";
+
+export type Nav = "public" | "private" | "none";
 interface Props {
-  home?: string;
-  tagline?: string;
-  private?: boolean;
+  nav: Nav;
 }
-const { home = "/", tagline = "AI 研究报告的图文讲解", private: isPrivate = false } = Astro.props;
+const { nav } = Astro.props;
+const path = Astro.url.pathname;
+const items: { href: string; k: I18nKey }[] =
+  nav === "public"
+    ? [
+        { href: "/", k: "navReports" },
+        { href: "/tags/", k: "navTags" },
+        { href: "/archive/", k: "navArchive" },
+      ]
+    : nav === "private"
+      ? [
+          { href: "/p/", k: "navPrivateIndex" },
+          { href: `${loadConfig().publicUrl}/`, k: "navPublicSite" },
+        ]
+      : [];
+const home = nav === "private" ? "/p/" : "/";
+// 当前栏目：首页只匹配自己；其他栏目匹配前缀（/tags/<tag>/ 属于“标签”）
+const current = (href: string) => (href === home ? path === href : href.startsWith("/") && path.startsWith(href));
+const links = items.map((i) => ({ ...i, current: current(i.href) }));
 ---
 <header class="site-head">
-  <div class="site-head-bar">
-    <a class="brand" href={home}><img src="/favicon.svg" alt="" width="26" height="26" />Research Hub{isPrivate && <span class="badge-private" data-i18n="private">私有</span>}</a>
-    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
+  <div class="site-head-inner">
+    <a class="brand" href={home}>
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Research Hub</span>
+      {nav === "private" && <span class="chip-neutral"><T k="private" /></span>}
+    </a>
+    {
+      links.length > 0 && (
+        <nav class="site-nav" aria-label={t("zh", "navLabel")} data-i18n-attr="aria-label:navLabel">
+          {links.map((l) => (
+            <a href={l.href} aria-current={l.current ? "page" : undefined}><T k={l.k} /></a>
+          ))}
+        </nav>
+      )
+    }
+    <div class="head-actions">
+      <button class="icon-btn needs-js" type="button" data-rh-theme aria-pressed="false" aria-label={t("zh", "theme")} data-i18n-attr="aria-label:theme title:theme" title={t("zh", "theme")}>
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5" /><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor" /></svg>
+      </button>
+      <button class="text-btn needs-js" type="button" data-rh-lang aria-label={t("zh", "langSwitchLabel")} data-i18n-attr="aria-label:langSwitchLabel" lang="en" data-i18n="langSwitch">{t("zh", "langSwitch")}</button>
+      {
+        links.length > 0 && (
+          <details class="nav-menu">
+            <summary class="icon-btn" aria-label={t("zh", "menu")} data-i18n-attr="aria-label:menu title:menu" title={t("zh", "menu")}>
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" /></svg>
+            </summary>
+            <nav aria-label={t("zh", "navLabel")} data-i18n-attr="aria-label:navLabel">
+              {links.map((l) => (
+                <a href={l.href} aria-current={l.current ? "page" : undefined}><T k={l.k} /></a>
+              ))}
+            </nav>
+          </details>
+        )
+      }
+    </div>
   </div>
-  <p data-i18n="tagline" data-zh={tagline} data-en="Visual Explainers of AI Research Reports">{tagline}</p>
 </header>

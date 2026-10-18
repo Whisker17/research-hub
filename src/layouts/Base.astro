@@ -1,12 +1,20 @@
 ---
+import "../styles/tokens.css";
 import "../styles/global.css";
+import SiteFoot from "../components/SiteFoot.astro";
+import SiteHead, { type Nav } from "../components/SiteHead.astro";
+import { I18N, pageTitle, t } from "../i18n.ts";
 
 interface Props {
+  /** 中文标题；首页传 "Research Hub" */
   title: string;
+  /** 英文标题（缺省时英文界面也显示中文标题） */
+  titleEn?: string;
   description?: string;
+  /** 页头导航：公开站点 / 私有站点 / 只有标志（两站共用的 404） */
+  nav?: Nav;
 }
-const { title, description = "AI 研究报告的图文讲解" } = Astro.props;
-const pageTitle = title === "Research Hub" ? title : `${title} · Research Hub`;
+const { title, titleEn, description = t("zh", "tagline"), nav = "public" } = Astro.props;
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -17,136 +25,93 @@ const pageTitle = title === "Research Hub" ? title : `${title} · Research Hub`;
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <title>{pageTitle}</title>
+    <title data-en={titleEn && pageTitle(titleEn)}>{pageTitle(title)}</title>
+    {/*
+      首帧脚本（内联，ADR 0003 §4）：在渲染前定下主题与语言，并提供 window.rhI18n。
+      偏好只存在本站 localStorage（rh_theme、rh_lang）；localStorage 不可用时照常显示中文 + 跟随系统主题，切换只在本页有效。
+    */}
+    <script is:inline define:vars={{ I18N }}>
+      const d = document.documentElement;
+      d.classList.add("js");
+      const store = {
+        get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+        set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+      };
+      const saved = store.get("rh_theme");
+      if (saved === "light" || saved === "dark") d.dataset.theme = saved;
+      let lang = store.get("rh_lang") === "en" ? "en" : "zh";
+      d.lang = lang === "en" ? "en" : "zh-CN";
+
+      // 与 src/i18n.ts 的 t() 同一规则：单数形式、{var} 替换、英文缺失回退中文
+      const t = (key, vars = {}) => {
+        const k = Number(vars.n) === 1 && I18N.zh[key + "One"] ? key + "One" : key;
+        const s = I18N[lang][k] ?? I18N.zh[k] ?? "";
+        return s.replace(/\{(\w+)\}/g, (m, v) => (v in vars ? String(vars[v]) : m));
+      };
+      const isDark = () => (d.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
+      const zhText = new Map();
+      const zhHref = new Map();
+      const apply = () => {
+        for (const el of document.querySelectorAll("[data-i18n]")) {
+          el.textContent = t(el.dataset.i18n, el.dataset.i18nVars ? JSON.parse(el.dataset.i18nVars) : {});
+        }
+        for (const el of document.querySelectorAll("[data-i18n-attr]")) {
+          for (const pair of el.dataset.i18nAttr.split(/\s+/)) {
+            const [attr, key] = pair.split(":");
+            el.setAttribute(attr, t(key));
+          }
+        }
+        for (const el of document.querySelectorAll("[data-en]")) {
+          if (!zhText.has(el)) zhText.set(el, el.textContent);
+          el.textContent = lang === "en" && el.dataset.en ? el.dataset.en : zhText.get(el);
+        }
+        for (const el of document.querySelectorAll("[data-en-href]")) {
+          if (!zhHref.has(el)) zhHref.set(el, el.getAttribute("href"));
+          el.setAttribute("href", lang === "en" && el.dataset.enHref ? el.dataset.enHref : zhHref.get(el));
+        }
+        for (const b of document.querySelectorAll("[data-rh-theme]")) b.setAttribute("aria-pressed", String(isDark()));
+        for (const b of document.querySelectorAll("[data-rh-lang]")) b.lang = lang === "en" ? "zh-CN" : "en";
+      };
+      // 页面解析完时由 <body> 末尾调用一次；之后由按钮触发
+      const init = () => {
+        apply();
+        for (const b of document.querySelectorAll("[data-rh-lang]")) {
+          b.addEventListener("click", () => {
+            lang = lang === "en" ? "zh" : "en";
+            store.set("rh_lang", lang);
+            d.lang = lang === "en" ? "en" : "zh-CN";
+            apply();
+            window.dispatchEvent(new CustomEvent("rh:langchange", { detail: { lang } }));
+          });
+        }
+        for (const b of document.querySelectorAll("[data-rh-theme]")) {
+          b.addEventListener("click", () => {
+            d.dataset.theme = isDark() ? "light" : "dark";
+            store.set("rh_theme", d.dataset.theme);
+            apply();
+          });
+        }
+      };
+      // ⌘K / Ctrl+K / “/”：把焦点移到本页的筛选框（ADR 0003 §7）；正在输入时“/”照常输入
+      document.addEventListener("keydown", (e) => {
+        const q = document.querySelector("[data-q]");
+        if (!q) return;
+        const typing = e.target instanceof HTMLElement && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName));
+        if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") || (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey && !e.altKey)) {
+          e.preventDefault();
+          q.focus();
+          q.select();
+        }
+      });
+      window.rhI18n = { get lang() { return lang; }, t, init };
+    </script>
   </head>
   <body>
-    <div class="wrap">
+    <SiteHead nav={nav} />
+    <main class="wrap">
       <slot />
-    </div>
-    <script is:inline>
-      (() => {
-        const I18N = {
-          zh: {
-            btnLang: "English",
-            tagline: "AI 研究报告的图文讲解",
-            private: "私有",
-            public: "公开",
-            all: "全部",
-            searchPlaceholder: "按标题、摘要或标签筛选",
-            emptyFilter: "没有符合条件的报告。",
-            emptyList: "还没有报告。",
-            footAll: "全部报告",
-            footArchive: "按月归档",
-            footTags: "标签",
-            created: "创建于",
-            updated: "更新于",
-          },
-          en: {
-            btnLang: "中文",
-            tagline: "Visual Explainers of AI Research Reports",
-            private: "Private",
-            public: "Public",
-            all: "All",
-            searchPlaceholder: "Filter by title, summary or tag",
-            emptyFilter: "No matching reports found.",
-            emptyList: "No reports yet.",
-            footAll: "All Reports",
-            footArchive: "Monthly Archive",
-            footTags: "Tags",
-            created: "Created",
-            updated: "Updated",
-          },
-        };
-
-        function getLang() {
-          return localStorage.getItem("rh_lang") || "zh";
-        }
-
-        function applyLang(lang) {
-          const dict = I18N[lang] || I18N.zh;
-          document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
-
-          const btn = document.getElementById("rh-lang-toggle");
-          if (btn) btn.textContent = dict.btnLang;
-
-          const taglineEl = document.querySelector('[data-i18n="tagline"]');
-          if (taglineEl) taglineEl.textContent = dict.tagline;
-
-          document.querySelectorAll('[data-i18n="private"]').forEach((el) => { el.textContent = dict.private; });
-          document.querySelectorAll('[data-i18n="public"]').forEach((el) => { el.textContent = dict.public; });
-
-          const searchInput = document.querySelector("[data-q]");
-          if (searchInput) searchInput.placeholder = dict.searchPlaceholder;
-
-          const allChip = document.querySelector('[data-filter="domain"][data-value=""]');
-          if (allChip) allChip.textContent = dict.all;
-
-          const footLinks = document.querySelectorAll(".site-foot a");
-          if (footLinks.length >= 3) {
-            footLinks[0].textContent = dict.footAll;
-            footLinks[1].textContent = dict.footArchive;
-            footLinks[2].textContent = dict.footTags;
-          }
-
-          const emptyEl = document.querySelector("[data-empty]");
-          if (emptyEl) emptyEl.textContent = dict.emptyFilter;
-
-          document.querySelectorAll("[data-card]").forEach((card) => {
-            const titleLink = card.querySelector("h2 a");
-            const summaryEl = card.querySelector(".summary");
-            const datesEl = card.querySelector(".dates");
-
-            const titleZh = card.dataset.titleZh || "";
-            const titleEn = card.dataset.titleEn || "";
-            const summaryZh = card.dataset.summaryZh || "";
-            const summaryEn = card.dataset.summaryEn || "";
-            const hrefZh = card.dataset.hrefZh || "";
-            const hrefEn = card.dataset.hrefEn || "";
-            const created = card.dataset.created || "";
-            const updated = card.dataset.updated || "";
-
-            if (lang === "en") {
-              if (titleLink) {
-                titleLink.textContent = titleEn || titleZh;
-                titleLink.href = hrefEn || hrefZh;
-              }
-              if (summaryEl) summaryEl.textContent = summaryEn || summaryZh;
-              if (datesEl) {
-                datesEl.innerHTML = updated === created
-                  ? `<span>${dict.created} ${created}</span>`
-                  : `<span>${dict.updated} ${updated} · ${dict.created} ${created}</span>`;
-              }
-            } else {
-              if (titleLink) {
-                titleLink.textContent = titleZh;
-                titleLink.href = hrefZh;
-              }
-              if (summaryEl) summaryEl.textContent = summaryZh;
-              if (datesEl) {
-                datesEl.innerHTML = updated === created
-                  ? `<span>${dict.created} ${created}</span>`
-                  : `<span>${dict.updated} ${updated} · ${dict.created} ${created}</span>`;
-              }
-            }
-          });
-
-          window.dispatchEvent(new CustomEvent("rh:langchange", { detail: { lang } }));
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-          const initial = getLang();
-          if (initial === "en") applyLang("en");
-
-          const btn = document.getElementById("rh-lang-toggle");
-          if (btn) {
-            btn.addEventListener("click", () => {
-              const next = getLang() === "en" ? "zh" : "en";
-              localStorage.setItem("rh_lang", next);
-              applyLang(next);
-            });
-          }
-        });
-      })();
-    </script>
+    </main>
+    <SiteFoot nav={nav} />
+    <script is:inline>window.rhI18n.init();</script>
   </body>
 </html>

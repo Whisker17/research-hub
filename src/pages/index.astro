@@ -1,21 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
 import ReportList from "../components/ReportList.astro";
-import SiteFoot from "../components/SiteFoot.astro";
-import SiteHead from "../components/SiteHead.astro";
+import T from "../components/T.astro";
 import { siteView } from "../../lib/site-data.ts";
 
 const { cards, domains, usedTags } = siteView("public");
 ---
 <Base title="Research Hub">
-  <SiteHead />
-  <ReportList
-    cards={cards}
-    filters
-    domains={domains}
-    tags={usedTags}
-    linkTags
-    emptyText="还没有公开报告。"
-  />
-  <SiteFoot />
+  <p class="page-sub"><T k="tagline" /></p>
+  <ReportList cards={cards} filters domains={domains} tags={usedTags} linkTags emptyKey="emptyPublic" />
 </Base>

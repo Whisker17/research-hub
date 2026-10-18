@@ -1,9 +1,10 @@
 ---
 import Base from "../layouts/Base.astro";
+import T from "../components/T.astro";
+import { t } from "../i18n.ts";
 ---
-<Base title="找不到页面">
-  <p class="crumbs"><a href="/">Research Hub</a></p>
-  <h1 class="page-title">找不到这个页面</h1>
-  <p class="page-sub">链接可能已失效，或报告不是公开的。</p>
-  <p><a href="/">返回全部报告</a></p>
+<Base title={t("zh", "notFound")} titleEn={t("en", "notFound")} nav="none">
+  <h1 class="page-title"><T k="notFoundTitle" /></h1>
+  <p class="page-sub"><T k="notFoundSub" /></p>
+  <p><a href="/"><T k="notFoundBack" /></a></p>
 </Base>
