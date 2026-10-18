@@ -103,7 +103,10 @@ export function saveCache(dir: string, cache: Cache, at: string): void {
   const pruned: Cache = { schema: 1, sources: {}, digests: {} };
   for (const [id, s] of Object.entries(cache.sources)) {
     pruned.sources[id] = {
-      spans: mergeSpans(s.spans).filter((x) => Date.parse(x.to) >= cutoff),
+      // 区间和条目用同一个截止点裁剪：被删掉的条目所在的时间不能再算“已覆盖”（R2-F2）
+      spans: mergeSpans(s.spans)
+        .filter((x) => Date.parse(x.to) > cutoff)
+        .map((x) => (Date.parse(x.from) < cutoff ? { from: new Date(cutoff).toISOString(), to: x.to } : x)),
       items: s.items.filter((it) => Date.parse(it.published_at) >= cutoff).sort((a, b) => a.id.localeCompare(b.id)),
     };
   }

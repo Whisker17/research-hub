@@ -16,7 +16,7 @@ import { sourcesFileSchema, type BlockBeatsConfig, type XDigestConfig } from "..
 import { runDigest, statusItem } from "../cli/lib/sources/ethtao.ts";
 import { collectWindow, type WindowAdapter } from "../cli/lib/sources/feeds.ts";
 import type { HttpCtx } from "../cli/lib/sources/http.ts";
-import { coveredIn, loadLedger, type Ledger } from "../cli/lib/sources/state.ts";
+import { coveredIn, loadCache, loadLedger, saveCache, type Ledger } from "../cli/lib/sources/state.ts";
 import { digestDate, parseDigest } from "../cli/lib/sources/x-digest.ts";
 import { dailyWindow, manifestSchema, originator, parseItemsJsonl, shouldGenerate, type Item } from "../lib/daily.ts";
 
@@ -601,6 +601,32 @@ test("补跑：不能翻页的 RSS 够不到时间窗 → partial，covered 写�
   // 窗口落在 feed 范围内：照常 ok
   const fine = src((await ingest(root, "2026-10-17", AT)).manifest, "theblock");
   assert.deepEqual([fine.status, fine.covered], ["ok", dailyWindow("2026-10-17")]);
+});
+
+test("跨运行：cache 删掉旧条目时覆盖区间也裁到同一截止点，补跑被删掉的历史 → partial（R2-F2）", async () => {
+  reset();
+  const only = Object.fromEntries(Object.keys(sourcesYml().sources).map((id) => [id, { ...(sourcesYml().sources as Record<string, object>)[id], enabled: false }]));
+  const { root, state } = makeRoot({ ...only, theblock: { type: "rss", url: `${srv.base}/theblock/bounded.xml`, max_calls_per_run: 4 } });
+  const item = (id: string, published_at: string) =>
+    ({ id: `theblock:${id}`, source: "theblock", url: `https://example.com/${id}`, origin_url: null, title: id, author: null, reposted_by: null, via: null, published_at, fetched_at: published_at, incomplete: false, excerpt: id }) as Item;
+  // 上一次运行：缓存了 10-10 和 10-14 18:00 的条目，覆盖 10-09 到 10-18
+  const NOW = "2026-10-18T14:00:00.000Z";
+  const CUTOFF = "2026-10-14T14:00:00.000Z"; // NOW − 4 天
+  const spans = [{ from: "2026-10-09T00:00:00.000Z", to: "2026-10-18T12:00:00.000Z" }];
+  saveCache(state, { schema: 1, sources: { theblock: { spans, items: [item("old", "2026-10-10T12:00:00.000Z"), item("kept", "2026-10-14T18:00:00.000Z")] } }, digests: {} }, NOW);
+  const saved = loadCache(state).cache.sources.theblock;
+  assert.deepEqual(saved.items.map((it) => it.id), ["theblock:kept"]);
+  assert.deepEqual(saved.spans, [{ from: CUTOFF, to: "2026-10-18T12:00:00.000Z" }]);
+  // 完全落在截止点之前的区间整段丢掉
+  saveCache(state, { schema: 1, sources: { theblock: { spans: [{ from: "2026-10-09T00:00:00.000Z", to: "2026-10-12T00:00:00.000Z" }], items: [] } }, digests: {} }, NOW);
+  assert.deepEqual(loadCache(state).cache.sources.theblock.spans, []);
+  saveCache(state, { schema: 1, sources: { theblock: { spans, items: [item("old", "2026-10-10T12:00:00.000Z"), item("kept", "2026-10-14T18:00:00.000Z")] } }, digests: {} }, NOW);
+  // 补跑 10-11：条目已删，有界 feed 也够不到 → partial，没有覆盖
+  const gone = src((await ingest(root, "2026-10-11", NOW)).manifest, "theblock");
+  assert.deepEqual([gone.status, gone.items, gone.covered, gone.error], ["partial", 0, null, null]);
+  // 补跑 10-15：时间窗跨过截止点 → partial，covered 从截止点开始，保留的条目照用
+  const half = src((await ingest(root, "2026-10-15", NOW)).manifest, "theblock");
+  assert.deepEqual([half.status, half.items, half.covered], ["partial", 1, { from: CUTOFF, to: "2026-10-15T00:00:00.000Z" }]);
 });
 
 test("账本跨运行累计：失败、重试、regenerate、补跑都计数；每天上限 4 次；够不到的补跑不花预算", async () => {
