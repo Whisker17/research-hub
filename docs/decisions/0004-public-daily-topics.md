@@ -205,10 +205,11 @@ topics:
 | Job | 仓库权限 | 凭据 | 做什么 |
 | --- | --- | --- | --- |
 | `ingest` | `contents: read` | 只有 `BLOCKBEATS_API_KEY` | `rh ingest --date D`；打包公开上下文（决定 2）；上传条目 artifact（保留 30 天）和输入目录；判断这次是否需要生成（决定 5） |
-| `generate` | 无（不 checkout）；模型工具拿不到任何仓库凭据 | 只有 `LLM_BASE_URL` / `LLM_API_KEY`，映射成 `ANTHROPIC_BASE_URL` / `ANTHROPIC_API_KEY`（网关要求 Bearer 时用 `ANTHROPIC_AUTH_TOKEN`） | 用固定版本的 `anthropics/claude-code-action` 运行 `daily-topics` skill；模型默认 `claude-sonnet-5-5`，可以配置；只写候选目录；不给 Bash 和 git；需要额外抓取页面时只能访问公网的 http(s) 地址（WHI-1933） |
+| `generate` | 无（不 checkout）；模型工具拿不到任何仓库凭据 | 只有 `LLM_BASE_URL` / `LLM_API_KEY`，映射成 `ANTHROPIC_BASE_URL` / `ANTHROPIC_API_KEY`（网关要求 Bearer 时用 `ANTHROPIC_AUTH_TOKEN`） | 用固定版本的 Claude Code CLI（`@anthropic-ai/claude-code@2.1.287`，`scripts/daily-generate.sh`）运行 `daily-topics` skill：参数和 WHI-1933 评估相同（`--restricted --strict-mcp-config --tools Read,Glob,Grep,Write,Edit`），进程环境用 `env -i` 清空，只留网关变量（所有者决定 2026-10-18，WHI-1937）；模型默认 `claude-sonnet-5-5`，可以配置；只写候选目录；不给 Bash 和 git；需要额外抓取页面时只能访问公网的 http(s) 地址（WHI-1933） |
 | `commit` | `contents: write` | 没有 LLM 和 BlockBeats 凭据 | 把候选当作不可信输入：导入（决定 7）→ `rh daily check` → `pnpm verify`（含构建与泄漏检查）→ 只 `git add` 本次处理的 `daily/YYYY/MM/DD/` → rebase 后再验证一遍 → push `main` → 触发部署 |
 
 - `concurrency: daily`，不取消正在跑的运行。触发方式：定时任务（决定 4）和 `workflow_dispatch`（参数：`date`、`regenerate`）。
+- 试验分支（所有者决定 2026-10-18，WHI-1937）：push 到 `daily-trial/**` 会在那个分支上跑完整流程，commit job 推回那个分支、不部署，并使用单独的 BlockBeats 账本（不计入 `main` 的账本），所以 Daily 在 `main` 上启用之后不再使用试验分支。
 - **部署必须部署刚推上去的那个提交**。`GITHUB_TOKEN` 推送不会触发 `deploy.yml`，所以用 `workflow_call`（调用 deploy 作为可复用 workflow）或用 dispatch 触发部署，二者选一。注意：`deploy.yml` 现在用 `github.sha` 做 checkout、artifact 命名和部署说明，而可复用 workflow 里的 `github.sha` 是调用方的提交，不是新提交。所以无论选哪种，都要把新 SHA 作为输入传进去并 checkout 那个 SHA，WHI-1937 要拿出证据（部署记录里的 SHA 等于新提交）。
 - 网关不可用：如果还没到 `T_last`，保持 `pending`，下一次运行再试；到了 `T_last`，按决定 5 收尾。
 - 失败时写 job summary。base URL 和 key 不能出现在任何日志、artifact 或公开产物里（WHI-1937 要做检查）。
@@ -262,3 +263,4 @@ topics:
   - `counts.warnings`：`dailyAvoidTerms` 警告的条数（决定 3 说的“内部计数”）；
   - `dropped[] {topic, reason}`：被丢弃的候选 topic 的下标和原因代码（决定 7 说的“内部原因”）。
 - **可见性变化失败即拒绝**：某篇报告变成 private 或 draft、或者某个标签不再被任何 public + published 报告用到之后，引用它的旧日期在 `rh daily check`（也就是 `pnpm verify`）里报错。报错会写明日期文件、topic id 和 slug 或标签，并说明怎么修：在主克隆里修改那一天的 `topics.yml`（内容通道），或者用 `workflow_dispatch` regenerate 那一天。这样做是故意的：可见性变化必须引起注意，公开页面不能指向非公开报告。
+- **手动修正的例外（所有者决定，2026-10-18；WHI-1937 记录）**：上面这种报错，30 天内（items artifact 还在）先用 `workflow_dispatch`（date、regenerate）重做；超过 30 天，只有所有者可以在主克隆里删除或改正那一天 `topics.yml` 里出问题的 topic，作为只改 `daily/` 的内容通道提交，agent 不主动做；这是“`daily/YYYY/MM/DD/` 只由 commit job 写”的唯一例外（runbook：README → Daily Topics 运行手册）。

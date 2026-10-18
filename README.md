@@ -82,6 +82,59 @@ push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型�
    ```
    `CLOUDFLARE_ACCOUNT_ID` 已配置。`DEPLOY_ENABLED` 不是 `true` 时，CI 只校验与构建，不部署。
 
+## Daily Topics 运行手册（`.github/workflows/daily.yml`）
+
+每天 04:30 / 08:15 / 13:30 UTC 运行（[ADR 0004](docs/decisions/0004-public-daily-topics.md) §4、§11）：处理今天（UTC）；昨天还不是终态时一并收尾。已是终态的日期什么都不做，所以重复运行、补跑都是安全的。三段 job 分权：
+
+| Job | 权限 | 凭据 | 做什么 |
+| --- | --- | --- | --- |
+| `ingest` | `contents: read`、`actions: read` | `BLOCKBEATS_API_KEY`（只在 `rh ingest` 那一步） | 决定处理哪些日期，`rh ingest`，打包公开上下文（`scripts/daily.ts context`） |
+| `generate` | 无（`permissions: {}`），不 checkout | `LLM_BASE_URL`、`LLM_API_KEY`（只在运行模型的那一步） | 先查没有仓库凭据、push 失败；再做隔离自检；再按日期运行 `daily-topics` skill（`scripts/daily-generate.sh`） |
+| `commit` | `contents: write` | 无 LLM / BlockBeats 凭据 | `rh daily import` → `rh daily check --base --workflow` → `pnpm verify` → 只 `git add daily/YYYY/MM/DD/` → push（冲突就 rebase、重新验证；内容冲突让运行失败，不自动解决） |
+| `deploy` | `contents: read` | Cloudflare | 用 `workflow_call` 调用 `deploy.yml`，显式传入刚推上去的提交 SHA（部署记录里是 `main@<SHA>`） |
+
+**隔离自检**（每次运行模型之前，`scripts/daily-isolation.ts`）：用本地假网关和随机 canary 令牌、按和真实运行完全相同的命令启动 Claude Code，逐个发出读 `/proc/*/environ`、`$HOME`、`/etc`、工作目录外的文件，往外写文件，调用 Bash / WebFetch / WebSearch 的工具调用，全部被拒绝、canary 不出现在任何输出里才继续；否则这次不运行模型（这些日期记为 `generator_failed`）。结果在 job summary 和 `daily-generate-log-*` artifact 的 `selfcheck/` 里。
+
+### 启用 / 关闭
+
+- 启用（合并到 `main` 之后，由所有者执行）：`gh variable set DAILY_ENABLED --body true`。默认关闭：变量不是 `true` 时定时和手动运行都直接跳过。
+- 关闭：`gh variable set DAILY_ENABLED --body false`。不影响站点和报告。
+- 模型：默认 `claude-sonnet-5-5`；`gh variable set DAILY_MODEL --body <model>` 改，删掉变量恢复默认。
+- 第一次在 `main` 上运行时 Actions cache 里还没有 BlockBeats 账本，按 WHI-1931 的规则当天不调用 BlockBeats（失败即关闭）。确定当天还没调用过时，可以手动运行一次并勾选 `seed_ledger`，从空账本开始。
+
+### 手动运行、补跑与 regenerate
+
+- 补跑某一天（例如定时任务被跳过、更早的日期）：Actions → daily → Run workflow，填 `date`（YYYY-MM-DD，UTC），或 `gh workflow run daily.yml -f date=2026-10-20`。已是终态的日期会被跳过。
+- 重做一个已是终态的日期：`gh workflow run daily.yml -f date=2026-10-20 -f regenerate=true`。不重新抓取，用当初那次运行保存的 `daily-items-<run>-<attempt>` artifact（30 天）。新候选通过导入**并且**通过检查才替换旧结果；否则保留旧结果，这次运行标红，不提交。artifact 过期后不能 regenerate。
+- 看结果：每个 job 的 summary 写了处理了哪些日期、各源的状态和调用数、每次生成的 token 与花费、导入的结果；失败时写明原因。
+
+### 手动修正（所有者例外）
+
+报告转成 private / draft、或某个标签不再公开，会让引用它的旧日期过不了 `rh daily check`（失败即拒绝）。修法按顺序：
+
+1. 30 天内（items artifact 还在）：regenerate 那一天（见上）。
+2. 超过 30 天：**只有所有者**可以在主克隆里删除或改正 `daily/YYYY/MM/DD/topics.yml` 里出问题的 topic，`rh daily check` 通过后作为内容通道的提交（只改 `daily/`）直推 `main`。agent 不主动做这件事。
+
+### 轮换密钥
+
+- LLM：在网关上新建一个有额度上限的 key → `gh secret set LLM_API_KEY` → 手动运行一次（或等下一次定时运行），generate job 的 summary 里有花费、没有错误 → 在网关上停用旧 key。网关地址变了用 `gh secret set LLM_BASE_URL`（Anthropic 协议的 base URL，不带 `/v1`）。
+- BlockBeats：`gh secret set BLOCKBEATS_API_KEY`，下一次运行生效。
+- 怀疑泄漏：先关闭 Daily（`DAILY_ENABLED=false`），再在网关上停用 key，然后轮换。
+
+### 失败时
+
+- 网关不可用或生成失败：还没到 13:30 UTC 时这一天保持 `pending`，下一次定时运行再试；到了 13:30 按 ADR 0004 §5 收尾（`empty` / `degraded`）。Claude Code 对 5xx 会重试约 3 分钟再退出。
+- push 被拒（`main` 前进了）：commit job 自动 rebase、重新跑 `rh daily check` 与 `pnpm verify` 后再推；rebase 有冲突就失败，什么都不推。
+- 日志和 artifact：items（含摘录）、条目缓存、候选、generate 日志都保留 30 天；工作目录 artifact 保留 1 天。网关地址和 key 不进任何日志或 artifact：generate job 上传前先替换、再检查，检查不过就什么都不上传。
+
+### 回滚
+
+先关闭 workflow（`DAILY_ENABLED=false`），再在主克隆里 revert 有问题的日期目录（内容通道，直推）。顺序不能反：先 revert 而不关 workflow，下一次运行会把那一天重新生成出来。页面或代码有问题就 revert 代码，`daily/` 和报告都不用动。
+
+### 合并前的试验分支
+
+push 到 `daily-trial/**` 分支会在那个分支上跑完整流程（不看 `DAILY_ENABLED`）：commit job 推回那个分支，**不部署**；用自己的 BlockBeats 账本（`daily-ledger-trial-*`），它的调用不计入 `main` 的账本，所以 `main` 上的 Daily 启用之后不要再用试验分支，或者确认当天的 BlockBeats 配额还够。试验分支用完就删。
+
 ## 回滚
 
 `pnpm exec wrangler rollback -c wrangler.public.jsonc`（或 `wrangler.private.jsonc`），或 revert 对应提交后 push。
