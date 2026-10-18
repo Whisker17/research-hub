@@ -1,6 +1,7 @@
 /**
  * Daily workflow 的确定性步骤（WHI-1937）：scripts/daily.ts（plan / context / generator / candidates / settle / stage / scope）
- * 与 scripts/daily-isolation.ts（generate job 的隔离自检：假网关的协议和判定）。全部离线：不联网、不调用 LLM。
+ * 与 scripts/daily-isolation.ts（generate job 的隔离自检：假网关的协议和判定），以及 generate job 运行模型那一步的候选取舍
+ * （daily.yml 里的原样脚本 + 真实的 daily-generate.sh，PATH 上是假的 claude）。全部离线：不联网、不调用 LLM。
  */
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -9,10 +10,10 @@ import { request } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, test } from "node:test";
-import { stringify } from "yaml";
+import { parse, stringify } from "yaml";
 import { buildContext, candidateArtifactErrors, dirHash, plan, scopeErrors, settle, skillVersion, stagePaths, DailyError } from "../scripts/daily.ts";
 import { EXPECTED_TOOLS, fakeGateway, probes, verdict, type Probe } from "../scripts/daily-isolation.ts";
-import { skillVersion as evalSkillVersion } from "./fixtures/daily/eval/run.ts";
+import { EVAL_DIR, importCase, skillVersion as evalSkillVersion } from "./fixtures/daily/eval/run.ts";
 import { manifestSchema } from "../lib/daily.ts";
 
 const REPO = join(import.meta.dirname, "..");
@@ -211,6 +212,90 @@ test("scope：要推送的提交只能新增或修改本次日期的两个文件
   git(root, "add", "-A");
   commit("bad");
   assert.deepEqual(scopeErrors(root, base, ["2026-10-19"]), ["D daily/2026/10/18/topics.yml", "M tags.yml"]);
+});
+
+// ───────── generate：只有成功的运行才有候选（R1-F2） ─────────
+
+const FULL_DAY = join(EVAL_DIR, "full-day");
+const GEN_DATE = "2026-10-18";
+type Step = { run?: string; name?: string };
+const RUN_STEP = (parse(readFileSync(join(REPO, ".github", "workflows", "daily.yml"), "utf8")).jobs.generate.steps as Step[]).find((s) => s.name?.startsWith("Run the daily-topics skill"))!.run!;
+
+/**
+ * 原样运行 daily.yml 里 generate job 的 “Run the daily-topics skill” 这一步（bash -e，和 Actions 一样），runner 是真实的 daily-generate.sh。
+ * PATH 上的假 claude 先写一份合法的 out/topics.yml（WHI-1933 full-day 评估里模型写的候选），再输出给定的 stream-json 事件，按给定的退出码退出。
+ */
+function generateStep(o: { exit: number; result: Record<string, unknown> | null }) {
+  const t = mkTmp("rh-daily-gen-");
+  const W = join(t, "daily-work");
+  mkdirSync(join(W, "tools"), { recursive: true });
+  cpSync(join(REPO, "scripts", "daily-generate.sh"), join(W, "tools", "daily-generate.sh"));
+  cpSync(join(REPO, ".claude", "skills", "daily-topics"), join(W, "skill"), { recursive: true });
+  cpSync(join(FULL_DAY, "input"), join(W, "dates", GEN_DATE, "input"), { recursive: true });
+  const bin = join(t, "bin");
+  mkdirSync(bin);
+  const events = [{ type: "system", subtype: "init", tools: EXPECTED_TOOLS, mcp_servers: [] }, ...(o.result ? [{ type: "result", ...o.result }] : [])];
+  const stub = `#!/usr/bin/env bash\ncp '${join(FULL_DAY, "output", "candidate", "topics.yml")}' out/topics.yml\ncat <<'EOF'\n${events.map((e) => JSON.stringify(e)).join("\n")}\nEOF\nexit ${o.exit}\n`;
+  writeFileSync(join(bin, "claude"), stub, { mode: 0o755 });
+  const summary = join(t, "summary.md");
+  const env = { PATH: `${bin}:${process.env.PATH}`, HOME: t, RUNNER_TEMP: t, W, L: join(t, "generate-log"), GEN: JSON.stringify([GEN_DATE]), MODEL: "stub-model", U: "https://gateway.example.test:8443/v1", K: "sk-stub-0123456789abcdef", GITHUB_STEP_SUMMARY: summary };
+  const r = spawnSync("bash", ["-e", "-c", RUN_STEP], { encoding: "utf8", env });
+  return { code: r.status, out: `${r.stdout}${r.stderr}`, candidate: join(t, "candidates", GEN_DATE), log: join(t, "generate-log"), summary: readFileSync(summary, "utf8") };
+}
+
+/** commit job 的 rh daily import：ingest manifest（generator 由 job 填）+ full-day 的条目；--candidate 只在候选 artifact 里有这个日期时才给（同 daily.yml）。 */
+function importDay(root: string, candidate: string, ...extra: string[]) {
+  const dir = mkTmp("rh-daily-ingest-");
+  const m = JSON.parse(readFileSync(join(FULL_DAY, "manifest.json"), "utf8"));
+  m.generator = { skill_version: skillVersion(REPO), model: "stub-model", inputs_sha256: dirHash(join(FULL_DAY, "input")) };
+  writeFileSync(join(dir, "manifest.json"), JSON.stringify(m));
+  const args = ["daily", "import", GEN_DATE, "--manifest", join(dir, "manifest.json"), "--items", join(FULL_DAY, "input", "items.jsonl"), ...(existsSync(candidate) ? ["--candidate", candidate] : []), ...extra];
+  const r = spawnSync(process.execPath, [join(REPO, "cli", "rh.ts"), ...args], { cwd: root, encoding: "utf8", env: { ...process.env, RH_ROOT: root, NO_COLOR: "1" } });
+  return { code: r.status, out: `${r.stdout}${r.stderr}` };
+}
+const dayFiles = (root: string) => Object.fromEntries(["manifest.json", "topics.yml"].map((f) => [f, readFileSync(join(root, "daily", "2026", "10", "18", f), "utf8")]));
+
+const FAILURES: [string, { exit: number; result: Record<string, unknown> | null }][] = [
+  ["写完 topics.yml 后超时（timeout 退出码 124，没有 result 事件）", { exit: 124, result: null }],
+  ["写完 topics.yml 后预算用完（非零退出，result 是错误）", { exit: 1, result: { subtype: "error_max_budget_usd", is_error: true } }],
+  ["退出码 0 但 result 报 API 错误", { exit: 0, result: { subtype: "success", is_error: true, api_error_status: 529 } }],
+  ["退出码 0 但没有 result 事件", { exit: 0, result: null }],
+];
+
+for (const [name, run] of FAILURES) {
+  test(`generate：${name} → 没有候选，首次运行记为 generator_failed，regenerate 保留原结果`, () => {
+    const g = generateStep(run);
+    assert.equal(g.code, 0, `一个日期失败不让这一步失败：\n${g.out}`);
+    assert.ok(!existsSync(g.candidate), `不能有 ${GEN_DATE} 的候选：\n${g.out}`);
+    assert.match(g.out, new RegExp(`::warning::${GEN_DATE}: generation failed \\(.+\\); out/ discarded, no candidate`));
+    assert.match(g.summary, new RegExp(`\\| ${GEN_DATE} \\| ${run.exit} \\|.*\\| no \\(generator_failed\\) \\|`));
+    assert.ok(existsSync(join(g.log, `${GEN_DATE}.transcript.jsonl`)) && existsSync(join(g.log, `${GEN_DATE}.summary.json`)), "日志照留");
+    // 首次运行（T_last 之前）：pending + generator_failed，没有 topics.yml
+    const first = repo();
+    rmSync(join(first, "daily", "2026", "10", "18"), { recursive: true });
+    const r = importDay(first, g.candidate);
+    assert.equal(r.code, 0, r.out);
+    const m = JSON.parse(readFileSync(join(first, "daily", "2026", "10", "18", "manifest.json"), "utf8"));
+    assert.deepEqual([m.status, m.reasons], ["pending", ["generator_failed"]]);
+    assert.ok(!existsSync(join(first, "daily", "2026", "10", "18", "topics.yml")));
+    // regenerate 一个已是终态的日期：退出码 3，原结果一个字节都不变
+    const done = repo();
+    const before = dayFiles(done);
+    const re = importDay(done, g.candidate, "--regenerate");
+    assert.equal(re.code, 3, re.out);
+    assert.deepEqual(dayFiles(done), before);
+  });
+}
+
+test("generate：退出码 0 且 result 成功 → 候选原样提升，导入结果与 full-day 评估记录一致", () => {
+  const g = generateStep({ exit: 0, result: { subtype: "success", is_error: false, terminal_reason: "completed" } });
+  assert.equal(g.code, 0, g.out);
+  assert.equal(readFileSync(join(g.candidate, "topics.yml"), "utf8"), readFileSync(join(FULL_DAY, "output", "candidate", "topics.yml"), "utf8"));
+  assert.match(g.summary, new RegExp(`\\| ${GEN_DATE} \\| 0 \\|.*\\| yes \\|`));
+  const { imported, ...got } = importCase("full-day", g.candidate);
+  const want = JSON.parse(readFileSync(join(FULL_DAY, "output", "result.json"), "utf8"));
+  assert.deepEqual([got.import_exit, got.check_exit, got.status, got.reasons, got.topics], [want.import_exit, want.check_exit, want.status, want.reasons, want.topics]);
+  assert.equal(imported, readFileSync(join(FULL_DAY, "output", "topics.imported.yml"), "utf8"));
 });
 
 // ───────── isolation self-check ─────────
