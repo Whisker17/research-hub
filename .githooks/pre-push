@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# Refuse direct pushes to protected branches, except content-lane pushes to main.
+#
+# Local stand-in for GitHub branch protection, which is unavailable on private repos on
+# the Free plan. It only guards *this* clone (and its worktrees, which share the
+# repository config); the remote is genuinely unprotected. Rules: docs/GIT_WORKFLOW.md.
+#
+# Enable once, in the primary clone (shared by every worktree):
+#   git config core.hooksPath .githooks
+#
+# Protected: main, release/v*.
+# Allowed without override: a fast-forward push to main whose commits are all non-merge
+# commits changing only content paths (reports/, daily/, tags.yml) -- the content lane
+# (rh publish, rh tags add).
+# Documented overrides (ALLOW_DIRECT_PUSH=1): fan-in of main into a live release/v*, and
+# the first push of a freshly cut release/v*.
+
+set -euo pipefail
+
+ZERO=0000000000000000000000000000000000000000
+
+is_protected() {
+    case "$1" in
+        main|release/v*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+is_content_path() {
+    case "$1" in
+        reports/*|daily/*|tags.yml) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# content_only <remote-sha> <local-sha>: every commit in remote..local is a non-merge
+# commit touching content paths only, and the push fast-forwards the remote.
+content_only() {
+    local remote="$1" local_sha="$2" commit path
+    [ "$local_sha" = "$ZERO" ] && return 1                 # branch deletion
+    [ "$remote" = "$ZERO" ] && return 1                    # new branch
+    git cat-file -e "${remote}^{commit}" 2>/dev/null || return 1   # unknown remote tip: fetch first
+    git merge-base --is-ancestor "$remote" "$local_sha" || return 1  # not a fast-forward
+    [ -z "$(git rev-list --merges "${remote}..${local_sha}")" ] || return 1
+    for commit in $(git rev-list "${remote}..${local_sha}"); do
+        while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            is_content_path "$path" || { echo "pre-push: $commit changes non-content path '$path'." >&2; return 1; }
+        done < <(git diff-tree --no-commit-id --name-only -r "$commit")
+    done
+    return 0
+}
+
+BLOCKED=0
+
+# stdin: <local-ref> <local-sha> <remote-ref> <remote-sha>, one line per ref pushed
+while read -r _local_ref local_sha remote_ref remote_sha; do
+    [ -z "${remote_ref:-}" ] && continue
+    branch="${remote_ref#refs/heads/}"
+    is_protected "$branch" || continue
+    if [ "$branch" = "main" ] && content_only "$remote_sha" "$local_sha"; then
+        continue
+    fi
+    echo "pre-push: refusing to push directly to '$branch'." >&2
+    BLOCKED=1
+done
+
+if [ "$BLOCKED" -eq 1 ]; then
+    if [ "${ALLOW_DIRECT_PUSH:-}" = "1" ]; then
+        echo "pre-push: ALLOW_DIRECT_PUSH=1 set -- proceeding anyway." >&2
+        exit 0
+    fi
+    cat >&2 <<'MSG'
+
+  main and release/v* only accept code through a pull request
+  (docs/GIT_WORKFLOW.md):
+
+    - version-scoped : worktree off origin/release/vX.Y.Z -> PR base release/vX.Y.Z (squash)
+    - governance     : worktree off origin/main           -> PR base main           (squash)
+    - hotfix         : worktree off origin/main           -> PR base main           (merge commit)
+    - release        : release/vX.Y.Z                     -> PR base main           (merge commit)
+
+  A direct push to main is allowed only for content-lane commits: fast-forward,
+  no merge commits, and every commit changes only reports/, daily/ or tags.yml.
+  Run `git fetch origin` first if the remote tip is unknown locally.
+
+  Documented overrides (fan-in of main into a live release/v*, first push of a new
+  release/v*):
+    ALLOW_DIRECT_PUSH=1 git push ...
+
+MSG
+    exit 1
+fi
+
+exit 0
