@@ -289,7 +289,7 @@ test("站点外壳（WHI-1928）：中英文 × 明暗 × localStorage 不可用
     let s = await state(page);
     assert.equal(s.lang, "zh-CN");
     assert.equal(s.bg, LIGHT);
-    assert.deepEqual(s.nav, [["报告", "/"], ["标签", "/tags/"], ["归档", "/archive/"]]);
+    assert.deepEqual(s.nav, [["报告", "/"], ["Daily", "/daily/"], ["标签", "/tags/"], ["归档", "/archive/"]]);
     assert.deepEqual(s.card, ["公开报告甲", "/r/pub-a/"]);
     assert.equal(s.searchLabel, t("zh", "searchLabel"));
     assert.equal(s.toggles, 2);
@@ -298,7 +298,7 @@ test("站点外壳（WHI-1928）：中英文 × 明暗 × localStorage 不可用
     await page.click("[data-rh-lang]");
     s = await state(page);
     assert.equal(s.lang, "en");
-    assert.deepEqual(s.nav, [["Reports", "/"], ["Tags", "/tags/"], ["Archive", "/archive/"]]);
+    assert.deepEqual(s.nav, [["Reports", "/"], ["Daily", "/daily/"], ["Tags", "/tags/"], ["Archive", "/archive/"]]);
     assert.equal(s.navLabel, t("en", "navLabel"));
     assert.equal(s.searchLabel, t("en", "searchLabel"));
     assert.equal(s.placeholder, t("en", "searchPlaceholder"));
@@ -351,7 +351,7 @@ test("站点外壳（WHI-1928）：中英文 × 明暗 × localStorage 不可用
     const nojs = await open({ js: false });
     s = await state(nojs.page);
     assert.deepEqual([s.lang, s.card, s.toggles, s.filters], ["zh-CN", ["公开报告甲", "/r/pub-a/"], 0, 0]);
-    assert.deepEqual(s.nav, [["报告", "/"], ["标签", "/tags/"], ["归档", "/archive/"]]);
+    assert.deepEqual(s.nav, [["报告", "/"], ["Daily", "/daily/"], ["标签", "/tags/"], ["归档", "/archive/"]]);
     await nojs.page.close();
   } finally {
     await browser.close();

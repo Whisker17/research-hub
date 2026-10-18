@@ -16,6 +16,7 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { crc32, deflateSync, inflateSync } from "node:zlib";
+import { dailyForbidden, type DailyLoad } from "../../lib/daily.ts";
 import { REPORT_FILES, isPublicPublished, isPublished, type Report } from "../../lib/reports.ts";
 import type { TagRegistry } from "../../lib/schema.ts";
 import { THUMB_FILE, type Site } from "../../lib/site-data.ts";
@@ -541,4 +542,14 @@ export function leakCheck(res: AssembleResult, reports: Report[], tags: TagRegis
   const draftNeedles = drafts.flatMap((r) => fingerprints(r).map((n) => ({ what: ` draft ${r.slug} `, needle: n })));
   for (const f of findLeaks(res.privateDir, draftNeedles)) errors.push(`私有产物 ${f.file} 含有${f.what}的内容：“${f.needle}”`);
   return errors;
+}
+
+/**
+ * 公开产物里不能出现的 Daily 内部数据：dailyForbidden（内部字段名、manifest 内部字段的值、dismiss 理由），
+ * 再加上 state.yml 里 link 到非公开报告的 slug——“某个 topic 已经变成某篇私有报告”这件事也不能公开（ADR 0004 §9）。
+ */
+export function dailyPublicForbidden(load: DailyLoad, reports: Report[]): PublicForbidden[] {
+  const nonPublic = new Set(reports.filter((r) => !isPublicPublished(r)).map((r) => r.slug));
+  const linked = Object.entries(load.state.topics).flatMap(([id, e]) => (e.state === "linked" && nonPublic.has(e.report) ? [{ source: `daily/state.yml ${id}`, text: e.report }] : []));
+  return [...dailyForbidden(load), ...linked];
 }

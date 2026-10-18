@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "date": "2026-10-16",
+  "status": "empty",
+  "reasons": [
+    "digest_fetch_failed",
+    "no_items"
+  ],
+  "window": {
+    "from": "2026-10-15T00:00:00.000Z",
+    "to": "2026-10-16T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "fetch_failed",
+    "url": null,
+    "posted_at": null
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "failed",
+      "items": 17,
+      "calls": 19,
+      "covered": null,
+      "error": "SITEFIXTURE fxtwitter 503 detail 16"
+    },
+    {
+      "id": "blockbeats",
+      "status": "skipped",
+      "items": 0,
+      "calls": 0,
+      "covered": null,
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 0,
+    "cited_items": 0,
+    "topics": 0,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": null,
+  "run": {
+    "id": "18700000016",
+    "attempt": 1,
+    "at": "2026-10-16T13:30:00.000Z"
+  },
+  "generated_at": null,
+  "updated_at": "2026-10-16T13:30:00.000Z"
+}

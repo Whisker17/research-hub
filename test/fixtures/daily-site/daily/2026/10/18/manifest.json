@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "date": "2026-10-18",
+  "status": "complete",
+  "reasons": [],
+  "window": {
+    "from": "2026-10-17T00:00:00.000Z",
+    "to": "2026-10-18T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2111652016124784867",
+    "posted_at": "2026-10-18T02:54:07.000Z"
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "ok",
+      "items": 17,
+      "calls": 19,
+      "covered": null,
+      "error": "SITEFIXTURE ethtao internal error detail 18"
+    },
+    {
+      "id": "blockbeats",
+      "status": "skipped",
+      "items": 0,
+      "calls": 0,
+      "covered": null,
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 397,
+    "cited_items": 11,
+    "topics": 6,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": {
+    "skill_version": "daily-topics@0.1.0-site-2026-10-18",
+    "model": "claude-sonnet-5-5-fixture-18",
+    "inputs_sha256": "20261018aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "run": {
+    "id": "18700000018",
+    "attempt": 1,
+    "at": "2026-10-18T04:31:07.000Z"
+  },
+  "generated_at": "2026-10-18T04:31:07.000Z",
+  "updated_at": "2026-10-18T04:31:07.000Z"
+}

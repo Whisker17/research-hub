@@ -1,0 +1,107 @@
+---
+/**
+ * 一个 Daily topic（WHI-1936）：标题、为什么是现在、研究问题、角度、chip、引用（来源徽章）、相关公开报告、把握。
+ * 所有文字都是不可信的生成器输出：只用 Astro 的转义输出（不用 set:html），链接只允许 http(s)（safeHref）。
+ * 标签只有在公开标签投影里时才链接到 /tags/<tag>/ 并显示展示名；proposed_tags 只是普通 chip（ADR 0004 §7）。
+ * related 只经过 siteView("public").find()：找不到（非公开）就不显示。
+ */
+import type { PublicItem, RefType, SourceId, Topic } from "../../lib/daily.ts";
+import { siteView } from "../../lib/site-data.ts";
+import { safeHref } from "../daily.ts";
+import { t, type I18nKey } from "../i18n.ts";
+import T from "./T.astro";
+
+interface Props {
+  topic: Topic;
+  items: Record<string, PublicItem>;
+}
+const { topic, items } = Astro.props;
+const view = siteView("public");
+
+/** 来源徽章：新接入的源（lib/daily.ts 的 DAILY_SOURCES）要在这里加名字，否则类型检查失败。 */
+const SOURCE_BADGE: Record<SourceId, string> = {
+  ethtao: "X",
+  ethresearch: "ethresear.ch",
+  magicians: "Magicians",
+  theblock: "The Block",
+  blockbeats: "BlockBeats",
+  odaily: "Odaily",
+};
+const REF_TYPE: Record<RefType, I18nKey> = { primary: "refPrimary", secondary: "refSecondary", discussion: "refDiscussion" };
+const CONF: Record<Topic["confidence"], I18nKey> = { high: "confHigh", medium: "confMedium", low: "confLow" };
+const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
+
+const refs = topic.references.map((r) => {
+  if ("extra" in r) return { badge: null, href: safeHref(r.extra), label: host(r.extra), date: null, origin: undefined, via: undefined, type: r.type, note: r.note };
+  const it = items[r.item_id];
+  return {
+    badge: SOURCE_BADGE[it.source],
+    href: safeHref(it.url),
+    // X 普通帖子没有标题：显示作者和日期（ADR 0004 §3）
+    label: it.title ?? (it.author ? `@${it.author}` : host(it.url)),
+    date: it.published_at.slice(0, 10),
+    origin: it.origin_url && safeHref(it.origin_url) ? { href: it.origin_url, host: host(it.origin_url) } : undefined,
+    via: safeHref(it.via),
+    type: r.type,
+    note: r.note,
+  };
+});
+const tags = topic.tags.map((k) => ({ key: k, label: view.tags[k]?.label, linked: Object.hasOwn(view.tags, k) }));
+const related = topic.novelty.related.flatMap((s) => view.find(s) ?? []);
+---
+<article class="topic" id={topic.id}>
+  <div class="topic-meta">
+    {topic.novelty.kind === "update" ? <span class="chip-info"><T k="novUpdate" /></span> : <span class="chip-highlight"><T k="novNew" /></span>}
+    <span class="chip-neutral"><T k={CONF[topic.confidence]} /></span>
+    <span><T k="sources" vars={{ n: topic.evidence.independent_sources }} /></span>
+  </div>
+  <h3 class="topic-title" data-en={topic.title_en}>{topic.title}</h3>
+  <p class="topic-id">
+    <code>{topic.id}</code>
+    <button class="text-btn needs-js" type="button" data-copy={topic.id} data-i18n="topicCopy">{t("zh", "topicCopy")}</button>
+  </p>
+  <dl class="topic-body">
+    <dt><T k="topicWhyNow" /></dt>
+    <dd>{topic.why_now}</dd>
+    <dt><T k="topicQuestions" /></dt>
+    <dd><ol>{topic.questions.map((q) => <li>{q}</li>)}</ol></dd>
+    <dt><T k="topicAngle" /></dt>
+    <dd>{topic.angle}</dd>
+  </dl>
+  {
+    (tags.length > 0 || topic.proposed_tags.length > 0) && (
+      <div class="tags">
+        {tags.map((t) => (t.linked ? <a class="tag" href={`/tags/${t.key}/`}>{t.label ?? t.key}</a> : <span class="tag">{t.key}</span>))}
+        {topic.proposed_tags.map((k) => <span class="tag tag-proposed">{k}</span>)}
+      </div>
+    )
+  }
+  <h4 class="topic-h"><T k="topicRefs" /></h4>
+  <ul class="refs">
+    {
+      refs.map((r) => (
+        <li>
+          <span class="ref-line">
+            {r.badge ? <span class="src-badge">{r.badge}</span> : <span class="src-badge"><T k="refLink" /></span>}
+            {r.href ? <a href={r.href} rel="noopener noreferrer nofollow" target="_blank">{r.label}</a> : <span>{r.label}</span>}
+            {r.date && <span class="ref-date">{r.date}</span>}
+            <span class="ref-type"><T k={REF_TYPE[r.type]} /></span>
+            {r.origin && <a class="ref-aux" href={r.origin.href} rel="noopener noreferrer nofollow" target="_blank"><T k="refOrigin" /> {r.origin.host}</a>}
+            {r.via && <a class="ref-aux" href={r.via} rel="noopener noreferrer nofollow" target="_blank"><T k="refVia" /></a>}
+          </span>
+          {r.note && <span class="ref-note">{r.note}</span>}
+        </li>
+      ))
+    }
+  </ul>
+  {
+    related.length > 0 && (
+      <>
+        <h4 class="topic-h"><T k="topicRelated" /></h4>
+        <ul class="refs">
+          {related.map((c) => <li><a href={c.href} data-en-href={c.href_en} data-en={c.title_en}>{c.title}</a></li>)}
+        </ul>
+      </>
+    )
+  }
+</article>

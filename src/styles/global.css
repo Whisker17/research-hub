@@ -240,7 +240,7 @@ h1.page-title { font-family: var(--font-serif); font-size: var(--fs-xl); font-we
   overflow: hidden;
 }
 .row .tags { grid-area: tags; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.row .tag { position: relative; z-index: 1; font: var(--fs-xs)/1.6 var(--font-mono); padding: 0 8px; border-radius: var(--radius-sm); border: 1px solid var(--hairline); background: var(--bg-subtle); color: var(--ink-soft); text-decoration: none; }
+.row .tag, .topic .tag { position: relative; z-index: 1; font: var(--fs-xs)/1.6 var(--font-mono); padding: 0 8px; border-radius: var(--radius-sm); border: 1px solid var(--hairline); background: var(--bg-subtle); color: var(--ink-soft); text-decoration: none; }
 a.tag:hover { color: var(--ink); border-color: var(--hairline-strong); }
 .empty { padding: 28px var(--sp-4); text-align: center; color: var(--ink-soft); background: var(--bg-elevated); border: 1px dashed var(--hairline-strong); border-radius: var(--radius); }
 .rows .empty { margin-top: var(--sp-4); }
@@ -263,6 +263,50 @@ a.tag:hover { color: var(--ink); border-color: var(--hairline-strong); }
 .index-list a { display: flex; justify-content: space-between; gap: var(--sp-3); padding: 13px var(--sp-4); color: inherit; text-decoration: none; }
 .index-list a:hover { background: var(--bg-subtle); }
 .index-list .n { font: var(--fs-sm) var(--font-mono); color: var(--ink-faint); }
+
+/*
+ * Daily（WHI-1936）：一天 = 状态行 + 固定声明 + 公开说明 + topic 列表；topic 复用列表行的 chip 与标签样式。
+ * 生成器文字可能很长且没有空格（URL、长英文词）：一律 overflow-wrap: anywhere，390px 下不横向溢出。
+ */
+.section-h { font: 500 var(--fs-md)/1.3 var(--font-serif); margin: var(--sp-7) 0 var(--sp-3); }
+.section-h .n { font: var(--fs-sm) var(--font-mono); color: var(--ink-faint); }
+.day-list-meta { display: inline-flex; align-items: center; gap: var(--sp-2); }
+.day { min-width: 0; }
+.day-head { display: grid; gap: var(--sp-1); margin-bottom: var(--sp-3); }
+.day-date { font: 500 var(--fs-lg)/1.2 var(--font-serif); margin: 0; }
+.day-date a { color: inherit; text-decoration: none; }
+.day-date a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.day-meta, .topic-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px var(--sp-3); font: var(--fs-xs)/1.6 var(--font-mono); color: var(--ink-faint); }
+.disclaimer { margin: 0 0 var(--sp-3); padding: var(--sp-2) var(--sp-3); border-left: 3px solid var(--highlight-border); background: var(--highlight-bg); color: var(--highlight-text); font-size: var(--fs-sm); }
+.day-status { margin: 0 0 var(--sp-3); padding: var(--sp-3) var(--sp-4); border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--bg-elevated); color: var(--ink-soft); font-size: var(--fs-sm); }
+.day-status ul { margin: var(--sp-1) 0 0; padding-left: 1.2em; }
+.day-note { margin: 0 0 var(--sp-3); color: var(--ink-soft); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+.topics { display: grid; border-top: 1px solid var(--hairline); }
+.topic { min-width: 0; padding: var(--sp-5) 0; border-bottom: 1px solid var(--hairline); overflow-wrap: anywhere; scroll-margin-top: 72px; }
+.topic-title { margin: var(--sp-1) 0 0; font: 500 var(--fs-md)/1.35 var(--font-serif); letter-spacing: -0.01em; }
+.topic-id { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin: var(--sp-2) 0; }
+.topic-id code { font: var(--fs-xs)/1.5 var(--font-mono); color: var(--ink-soft); user-select: all; }
+.topic-id .text-btn { min-height: 26px; font-size: var(--fs-xs); }
+.topic-body { margin: var(--sp-2) 0 0; }
+.topic-body dt, .topic-h { display: block; font: 500 var(--fs-2xs)/1.4 var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin: var(--sp-3) 0 2px; }
+.topic-body dd { margin: 0; color: var(--ink-soft); }
+.topic-body ol { margin: 0; padding-left: 1.4em; }
+.topic .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--sp-3); }
+.topic .tag-proposed { border-style: dashed; }
+.refs { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); font-size: var(--fs-sm); }
+.ref-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--sp-2); }
+.src-badge { font: 600 var(--fs-2xs)/1.6 var(--font-mono); letter-spacing: 0.04em; padding: 0 6px; border-radius: var(--radius-sm); background: var(--info-bg); color: var(--info-text); border: 1px solid var(--info-border); white-space: nowrap; }
+.ref-date, .ref-type { font: var(--fs-xs)/1.5 var(--font-mono); color: var(--ink-faint); }
+.ref-aux { font-size: var(--fs-xs); color: var(--ink-soft); }
+.ref-note { display: block; margin-top: 2px; color: var(--ink-soft); font-size: var(--fs-sm); }
+.daily-entry { margin: 0 0 var(--sp-5); padding: var(--sp-3) var(--sp-4); border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--bg-elevated); font-size: var(--fs-sm); }
+.daily-entry summary { cursor: pointer; font: 500 var(--fs-sm)/1.4 var(--font-ui); }
+.daily-entry .cmds { margin: 0; display: grid; gap: 2px var(--sp-4); }
+.daily-entry .cmds dt { margin-top: var(--sp-2); overflow-wrap: anywhere; }
+.daily-entry .cmds dd { margin: 0; color: var(--ink-soft); }
+@media (min-width: 720px) {
+  .topic-title { font-size: 20px; }
+}
 
 /* 页脚 */
 .site-foot { border-top: 1px solid var(--hairline); color: var(--ink-faint); font-size: var(--fs-sm); }

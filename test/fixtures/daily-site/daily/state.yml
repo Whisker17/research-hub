@@ -1,0 +1,13 @@
+schema: 1
+topics:
+  2026-10-18-846954:
+    state: linked
+    at: 2026-10-19
+    report: secret-report
+  2026-10-18-1dc25d:
+    state: dismissed
+    at: 2026-10-19
+    reason: SITEFIXTURE 内部理由：和私有报告重复
+  2026-10-18-d9cf83:
+    state: selected
+    at: 2026-10-19
