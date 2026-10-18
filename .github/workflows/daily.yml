@@ -328,6 +328,8 @@ jobs:
             code=$?
             secs=$(( $(date +%s) - start ))
             redact "$L/$D.transcript.jsonl" "$L/$D.stderr"
+            # 只有退出码 0 且 result 成功的运行才有候选；失败的运行即使留下了合法的 topics.yml 也丢弃（R1-F2）
+            why=$(bash "$W/tools/daily-generate.sh" promote "$code" "$L/$D.transcript.jsonl" "$wd/out") || echo "::warning::$D: generation failed ($why); out/ discarded, no candidate (generator_failed)"
             # 候选只收 out/ 里的东西；出现 key 或网关地址就整个丢弃（失败即关闭）
             if [ -n "$(leaks "$wd/out")" ]; then
               echo "::error::$D: the model output contains secret material; discarding it"; rm -rf "$wd/out"; mkdir "$wd/out"

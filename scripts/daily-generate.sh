@@ -10,7 +10,22 @@
 #   --tools               只给 Read、Glob、Grep、Write、Edit
 #   --disallowedTools     再明确拒绝工作目录外的常见敏感路径（纵深防御；--restricted 已经挡住，自检两者都验证）
 # 进程环境用 env -i 清空：只留 HOME（空的临时目录）、PATH、LANG 和网关变量。网关要求 Bearer，所以用 ANTHROPIC_AUTH_TOKEN。
+#
+#   daily-generate.sh promote <exit code> <transcript.jsonl> <out dir>
+#   运行之后由 workflow 调用（R1-F2，ADR 0004 §5）：退出码是 0，并且 transcript 最后一个 result 事件是成功
+#   （subtype success、is_error false）才保留 out/；否则清空 out/、非零退出——这个日期没有候选，commit job 记为
+#   generator_failed，regenerate 保留原结果。日志不动。真实运行仍然 exec（隔离自检要求 timeout 的 pid 就是 runner 的 pid）。
 set -euo pipefail
+if [ "${1:-}" = promote ]; then
+  code=$2 transcript=$3 out=$4
+  if [ "$code" != 0 ]; then why="exit code $code"
+  elif ! jq -se 'map(select(.type == "result")) | last | .subtype == "success" and .is_error == false' "$transcript" > /dev/null 2>&1; then
+    why="no successful terminal result in the transcript"
+  else exit 0; fi
+  rm -rf "$out" && mkdir "$out"
+  echo "$why"
+  exit 1
+fi
 work=$1 home=$2 transcript=$3 errfile=$4
 : "${LLM_URL:?}" "${LLM_TOKEN:?}" "${MODEL:?}" "${TIMEOUT:=1200}"
 PROMPT='Read skill/SKILL.md and follow it exactly. The input directory is input/. The only file you may create or modify is out/topics.yml.'
