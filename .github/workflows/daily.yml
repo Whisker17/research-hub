@@ -63,8 +63,10 @@ jobs:
       LEDGER_KEY: daily-ledger-${{ github.event_name == 'push' && 'trial-' || '' }}
     steps:
       - run: echo "ITEMS=$RUNNER_TEMP/daily-items" >> "$GITHUB_ENV" && echo "WORK=$RUNNER_TEMP/daily-work" >> "$GITHUB_ENV"
+      # 分支的当前提交，不是触发时的 github.sha：排队等 concurrency 的运行要看到前一次运行刚推上去的 daily/
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.ref }}
           persist-credentials: false
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7

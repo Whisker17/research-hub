@@ -302,7 +302,7 @@ function main(argv: string[]): void {
       if (!values.base || !dates.length) throw new DailyError("用法：scope --base <ref> --dates D1,D2");
       const errors = scopeErrors(root, values.base, dates);
       if (errors.length) throw new DailyError(`要推送的提交改了本次日期以外的路径（Daily workflow 只能写 daily/YYYY/MM/DD/）：\n${errors.join("\n")}`);
-      console.log(`scope ok: ${values.base.slice(0, 12)}..HEAD only touches ${dates.map(dayDir).join(", ")}`);
+      console.log(`scope ok: ${/^[0-9a-f]{40}$/.test(values.base) ? values.base.slice(0, 12) : values.base}..HEAD only touches ${dates.map(dayDir).join(", ")}`);
       return;
     }
     default:
