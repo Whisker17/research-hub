@@ -224,6 +224,32 @@ test("projectSite：私有站点用全部 published（不含 draft），公开�
   assert.equal(v.find("draft-c"), undefined);
 });
 
+test("projectSite.tag：标签页的篇数、最近更新、描述、特色配图、相关标签都按站点投影计算（WHI-1932）", () => {
+  const { reports, tags } = mixedRepo();
+  const pub = projectSite("public", reports, tags, PUBLIC_URL);
+  const shared = pub.tag("shared")!;
+  assert.deepEqual(
+    { ...shared, cards: slugsOf(shared.cards), featured: shared.featured?.slug },
+    { key: "shared", label: "共享", count: 1, description: "公开与私有都用到的标签", description_en: undefined, cards: ["pub-a"], updated: "2026-10-09", featured: "pub-a", related: [{ key: "dex", label: "DEX", count: 1 }] },
+    "公开站点：priv-b 带来的 secret 与它的日期都不算",
+  );
+  const dex = pub.tag("dex")!;
+  assert.deepEqual([dex.count, dex.updated, dex.featured?.slug, dex.featured?.thumb], [2, "2026-10-09", "pub-a", "/r/pub-a/thumb.png"]);
+  for (const k of ["secret", "draft-only", "unused", "nope"]) assert.equal(pub.tag(k), undefined, `公开站点没有 ${k}`);
+  assert.deepEqual(pub.months.map((m) => [m.ym, m.updated]), [["2026-10", "2026-10-09"]]);
+
+  const priv = projectSite("private", reports, tags, PUBLIC_URL);
+  const pshared = priv.tag("shared")!;
+  assert.deepEqual([pshared.count, pshared.updated, slugsOf(pshared.cards)], [2, "2026-10-09", ["priv-b", "pub-a"]]);
+  assert.deepEqual(pshared.related, priv.coTags("shared"));
+  const secret = priv.tag("secret")!;
+  assert.deepEqual([secret.count, secret.updated, secret.description_en, secret.featured?.thumb], [1, "2026-09-20", "Confidential description of a private-only tag", "/p/priv-b/thumb.png"]);
+  // 没有缩略图的报告不当特色配图：ai 领域的 pub-e 没有 card.png
+  assert.equal(priv.tag("dex")!.featured?.slug, "pub-a");
+  assert.equal(priv.tag("draft-only"), undefined, "draft 专用的标签在私有站点也没有");
+  assert.deepEqual(priv.months.map((m) => [m.ym, m.updated]), [["2026-10", "2026-10-09"], ["2026-09", "2026-09-20"]]);
+});
+
 /** 假的 Astro 产物：公开页面列出公开报告；可以加额外的顶层产物。 */
 function fakeAstro(root: string, extra: Record<string, string> = {}) {
   const out = join(root, ".astro-dist");

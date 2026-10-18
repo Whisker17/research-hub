@@ -30,5 +30,5 @@ const { cards, domains, usedTags } = siteView("private");
       <dd><T k="pDailyLink" /></dd>
     </dl>
   </details>
-  <ReportList cards={cards} filters domains={domains} tags={usedTags} linkTags={false} showVisibility emptyKey="emptyPublished" />
+  <ReportList cards={cards} filters domains={domains} tags={usedTags} tagBase="/p/tags/" showVisibility emptyKey="emptyPublished" />
 </Base>

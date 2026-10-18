@@ -9,5 +9,5 @@ const { cards, domains, usedTags } = siteView("public");
 <Base title="Research Hub">
   <h1 class="page-title"><T k="homeTitle" /></h1>
   <p class="page-sub"><T k="tagline" /></p>
-  <ReportList cards={cards} filters domains={domains} tags={usedTags} linkTags emptyKey="emptyPublic" />
+  <ReportList cards={cards} filters domains={domains} tags={usedTags} tagBase="/tags/" emptyKey="emptyPublic" />
 </Base>

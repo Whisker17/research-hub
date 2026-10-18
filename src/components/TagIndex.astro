@@ -1,0 +1,45 @@
+---
+/**
+ * 标签索引（WHI-1932）：本站报告用到的全部标签，按篇数排序；每个标签一张卡片（名称、篇数、最近更新、描述）。
+ * 数据来自本站投影 siteView(site)（ADR 0003 §3），链接只指向本站的标签页。
+ */
+import { siteView, type Site } from "../../lib/site-data.ts";
+import Crumbs from "./Crumbs.astro";
+import Stats from "./Stats.astro";
+import T from "./T.astro";
+
+interface Props {
+  site: Site;
+}
+const { site } = Astro.props;
+const v = siteView(site);
+const tags = v.usedTags.map((u) => v.tag(u.key)!);
+const tagBase = site === "private" ? "/p/tags/" : "/tags/";
+---
+<Crumbs site={site} trail={[{ k: "tags" }]} />
+<p class="eyebrow"><T k="eyebrowTags" /></p>
+<h1 class="page-title"><T k="tags" /></h1>
+<p class="page-sub"><T k="tagsSub" /></p>
+{
+  tags.length ? (
+    <>
+      <Stats items={[{ k: "statTags", v: tags.length }, { k: "statReports", v: v.cards.length }, { k: "statUpdated", v: v.cards[0].updated }]} />
+      <ul class="tag-grid">
+        {tags.map((tag) => (
+          <li>
+            <a class="tag-card" href={`${tagBase}${tag.key}/`} data-tag={tag.key}>
+              <span class="tag-card-head">
+                <span class="tag-card-name">{tag.label}</span>
+                <span class="n"><T k="nShort" vars={{ n: tag.count }} /></span>
+              </span>
+              {tag.description && <span class="tag-card-desc" data-en={tag.description_en}>{tag.description}</span>}
+              <span class="tag-card-meta"><T k="updated" /> {tag.updated}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
+  ) : (
+    <p class="empty"><T k="emptyTags" /></p>
+  )
+}

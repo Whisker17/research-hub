@@ -25,6 +25,8 @@ const items: { href: string; k: I18nKey }[] =
     : nav === "private"
       ? [
           { href: "/p/", k: "navPrivateIndex" },
+          { href: "/p/tags/", k: "navTags" },
+          { href: "/p/archive/", k: "navArchive" },
           { href: `${loadConfig().publicUrl}/`, k: "navPublicSite" },
         ]
       : [];

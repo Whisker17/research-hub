@@ -1,23 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
-import T from "../../components/T.astro";
+import TagIndex from "../../components/TagIndex.astro";
 import { t } from "../../i18n.ts";
-import { siteView } from "../../../lib/site-data.ts";
-
-const list = siteView("public").usedTags;
 ---
 <Base title={t("zh", "tags")} titleEn={t("en", "tags")}>
-  <h1 class="page-title"><T k="tags" /></h1>
-  <p class="page-sub"><T k="nTags" vars={{ n: list.length }} /></p>
-  {
-    list.length ? (
-      <ul class="index-list">
-        {list.map((tag) => (
-          <li><a href={`/tags/${tag.key}/`}><span>{tag.label}</span><span class="n"><T k="nShort" vars={{ n: tag.count }} /></span></a></li>
-        ))}
-      </ul>
-    ) : (
-      <p class="empty"><T k="emptyTags" /></p>
-    )
-  }
+  <TagIndex site="public" />
 </Base>

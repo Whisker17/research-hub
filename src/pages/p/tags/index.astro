@@ -1,0 +1,9 @@
+---
+/** 私有标签索引 /p/tags/（WHI-1932，ADR 0003 §2）：全部 published 报告用到的标签。 */
+import Base from "../../../layouts/Base.astro";
+import TagIndex from "../../../components/TagIndex.astro";
+import { t } from "../../../i18n.ts";
+---
+<Base title={t("zh", "tags")} titleEn={t("en", "tags")} nav="private">
+  <TagIndex site="private" />
+</Base>

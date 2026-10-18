@@ -1,21 +1,17 @@
 ---
+/** 公开月归档 /YYYY/MM/：只有 public + published 报告的创建月份（siteView("public")）。 */
 import Base from "../../../layouts/Base.astro";
-import ReportList from "../../../components/ReportList.astro";
-import T from "../../../components/T.astro";
-import { t } from "../../../i18n.ts";
+import MonthPage from "../../../components/MonthPage.astro";
+import { monthVars, t } from "../../../i18n.ts";
 import { siteView } from "../../../../lib/site-data.ts";
 
 export function getStaticPaths() {
-  return siteView("public").months.map((m) => ({ params: { year: m.year, month: m.month }, props: { cards: m.cards } }));
+  return siteView("public").months.map((m) => ({ params: { year: m.year, month: m.month }, props: { month: m } }));
 }
 
-const { year, month } = Astro.params;
-const { cards } = Astro.props;
-const ym = { y: year, m: Number(month) };
+const { month } = Astro.props;
+const ym = monthVars(month.year, month.month);
 ---
 <Base title={t("zh", "month", ym)} titleEn={t("en", "month", ym)}>
-  <p class="crumbs"><a href="/archive/"><T k="archive" /></a></p>
-  <h1 class="page-title"><T k="month" vars={ym} /></h1>
-  <p class="page-sub"><T k="monthSub" vars={{ n: cards.length }} /></p>
-  <ReportList cards={cards} linkTags />
+  <MonthPage site="public" month={month} />
 </Base>
