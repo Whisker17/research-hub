@@ -1,38 +1,25 @@
 ---
 import type { CardData } from "../../lib/site-data.ts";
+import T from "./T.astro";
 
 interface Props {
   card: CardData;
   /** 公开站点：标签链接到 /tags/<tag>/；私有索引：标签只是文字 */
   linkTags: boolean;
-  /** 私有索引里显示“私有”标记 */
+  /** 私有索引里显示“私有 / 公开”标记 */
   showVisibility?: boolean;
 }
 const { card, linkTags, showVisibility = false } = Astro.props;
 const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.summary_en ?? ""} ${card.tags.map((t) => `${t.key} ${t.label}`).join(" ")}`.toLowerCase();
 ---
-<article
-  class="card"
-  data-card
-  data-domain={card.domain}
-  data-tags={card.tags.map((t) => t.key).join(" ")}
-  data-search={searchText}
-  data-title-zh={card.title}
-  data-title-en={card.title_en ?? ""}
-  data-summary-zh={card.summary}
-  data-summary-en={card.summary_en ?? ""}
-  data-href-zh={card.href}
-  data-href-en={card.href_en ?? ""}
-  data-created={card.created}
-  data-updated={card.updated}
->
+<article class="card" data-card data-domain={card.domain} data-tags={card.tags.map((t) => t.key).join(" ")} data-search={searchText}>
   <div class="card-top">
     <span class="domain">{card.domainLabel}</span>
-    {showVisibility && card.visibility === "private" && <span class="lock" data-i18n="private">私有</span>}
-    {showVisibility && card.visibility === "public" && <span class="lock" data-i18n="public">公开</span>}
+    {showVisibility && card.visibility === "private" && <span class="chip-neutral"><T k="private" /></span>}
+    {showVisibility && card.visibility === "public" && <span class="chip-positive"><T k="public" /></span>}
   </div>
-  <h2><a href={card.href}>{card.title}</a></h2>
-  <p class="summary">{card.summary}</p>
+  <h2><a href={card.href} data-en-href={card.href_en} data-en={card.title_en}>{card.title}</a></h2>
+  <p class="summary" data-en={card.summary_en}>{card.summary}</p>
   {
     card.tags.length > 0 && (
       <div class="tags">
@@ -41,6 +28,6 @@ const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.
     )
   }
   <div class="dates">
-    {card.updated === card.created ? <span>创建于 {card.created}</span> : <span>更新于 {card.updated} · 创建于 {card.created}</span>}
+    {card.updated !== card.created && <><T k="updated" /> {card.updated} · </>}<T k="created" /> {card.created}
   </div>
 </article>

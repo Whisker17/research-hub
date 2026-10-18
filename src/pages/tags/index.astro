@@ -1,27 +1,23 @@
 ---
 import Base from "../../layouts/Base.astro";
-import SiteFoot from "../../components/SiteFoot.astro";
+import T from "../../components/T.astro";
+import { t } from "../../i18n.ts";
 import { siteView } from "../../../lib/site-data.ts";
 
 const list = siteView("public").usedTags;
 ---
-<Base title="标签">
-  <div class="crumbs-bar">
-    <p class="crumbs"><a href="/">Research Hub</a></p>
-    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
-  </div>
-  <h1 class="page-title">标签</h1>
-  <p class="page-sub">{list.length} 个标签</p>
+<Base title={t("zh", "tags")} titleEn={t("en", "tags")}>
+  <h1 class="page-title"><T k="tags" /></h1>
+  <p class="page-sub"><T k="nTags" vars={{ n: list.length }} /></p>
   {
     list.length ? (
       <ul class="index-list">
-        {list.map((t) => (
-          <li><a href={`/tags/${t.key}/`}><span>{t.label}</span><span class="n">{t.count} 篇</span></a></li>
+        {list.map((tag) => (
+          <li><a href={`/tags/${tag.key}/`}><span>{tag.label}</span><span class="n"><T k="nShort" vars={{ n: tag.count }} /></span></a></li>
         ))}
       </ul>
     ) : (
-      <p class="empty">还没有标签。</p>
+      <p class="empty"><T k="emptyTags" /></p>
     )
   }
-  <SiteFoot />
 </Base>
