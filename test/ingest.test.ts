@@ -150,6 +150,14 @@ test("翻页：够到时间窗起点就停；中途出错保留已拿到的页�
   assert.match(b.error!, /boom/);
 });
 
+test("没有下一页的 feed 只覆盖到它最老的条目，不声称覆盖全部历史（R1-F3）", async () => {
+  const mk = (t: string) => ({ id: "theblock:1", published_at: t }) as unknown as Item;
+  const one: WindowAdapter = { fetchPage: async () => ({ items: [mk("2026-10-18T03:00:00.000Z")], oldest: "2026-10-18T03:00:00.000Z", more: false, bad: 0 }) };
+  const r = await collectWindow(one, dailyWindow("2026-10-10"), AT, []);
+  assert.deepEqual(r.span, { from: "2026-10-18T03:00:00.000Z", to: AT });
+  assert.equal(r.error, null);
+});
+
 // ───────────────────────── 本地夹具服务器 ─────────────────────────
 
 const BB = readJson(join(RAW, "blockbeats-newsflash-important.json"));
@@ -191,6 +199,8 @@ const httpServer = createServer(async (req, res) => {
   if (u.pathname === "/ethresearch/latest.json") return send(200, readFileSync(join(RAW, "ethresearch-latest-created.json"), "utf8"));
   if (u.pathname === "/magicians/latest.json") return send(200, readFileSync(join(RAW, "magicians-latest-created.json"), "utf8"));
   if (u.pathname === "/theblock/rss.xml") return send(200, readFileSync(join(RAW, "theblock-rss.xml"), "utf8"), "text/xml");
+  // 同一份 RSS 去掉 rel="next"：不能翻页的有界 feed（R1-F3）
+  if (u.pathname === "/theblock/bounded.xml") return send(200, readFileSync(join(RAW, "theblock-rss.xml"), "utf8").replace(/<atom:link[^>]*rel="next"[^>]*\/>/, ""), "text/xml");
   if (u.pathname === "/bb/v1/newsflash/important") {
     if (req.headers["api-key"] !== KEY) return send(200, JSON.stringify({ status: 101, message: "invalid key", data: [] }));
     return send(200, JSON.stringify(srv.bb));
@@ -512,6 +522,22 @@ const bbOnly = () => {
   return Object.fromEntries(Object.entries(all).map(([id, s]) => [id, id === "blockbeats" ? s : { ...s, enabled: false }]));
 };
 const ledgerOf = (state: string) => readJson(join(state, "ledger.json")) as Ledger;
+
+test("补跑：不能翻页的 RSS 够不到时间窗 → partial，covered 写实际覆盖的区间（R1-F3）", async () => {
+  reset();
+  const { root } = makeRoot({ theblock: { type: "rss", url: `${srv.base}/theblock/bounded.xml`, max_calls_per_run: 4 } });
+  // 时间窗比 feed 里每一条都早：一条都没覆盖到
+  const old = src((await ingest(root, "2026-10-10", AT)).manifest, "theblock");
+  assert.deepEqual([old.status, old.items, old.calls, old.covered, old.error], ["partial", 0, 1, null, null]);
+  // 时间窗只被覆盖了一部分：covered 从 feed 最老的一条（10-15 13:00Z）开始
+  const part = src((await ingest(root, "2026-10-16", AT)).manifest, "theblock");
+  assert.equal(part.status, "partial");
+  assert.deepEqual(part.covered, { from: "2026-10-15T13:00:00.000Z", to: "2026-10-16T00:00:00.000Z" });
+  assert.ok(part.items > 0);
+  // 窗口落在 feed 范围内：照常 ok
+  const fine = src((await ingest(root, "2026-10-17", AT)).manifest, "theblock");
+  assert.deepEqual([fine.status, fine.covered], ["ok", dailyWindow("2026-10-17")]);
+});
 
 test("账本跨运行累计：失败、重试、regenerate、补跑都计数；每天上限 4 次；够不到的补跑不花预算", async () => {
   const { root, state } = makeRoot(bbOnly());
