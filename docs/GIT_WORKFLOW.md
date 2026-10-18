@@ -274,12 +274,18 @@ Drive these from the **primary clone**.
 4. **Bring the primary clone's `main` up to date** (only when the merge landed on `main`):
    `git fetch origin --prune` then `git merge --ff-only origin/main`. If that refuses, the
    primary clone holds unpushed content commits made before the merge. Replay them on top:
-   `git rebase origin/main` (content-only commits rebase without touching code; uncommitted
-   drafts stay in the working tree — use `--autostash` only if git asks), then
-   `pnpm rh check --no-shot` and `git push origin main`. **Never** force-push, never merge
-   `origin/main` into local `main` (the hook refuses merge commits), and never rerun
-   `rh publish` for a report that is already committed (`.claude/skills/research-hub/`
-   SKILL.md § 发布)
+   1. If `git status --porcelain` is not empty, park the uncommitted work as a local
+      commit first — `git add -A && git commit -m "wip: local drafts (do not push)"` —
+      never `git stash` (shared across worktrees, `docs/TRAPS.md` entry 9).
+   2. `git rebase origin/main`. Content-only commits replay without touching code; a
+      conflict means content and the merged PR touched the same file — stop and ask.
+   3. If you parked drafts, `git reset --soft HEAD~1 && git restore --staged .` to turn the
+      wip commit back into uncommitted work (it is the newest commit after the rebase).
+   4. `pnpm rh check --no-shot`, then `git push origin main` (the hook re-checks the range).
+
+   **Never** force-push, never merge `origin/main` into local `main` (the hook refuses merge
+   commits), and never rerun `rh publish` for a report that is already committed
+   (`.claude/skills/research-hub/SKILL.md`, publish recovery).
 5. **Fan in whenever `main` advanced through a PR** (governance, hotfix) — in this same
    session ([§ Fan-in](#fan-in-main-into-live-version-branches))
 6. **Tracker → `Done`**
