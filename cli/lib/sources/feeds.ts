@@ -76,9 +76,10 @@ export interface WindowFetch {
   error: string | null;
 }
 
-const EPOCH = "1970-01-01T00:00:00.000Z";
-
-/** 从第 0 页往后翻，直到够到 w.from、列表到头，或者出错 / 预算用完（保留已拿到的页）。 */
+/**
+ * 从第 0 页往后翻，直到够到 w.from、列表到头，或者出错 / 预算用完（保留已拿到的页）。
+ * 列表到头也只覆盖到最老的条目：没有下一页不等于更早的历史不存在（RSS 只保留最近的条目，R1-F3）。
+ */
 export async function collectWindow(adapter: WindowAdapter, w: Span, fetchedAt: string, secrets: string[]): Promise<WindowFetch> {
   const items: Item[] = [];
   let oldest: string | null = null;
@@ -97,11 +98,7 @@ export async function collectWindow(adapter: WindowAdapter, w: Span, fetchedAt: 
     items.push(...r.items);
     bad += r.bad;
     oldest = minIso([oldest, r.oldest]);
-    if (!r.more) {
-      oldest = EPOCH;
-      break;
-    }
-    if (oldest && Date.parse(oldest) <= Date.parse(w.from)) break;
+    if (!r.more || (oldest && Date.parse(oldest) <= Date.parse(w.from))) break;
   }
   if (bad && !error) error = `format: ${bad} 条字段不合格，已跳过`;
   return { items, span: pages && oldest ? { from: oldest, to: fetchedAt } : null, error };
