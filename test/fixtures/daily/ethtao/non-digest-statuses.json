@@ -1,0 +1,38 @@
+{
+ "issue": "WHI-1925",
+ "note": "Statuses on @Ethtao_Ethtao that are not digests (quote post, X Article, event post). The adapter must skip them.",
+ "statuses": [
+  {
+   "id": "2110597268730740744",
+   "url": "https://x.com/Ethtao_Ethtao/status/2110597268730740744",
+   "created_at": "Thu Oct 15 05:02:56 +0000 2026",
+   "created_timestamp": 1792040576,
+   "is_note_tweet": false,
+   "text": "Zksync 团队完成单 GPU 实时证明以太坊 Block（12秒内），这是个标志性的事件，意味着 zk 技术在扩展和性能上达到成熟标志，未来以太坊主网转为 zkvm 就可以不需要所有节点重新执行一遍交易，只需要产生证明，全网验证即可，是未来以太坊主网升级最重要的计划之一。",
+   "has_quote": true
+  },
+  {
+   "id": "2109979863612535014",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109979863612535014",
+   "created_at": "Tue Oct 13 12:09:35 +0000 2026",
+   "created_timestamp": 1791893375,
+   "is_note_tweet": false,
+   "text": "https://x.com/i/article/2109959447267438592",
+   "article": {
+    "id": "2109959447267438592",
+    "title": "ETH Shenzhen 2026｜硅基生命遇上以太坊，一场属于协议的辛亥",
+    "preview_text": "硅基生命遇上 Ethereum\n—— 一场关于协议的辛亥 ——\n在科幻作家特德·姜的笔下，人类最深刻的震撼，往往发生在认知与工具的极限边缘："
+   },
+   "has_quote": false
+  },
+  {
+   "id": "2109875254671847709",
+   "url": "https://x.com/Ethtao_Ethtao/status/2109875254671847709",
+   "created_at": "Tue Oct 13 05:13:54 +0000 2026",
+   "created_timestamp": 1791868434,
+   "is_note_tweet": true,
+   "text": "🚀 ETH Shenzhen 2026 黑客松正式启动！\n@Ethtao_Ethtao 与 @OpenBuildxyz、@0xSZUBA 联合主办的ETH Shenzhen 2026 将于 10 月 24–25 日在深圳举行，汇聚以太坊建设者、开发者与社区，共同探索 AI、Web3 与开源创新的未来。\n\n感谢赞助商 @GCCofCommons @chainlink 提供本次黑客松奖金！\n\n现已开放报名！\n💰 3,000 美元主奖池，另有额外悬赏奖励与开发者资源支持\n📅 10 月 22 日｜报名截止\n💻 10 月 24 日｜共创开发日 & 项目演示评审\n🏆 10 月 25 日｜大会 & 颁奖典礼\n\n不设固定赛道。带上你的想法，做出真正的作品，展示你的想法与实力！\n\n🔗 立即报名：https://tinyurl.com/mrxau8zh\n年轻一代的以太坊开发者们。深圳见！\n\n#ETHShenzhen2026 #Ethereum #Hackathon #Web3 #AI",
+   "has_quote": false
+  }
+ ]
+}

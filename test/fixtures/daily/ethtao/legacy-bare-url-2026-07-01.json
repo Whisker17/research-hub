@@ -1,0 +1,197 @@
+{
+ "issue": "WHI-1925",
+ "note": "Older digest format: \"🗓️ 以太坊日报  YYYY-MM-DD\" (extra spaces) and bare x.com URLs instead of \"[原文] (url)\". No second hop recorded.",
+ "raw_text_fetched_at": "2026-10-18T12:33:41Z (residential IP, cursor page 7)",
+ "input": {
+  "id": "2072147410252611647",
+  "url": "https://x.com/Ethtao_Ethtao/status/2072147410252611647",
+  "created_at": "Wed Jul 01 02:36:55 +0000 2026",
+  "created_timestamp": 1782873415,
+  "is_note_tweet": true,
+  "text": "🗓️ 以太坊日报  2026-07-01\n\n【区块链技术讨论】\n1⃣@soispoke 将在ACDE提议EIP-8250（Keyed Nonces）和EIP-8272（Recent Roots），基于frame transactions构建，旨在确保隐私dApp交易实现抗审查和去信任化 https://x.com/soispoke/status/2071923344165716344\n\n2⃣@nero_eth 分析主网LST一年数据，发现stETH/wstETH平均折价约11bps，rETH约22bps，frxETH约43bps，cbETH约94bps，指出ETH是资产而LST是债权，且市场压力下ETH经济溢价最高  https://x.com/nero_eth/status/2071863854615703967\n\n3⃣@growthepie_eth 指出Fusaka升级后blob目标提升至每区块14个，但实际日均使用量低至2.6个，昨日平均5.17个，远低于目标，呼吁建设者利用现有容量https://x.com/growthepie_eth/status/2071934874164789590\n\n4⃣@barnabemonnot 认为以太坊扩容只需两个方向：原生rollup和L1自身成为rollup（\"block in blobs\"）https://x.com/barnabemonnot/status/2071955772200632350\n\n5⃣@dankrad 支持\"gwei域名\"概念，要求抢注其名字者转让域名，并收到AI生成的相关测验 https://x.com/dankrad/status/2072026898482561048\n\n6⃣@danceratopz 转发讨论以太坊五个共识客户端必须对每次状态转换达成一致，否则链将分叉，关注测试完备性问题https://x.com/danceratopz/status/2071827430332047621\n\n【学术合作动态】\n1⃣以太坊基金会与@argotorg完成五年合作协议，支持Argot Collective的开发和维护工作 https://x.com/MartinBreiten/status/2071921066444832891\n\n【行业观点碰撞】\n1⃣ENS治理危机引发社区强烈批评：@evan_van_ness等指出Nick Johnson被指控使用大量投票权否决安全委员会续约提案，@ameensol回顾Brantly Millegan曾因外部压力被解雇并撤销代币归属，认为当前危机印证了当年决定的错误 https://x.com/evan_van_ness/status/2072045530050355654\n\n2⃣@DefiIgnas 批评OpenUSD由中心化公司控制却冠以\"开放\"之名，认为真正的去中心化稳定币才应拥有此名；同时指出Circle凭借游说让欧盟禁止EURT和USDT在CEX使用，呼吁稳定币战争带来更高收益 https://x.com/DefiIgnas/status/2071994376679469154\n\n3⃣@raulvk 阐述EF与ethlabs_org的定位差异：EF是维护平台原则（\"CROPS\"）的管家，ethlabs则是带有明确押注和信念、优化采用的衍生机构；并为EF成员辩护，指出长期任职者需要时间来摆脱机构分量、建立独立声音https://x.com/raulvk/status/2071895502174527626\n\n4⃣@TrustlessState 转发@Bankless内容，@adietrichs表示以太坊原生路线图需要万亿美元级别的北极星目标，并明确支持市场机制；此前@adietrichs在采访中承认ETH五年后仍无清晰价值叙事https://x.com/TrustlessState/status/2071942390340780076\n\n【开发者生态】\n1⃣@escottalexander 发布AI Agent智能合约审计技能基准测试，对6种流行技能进行816次审计后发现：模型质量比技能流程更重要，Opus全面优于Sonnet；同一模型运行两次可多捕获约40%漏洞；Slither等工具未显著提升效果；精度仅15-35%，应仅作为分类参考 https://x.com/escottalexander/status/2071989094696001708\n\n2⃣@austingriffith 与@escottalexander讨论AI审计优化，透露其LeftClaw服务采用双遍ethskills+pashov技能组合，目标打造最佳AI审计服务并将价格降至约1美元 https://x.com/austingriffith/status/2071995385531486656\n\n3⃣@raulvk 透露其离开EF后仍获EF资助继续ethp2p工作，并在后台开发战术原型，如一个专注于原始性能的极简统一以太坊客户端（bluesky风格）https://x.com/raulvk/status/2071878343616577809"
+ },
+ "expected": {
+  "digest_date": "2026-07-01",
+  "status_id": "2072147410252611647",
+  "url": "https://x.com/Ethtao_Ethtao/status/2072147410252611647",
+  "posted_at": "2026-07-01T02:36:55.000Z",
+  "first_line": "🗓️ 以太坊日报  2026-07-01",
+  "format": "bare-url",
+  "sections": [
+   {
+    "name": "区块链技术讨论",
+    "items": [
+     {
+      "text": "@soispoke 将在ACDE提议EIP-8250（Keyed Nonces）和EIP-8272（Recent Roots），基于frame transactions构建，旨在确保隐私dApp交易实现抗审查和去信任化",
+      "mention": "soispoke",
+      "refs": [
+       {
+        "handle": "soispoke",
+        "id": "2071923344165716344",
+        "url": "https://x.com/soispoke/status/2071923344165716344"
+       }
+      ]
+     },
+     {
+      "text": "@nero_eth 分析主网LST一年数据，发现stETH/wstETH平均折价约11bps，rETH约22bps，frxETH约43bps，cbETH约94bps，指出ETH是资产而LST是债权，且市场压力下ETH经济溢价最高",
+      "mention": "nero_eth",
+      "refs": [
+       {
+        "handle": "nero_eth",
+        "id": "2071863854615703967",
+        "url": "https://x.com/nero_eth/status/2071863854615703967"
+       }
+      ]
+     },
+     {
+      "text": "@growthepie_eth 指出Fusaka升级后blob目标提升至每区块14个，但实际日均使用量低至2.6个，昨日平均5.17个，远低于目标，呼吁建设者利用现有容量",
+      "mention": "growthepie_eth",
+      "refs": [
+       {
+        "handle": "growthepie_eth",
+        "id": "2071934874164789590",
+        "url": "https://x.com/growthepie_eth/status/2071934874164789590"
+       }
+      ]
+     },
+     {
+      "text": "@barnabemonnot 认为以太坊扩容只需两个方向：原生rollup和L1自身成为rollup（\"block in blobs\"）",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2071955772200632350",
+        "url": "https://x.com/barnabemonnot/status/2071955772200632350"
+       }
+      ]
+     },
+     {
+      "text": "@dankrad 支持\"gwei域名\"概念，要求抢注其名字者转让域名，并收到AI生成的相关测验",
+      "mention": "dankrad",
+      "refs": [
+       {
+        "handle": "dankrad",
+        "id": "2072026898482561048",
+        "url": "https://x.com/dankrad/status/2072026898482561048"
+       }
+      ]
+     },
+     {
+      "text": "@danceratopz 转发讨论以太坊五个共识客户端必须对每次状态转换达成一致，否则链将分叉，关注测试完备性问题",
+      "mention": "danceratopz",
+      "refs": [
+       {
+        "handle": "danceratopz",
+        "id": "2071827430332047621",
+        "url": "https://x.com/danceratopz/status/2071827430332047621"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "学术合作动态",
+    "items": [
+     {
+      "text": "以太坊基金会与@argotorg完成五年合作协议，支持Argot Collective的开发和维护工作",
+      "mention": "argotorg",
+      "refs": [
+       {
+        "handle": "MartinBreiten",
+        "id": "2071921066444832891",
+        "url": "https://x.com/MartinBreiten/status/2071921066444832891"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "行业观点碰撞",
+    "items": [
+     {
+      "text": "ENS治理危机引发社区强烈批评：@evan_van_ness等指出Nick Johnson被指控使用大量投票权否决安全委员会续约提案，@ameensol回顾Brantly Millegan曾因外部压力被解雇并撤销代币归属，认为当前危机印证了当年决定的错误",
+      "mention": "evan_van_ness",
+      "refs": [
+       {
+        "handle": "evan_van_ness",
+        "id": "2072045530050355654",
+        "url": "https://x.com/evan_van_ness/status/2072045530050355654"
+       }
+      ]
+     },
+     {
+      "text": "@DefiIgnas 批评OpenUSD由中心化公司控制却冠以\"开放\"之名，认为真正的去中心化稳定币才应拥有此名；同时指出Circle凭借游说让欧盟禁止EURT和USDT在CEX使用，呼吁稳定币战争带来更高收益",
+      "mention": "DefiIgnas",
+      "refs": [
+       {
+        "handle": "DefiIgnas",
+        "id": "2071994376679469154",
+        "url": "https://x.com/DefiIgnas/status/2071994376679469154"
+       }
+      ]
+     },
+     {
+      "text": "@raulvk 阐述EF与ethlabs_org的定位差异：EF是维护平台原则（\"CROPS\"）的管家，ethlabs则是带有明确押注和信念、优化采用的衍生机构；并为EF成员辩护，指出长期任职者需要时间来摆脱机构分量、建立独立声音",
+      "mention": "raulvk",
+      "refs": [
+       {
+        "handle": "raulvk",
+        "id": "2071895502174527626",
+        "url": "https://x.com/raulvk/status/2071895502174527626"
+       }
+      ]
+     },
+     {
+      "text": "@TrustlessState 转发@Bankless内容，@adietrichs表示以太坊原生路线图需要万亿美元级别的北极星目标，并明确支持市场机制；此前@adietrichs在采访中承认ETH五年后仍无清晰价值叙事",
+      "mention": "TrustlessState",
+      "refs": [
+       {
+        "handle": "TrustlessState",
+        "id": "2071942390340780076",
+        "url": "https://x.com/TrustlessState/status/2071942390340780076"
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "开发者生态",
+    "items": [
+     {
+      "text": "@escottalexander 发布AI Agent智能合约审计技能基准测试，对6种流行技能进行816次审计后发现：模型质量比技能流程更重要，Opus全面优于Sonnet；同一模型运行两次可多捕获约40%漏洞；Slither等工具未显著提升效果；精度仅15-35%，应仅作为分类参考",
+      "mention": "escottalexander",
+      "refs": [
+       {
+        "handle": "escottalexander",
+        "id": "2071989094696001708",
+        "url": "https://x.com/escottalexander/status/2071989094696001708"
+       }
+      ]
+     },
+     {
+      "text": "@austingriffith 与@escottalexander讨论AI审计优化，透露其LeftClaw服务采用双遍ethskills+pashov技能组合，目标打造最佳AI审计服务并将价格降至约1美元",
+      "mention": "austingriffith",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2071995385531486656",
+        "url": "https://x.com/austingriffith/status/2071995385531486656"
+       }
+      ]
+     },
+     {
+      "text": "@raulvk 透露其离开EF后仍获EF资助继续ethp2p工作，并在后台开发战术原型，如一个专注于原始性能的极简统一以太坊客户端（bluesky风格）",
+      "mention": "raulvk",
+      "refs": [
+       {
+        "handle": "raulvk",
+        "id": "2071878343616577809",
+        "url": "https://x.com/raulvk/status/2071878343616577809"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

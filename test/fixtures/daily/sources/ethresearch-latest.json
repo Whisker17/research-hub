@@ -1,0 +1,192 @@
+{
+ "issue": "WHI-1925",
+ "source": "ethresearch-latest",
+ "runner_run_id": "39128600115",
+ "fetched_at": "2026-10-18T12:45:21.148Z",
+ "endpoint": "https://ethresear.ch/latest.json",
+ "note": "Discourse latest = bump order; published_at is topic created_at",
+ "items": [
+  {
+   "title": "Read this before posting",
+   "url": "https://ethresear.ch/t/read-this-before-posting/8",
+   "published_at": "2017-08-17T22:57:31.812Z",
+   "last_posted_at": "2026-08-20T02:11:54.849Z",
+   "pinned": true
+  },
+  {
+   "title": "Measuring priority fees, positions and transaction classification of Ethereum blocks, July 2025 to October 2026",
+   "url": "https://ethresear.ch/t/measuring-priority-fees-positions-and-transaction-classification-of-ethereum-blocks-july-2025-to-october-2026/26156",
+   "published_at": "2026-10-14T01:46:30.506Z",
+   "last_posted_at": "2026-10-16T05:33:26.565Z"
+  },
+  {
+   "title": "Vocdoni Protocol: Enabling Decentralized Voting for the Masses with ZK Technology",
+   "url": "https://ethresear.ch/t/vocdoni-protocol-enabling-decentralized-voting-for-the-masses-with-zk-technology/21036",
+   "published_at": "2024-11-19T12:01:04.861Z",
+   "last_posted_at": "2026-10-15T16:49:40.826Z"
+  },
+  {
+   "title": "How Much Screening Buys a Second? Speed, Selection, and the Maker's Spread",
+   "url": "https://ethresear.ch/t/how-much-screening-buys-a-second-speed-selection-and-the-makers-spread/26158",
+   "published_at": "2026-10-15T13:04:19.126Z",
+   "last_posted_at": "2026-10-15T13:04:19.314Z"
+  },
+  {
+   "title": "Rapidblocks with split proofs: execution proofs that outlive their state",
+   "url": "https://ethresear.ch/t/rapidblocks-with-split-proofs-execution-proofs-that-outlive-their-state/26157",
+   "published_at": "2026-10-14T07:58:50.097Z",
+   "last_posted_at": "2026-10-14T07:58:50.314Z"
+  },
+  {
+   "title": "Rapidblocks, take two: a pipelined consensus for independent blocks",
+   "url": "https://ethresear.ch/t/rapidblocks-take-two-a-pipelined-consensus-for-independent-blocks/26152",
+   "published_at": "2026-10-13T08:27:07.291Z",
+   "last_posted_at": "2026-10-13T08:27:07.515Z"
+  },
+  {
+   "title": "Informed Diffusion: making home builders publish fast",
+   "url": "https://ethresear.ch/t/informed-diffusion-making-home-builders-publish-fast/26151",
+   "published_at": "2026-10-13T06:36:48.010Z",
+   "last_posted_at": "2026-10-13T06:36:48.248Z"
+  },
+  {
+   "title": "Exposing an ISA for post-quantum proofs on Ethereum",
+   "url": "https://ethresear.ch/t/exposing-an-isa-for-post-quantum-proofs-on-ethereum/26136",
+   "published_at": "2026-10-08T15:34:01.226Z",
+   "last_posted_at": "2026-10-12T00:39:03.484Z"
+  },
+  {
+   "title": "Proposal for a minimal compute-anchored purchasing power signal",
+   "url": "https://ethresear.ch/t/proposal-for-a-minimal-compute-anchored-purchasing-power-signal/26110",
+   "published_at": "2026-10-02T20:36:21.453Z",
+   "last_posted_at": "2026-10-11T09:29:34.443Z"
+  },
+  {
+   "title": "ERC-8403: an account as one hash, and post-quantum keys",
+   "url": "https://ethresear.ch/t/erc-8403-an-account-as-one-hash-and-post-quantum-keys/26147",
+   "published_at": "2026-10-11T04:24:19.437Z",
+   "last_posted_at": "2026-10-11T04:24:19.630Z"
+  },
+  {
+   "title": "PQ anonymity for Stealth Address Protocol",
+   "url": "https://ethresear.ch/t/pq-anonymity-for-stealth-address-protocol/26094",
+   "published_at": "2026-09-28T01:05:52.511Z",
+   "last_posted_at": "2026-10-10T11:41:55.459Z"
+  },
+  {
+   "title": "Private Stablecoin on Ethereum",
+   "url": "https://ethresear.ch/t/private-stablecoin-on-ethereum/26140",
+   "published_at": "2026-10-09T12:40:45.048Z",
+   "last_posted_at": "2026-10-09T12:40:45.190Z"
+  },
+  {
+   "title": "BRO-AMM: A Bonded Reconciliation Oracle AMM as a Low-Risk DeFi Primitive",
+   "url": "https://ethresear.ch/t/bro-amm-a-bonded-reconciliation-oracle-amm-as-a-low-risk-defi-primitive/26138",
+   "published_at": "2026-10-09T04:06:26.658Z",
+   "last_posted_at": "2026-10-09T04:06:26.828Z"
+  },
+  {
+   "title": "The unleashed power of stacking EEZ & FCR seen through an example",
+   "url": "https://ethresear.ch/t/the-unleashed-power-of-stacking-eez-fcr-seen-through-an-example/26133",
+   "published_at": "2026-10-08T08:04:16.358Z",
+   "last_posted_at": "2026-10-08T08:04:16.526Z"
+  },
+  {
+   "title": "Price of Censorship Resistance in Multiple Proposer Protocols Under Sybils",
+   "url": "https://ethresear.ch/t/price-of-censorship-resistance-in-multiple-proposer-protocols-under-sybils/26131",
+   "published_at": "2026-10-08T03:50:19.357Z",
+   "last_posted_at": "2026-10-08T03:50:19.529Z"
+  },
+  {
+   "title": "Ethereum PropAMMs: today and tomorrow",
+   "url": "https://ethresear.ch/t/ethereum-propamms-today-and-tomorrow/26129",
+   "published_at": "2026-10-07T15:25:15.355Z",
+   "last_posted_at": "2026-10-07T15:25:15.627Z"
+  },
+  {
+   "title": "Letting the base fee be a midpoint: a temporal liquidity authorization for EIP-1559",
+   "url": "https://ethresear.ch/t/letting-the-base-fee-be-a-midpoint-a-temporal-liquidity-authorization-for-eip-1559/25958",
+   "published_at": "2026-09-10T01:00:57.860Z",
+   "last_posted_at": "2026-10-07T07:40:08.841Z"
+  },
+  {
+   "title": "Mempool Account Transaction Capacity from Historical Activity (MATCHA)",
+   "url": "https://ethresear.ch/t/mempool-account-transaction-capacity-from-historical-activity-matcha/25949",
+   "published_at": "2026-09-08T13:51:52.515Z",
+   "last_posted_at": "2026-10-07T06:35:15.171Z"
+  },
+  {
+   "title": "Who cleans up the code? SETCODEFROM's dangling bytecode and futureproof design choices",
+   "url": "https://ethresear.ch/t/who-cleans-up-the-code-setcodefroms-dangling-bytecode-and-futureproof-design-choices/26127",
+   "published_at": "2026-10-06T21:00:56.526Z",
+   "last_posted_at": "2026-10-06T21:00:56.725Z"
+  },
+  {
+   "title": "Breaking the Serial Verification Loop via an Asynchronous Pipeline Consensus Architecture",
+   "url": "https://ethresear.ch/t/breaking-the-serial-verification-loop-via-an-asynchronous-pipeline-consensus-architecture/26125",
+   "published_at": "2026-10-06T15:38:23.068Z",
+   "last_posted_at": "2026-10-06T15:38:23.253Z"
+  },
+  {
+   "title": "Ethereum Cryptography and AI slop",
+   "url": "https://ethresear.ch/t/ethereum-cryptography-and-ai-slop/25067",
+   "published_at": "2026-06-02T20:32:08.731Z",
+   "last_posted_at": "2026-10-06T13:56:12.148Z"
+  },
+  {
+   "title": "Accountability for Encrypted Mempools",
+   "url": "https://ethresear.ch/t/accountability-for-encrypted-mempools/26123",
+   "published_at": "2026-10-05T13:32:04.370Z",
+   "last_posted_at": "2026-10-05T13:32:04.657Z"
+  },
+  {
+   "title": "Six defects in one signature verification tool, found from outside in six rounds",
+   "url": "https://ethresear.ch/t/six-defects-in-one-signature-verification-tool-found-from-outside-in-six-rounds/26109",
+   "published_at": "2026-10-02T17:19:31.239Z",
+   "last_posted_at": "2026-10-02T17:19:31.391Z"
+  },
+  {
+   "title": "The Future of State, Part 1: OOPSIE - A new type of Snap Sync-based wallet/lightclient",
+   "url": "https://ethresear.ch/t/the-future-of-state-part-1-oopsie-a-new-type-of-snap-sync-based-wallet-lightclient/23395",
+   "published_at": "2025-11-03T14:03:27.893Z",
+   "last_posted_at": "2026-10-02T13:55:47.758Z"
+  },
+  {
+   "title": "Staking rewards as venture capital, governed by futarchy",
+   "url": "https://ethresear.ch/t/staking-rewards-as-venture-capital-governed-by-futarchy/26030",
+   "published_at": "2026-09-17T18:56:10.206Z",
+   "last_posted_at": "2026-10-01T22:08:45.849Z"
+  },
+  {
+   "title": "Trust minimized transaction simulation using state proofs",
+   "url": "https://ethresear.ch/t/trust-minimized-transaction-simulation-using-state-proofs/23857",
+   "published_at": "2026-01-15T07:54:40.337Z",
+   "last_posted_at": "2026-10-01T10:45:05.687Z"
+  },
+  {
+   "title": "Towards Encrypted Mempools from Threshold IBE without Batching",
+   "url": "https://ethresear.ch/t/towards-encrypted-mempools-from-threshold-ibe-without-batching/26040",
+   "published_at": "2026-09-18T16:09:08.715Z",
+   "last_posted_at": "2026-09-29T22:10:32.923Z"
+  },
+  {
+   "title": "Ethereum's TCB, Part 1: The client",
+   "url": "https://ethresear.ch/t/ethereums-tcb-part-1-the-client/26086",
+   "published_at": "2026-09-25T10:11:41.961Z",
+   "last_posted_at": "2026-09-29T09:35:03.776Z"
+  },
+  {
+   "title": "PQ spending for Stealth Address Protocol",
+   "url": "https://ethresear.ch/t/pq-spending-for-stealth-address-protocol/26095",
+   "published_at": "2026-09-28T01:09:06.485Z",
+   "last_posted_at": "2026-09-28T01:09:06.694Z"
+  },
+  {
+   "title": "Ethereum lessons from a live end-to-end PQ proof-native protocol",
+   "url": "https://ethresear.ch/t/ethereum-lessons-from-a-live-end-to-end-pq-proof-native-protocol/25730",
+   "published_at": "2026-08-16T09:06:08.041Z",
+   "last_posted_at": "2026-09-27T23:07:17.140Z"
+  }
+ ],
+ "count": 30
+}

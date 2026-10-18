@@ -1,0 +1,191 @@
+{
+ "issue": "WHI-1925",
+ "source": "magicians-latest",
+ "runner_run_id": "39128600115",
+ "fetched_at": "2026-10-18T12:45:21.148Z",
+ "endpoint": "https://ethereum-magicians.org/latest.json",
+ "note": "Discourse latest = bump order; published_at is topic created_at",
+ "items": [
+  {
+   "title": "ERC-8434: Agent Identity (AID)",
+   "url": "https://ethereum-magicians.org/t/erc-8434-agent-identity-aid/29805",
+   "published_at": "2026-09-30T03:43:47.133Z",
+   "last_posted_at": "2026-10-18T10:35:59.505Z"
+  },
+  {
+   "title": "[Draft ERC] Swarm AI Framework — registry and charter model for purpose-bound agent swarms",
+   "url": "https://ethereum-magicians.org/t/draft-erc-swarm-ai-framework-registry-and-charter-model-for-purpose-bound-agent-swarms/29998",
+   "published_at": "2026-10-18T05:22:46.416Z",
+   "last_posted_at": "2026-10-18T09:45:21.124Z"
+  },
+  {
+   "title": "ERC-8427: Portable Spend Grants",
+   "url": "https://ethereum-magicians.org/t/erc-8427-portable-spend-grants/29776",
+   "published_at": "2026-09-25T17:26:29.231Z",
+   "last_posted_at": "2026-10-18T07:53:36.266Z"
+  },
+  {
+   "title": "ERC-8414: Token-Bound Task Tenders",
+   "url": "https://ethereum-magicians.org/t/erc-8414-token-bound-task-tenders/29597",
+   "published_at": "2026-09-05T10:26:41.221Z",
+   "last_posted_at": "2026-10-18T07:53:15.743Z"
+  },
+  {
+   "title": "EIP-8442: 64-bit Opcodes for the EVM",
+   "url": "https://ethereum-magicians.org/t/eip-8442-64-bit-opcodes-for-the-evm/29982",
+   "published_at": "2026-10-15T22:25:30.254Z",
+   "last_posted_at": "2026-10-18T07:01:14.221Z"
+  },
+  {
+   "title": "EIP-8151: Account Code Restricted ecRecover",
+   "url": "https://ethereum-magicians.org/t/eip-8151-account-code-restricted-ecrecover/27690",
+   "published_at": "2026-02-09T06:24:42.511Z",
+   "last_posted_at": "2026-10-18T02:41:28.001Z"
+  },
+  {
+   "title": "ERC-8426: Wallet Pass Extension for NFTs",
+   "url": "https://ethereum-magicians.org/t/erc-8426-wallet-pass-extension-for-nfts/29358",
+   "published_at": "2026-08-07T20:58:36.500Z",
+   "last_posted_at": "2026-10-18T02:14:10.671Z"
+  },
+  {
+   "title": "ERC-8107: ENS Trust Registry for Agent Coordination",
+   "url": "https://ethereum-magicians.org/t/erc-8107-ens-trust-registry-for-agent-coordination/27200",
+   "published_at": "2025-12-17T13:33:04.466Z",
+   "last_posted_at": "2026-10-17T18:41:48.486Z"
+  },
+  {
+   "title": "ERC-8259: AI Agent Identity, Reputation & Threat Registry (Draft v2 – Request for Feedback)",
+   "url": "https://ethereum-magicians.org/t/erc-8259-ai-agent-identity-reputation-threat-registry-draft-v2-request-for-feedback/28521",
+   "published_at": "2026-05-13T10:26:01.608Z",
+   "last_posted_at": "2026-10-17T17:13:20.856Z"
+  },
+  {
+   "title": "Post-Quantum Stateless Steganography & MTU Bounds: Bridging P2P Censorship Resistance to Quantum Networks",
+   "url": "https://ethereum-magicians.org/t/post-quantum-stateless-steganography-mtu-bounds-bridging-p2p-censorship-resistance-to-quantum-networks/29995",
+   "published_at": "2026-10-17T16:13:25.137Z",
+   "last_posted_at": "2026-10-17T16:13:25.302Z"
+  },
+  {
+   "title": "ERC-8126: AI Agent Verification",
+   "url": "https://ethereum-magicians.org/t/erc-8126-ai-agent-verification/27445",
+   "published_at": "2026-01-15T15:51:52.918Z",
+   "last_posted_at": "2026-10-17T13:27:39.824Z"
+  },
+  {
+   "title": "All Core Devs - Consensus (ACDC) #190, October 29, 2026",
+   "url": "https://ethereum-magicians.org/t/all-core-devs-consensus-acdc-190-october-29-2026/29994",
+   "published_at": "2026-10-17T09:16:39.581Z",
+   "last_posted_at": "2026-10-17T09:16:39.711Z"
+  },
+  {
+   "title": "Mascot needed for Hegotá upgrade",
+   "url": "https://ethereum-magicians.org/t/mascot-needed-for-hegota-upgrade/28327",
+   "published_at": "2026-04-23T07:18:11.832Z",
+   "last_posted_at": "2026-10-17T08:37:32.532Z"
+  },
+  {
+   "title": "Dividend-paying equity token",
+   "url": "https://ethereum-magicians.org/t/dividend-paying-equity-token/29991",
+   "published_at": "2026-10-17T01:22:08.105Z",
+   "last_posted_at": "2026-10-17T01:22:08.318Z"
+  },
+  {
+   "title": "ERC-8004: Trustless Agents",
+   "url": "https://ethereum-magicians.org/t/erc-8004-trustless-agents/25098",
+   "published_at": "2025-08-14T05:20:32.438Z",
+   "last_posted_at": "2026-10-17T00:25:10.746Z"
+  },
+  {
+   "title": "ERC-8441: Hybrid post-quantum stealth address scheme",
+   "url": "https://ethereum-magicians.org/t/erc-8441-hybrid-post-quantum-stealth-address-scheme/29923",
+   "published_at": "2026-10-09T04:18:09.374Z",
+   "last_posted_at": "2026-10-16T22:15:16.405Z"
+  },
+  {
+   "title": "EIP-8209: Commit-Reveal Transaction Frames",
+   "url": "https://ethereum-magicians.org/t/eip-8209-commit-reveal-transaction-frames/28105",
+   "published_at": "2026-03-30T11:00:59.614Z",
+   "last_posted_at": "2026-10-16T20:44:31.205Z"
+  },
+  {
+   "title": "ERC-8348: Financial Lease",
+   "url": "https://ethereum-magicians.org/t/erc-8348-financial-lease/29076",
+   "published_at": "2026-07-23T12:29:17.509Z",
+   "last_posted_at": "2026-10-16T20:02:37.366Z"
+  },
+  {
+   "title": "ERC-8320: Regulated Asset Claim",
+   "url": "https://ethereum-magicians.org/t/erc-8320-regulated-asset-claim/28919",
+   "published_at": "2026-07-03T10:19:58.634Z",
+   "last_posted_at": "2026-10-16T19:53:50.536Z"
+  },
+  {
+   "title": "EIP-TBD: Resolution — Non-Self-Authorizing State Transitions",
+   "url": "https://ethereum-magicians.org/t/eip-tbd-resolution-non-self-authorizing-state-transitions/29846",
+   "published_at": "2026-10-03T04:37:43.815Z",
+   "last_posted_at": "2026-10-16T14:49:29.392Z"
+  },
+  {
+   "title": "ERC-8444: Agentic Resource Discovery (ARD) Onchain",
+   "url": "https://ethereum-magicians.org/t/erc-8444-agentic-resource-discovery-ard-onchain/29963",
+   "published_at": "2026-10-13T20:12:25.784Z",
+   "last_posted_at": "2026-10-16T13:50:32.494Z"
+  },
+  {
+   "title": "ERC-8241: Protocol Control Disclosure",
+   "url": "https://ethereum-magicians.org/t/erc-8241-protocol-control-disclosure/28343",
+   "published_at": "2026-04-25T10:14:47.647Z",
+   "last_posted_at": "2026-10-16T13:14:08.907Z"
+  },
+  {
+   "title": "Sealed-Bid Award Mechanism for Task Tenders (companion to ERC-8183 / 8195 / 8414)",
+   "url": "https://ethereum-magicians.org/t/sealed-bid-award-mechanism-for-task-tenders-companion-to-erc-8183-8195-8414/29814",
+   "published_at": "2026-09-30T19:14:52.966Z",
+   "last_posted_at": "2026-10-16T11:03:43.488Z"
+  },
+  {
+   "title": "EIP-8148: Custom sweep threshold for validators",
+   "url": "https://ethereum-magicians.org/t/eip-8148-custom-sweep-threshold-for-validators/27669",
+   "published_at": "2026-02-06T09:59:14.574Z",
+   "last_posted_at": "2026-10-16T08:39:33.970Z"
+  },
+  {
+   "title": "ERC-8420: AA-Compatible Solver",
+   "url": "https://ethereum-magicians.org/t/erc-8420-aa-compatible-solver/29989",
+   "published_at": "2026-10-16T08:23:04.596Z",
+   "last_posted_at": "2026-10-16T08:23:04.780Z"
+  },
+  {
+   "title": "ERC-8183: Agentic Commerce",
+   "url": "https://ethereum-magicians.org/t/erc-8183-agentic-commerce/27902",
+   "published_at": "2026-03-04T21:49:13.338Z",
+   "last_posted_at": "2026-10-16T02:33:15.247Z"
+  },
+  {
+   "title": "EIP-8205: Withdrawal credentials preregistration",
+   "url": "https://ethereum-magicians.org/t/eip-8205-withdrawal-credentials-preregistration/28084",
+   "published_at": "2026-03-26T16:07:08.899Z",
+   "last_posted_at": "2026-10-16T02:32:09.132Z"
+  },
+  {
+   "title": "All Core Devs - Consensus (ACDC) #189, October 15, 2026",
+   "url": "https://ethereum-magicians.org/t/all-core-devs-consensus-acdc-189-october-15-2026/29847",
+   "published_at": "2026-10-03T09:18:22.884Z",
+   "last_posted_at": "2026-10-15T18:08:46.552Z"
+  },
+  {
+   "title": "ERC-8443: Quantum Bridge Shield",
+   "url": "https://ethereum-magicians.org/t/erc-8443-quantum-bridge-shield/29969",
+   "published_at": "2026-10-14T11:36:14.311Z",
+   "last_posted_at": "2026-10-15T17:18:17.347Z"
+  },
+  {
+   "title": "Execution batches of multiple blocks under EIP-7732",
+   "url": "https://ethereum-magicians.org/t/execution-batches-of-multiple-blocks-under-eip-7732/29981",
+   "published_at": "2026-10-15T15:34:47.319Z",
+   "last_posted_at": "2026-10-15T15:34:47.576Z"
+  }
+ ],
+ "count": 30
+}
