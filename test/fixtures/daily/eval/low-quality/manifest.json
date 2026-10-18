@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "date": "2026-10-18",
+  "status": "pending",
+  "reasons": [],
+  "window": {
+    "from": "2026-10-17T00:00:00.000Z",
+    "to": "2026-10-18T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2111652016124784867",
+    "posted_at": "2026-10-18T02:54:07.000Z"
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "ok",
+      "items": 7,
+      "calls": 18,
+      "covered": null,
+      "error": null
+    },
+    {
+      "id": "blockbeats",
+      "status": "ok",
+      "items": 0,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-17T00:00:00.000Z",
+        "to": "2026-10-18T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "odaily",
+      "status": "ok",
+      "items": 19,
+      "calls": 2,
+      "covered": {
+        "from": "2026-10-17T00:00:00.000Z",
+        "to": "2026-10-18T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "ethresearch",
+      "status": "ok",
+      "items": 0,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-17T00:00:00.000Z",
+        "to": "2026-10-18T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "magicians",
+      "status": "ok",
+      "items": 0,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-17T00:00:00.000Z",
+        "to": "2026-10-18T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "theblock",
+      "status": "ok",
+      "items": 2,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-17T00:00:00.000Z",
+        "to": "2026-10-18T00:00:00.000Z"
+      },
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 28,
+    "cited_items": 0,
+    "topics": 0,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": null,
+  "run": {
+    "id": "fixture",
+    "attempt": 1,
+    "at": "2026-10-18T04:31:07.000Z"
+  },
+  "generated_at": null,
+  "updated_at": "2026-10-18T04:31:07.000Z"
+}

@@ -1,6 +1,6 @@
 ---
 name: research-hub
-description: 在 research-hub 仓库里把一个研究 topic 做成手机友好的单文件 HTML 报告并发布：brief → 调研（含论断台账）→ answer-me-with-html explainer → 推特卡片 → rh render / card / check → rh publish。用户说“做一篇报告 / 研究一下 X 并发到 research-hub / 根据这些资料生成报告 / 导入这篇报告 / 更新某篇报告 / 给某篇报告做推特卡片（一图速览）/ rh new …”时使用。全程只有三个人工把关点：确认 brief、审阅调研、审阅页面后发布。
+description: 在 research-hub 仓库里把一个研究 topic 做成手机友好的单文件 HTML 报告并发布：brief → 调研（含论断台账）→ answer-me-with-html explainer → 推特卡片 → rh render / card / check → rh publish。用户说“做一篇报告 / 研究一下 X 并发到 research-hub / 根据这些资料生成报告 / 导入这篇报告 / 更新某篇报告 / 给某篇报告做推特卡片（一图速览）/ 把某个 Daily topic 做成报告 / rh new …”时使用。全程只有三个人工把关点：确认 brief、审阅调研、审阅页面后发布。
 ---
 
 # research-hub：从 brief 到上线
@@ -29,6 +29,7 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
 | 在别处做完的单文件 HTML 或 am 稿件 | **D 导入报告** | §6 |
 | 更新已发布的报告 | **E 就地更新** | §7 |
 | 给报告做推特卡片（在 X 上引用源推文时配的一图速览） | **F 推特卡片** | §9 |
+| 公开页面 `/daily/` 上的一个 Daily topic（topic id，形如 `2026-10-18-3fa9c1`） | **G 从 Daily topic 开始** | §10 |
 
 拿不准时问用户一句，不要猜。
 
@@ -189,3 +190,21 @@ pnpm rh import report --html <页面.html> --slug <slug> --domain <domain> --sou
 5. 用户批准后：`pnpm rh publish <slug> --note "推特卡片"`（已发布的报告不需要重新渲染 HTML；卡片模式在构建时注入，中英文页共用这张英文卡片）。上线后在报告页点“推特卡片” → 在 X 上引用源推文 → “复制文案”粘贴 → “复制图片”粘贴。
 
 换一条源推文再引用同一篇报告时，按需改 `context` 与 `quote`，重新走第 3–5 步。
+
+## 10. 路径 G：从 Daily topic 开始
+
+Daily（`/daily/`，ADR 0004）每天由 workflow 自动推荐 5–10 个 topic，**未经人工审阅**。用户挑中一个，就从它开始走正常的报告流程：Daily 只提供起点，**①②③ 一个都不少**，报告照样默认 private（Daily 公开不代表报告公开）。
+
+下面的 `rh topic` 命令由 WHI-1935 实现，按 ADR 0004 §9 描述；具体语法以 WHI-1935 合并后的 `rh topic --help` 为准。
+
+1. **标记选中**：`rh topic select <id>`。它只在 `daily/state.yml` 里记一笔“选中”，并打印起草 brief 用的材料（研究问题、引用）。它不写 vault、不建报告，选中也不等于 brief 已经批准。
+2. **核对 topic**：topic 的文字是 LLM 根据当天的标题和摘录写的，只是线索，不是证据。打开它的引用链接，确认事件属实、日期和说法对得上；对不上就告诉用户，由用户决定是否继续。
+3. **选路径**：
+   - topic 是 `novelty: new`，或用户要做新报告 → 按路径 A 起草 brief（§2）：研究问题从 topic 的 `questions` 和 `angle` 出发重新斟酌，引用列为“初始线索”，brief 里写明来源是哪一天的哪个 Daily topic（id）。
+   - topic 是 `novelty: update`，或用户要更新 `related` 里的那篇报告 → 走路径 E 就地更新（§7）：① 里确认的是“这次改什么”。
+   - `pnpm rh new` 报 slug 已被使用，说明已有同一题目的报告：按 §8 改走路径 E。
+4. **把关 ①**：照 §2 给用户看 brief 和 meta（visibility 默认 private），**停下等待**。之后照常建报告：写 vault brief、登记标签、`pnpm rh new`。
+5. **关联**：报告建好后（draft 也可以）执行 `rh topic link <id> <slug>`。报告必须已经存在；同一个 topic 只能关联一篇报告，重复执行同样的参数不会改动任何东西。
+6. 之后照常走 §3–§5：② 审阅调研、③ 审阅页面、用户明确批准后才 `pnpm rh publish`。
+
+用户看了 topic 决定不做：`rh topic dismiss <id> --reason <理由>`。dismiss 的理由和“哪个 topic 变成了哪篇报告”只记在 `daily/state.yml` 里，不会出现在公开页面上。不要手改 `daily/` 下的任何文件：日期目录只由 workflow 写，`state.yml` 只由 `rh topic` 写。
