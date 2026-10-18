@@ -1,0 +1,19 @@
+schema: 1
+date: "2026-10-18"
+note: "当天条目以行情、持仓和资金流向内容为主，满足证据要求且有可研究机制的题目只有 1 个。"
+topics:
+  - title: "Spirala 借贷模块的短窗口 TWAP 预言机操纵复盘"
+    title_en: "Post-mortem of the short-window TWAP oracle manipulation against Spirala's lending module"
+    domain: "crypto"
+    tags: []
+    proposed_tags: ["oracle-manipulation"]
+    why_now: "10 月 17 日，据 PeckShield 和 The Block 报道，DEX 协议 Spirala 遭到攻击，损失约 1200 万美元。据称攻击者用闪电贷推高一个流动性很薄的池子的现货价，该价格被借贷模块的 TWAP 预言机采用，随后攻击者以被抬高估值的抵押品借出资产。项目方已暂停借贷模块，并表示会发布事后分析。"
+    questions:
+      - "该 TWAP 的时间窗口、数据来源池和流动性深度如何设置，使得单笔交易内的闪电贷就足以显著改变预言机读数？"
+      - "项目方发布事后分析后，实际攻击路径、资金流向和已追回金额，与目前的媒体描述有哪些出入？"
+    angle: "待事后分析发布后，对照链上交易还原攻击步骤，计算操纵成本与获利的关系；再与其他使用低流动性池做预言机输入的借贷协议的参数设计对比，如窗口长度、多源聚合、价格偏离熔断和抵押品准入标准。"
+    novelty: { kind: "new", related: [] }
+    references:
+      - item_id: "odaily:990102"
+      - item_id: "theblock:990103"
+    confidence: "medium"

@@ -1,0 +1,14 @@
+{
+  "class": "reposts",
+  "purpose": "The same story arrives many times: the Glamsterdam/Hoodi announcement as a repost (reposted_by), a quote, a BlockBeats flash and two Odaily rewrites, all pointing at one blog post, and it was already recommended on 2026-10-17. Odaily's morning/noon/evening roundups repeat other flashes of the same day.",
+  "expect": "No second 'new' Glamsterdam topic (either skipped, or kind: update against glamsterdam-overview with why_now naming what is new); no roundup (odaily:525254/525284/525315) cited; evidence not inflated by reposts.",
+  "synthetic_items": [
+    "blockbeats:330105",
+    "odaily:990001",
+    "odaily:990002"
+  ],
+  "synthetic_context": "public_reports (glamsterdam-overview), public_tags (ethereum) and recent_days (2026-10-17 with its items odaily:990010, magicians:29960) are synthetic.",
+  "canaries": [
+    "Mantle"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "class": "price-only",
+  "purpose": "Market-action news: price ticks, a target-price change, mNAV, whale positions, ETF flows, an opinion that ties AI to BTC price, and a synthetic SOL rally. One synthetic story is a price crash caused by a mechanism event (an oracle-manipulation exploit) with two independent sources.",
+  "expect": "No price-action topic. The exploit may be proposed only as a mechanism/security topic, not as a price story.",
+  "synthetic_items": [
+    "odaily:990101",
+    "odaily:990102",
+    "theblock:990103",
+    "odaily:990104"
+  ],
+  "canaries": [
+    "Mantle"
+  ]
+}

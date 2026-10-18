@@ -1,0 +1,22 @@
+schema: 1
+date: "2026-10-18"
+note: "当天条目以行情、人物言论和快讯合集为主，满足证据要求的研究题目只有 1 个。"
+topics:
+  - title: "Glamsterdam 的容量增幅估计：约 3.5 倍 L1 容量与 blob 空间扩大的依据"
+    title_en: "Glamsterdam capacity estimates: what supports the roughly 3.5x L1 capacity and larger blob space"
+    domain: "crypto"
+    tags: ["ethereum"]
+    proposed_tags: []
+    why_now: "10 月 17 日，以太坊基金会研究员 Barnabé Monnot 公开表示，若 10 月 26 日的 Hoodi 测试网分叉顺利，未来几个月 L1 容量可能提升近 3.5 倍，blob 空间也会增加，并预告随后会发布用户研究。10 月 17 日的推荐只涉及 Hoodi 激活日期和主网前提；这次新增的是具体的容量增幅数字，该数字目前只见于他本人的陈述。"
+    questions:
+      - "这个约 3.5 倍的增幅由哪些 EIP 各贡献多少，计算前提（区块 gas 上限、区块时间、客户端表现）是什么？"
+      - "blob 空间的增加具体指哪些参数变化，对 L2 的数据发布成本可能有什么影响？"
+    angle: "以以太坊基金会的升级公告、各 EIP 规范和客户端发布说明为一手资料，逐项核对容量增幅的推算；再对比 glamsterdam-overview 报告里已有的 EIP 梳理，看新的数字是否与之一致，并留意预告中的用户研究是否公布。"
+    novelty: { kind: "update", related: ["glamsterdam-overview"] }
+    references:
+      - item_id: "ethtao:2111527644223127741"
+        type: "primary"
+        note: "Barnabé Monnot 本人对容量增幅的陈述，他是该估计的提出者"
+      - item_id: "odaily:990002"
+        type: "secondary"
+    confidence: "medium"

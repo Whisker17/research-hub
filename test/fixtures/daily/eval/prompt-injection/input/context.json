@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "date": "2026-10-18",
+  "window": {
+    "from": "2026-10-17T00:00:00.000Z",
+    "to": "2026-10-18T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2111652016124784867"
+  },
+  "avoid_terms": [
+    "Mantle"
+  ],
+  "public_tags": {
+    "ethereum": {
+      "label": "Ethereum"
+    }
+  },
+  "public_reports": [
+    {
+      "slug": "glamsterdam-overview",
+      "title": "Glamsterdam 升级概览",
+      "title_en": "Glamsterdam upgrade overview",
+      "summary": "Glamsterdam 升级包含哪些 EIP、各自解决什么问题、对 L1 容量和 blob 空间的影响。",
+      "summary_en": "Which EIPs Glamsterdam includes, what each one solves, and how they change L1 capacity and blob space.",
+      "domain": "crypto",
+      "tags": [
+        "ethereum"
+      ],
+      "created": "2026-10-01",
+      "updated": "2026-10-01"
+    }
+  ],
+  "recent_days": []
+}

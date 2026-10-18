@@ -1,0 +1,67 @@
+schema: 1
+date: "2026-10-18"
+note: "当天条目以行情、活动公告和个人观点为主，满足证据要求的研究题目只有 4 个。"
+topics:
+  - title: "Glamsterdam 升级进入 Hoodi 测试网阶段：L1 容量与 blob 空间的变化"
+    title_en: "Glamsterdam Reaches the Hoodi Testnet: What Changes for L1 Capacity and Blob Space"
+    domain: "crypto"
+    tags: []
+    proposed_tags: ["ethereum-upgrade"]
+    why_now: "10 月 16 日，以太坊官方博客发布公告：Glamsterdam 的 Hoodi 测试网升级定在 10 月 26 日，主网日期之后另行公布，公告还列出了激活参数、客户端版本和漏洞赏金信息。10 月 17 日，有研究者表示，如果测试网分叉顺利，未来几个月 L1 容量可能提高到约 3.5 倍，blob 空间也会增加。后一个数字目前只有这一处说法。"
+    questions:
+      - "Glamsterdam 包含哪些具体改动，各自对 L1 gas 容量和 blob 数量的贡献是多少？据称的约 3.5 倍是如何得出的？"
+      - "Hoodi 的激活参数、客户端发布和赏金范围，与此前测试网分叉的做法相比有什么变化？"
+    angle: "对照公告中的激活表、各客户端的发布说明和相关 EIP 文本，把容量提升拆到具体机制；再对比此前升级后 gas 上限与 blob 使用率的实际变化。"
+    novelty: { kind: "new", related: [] }
+    references:
+      - item_id: "ethtao:2111165223780454451"
+        type: "primary"
+        note: "ralexstokes 本人发布的升级时间公告，附有官方博客原文"
+      - item_id: "ethtao:2111527644223127741"
+    confidence: "high"
+  - title: "P256 passkey 签名与助记词：“已被证明安全”的说法指的是什么"
+    title_en: "P256 Passkey Signers vs Seed Phrases: What Does the Claim of Being Proven Secure Actually Cover"
+    domain: "crypto"
+    tags: []
+    proposed_tags: ["passkeys"]
+    why_now: "10 月 16 日至 17 日，有开发者称 P256 passkey 已经由 Claude 证明安全，因此不再需要助记词；另一位开发者同期建议应用都接入 P256 签名器，并说这是多年来的一贯主张。目前看不到对应的证明材料，所谓“证明”的范围和方法并不清楚。"
+    questions:
+      - "被称为已证明的具体是什么：曲线的数学性质、某个签名验证合约的实现，还是 passkey 协议本身？使用了什么形式化工具和假设？"
+      - "即使签名方案成立，passkey 的备份、跨设备同步和丢失恢复，与助记词的风险模型相比有哪些差别？"
+    angle: "先找到证明所依据的规范和代码，再对比 WebAuthn 的信任假设、链上 P256 验证的实现方式，以及账户恢复机制的实际案例。该说法应作为待验证的断言处理。"
+    novelty: { kind: "new", related: [] }
+    references:
+      - item_id: "ethtao:2111215671476379891"
+      - item_id: "ethtao:2111530145601462417"
+    confidence: "low"
+  - title: "代币化资产的证券抵押融资：Chainlink Fulcrum 的机制与风险"
+    title_en: "Securities-Backed Financing for Tokenized Assets: The Mechanics and Risks of Chainlink Fulcrum"
+    domain: "crypto"
+    tags: []
+    proposed_tags: ["tokenization"]
+    why_now: "10 月 17 日，Chainlink 官方账号介绍了 Fulcrum，称其让机构能够以代币化资产为抵押获得融资，并在多条区块链上全天候管理抵押品，同时附有 Chainlink Labs 员工的完整演示。目前只有官方自述，尚无独立评估。"
+    questions:
+      - "Fulcrum 的抵押品估值、追加保证金和处置流程在链上与链下分别如何执行？法律上的担保权益如何与代币对应？"
+      - "跨链管理抵押品会引入哪些新的结算和跨链消息风险？"
+    angle: "以官方演示为起点，对比传统的证券回购与证券借贷流程，梳理抵押品流转、预言机依赖和跨链消息路径，并核对是否有公开的文档和审计。"
+    novelty: { kind: "new", related: [] }
+    references:
+      - item_id: "ethtao:2111440953944994000"
+        type: "primary"
+        note: "Chainlink 官方账号对自家产品的发布说明"
+    confidence: "low"
+  - title: "后量子迁移的路径之争：行业联盟的统一测试标准与格密码学方案"
+    title_en: "Paths to Post-Quantum Migration: An Industry Alliance's Testing Standards and the Lattice Cryptography Case"
+    domain: "crypto"
+    tags: []
+    proposed_tags: ["post-quantum"]
+    why_now: "据报道，10 月 15 日（周四）有 9 家区块链相关组织宣布成立 Quantum Alliance，目标是为抗量子能力制定统一的测试与验证方式，并按迁移、后量子零知识、钱包安全、跨链兼容四个方向分组。据报道，约 604 万枚比特币存在量子暴露风险。10 月 17 日，一位开发者转发了 a16z crypto 的帖子，主张区块链应直接采用已成为互联网标准的格密码学。"
+    questions:
+      - "联盟拟定的“量子就绪”测试标准会覆盖哪些攻击模型和性能指标？与 IETF 与 NIST 的现有流程是什么关系？"
+      - "采用互联网通用的格密码学，与区块链专用的新型原语相比，在签名体积、验证成本和聚合能力上有什么取舍？"
+    angle: "整理联盟的工作组划分和标准草案，再对比 a16z crypto 文章里的论点与以太坊、比特币社区的迁移方案，核对暴露比特币数量的统计口径。"
+    novelty: { kind: "new", related: [] }
+    references:
+      - item_id: "odaily:525343"
+      - item_id: "ethtao:2111554632036348043"
+    confidence: "medium"
