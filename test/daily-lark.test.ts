@@ -397,10 +397,29 @@ test("超过 20 KB 的请求不发；日志里没有 URL、token、secret 或请
   assert.equal(filterMsg({ not: "a string" }, []), "");
 });
 
-test("没有 Lark 密钥：写 “Lark disabled”，退出码 0，sent=false（只设了一个也一样，并给警告）", async () => {
+test("没有 Lark 密钥：写 “Lark disabled”，退出码 0，sent=false（只设了一个也一样，并给警告）；--if-present 时没有卡片也照样写", async () => {
   const tmp = mkTmp("rh-lark-off-");
   const card = join(tmp, "card.json");
   writeFileSync(card, JSON.stringify(MSG));
+  const post = (args: string[], env: Record<string, string>) => {
+    const summary = join(tmp, "s.md");
+    const out = join(tmp, "o");
+    rmSync(summary, { force: true });
+    rmSync(out, { force: true });
+    const r = spawnSync(process.execPath, [join(REPO, "scripts", "lark-post.ts"), ...args], { encoding: "utf8", env: { PATH: process.env.PATH, GITHUB_STEP_SUMMARY: summary, GITHUB_OUTPUT: out, ...env } });
+    return { code: r.status, stdout: r.stdout, summary: readFileSync(summary, { encoding: "utf8", flag: "a+" }), out: readFileSync(out, { encoding: "utf8", flag: "a+" }) };
+  };
+  // skip / refuse 的 notify 实例：没有卡片文件，没有密钥 → 照样写 “Lark disabled”
+  const missing = join(tmp, "no-card.json");
+  const off = post([missing, "--if-present"], {});
+  assert.deepEqual([off.code, /Lark disabled/.test(off.summary), off.out], [0, true, "sent=false\n"]);
+  // 有密钥、没有卡片 → 什么都不发（不联网），退出码 0
+  const none = post([missing, "--if-present"], { LARK_WEBHOOK_URL: URL_OK, LARK_SIGNING_SECRET: SECRET });
+  assert.deepEqual([none.code, none.out, none.summary], [0, "sent=false\n", ""]);
+  assert.match(none.stdout, /no card to send/);
+  // 不带 --if-present 时卡片文件必须存在
+  assert.notEqual(post([missing], { LARK_WEBHOOK_URL: URL_OK, LARK_SIGNING_SECRET: SECRET }).code, 0);
+  assert.equal(post([], {}).code, 2);
   for (const env of [{}, { LARK_WEBHOOK_URL: "" , LARK_SIGNING_SECRET: "" }, { LARK_WEBHOOK_URL: URL_OK }, { LARK_SIGNING_SECRET: SECRET }]) {
     const summary = join(tmp, "s.md");
     const out = join(tmp, "o");
@@ -795,7 +814,9 @@ test("daily.yml：Lark 密钥只在发送那一步的 env；notify / alert 只�
         assert.ok(["notify", "alert"].includes(name), name);
         assert.match(s.name!, /^Send to Lark/);
         assert.deepEqual(Object.keys(s.env!).sort(), ["LARK_SIGNING_SECRET", "LARK_WEBHOOK_URL"]);
-        assert.equal(s.run, `node scripts/lark-post.ts "$RUNNER_TEMP/${name === "notify" ? "card" : "alert"}.json"`);
+        assert.equal(s.run, name === "notify" ? 'node scripts/lark-post.ts "$RUNNER_TEMP/card.json" --if-present' : 'node scripts/lark-post.ts "$RUNNER_TEMP/alert.json"');
+        // notify：前面的步骤都成功就运行（skip / refuse 时也能写 “Lark disabled”）；没有卡片时 --if-present 什么都不发
+        if (name === "notify") assert.equal(s.if, undefined);
       }
     }
   }
@@ -832,6 +853,38 @@ test("daily.yml：Lark 密钥只在发送那一步的 env；notify / alert 只�
   assert.ok(!WF.jobs.alert.steps!.some((s) => s.run?.includes("pnpm") || s.uses?.startsWith("pnpm/")));
   // 其他 job 没有 Lark 的任何东西
   for (const name of ["plan", "ingest", "generate", "commit"]) assert.ok(!JSON.stringify(WF.jobs[name]).includes("LARK"), name);
+});
+
+test("daily.yml：`node … | tee` / `jq … | tee` 的失败不能被吞掉（Actions 默认 bash -e 没有 pipefail）；plan 失败时这一步真的失败", () => {
+  for (const [name, job] of Object.entries(WF.jobs)) {
+    for (const s of job.steps ?? []) {
+      const lines = (s.run ?? "").split("\n");
+      lines.forEach((line, i) => {
+        if (!/^\s*(node|jq)\b.*\|\s*tee\b/.test(line) || line.includes("PIPESTATUS")) return;
+        assert.ok(lines.slice(0, i).some((l) => /\bset\b.*-[a-z]*o pipefail|set -o pipefail/.test(l)), `${name}/${s.name ?? s.id}: ${line.trim()}`);
+      });
+    }
+  }
+  // 原样运行 plan 这一步（bash -e，和 Actions 一样）：日期不合法 → 这一步失败；合法 → 成功并输出 notify
+  const step = WF.jobs.plan.steps!.find((x) => x.id === "plan")!;
+  const root = planRepo();
+  const tmp = mkTmp("rh-lark-planstep-");
+  const run = (env: Record<string, string>) => {
+    const out = join(tmp, `out-${Math.random()}`);
+    const r = spawnSync("bash", ["-e", "-c", step.run!], {
+      cwd: REPO,
+      encoding: "utf8",
+      env: { PATH: process.env.PATH, HOME: process.env.HOME, RH_ROOT: root, GITHUB_STEP_SUMMARY: join(tmp, "summary"), GITHUB_OUTPUT: out, EVENT: "workflow_dispatch", DATE: "", REGENERATE: "false", NOTIFY_ONLY: "false", FORCE: "false", MODEL: "m", ...env },
+    });
+    return { code: r.status, out: readFileSync(out, { encoding: "utf8", flag: "a+" }) };
+  };
+  const bad = run({ DATE: "2026-13-40" });
+  assert.notEqual(bad.code, 0, "plan 失败必须让这一步失败");
+  assert.ok(!bad.out.includes("notify="));
+  assert.notEqual(run({ DATE: "2026-10-17", REGENERATE: "true", NOTIFY_ONLY: "true" }).code, 0, "notify_only + regenerate");
+  const good = run({ DATE: "2026-10-17", NOTIFY_ONLY: "true" });
+  assert.equal(good.code, 0);
+  assert.match(good.out, /^notify=\[\{"date":"2026-10-17","final":true,"regenerate":false\}\]$/m);
 });
 
 test("deploy.yml：冒烟测试（含 /build.json）通过之后才返回 deployed_sha", () => {

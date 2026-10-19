@@ -91,7 +91,9 @@ jobs:
           NOTIFY_ONLY: ${{ inputs.notify_only }}
           FORCE: ${{ inputs.force }}
           MODEL: ${{ vars.DAILY_MODEL || 'claude-sonnet-5-5' }}
+        # Actions 的默认 shell 是 bash -e，没有 pipefail：不加的话 `node … | tee` 里 node 的失败会被吞掉（plan 失败却显示成功，也不会提醒）
         run: |
+          set -o pipefail
           args=(plan --event "$EVENT" --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --date "$DATE")
           [ "$REGENERATE" = true ] && args+=(--regenerate)
           [ "$NOTIFY_ONLY" = true ] && args+=(--notify-only)
@@ -206,6 +208,7 @@ jobs:
           BLOCKBEATS_API_KEY: ${{ secrets.BLOCKBEATS_API_KEY }}
           DATES: ${{ needs.plan.outputs.dates }}
         run: |
+          set -o pipefail
           mkdir -p "$STATE" "$ITEMS"
           gen=()
           # 今天在前、昨天在后，顺序执行，共用同一个状态目录（BlockBeats 账本按 UTC 日累计）
@@ -461,6 +464,7 @@ jobs:
       - name: Import the candidates (untrusted input)
         id: import
         run: |
+          set -o pipefail
           node scripts/daily.ts candidates "$CAND" --dates "$(echo "$GEN" | jq -r 'join(",")')"
           kept=()
           for row in $(echo "$DATES" | jq -r '.[] | "\(.date):\(.mode)"'); do
@@ -481,7 +485,9 @@ jobs:
 
       - name: Stage only daily/YYYY/MM/DD/ of this run's dates
         id: stage
-        run: node scripts/daily.ts stage --dates "$(echo "$DATES" | jq -r 'map(.date) | join(",")')" | tee -a "$GITHUB_STEP_SUMMARY"
+        run: |
+          set -o pipefail
+          node scripts/daily.ts stage --dates "$(echo "$DATES" | jq -r 'map(.date) | join(",")')" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Commit and push (rebase and re-verify on conflict; never auto-resolve)
         id: push
@@ -627,13 +633,13 @@ jobs:
           VARIANT: ${{ steps.plan-send.outputs.variant }}
         run: node cli/rh.ts daily card --date "$DATE" --variant "$VARIANT" --out "$RUNNER_TEMP/card.json"
 
+      # 前面的步骤都成功时总是运行：没有 Lark 密钥就写 “Lark disabled”（skip / refuse 时也写）；这次没有卡片（skip / refuse / 已发过）就什么都不发
       - name: Send to Lark (Lark secrets only in this step)
         id: send
-        if: steps.plan-send.outputs.send == 'true'
         env:
           LARK_WEBHOOK_URL: ${{ secrets.LARK_WEBHOOK_URL }}
           LARK_SIGNING_SECRET: ${{ secrets.LARK_SIGNING_SECRET }}
-        run: node scripts/lark-post.ts "$RUNNER_TEMP/card.json"
+        run: node scripts/lark-post.ts "$RUNNER_TEMP/card.json" --if-present
 
       - name: Record the confirmed send
         if: steps.send.outputs.sent == 'true'

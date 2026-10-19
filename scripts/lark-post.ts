@@ -1,7 +1,9 @@
 /**
  * 把一张卡片发到 Lark 自定义机器人（WHI-1972）。只用 node 内置模块。
  *
- *   node scripts/lark-post.ts <card.json>        card.json = rh daily card 或 daily-notify-plan.ts alert 的输出（{msg_type, card}）
+ *   node scripts/lark-post.ts <card.json> [--if-present]
+ *       card.json = rh daily card 或 daily-notify-plan.ts alert 的输出（{msg_type, card}）
+ *       --if-present：没有这个文件就什么都不发（notify job 每个实例都运行发送这一步，没有 Lark 密钥时总能写出 “Lark disabled”）
  *
  * 环境变量：LARK_WEBHOOK_URL、LARK_SIGNING_SECRET（Daily workflow 里只在发送这一步的 env 里）。两个都没设 = Lark 关闭：
  * job summary 写 “Lark disabled”，退出码 0，输出 sent=false。
@@ -13,7 +15,7 @@
  *  - 日志只有 HTTP 状态、Lark code 和过滤后的 msg（≤ 120 字符），不写 URL、token、secret 或请求体。
  * 投递没有保证：确认发送成功之后，重复由 notify job 的台账尽力去重；仍可能重复；发送失败可以手动重发。
  */
-import { appendFileSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { REQUEST_LIMIT, requestBody, sign, type LarkMessage } from "../lib/lark.ts";
 
 export const LARK_HOSTS = ["open.larksuite.com", "open.feishu.cn"] as const;
@@ -135,9 +137,11 @@ export async function main(argv: string[], env: NodeJS.ProcessEnv = process.env,
   const output = (k: string, v: string): void => {
     if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, `${k}=${v}\n`);
   };
-  const [file] = argv;
-  if (!file || argv.length !== 1) {
-    console.error("usage: node scripts/lark-post.ts <card.json>");
+  const ifPresent = argv.includes("--if-present");
+  const rest = argv.filter((a) => a !== "--if-present");
+  const [file] = rest;
+  if (!file || rest.length !== 1 || file.startsWith("-")) {
+    console.error("usage: node scripts/lark-post.ts <card.json> [--if-present]");
     return 2;
   }
   const url = env.LARK_WEBHOOK_URL ?? "";
@@ -147,6 +151,11 @@ export async function main(argv: string[], env: NodeJS.ProcessEnv = process.env,
     if (url || secret) console.log("::warning::only one of LARK_WEBHOOK_URL / LARK_SIGNING_SECRET is set; set both (signature verification is required) or neither");
     console.log("Lark disabled: LARK_WEBHOOK_URL / LARK_SIGNING_SECRET are not set; nothing was sent.");
     summary("**Lark disabled** — LARK_WEBHOOK_URL / LARK_SIGNING_SECRET are not set; nothing was sent (README → Lark 推送).");
+    output("sent", "false");
+    return 0;
+  }
+  if (ifPresent && !existsSync(file)) {
+    console.log("Lark: no card to send in this run.");
     output("sent", "false");
     return 0;
   }
