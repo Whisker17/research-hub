@@ -593,7 +593,8 @@ jobs:
           DEPLOYED_SHA: ${{ steps.decide.outputs.deployed_sha }}
         run: node scripts/daily-notify-plan.ts live
 
-      - name: Check out the live version (daily/ and the root config only)
+      # sparse-checkout 是 cone 模式（默认）：只 checkout daily/ 和根目录的文件（含 rh.config.json），不要报告
+      - name: Check out the live version (daily/ and the root files only)
         if: steps.live.outputs.sha != ''
         uses: actions/checkout@v7
         with:
@@ -684,13 +685,18 @@ jobs:
           path: .rh/lark-ledger
           key: ${{ steps.card.outputs.key }}
           lookup-only: true
+      - name: Already sent (send ledger) — nothing to send
+        if: steps.ledger.outputs.cache-hit == 'true'
+        run: |
+          rm "$RUNNER_TEMP/alert.json"
+          echo "Lark alert: already sent (send ledger)" | tee -a "$GITHUB_STEP_SUMMARY"
+      # 总是运行：没有 Lark 密钥就写 “Lark disabled”；台账命中时已经没有卡片，什么都不发
       - name: Send to Lark (Lark secrets only in this step)
         id: send
-        if: steps.ledger.outputs.cache-hit != 'true'
         env:
           LARK_WEBHOOK_URL: ${{ secrets.LARK_WEBHOOK_URL }}
           LARK_SIGNING_SECRET: ${{ secrets.LARK_SIGNING_SECRET }}
-        run: node scripts/lark-post.ts "$RUNNER_TEMP/alert.json"
+        run: node scripts/lark-post.ts "$RUNNER_TEMP/alert.json" --if-present
       - name: Record the confirmed send
         if: steps.send.outputs.sent == 'true'
         env:

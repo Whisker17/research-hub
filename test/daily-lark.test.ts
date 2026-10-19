@@ -9,7 +9,7 @@
  */
 import assert from "node:assert/strict";
 import { execFile, execFileSync, spawnSync } from "node:child_process";
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -518,11 +518,12 @@ test("plan 的 notify：定时 = 今天（13:30 之后才算最后一轮）和�
 
 // ───────── 线上版本 ─────────
 
-/** 带 git 的仓库：提交 A = 夹具；提交 B = main 前进（2026-10-18 的一个标题改了） */
+/** 带 git 的仓库：提交 A = 夹具（另有一篇报告，验证 sparse checkout 不带上它）；提交 B = main 前进（2026-10-18 的一个标题改了） */
 function liveRepo() {
   const root = mkTmp("rh-lark-live-");
   cpSync(join(REPO, "rh.config.json"), join(root, "rh.config.json"));
   cpSync(SITE, join(root, "daily"), { recursive: true });
+  cpSync(join(REPO, "test", "fixtures", "mobile", "good.html"), join(root, "reports", "2026", "10", "r", "index.html"));
   const git = (...a: string[]) => execFileSync("git", a, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
   git("init", "-q", "-b", "main");
   git("add", "-A");
@@ -534,10 +535,14 @@ function liveRepo() {
   writeFileSync(f, stringify(doc, { lineWidth: 0 }));
   git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qam", "B");
   const b = git("rev-parse", "HEAD");
-  /** 线上版本的 checkout（workflow 里是 actions/checkout ref=<build.json 的 SHA>） */
+  /** 线上版本的 checkout，和 workflow 一样：actions/checkout ref=<build.json 的 SHA>、sparse-checkout: daily（cone 模式 = git sparse-checkout set daily） */
   const checkout = (sha: string) => {
     const dir = join(mkTmp("rh-lark-co-"), "live");
-    git("worktree", "add", "-q", "--detach", dir, sha);
+    execFileSync("git", ["clone", "-q", "--no-checkout", root, dir], { stdio: "pipe" });
+    execFileSync("git", ["sparse-checkout", "set", "daily"], { cwd: dir, stdio: "pipe" });
+    execFileSync("git", ["checkout", "-q", "--detach", sha], { cwd: dir, stdio: "pipe" });
+    assert.ok(existsSync(join(dir, "rh.config.json")) && existsSync(join(dir, "daily", "2026", "10", "18", "topics.yml")), "daily/ 与根目录的 rh.config.json");
+    assert.ok(!existsSync(join(dir, "reports")), "报告不在 sparse checkout 里");
     return dir;
   };
   const hashAt = (dir: string, date: string) => cardInputHash(cardInput(loadDaily(dir).days.find((d) => d.date === date)!));
@@ -609,6 +614,11 @@ test("线上版本：main 前进了但线上还是旧构建——notify_only 按
     rmSync(out);
     const v2 = await run(["verify", "--live", liveDir], { DATE: "2026-10-18; rm -rf /", FINAL: "true" });
     assert.notEqual(v2.status, 0, "日期必须是 YYYY-MM-DD");
+    // workflow 的下一步：rh daily card 在 sparse checkout 上构建卡片（RH_ROOT=live）
+    const card = join(mkTmp("rh-lark-card-out-"), "card.json");
+    const c = spawnSync(process.execPath, [join(REPO, "cli", "rh.ts"), "daily", "card", "--date", "2026-10-18", "--variant", "normal", "--out", card], { encoding: "utf8", env: { ...process.env, RH_ROOT: liveDir, NO_COLOR: "1" } });
+    assert.equal(c.status, 0, c.stderr);
+    assert.ok(!readFileSync(card, "utf8").includes("main 上改过的标题"), "卡片是线上版本的内容");
   });
 });
 
@@ -814,9 +824,9 @@ test("daily.yml：Lark 密钥只在发送那一步的 env；notify / alert 只�
         assert.ok(["notify", "alert"].includes(name), name);
         assert.match(s.name!, /^Send to Lark/);
         assert.deepEqual(Object.keys(s.env!).sort(), ["LARK_SIGNING_SECRET", "LARK_WEBHOOK_URL"]);
-        assert.equal(s.run, name === "notify" ? 'node scripts/lark-post.ts "$RUNNER_TEMP/card.json" --if-present' : 'node scripts/lark-post.ts "$RUNNER_TEMP/alert.json"');
-        // notify：前面的步骤都成功就运行（skip / refuse 时也能写 “Lark disabled”）；没有卡片时 --if-present 什么都不发
-        if (name === "notify") assert.equal(s.if, undefined);
+        assert.equal(s.run, `node scripts/lark-post.ts "$RUNNER_TEMP/${name === "notify" ? "card" : "alert"}.json" --if-present`);
+        // 前面的步骤都成功就运行（skip / refuse / 台账命中时也能写 “Lark disabled”）；没有卡片时 --if-present 什么都不发
+        assert.equal(s.if, undefined);
       }
     }
   }
@@ -841,6 +851,13 @@ test("daily.yml：Lark 密钥只在发送那一步的 env；notify / alert 只�
   assert.ok(order.every((i) => i >= 0));
   const live = steps.find((s) => s.with?.path === "live")!;
   assert.equal(live.with!.ref, "${{ steps.live.outputs.sha }}");
+  // cone 模式（actions/checkout 默认，`git sparse-checkout set daily`）：daily/ + 根目录文件；liveRepo() 的 checkout 用同样的命令
+  assert.equal(live.with!["sparse-checkout"], "daily");
+  assert.ok(!("sparse-checkout-cone-mode" in live.with!));
+  // alert：台账命中时先删掉卡片，再由发送那一步（--if-present）什么都不发
+  const alertSteps = WF.jobs.alert.steps!;
+  const drop = alertSteps.findIndex((s) => s.if === "steps.ledger.outputs.cache-hit == 'true'");
+  assert.ok(drop >= 0 && alertSteps[drop].run!.startsWith('rm "$RUNNER_TEMP/alert.json"') && drop < alertSteps.findIndex((s) => s.id === "send"));
   assert.ok(steps.some((s) => s.run?.startsWith("node cli/rh.ts daily card --date \"$DATE\"") && s.env?.RH_ROOT === "${{ github.workspace }}/live"));
   assert.deepEqual(WF.jobs.notify.env, {
     DATE: "${{ matrix.day.date }}",
