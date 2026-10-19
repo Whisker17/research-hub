@@ -2,7 +2,7 @@
  * rh build：校验数据（报告、标签、daily/）→ Astro 生成索引页与 Daily 页面 → 分发 dist/public 与 dist/private → 泄漏检查。
  * Daily 的内部数据（state.yml、manifest 内部字段，ADR 0004 §10）登记为公开产物的泄漏指纹。
  */
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
 import { join, relative } from "node:path";
 import type { HubConfig } from "../../lib/config.ts";
@@ -11,6 +11,16 @@ import { isPublished, loadReports, loadTags } from "../../lib/reports.ts";
 import { assemble, dailyPublicForbidden, leakCheck } from "../lib/build.ts";
 import { checkReferences } from "../lib/checks.ts";
 import { CliError, fail, info, ok } from "../lib/util.ts";
+
+/** 构建的提交（写进公开站点的 /build.json）；不在 git 仓库里时为 null */
+function headSha(root: string): string | null {
+  try {
+    const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    return /^[0-9a-f]{40}$/.test(sha) ? sha : null;
+  } catch {
+    return null;
+  }
+}
 
 export function runBuild(cfg: HubConfig): void {
   const { reports, issues } = loadReports(cfg.root);
@@ -34,7 +44,7 @@ export function runBuild(cfg: HubConfig): void {
   const r = spawnSync(astroBin, ["build", "--silent"], { cwd: cfg.root, stdio: "inherit", env: process.env });
   if (r.status !== 0) throw new CliError(`astro build 失败（退出码 ${r.status}）`);
 
-  const res = assemble(cfg.root, astroOut, reports);
+  const res = assemble(cfg.root, astroOut, reports, { sha: headSha(cfg.root) });
   const leaks = leakCheck(res, reports, tags.tags, dailyPublicForbidden(daily.load, reports));
   if (leaks.length) {
     for (const e of leaks) fail(e);

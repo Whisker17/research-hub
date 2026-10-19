@@ -1,7 +1,8 @@
 /**
  * Daily workflow 的确定性步骤（WHI-1937，ADR 0004 §4–§6、§11）。.github/workflows/daily.yml 调用，不调用 LLM，不联网。
  *
- *   plan       这次运行处理哪些日期：定时 / 试验分支 = 今天，昨天不是终态时加上昨天；手动 = 指定日期（终态要 --regenerate）
+ *   plan       这次运行处理哪些日期：定时 / 试验分支 = 今天，昨天不是终态时加上昨天；手动 = 指定日期（终态要 --regenerate）；
+ *              以及 notify job 要看哪些日期（WHI-1972）：定时 = 今天和昨天，手动 = 指定日期，试验分支不推送；--notify-only 只推送不处理
  *   context    按 .claude/skills/daily-topics/references/input.md 生成 generate job 的 input/context.json（只有公开上下文）
  *   reuse      regenerate：把保存的 ingest 输出（items artifact）当作这次的输入，manifest.run 的 id / attempt 换成这次运行（run.at 不变）
  *   generator  在 ingest manifest 里填 generator {skill_version, model, inputs_sha256}（由 job 写，不由模型写）
@@ -17,7 +18,7 @@ import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
 import { loadConfig } from "../lib/config.ts";
-import { DAILY_DIR, DAY_FILES, isFinalStatus, isLate, loadDaily, manifestSchema, parseItemsJsonl, publicDay, shouldGenerate, type Manifest } from "../lib/daily.ts";
+import { DAILY_DIR, DAY_FILES, isFinalStatus, isLate, lastAttempt, loadDaily, manifestSchema, parseItemsJsonl, publicDay, shouldGenerate, type Manifest } from "../lib/daily.ts";
 import { isPublicPublished, loadReports, loadTags } from "../lib/reports.ts";
 import { isValidDate } from "../lib/schema.ts";
 import { projectSite } from "../lib/site-data.ts";
@@ -36,18 +37,29 @@ export interface Plan {
   /** 按处理顺序：今天在前，昨天在后（同一个 ingest 状态目录，顺序执行） */
   dates: { date: string; mode: "ingest" | "regenerate" }[];
   skipped: { date: string; why: string }[];
+  /**
+   * notify job 要看的日期（WHI-1972），不论这次是否处理它们（早一轮已是 degraded、最后一轮没变化时也要在最后一轮推送）。
+   * final = 这一天的最后一次运行（运行时刻 ≥ T_last(D)）或手动运行：degraded / empty 只在 final 时推送。
+   */
+  notify: { date: string; final: boolean; regenerate: boolean }[];
 }
 
-export function plan(root: string, o: { event: Event; now: string; date?: string; regenerate?: boolean }): Plan {
+export function plan(root: string, o: { event: Event; now: string; date?: string; regenerate?: boolean; notifyOnly?: boolean }): Plan {
   const load = loadDaily(root);
   if (load.errors.length) throw new DailyError(`daily/ 不合法，先修好它（rh daily check）：\n${load.errors.join("\n")}`);
   const status = new Map(load.days.map((d) => [d.date, d.manifest.status]));
   const today = o.now.slice(0, 10);
-  const out: Plan = { dates: [], skipped: [] };
+  const out: Plan = { dates: [], skipped: [], notify: [] };
+  if (o.notifyOnly && (o.event !== "workflow_dispatch" || o.regenerate)) throw new DailyError("notify_only 只能手动运行，而且不能和 regenerate 一起用");
   if (o.event === "workflow_dispatch") {
     const date = o.date || today;
     if (!isValidDate(date)) throw new DailyError(`date 必须是 YYYY-MM-DD：${date}`);
     if (date > today) throw new DailyError(`${date} 还没到（今天是 ${today} UTC）`);
+    out.notify.push({ date, final: true, regenerate: Boolean(o.regenerate) });
+    if (o.notifyOnly) {
+      out.skipped.push({ date, why: "notify_only：只推送线上版本，不处理" });
+      return out;
+    }
     const s = status.get(date);
     if (s && isFinalStatus(s)) {
       if (o.regenerate) out.dates.push({ date, mode: "regenerate" });
@@ -60,6 +72,7 @@ export function plan(root: string, o: { event: Event; now: string; date?: string
     const s = status.get(date);
     if (s && isFinalStatus(s)) out.skipped.push({ date, why: `已是终态（${s}），什么都不做` });
     else out.dates.push({ date, mode: "ingest" });
+    if (o.event === "schedule") out.notify.push({ date, final: Date.parse(o.now) >= Date.parse(lastAttempt(date)), regenerate: false });
   }
   return out;
 }
@@ -240,6 +253,8 @@ function main(argv: string[]): void {
       now: { type: "string" },
       date: { type: "string" },
       regenerate: { type: "boolean", default: false },
+      "notify-only": { type: "boolean", default: false },
+      force: { type: "boolean", default: false },
       manifest: { type: "string" },
       input: { type: "string" },
       model: { type: "string" },
@@ -254,11 +269,17 @@ function main(argv: string[]): void {
     case "plan": {
       const event = values.event as Event;
       if (!["schedule", "workflow_dispatch", "push"].includes(event)) throw new DailyError(`--event 不支持：${values.event}`);
-      const p = plan(root, { event, now: values.now ?? new Date().toISOString(), date: values.date, regenerate: values.regenerate });
+      const notifyOnly = values["notify-only"];
+      const p = plan(root, { event, now: values.now ?? new Date().toISOString(), date: values.date, regenerate: values.regenerate, notifyOnly });
       for (const s of p.skipped) console.log(`skip ${s.date}: ${s.why}`);
       for (const d of p.dates) console.log(`run  ${d.date}: ${d.mode}`);
+      for (const n of p.notify) console.log(`lark ${n.date}: ${n.final ? "final" : "not final"}${n.regenerate ? ", regenerate" : ""}`);
+      if (values.force && !notifyOnly) console.log("force 只和 notify_only 一起生效，这次忽略");
       output("dates", JSON.stringify(p.dates));
       output("any", String(p.dates.length > 0));
+      output("notify", JSON.stringify(p.notify));
+      output("notify_only", String(notifyOnly));
+      output("force", String(values.force && notifyOnly));
       return;
     }
     case "context": {

@@ -23,6 +23,8 @@ import { THUMB_FILE, type Site } from "../../lib/site-data.ts";
 import { loadCard, tweetLength } from "./card.ts";
 
 export const BACK_LINK_ATTR = "data-rh-back";
+/** 公开站点上的构建信息（WHI-1972） */
+export const BUILD_INFO = "build.json";
 /** 推特卡片模式在地址栏里的锚点：带上它打开页面就直接进入卡片模式（切换语言时保留）。 */
 export const CARD_ANCHOR = "tweet-card";
 
@@ -412,8 +414,11 @@ export function pngThumbnail(png: Buffer, file: string, width = THUMB_WIDTH): Bu
   return Buffer.concat([PNG_SIGNATURE, chunk("IHDR", ihdr), chunk("IDAT", deflateSync(out, { level: 9 })), chunk("IEND", Buffer.alloc(0))]);
 }
 
-/** 把 Astro 产物与报告 HTML 分发到 dist/public 与 dist/private。 */
-export function assemble(root: string, astroOut: string, reports: Report[]): AssembleResult {
+/**
+ * 把 Astro 产物与报告 HTML 分发到 dist/public 与 dist/private。
+ * 公开站点另有 /build.json = {"sha": <构建的提交>}（WHI-1972）：Daily 的 notify job 用它找到线上版本；不在 git 里构建时为 null。
+ */
+export function assemble(root: string, astroOut: string, reports: Report[], o: { sha?: string | null } = {}): AssembleResult {
   const dist = join(root, "dist");
   const publicDir = join(dist, "public");
   const privateDir = join(dist, "private");
@@ -462,6 +467,7 @@ export function assemble(root: string, astroOut: string, reports: Report[]): Ass
     (isPublic ? result.publicReports : result.privateReports).push(r.slug);
   }
 
+  writeFileSync(join(publicDir, BUILD_INFO), `${JSON.stringify({ sha: o.sha ?? null })}\n`);
   writeFileSync(join(publicDir, "_headers"), PUBLIC_HEADERS);
   writeFileSync(join(publicDir, "robots.txt"), ROBOTS);
   writeFileSync(join(privateDir, "_headers"), PRIVATE_HEADERS);

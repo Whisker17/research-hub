@@ -3,7 +3,7 @@
 import Base from "../../layouts/Base.astro";
 import DailyDay from "../../components/DailyDay.astro";
 import T from "../../components/T.astro";
-import { dailyDays } from "../../daily.ts";
+import { dailyCardHash, dailyDays } from "../../daily.ts";
 import { t } from "../../i18n.ts";
 import type { PublicDay } from "../../../lib/daily.ts";
 
@@ -14,6 +14,7 @@ export function getStaticPaths() {
 const { day } = Astro.props as { day: PublicDay };
 ---
 <Base title={t("zh", "dayTitle", { date: day.date })} titleEn={t("en", "dayTitle", { date: day.date })} description={t("zh", "dailySub")}>
+  <meta slot="head" name="rh-daily-hash" content={dailyCardHash(day.date)} />
   <p class="crumbs"><a href="/daily/"><T k="navDaily" /></a></p>
   <h1 class="page-title"><T k="dailyTitle" /></h1>
   <DailyDay day={day} />

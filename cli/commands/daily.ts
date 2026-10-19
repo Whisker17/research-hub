@@ -1,6 +1,6 @@
 /**
- * rh daily check | import | probe（ADR 0004）。
- * check 与 import 离线、确定性；probe 联网，只手动运行。
+ * rh daily check | import | card | probe（ADR 0004）。
+ * check、import 与 card 离线、确定性；probe 联网，只手动运行。
  */
 import { execFileSync } from "node:child_process";
 import { existsSync, lstatSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -30,11 +30,13 @@ import {
   type Manifest,
   type TopicsFile,
 } from "../../lib/daily.ts";
+import { CARD_VARIANTS, cardInput, cardInputHash, dailyCard, type CardVariant } from "../../lib/daily-card.ts";
 import { formatZodIssues, isValidDate } from "../../lib/schema.ts";
 import { CliError, fail, info, ok, warn } from "../lib/util.ts";
 
 export const DAILY_HELP = `rh daily check [--base <git-ref>] [--workflow]
 rh daily import <YYYY-MM-DD> --manifest <file> --items <items.jsonl> [--candidate <dir>] [--regenerate]
+rh daily card --date <YYYY-MM-DD> [--variant normal|updated|resent] [--out <file>]
 rh daily probe [YYYY-MM-DD…] [--timeout <ms>]
 
   check   离线、确定性地检查 daily/：schema；目录结构（拒绝符号链接和多余文件）；重新计算 id、evidence、items；
@@ -46,12 +48,16 @@ rh daily probe [YYYY-MM-DD…] [--timeout <ms>]
           --manifest 是 ingest 写的 manifest，--items 是 ingest 写的 items.jsonl。没有 --candidate 表示生成失败，
           或者按规则不该调用生成。结构错误时整体拒绝；单个 topic 有问题时只丢弃那个 topic。
           已是终态的日期要加 --regenerate 才会重做。regenerate 时如果生成失败或候选被拒绝，保留原结果（退出码 3）。
+  card    （Daily workflow 的 notify job 用，WHI-1972）把那一天的公开投影排成 Lark 卡片 JSON（{msg_type, card}，不含 timestamp / sign）：
+          文件进、JSON 出，不联网。没有 --out 时写到标准输出。pending 没有卡片。完整请求超过 18 KB 时先去掉 why_now、再去掉 title_en，
+          还放不下就退回迷你卡片。updated = regenerate 之后的新内容，resent = notify_only + force 的手动重发。
   probe   在线检查 topics.yml 里的链接（条目的 url、origin_url、via 和 extra）。只手动运行，不进 CI 和 pnpm verify。`;
 
 export async function cmdDaily(cfg: HubConfig, argv: string[]): Promise<void> {
   const [sub, ...rest] = argv;
   if (sub === "check") return cmdDailyCheck(cfg, rest);
   if (sub === "import") return cmdDailyImport(cfg, rest);
+  if (sub === "card") return cmdDailyCard(cfg, rest);
   if (sub === "probe") return cmdDailyProbe(cfg, rest);
   info(DAILY_HELP);
   if (sub !== undefined && sub !== "-h" && sub !== "--help") throw new CliError(`未知子命令：${sub}`, 2);
@@ -219,6 +225,35 @@ function readManifest(file: string): Manifest {
   const r = manifestSchema.safeParse(raw);
   if (!r.success) throw new CliError(`${file} 不合法：${formatZodIssues(r.error).join("；")}`);
   return r.data;
+}
+
+// ───────────────────────── card ─────────────────────────
+
+function cmdDailyCard(cfg: HubConfig, argv: string[]): void {
+  const { values, positionals } = parseArgs({
+    args: argv,
+    allowPositionals: true,
+    options: { date: { type: "string" }, variant: { type: "string", default: "normal" }, out: { type: "string" }, help: { type: "boolean", short: "h" } },
+  });
+  if (values.help) return info(DAILY_HELP);
+  const date = values.date;
+  if (!date || positionals.length || !isValidDate(date)) throw new CliError("用法：rh daily card --date <YYYY-MM-DD> [--variant normal|updated|resent] [--out <file>]", 2);
+  if (!CARD_VARIANTS.includes(values.variant as CardVariant)) throw new CliError(`--variant 只能是 ${CARD_VARIANTS.join(" / ")}`, 2);
+  const load = loadDaily(cfg.root);
+  if (load.errors.length) throw new CliError(`daily/ 不合法，先运行 rh daily check：\n${load.errors.join("\n")}`);
+  const day = load.days.find((d) => d.date === date);
+  if (!day) throw new CliError(`没有 ${date} 的 daily/ 目录`);
+  if (day.manifest.status === "pending") throw new CliError(`${date} 还是 pending，没有卡片`);
+  const input = cardInput(day);
+  const card = dailyCard(input, { publicUrl: cfg.publicUrl, variant: values.variant as CardVariant });
+  const json = `${JSON.stringify(card.message)}\n`;
+  if (!values.out) {
+    process.stdout.write(json);
+    return;
+  }
+  writeFileSync(values.out, json);
+  const notes = [card.fallback ? "迷你卡片（完整卡片放不下）" : "", card.dropped.why_now ? `去掉 ${card.dropped.why_now} 个 why_now` : "", card.dropped.title_en ? `去掉 ${card.dropped.title_en} 个 title_en` : ""].filter(Boolean);
+  ok(`${date}：${day.manifest.status}，${input.topics.length} 个 topic，请求 ${card.bytes} 字节${notes.length ? `（${notes.join("，")}）` : ""}，卡片输入 sha256 ${cardInputHash(input)}`);
 }
 
 // ───────────────────────── probe ─────────────────────────
