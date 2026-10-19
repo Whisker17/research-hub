@@ -3,6 +3,7 @@
 # 手机检查（截图）只在本地 rh check / rh publish 时运行（规格 §6.2），CI 用 --no-shot。
 # Daily workflow 用 workflow_call 调用它，并显式传入刚推上去的提交 SHA：用 GITHUB_TOKEN 的推送不会触发 push，
 # 而被调用时 github.sha 是调用方的提交（WHI-1937，ADR 0004 §11）。下面统一用 SHA = inputs.sha || github.sha。
+# 冒烟测试（含公开站点的 /build.json）通过后才返回 deployed_sha（WHI-1972）。
 name: deploy
 
 on:
@@ -21,6 +22,10 @@ on:
         required: false
       CLOUDFLARE_ACCOUNT_ID:
         required: false
+    outputs:
+      deployed_sha:
+        description: 部署并通过冒烟测试的提交（Daily 的 Lark 推送用，WHI-1972）；没有部署（DEPLOY_ENABLED 不是 true）时为空
+        value: ${{ jobs.deploy.outputs.deployed_sha }}
 
 concurrency:
   group: deploy-${{ github.ref }}
@@ -71,6 +76,8 @@ jobs:
     environment:
       name: production
       url: https://research-hub.demiwhisker.workers.dev
+    outputs:
+      deployed_sha: ${{ steps.deployed.outputs.sha }}
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -102,3 +109,6 @@ jobs:
         run: pnpm exec wrangler deploy -c wrangler.public.jsonc --message "main@${SHA}"
       - name: Smoke test
         run: bash scripts/smoke.sh
+      - name: Report the deployed SHA (only after the smoke test passed)
+        id: deployed
+        run: echo "sha=$SHA" >> "$GITHUB_OUTPUT"

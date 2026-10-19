@@ -3,17 +3,27 @@
  * 只在构建时运行（读文件系统）。daily/ 不合法时构建失败（rh build 在调用 Astro 之前也会先跑同样的检查）。
  */
 import { loadConfig } from "../lib/config.ts";
-import { isHttpUrl, loadDaily, publicDay, type DayStatus, type PublicDay } from "../lib/daily.ts";
+import { cardInput, cardInputHash } from "../lib/daily-card.ts";
+import { isHttpUrl, loadDaily, publicDay, type Day, type DayStatus, type PublicDay } from "../lib/daily.ts";
 import type { I18nKey } from "./i18n.ts";
 
-let cache: PublicDay[] | undefined;
+let cache: Day[] | undefined;
 
-/** 全部日期的公开投影，新的在前；没有 daily/ 时是空数组。 */
-export function dailyDays(): PublicDay[] {
+function days(): Day[] {
   if (cache) return cache;
   const load = loadDaily(loadConfig().root);
   if (load.errors.length) throw new Error(`daily/ 不合法，先运行 rh daily check：\n${load.errors.map((e) => `  ${e}`).join("\n")}`);
-  return (cache = load.days.map(publicDay).sort((a, b) => b.date.localeCompare(a.date)));
+  return (cache = [...load.days].sort((a, b) => b.date.localeCompare(a.date)));
+}
+
+/** 全部日期的公开投影，新的在前；没有 daily/ 时是空数组。 */
+export const dailyDays = (): PublicDay[] => days().map(publicDay);
+
+/** /daily/<date>/ 的 <meta name="rh-daily-hash">：Lark 卡片输入的哈希（lib/daily-card.ts，WHI-1972），notify job 拿它对照线上版本 */
+export function dailyCardHash(date: string): string {
+  const day = days().find((d) => d.date === date);
+  if (!day) throw new Error(`没有 ${date} 的 daily/ 目录`);
+  return cardInputHash(cardInput(day));
 }
 
 /** 页面里的外部链接只允许 http(s)；其他协议（javascript:、data: …）不输出成链接。 */

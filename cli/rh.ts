@@ -29,7 +29,7 @@ const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
   rh publish <slug>           检查 → 发布 → 构建 → 提交并 push（CI 部署）
   rh build                    构建 dist/public 与 dist/private，并做泄漏检查
   rh ingest --date <D>        Daily Topics：抓取并规范化日期 D 的条目（联网；BlockBeats 按账本限次）
-  rh daily check | import | probe   Daily Topics：离线检查 daily/、导入候选（commit job）、在线链接探测（手动）
+  rh daily check | import | card | probe   Daily Topics：离线检查 daily/、导入候选（commit job）、Lark 卡片 JSON、在线链接探测（手动）
   rh topic select | dismiss | link   Daily Topics：选中（打印起草材料）、不做、关联到报告（只写 daily/state.yml）
   rh tags list | add          标签登记表
   rh list                     列出全部报告

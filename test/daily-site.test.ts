@@ -20,6 +20,8 @@ import { stringify } from "yaml";
 import { dailyPublicForbidden } from "../cli/lib/build.ts";
 import { findChrome, launchBrowser } from "../cli/lib/mobile.ts";
 import { loadDaily } from "../lib/daily.ts";
+import { cardInput, cardInputHash } from "../lib/daily-card.ts";
+import { pageHash } from "../scripts/daily-notify-plan.ts";
 import { loadReports } from "../lib/reports.ts";
 import { safeHref } from "../src/daily.ts";
 import { t } from "../src/i18n.ts";
@@ -132,6 +134,19 @@ test("四种状态的夹具：rh daily check 通过，构建出 /daily/ 与每�
   const p = readFileSync(join(tmp, "dist", "private", "p", "index.html"), "utf8");
   assert.ok(p.includes(`href="${publicUrl}/daily/"`));
   assert.ok(p.includes("rh topic select &lt;id&gt;") && p.includes("rh topic dismiss") && p.includes("rh topic link"));
+});
+
+test("Lark 推送的线上版本绑定（WHI-1972）：每一天的页面带 rh-daily-hash = 卡片输入的哈希；公开站点有 /build.json，私有站点没有", () => {
+  for (const day of loadDaily(tmp).days) {
+    const html = page(`daily/${day.date}/index.html`);
+    assert.equal(pageHash(html), cardInputHash(cardInput(day)), day.date);
+    assert.equal(html.match(/name="rh-daily-hash"/g)?.length, 1, day.date);
+  }
+  assert.equal(pageHash(page("daily/index.html")), null, "/daily/ 索引页没有");
+  assert.equal(pageHash(page("index.html")), null);
+  // 临时副本不在 git 里：sha 为 null（CI 里是构建的提交，见 build.test.ts）
+  assert.deepEqual(JSON.parse(page("build.json")), { sha: null });
+  assert.ok(!existsSync(join(tmp, "dist", "private", "build.json")));
 });
 
 test("负向泄漏测试：公开产物里没有私有报告的标题 / slug、state.yml 的内容、manifest 的内部字段、原始条目或日志", () => {

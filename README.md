@@ -84,14 +84,17 @@ push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型�
 
 ## Daily Topics 运行手册（`.github/workflows/daily.yml`）
 
-每天 04:30 / 08:15 / 13:30 UTC 运行（[ADR 0004](docs/decisions/0004-public-daily-topics.md) §4、§11）：处理今天（UTC）；昨天还不是终态时一并收尾。已是终态的日期什么都不做，所以重复运行、补跑都是安全的。三段 job 分权：
+每天 04:30 / 08:15 / 13:30 UTC 运行（[ADR 0004](docs/decisions/0004-public-daily-topics.md) §4、§11）：处理今天（UTC）；昨天还不是终态时一并收尾。已是终态的日期什么都不做，所以重复运行、补跑都是安全的。三段 job 分权，结果推送到 Lark：
 
 | Job | 权限 | 凭据 | 做什么 |
 | --- | --- | --- | --- |
-| `ingest` | `contents: read`、`actions: read` | `BLOCKBEATS_API_KEY`（只在 `rh ingest` 那一步） | 决定处理哪些日期，`rh ingest`，打包公开上下文（`scripts/daily.ts context`） |
+| `plan` | `contents: read` | 无 | 决定处理哪些日期（`scripts/daily.ts plan`），以及 `notify` 要看哪些日期 |
+| `ingest` | `contents: read`、`actions: read` | `BLOCKBEATS_API_KEY`（只在 `rh ingest` 那一步） | `rh ingest`，打包公开上下文（`scripts/daily.ts context`） |
 | `generate` | 无（`permissions: {}`），不 checkout | `LLM_BASE_URL`、`LLM_API_KEY`（只在运行模型的那一步） | 先查没有仓库凭据、push 失败；再做隔离自检；再按日期运行 `daily-topics` skill（`scripts/daily-generate.sh`） |
 | `commit` | `contents: write` | 无 LLM / BlockBeats 凭据 | `rh daily import` → `rh daily check --base --workflow` → `pnpm verify` → 只 `git add daily/YYYY/MM/DD/` → push（冲突就 rebase、重新验证；内容冲突让运行失败，不自动解决） |
-| `deploy` | `contents: read` | Cloudflare | 用 `workflow_call` 调用 `deploy.yml`，显式传入刚推上去的提交 SHA（部署记录里是 `main@<SHA>`） |
+| `deploy` | `contents: read` | Cloudflare | 用 `workflow_call` 调用 `deploy.yml`，显式传入刚推上去的提交 SHA（部署记录里是 `main@<SHA>`）；冒烟测试通过后返回 `deployed_sha` |
+| `notify` | `contents: read` | `LARK_WEBHOOK_URL`、`LARK_SIGNING_SECRET`（只在发送那一步） | 把当天的推荐作为一张卡片推送到 Lark（见下面 “Lark 推送”） |
+| `alert` | `contents: read` | 同上 | 任何 job 失败时推送一张提醒卡片 |
 
 **隔离自检**（每次运行模型之前，`scripts/daily-isolation.ts`）：用本地假网关和随机 canary 令牌、按和真实运行完全相同的命令启动 Claude Code，逐个发出读 `/proc/*/environ`、`$HOME`、`/etc`、工作目录外的文件，往外写文件，调用 Bash / WebFetch / WebSearch 的工具调用，全部被拒绝、canary 不出现在任何输出里才继续；否则这次不运行模型（这些日期记为 `generator_failed`）。结果在 job summary 和 `daily-generate-log-*` artifact 的 `selfcheck/` 里。
 
@@ -130,6 +133,38 @@ push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型�
 ### 回滚
 
 先关闭 workflow（`DAILY_ENABLED=false`），再在主克隆里 revert 有问题的日期目录（内容通道，直推）。顺序不能反：先 revert 而不关 workflow，下一次运行会把那一天重新生成出来。页面或代码有问题就 revert 代码，`daily/` 和报告都不用动。
+
+### Lark 推送（`notify` / `alert`）
+
+每天的推荐以一张卡片推送到所有者的 Lark 群：标题 `📰 Daily Topics · <日期> · <n> topics`（complete 蓝色、degraded 橙色、empty 灰色），各源 ✓ / ✗，每个 topic 的标题、英文标题、why_now、domain · 标签 · 把握 · 来源数 · new/update 和指向 `/daily/<日期>/#<topic id>` 的链接，“Open today's topics” 按钮，以及 ETHTAO 日报按钮（只有链接是 `https://x.com/Ethtao_Ethtao/status/<数字>` 时）。卡片只有公开页面上的字段，没有 manifest 的内部字段（调用次数、错误、输入哈希）和 `daily/state.yml`。卡片由 `rh daily card` 构建（离线、确定性），由 `scripts/lark-post.ts` 签名发送。
+
+**什么时候发**（按线上版本里这一天的状态，不按这次运行提交了什么）：`pending` 不发；`complete` 发；`degraded` / `empty` 只在这一天的最后一次定时运行（13:30 UTC 及之后）或手动运行时发；`regenerate` 之后内容变了发一张标 “Updated” 的卡片。定时运行看今天和昨天（昨天的最后一次运行被跳过时，第二天补发）；试验分支不推送。
+
+**和线上一致**：`rh build` 在公开站点发布 `/build.json`（`{"sha": <构建的提交>}`），每个 `/daily/<日期>/` 页面带 `<meta name="rh-daily-hash">`（卡片输入的 sha256）。`notify` 读 `/build.json`（正常路径要求它等于 `deploy` 返回的 `deployed_sha`），checkout 那个提交、在它上面构建卡片输入，哈希必须等于线上页面的 meta；不一致或页面不存在就不发，job summary 写明原因。所以 `main` 上还没部署的内容不会进卡片。
+
+**去重**：发送台账在 Actions cache 里，key = `lark-daily-<日期>-<卡片输入哈希>`，确认发送成功之后才保存；同一个 key 已经发过就跳过（重跑 `notify` 不会重复发）。**确认发送之后，重复只是尽力去重（Actions cache，`concurrency: daily` 串行）；仍可能重复；发送失败可以手动重发。** 没有投递保证。
+
+**提醒**：任何 job 失败（取消的运行不算）时 `alert` 推送一张红色卡片：日期（`plan` 失败时是 “date unknown”）、失败的 job 和运行链接，不含日志或错误详情。`alert` 自己失败只在 Actions 里标红。
+
+**配置（所有者）**
+
+1. 在 Lark 群里添加自定义机器人（群设置 → 机器人 → 添加机器人 → 自定义机器人），**开启“签名校验”**，记下 webhook 地址和签名密钥。webhook 必须是 `https://open.larksuite.com/open-apis/bot/v2/hook/…` 或 `https://open.feishu.cn/open-apis/bot/v2/hook/…`，其他地址会被拒绝。
+2. 发布前先用一个测试机器人在本机发一张真实卡片（密钥只放在当前 shell，不进命令历史）：
+
+   ```sh
+   tmp=$(mktemp -d) && cp -R test/fixtures/daily-site/daily rh.config.json "$tmp"/
+   RH_ROOT=$tmp pnpm rh daily card --date 2026-10-18 --out "$tmp/card.json"
+   read -rs LARK_WEBHOOK_URL && read -rs LARK_SIGNING_SECRET && export LARK_WEBHOOK_URL LARK_SIGNING_SECRET
+   node scripts/lark-post.ts "$tmp/card.json"     # 成功 = HTTP 200, code 0
+   ```
+
+3. 配置正式机器人：`gh secret set LARK_WEBHOOK_URL`、`gh secret set LARK_SIGNING_SECRET`（交互输入，不要写在命令行参数里）。
+
+**手动重发**：`gh workflow run daily.yml -f date=2026-10-20 -f notify_only=true` 只推送那一天的线上版本（不抓取、不生成、不提交）；已经发过的会被台账跳过，要再发一次加 `-f force=true`（卡片标 “Resent”）。
+
+**关闭**：只关提醒 `gh variable set LARK_ALERTS --body false`；全部关闭 `gh secret delete LARK_WEBHOOK_URL` 和 `gh secret delete LARK_SIGNING_SECRET`——两个 job 照常运行，job summary 写 “Lark disabled”，不影响 Daily 的发布。
+
+**排查**：job summary 每个日期一行 `Lark <日期>: send / skip / refuse — <原因>`。常见原因：线上还不是刚部署的版本（`/build.json` 与 `deployed_sha` 不一致，`DEPLOY_ENABLED` 不是 `true`）、卡片输入和线上页面不一致；Lark 返回 19021 = 签名密钥不对或时间戳超过 1 小时，9499 = 请求格式错误（这两种不重试）。日志只有 HTTP 状态、Lark code 和过滤后的 msg，不写 webhook 地址和密钥。
 
 ### 合并前的试验分支
 

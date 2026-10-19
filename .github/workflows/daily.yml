@@ -1,11 +1,15 @@
-# Daily Topics（WHI-1937，ADR 0004 §4、§5、§11、§12）：ingest → generate → commit → deploy，三段 job 分权。
+# Daily Topics（WHI-1937，ADR 0004 §4、§5、§11、§12）：plan → ingest → generate → commit → deploy，三段 job 分权；notify / alert 推送到 Lark（WHI-1972）。
 #
-#   ingest    contents: read, actions: read；BLOCKBEATS_API_KEY 只在 rh ingest 那一步。决定处理哪些日期，抓取，打包公开上下文
+#   plan      contents: read；没有凭据。决定处理哪些日期、notify 要看哪些日期（含“这一天的最后一次运行”标志）
+#   ingest    contents: read, actions: read；BLOCKBEATS_API_KEY 只在 rh ingest 那一步。抓取，打包公开上下文
 #   generate  permissions: {}，不 checkout；LLM_BASE_URL / LLM_API_KEY 只在运行模型的那一步。先做隔离自检（假网关 + canary），
 #             再按日期运行 daily-topics skill（scripts/daily-generate.sh）
 #   commit    contents: write；没有 LLM 和 BlockBeats 凭据。候选当不可信输入：rh daily import → rh daily check --base --workflow →
 #             pnpm verify（含构建与泄漏检查）→ 只 git add 本次日期的 daily/YYYY/MM/DD/ → push；冲突就 rebase、重新验证，不自动解决
-#   deploy    调用 deploy.yml（workflow_call），显式传入刚推上去的提交 SHA（被调用时 github.sha 是调用方的提交）
+#   deploy    调用 deploy.yml（workflow_call），显式传入刚推上去的提交 SHA（被调用时 github.sha 是调用方的提交）；冒烟测试通过后返回 deployed_sha
+#   notify    contents: read；LARK_WEBHOOK_URL / LARK_SIGNING_SECRET 只在发送那一步。按线上版本（/build.json）构建当天的卡片，
+#             哈希必须等于线上页面的 rh-daily-hash；发送台账在 Actions cache 里（确认发送后尽力去重，仍可能重复，失败可手动重发）
+#   alert     任何 job 失败时发一张提醒卡片（只有日期、失败的 job 和运行链接）；vars.LARK_ALERTS == 'false' 时关闭
 #
 # 默认关闭：定时与手动运行只在 main 上、并且 vars.DAILY_ENABLED == 'true' 时执行（README → Daily Topics 运行手册）。
 # 试验：push 到 daily-trial/** 分支会在那个分支上跑完整流程，commit job 推回那个分支，不部署（合并前证明机制用，见 README）。
@@ -32,6 +36,14 @@ on:
         description: 没有恢复到 BlockBeats 账本时从空账本开始（只在确定今天还没调用过 BlockBeats 时勾选）
         type: boolean
         default: false
+      notify_only:
+        description: 只把 date 那一天的线上版本推送到 Lark（不抓取、不生成、不提交）；已经发过的要同时勾选 force
+        type: boolean
+        default: false
+      force:
+        description: 和 notify_only 一起用：不看发送台账，重发一次（卡片标 “Resent”）
+        type: boolean
+        default: false
   push:
     branches: ["daily-trial/**"]
 
@@ -42,27 +54,23 @@ concurrency:
 permissions: {}
 
 jobs:
-  ingest:
+  plan:
     if: >-
       (github.event_name != 'push' && github.ref == 'refs/heads/main' && vars.DAILY_ENABLED == 'true') ||
       (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/daily-trial/'))
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
     permissions:
       contents: read
-      actions: read # 找上一次运行的条目缓存 artifact；regenerate 时找原来那次运行的 items artifact
     outputs:
       any: ${{ steps.plan.outputs.any }}
       dates: ${{ steps.plan.outputs.dates }}
       base: ${{ steps.plan.outputs.base }}
-      generate: ${{ steps.pack.outputs.generate }}
       model: ${{ steps.plan.outputs.model }}
-    env:
-      STATE: .rh/ingest # 工作区里（已 gitignore），hashFiles 才能看到
-      # 试验分支用自己的账本；它的调用不计入 main 的账本（README → 试验分支）
-      LEDGER_KEY: daily-ledger-${{ github.event_name == 'push' && 'trial-' || '' }}
+      notify: ${{ steps.plan.outputs.notify }}
+      notify_only: ${{ steps.plan.outputs.notify_only }}
+      force: ${{ steps.plan.outputs.force }}
     steps:
-      - run: echo "ITEMS=$RUNNER_TEMP/daily-items" >> "$GITHUB_ENV" && echo "WORK=$RUNNER_TEMP/daily-work" >> "$GITHUB_ENV"
       # 分支的当前提交，不是触发时的 github.sha：排队等 concurrency 的运行要看到前一次运行刚推上去的 daily/
       - uses: actions/checkout@v7
         with:
@@ -74,25 +82,60 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-
-      - name: Plan (which dates this run processes)
+      - name: Plan (which dates this run processes and which dates notify looks at)
         id: plan
         env:
           EVENT: ${{ github.event_name }}
           DATE: ${{ inputs.date }}
           REGENERATE: ${{ inputs.regenerate }}
+          NOTIFY_ONLY: ${{ inputs.notify_only }}
+          FORCE: ${{ inputs.force }}
           MODEL: ${{ vars.DAILY_MODEL || 'claude-sonnet-5-5' }}
         run: |
           args=(plan --event "$EVENT" --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --date "$DATE")
           [ "$REGENERATE" = true ] && args+=(--regenerate)
+          [ "$NOTIFY_ONLY" = true ] && args+=(--notify-only)
+          [ "$FORCE" = true ] && args+=(--force)
           node scripts/daily.ts "${args[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "model=$MODEL" >> "$GITHUB_OUTPUT"
 
+  ingest:
+    needs: plan
+    if: needs.plan.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read # 找上一次运行的条目缓存 artifact；regenerate 时找原来那次运行的 items artifact
+    outputs:
+      any: ${{ needs.plan.outputs.any }}
+      dates: ${{ needs.plan.outputs.dates }}
+      base: ${{ needs.plan.outputs.base }}
+      generate: ${{ steps.pack.outputs.generate }}
+      model: ${{ needs.plan.outputs.model }}
+    env:
+      STATE: .rh/ingest # 工作区里（已 gitignore），hashFiles 才能看到
+      # 试验分支用自己的账本；它的调用不计入 main 的账本（README → 试验分支）
+      LEDGER_KEY: daily-ledger-${{ github.event_name == 'push' && 'trial-' || '' }}
+    steps:
+      - run: echo "ITEMS=$RUNNER_TEMP/daily-items" >> "$GITHUB_ENV" && echo "WORK=$RUNNER_TEMP/daily-work" >> "$GITHUB_ENV"
+      # plan 看到的那个提交（分支的当前提交）
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.plan.outputs.base }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
       # 只有不含内容的 BlockBeats 账本放在 Actions cache 里；按 run + attempt 建 key，恢复最新的一份
       - name: Restore the BlockBeats ledger
         id: ledger
-        if: steps.plan.outputs.any == 'true'
+        if: needs.plan.outputs.any == 'true'
         uses: actions/cache/restore@v6
         with:
           path: .rh/ingest/ledger.json
@@ -101,7 +144,7 @@ jobs:
 
       - name: Seed an empty ledger (deliberate only)
         if: >-
-          steps.plan.outputs.any == 'true' && steps.ledger.outputs.cache-matched-key == '' &&
+          needs.plan.outputs.any == 'true' && steps.ledger.outputs.cache-matched-key == '' &&
           (inputs.seed_ledger || github.event_name == 'push')
         run: |
           mkdir -p "$STATE"
@@ -111,7 +154,7 @@ jobs:
       # cache.json（含摘录）不进 Actions cache，只在 30 天的 artifact 里：从这个分支上一次运行的 daily-cache artifact 恢复（没有就从空开始）
       - name: Find the previous run's item cache
         id: prev
-        if: steps.plan.outputs.any == 'true'
+        if: needs.plan.outputs.any == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ github.ref_name }}
@@ -131,10 +174,10 @@ jobs:
       # regenerate：不重新抓取，用原来那次运行保存的 ingest 输出（items artifact 保留 30 天）
       - name: Find the stored items of the day to regenerate
         id: stored
-        if: contains(steps.plan.outputs.dates, '"regenerate"')
+        if: contains(needs.plan.outputs.dates, '"regenerate"')
         env:
           GH_TOKEN: ${{ github.token }}
-          DATES: ${{ steps.plan.outputs.dates }}
+          DATES: ${{ needs.plan.outputs.dates }}
         run: |
           D=$(echo "$DATES" | jq -r '.[0].date')
           name=$(jq -r '"daily-items-\(.run.id)-\(.run.attempt)"' "daily/${D//-//}/manifest.json")
@@ -158,10 +201,10 @@ jobs:
 
       - name: Ingest (BlockBeats key only in this step)
         id: ingest
-        if: steps.plan.outputs.any == 'true'
+        if: needs.plan.outputs.any == 'true'
         env:
           BLOCKBEATS_API_KEY: ${{ secrets.BLOCKBEATS_API_KEY }}
-          DATES: ${{ steps.plan.outputs.dates }}
+          DATES: ${{ needs.plan.outputs.dates }}
         run: |
           mkdir -p "$STATE" "$ITEMS"
           gen=()
@@ -183,7 +226,7 @@ jobs:
           echo "generate=$(printf '%s\n' "${gen[@]}" | jq -Rnc '[inputs | select(length > 0)]')" >> "$GITHUB_OUTPUT"
 
       - name: Save the BlockBeats ledger
-        if: always() && steps.plan.outputs.any == 'true' && hashFiles('.rh/ingest/ledger.json') != ''
+        if: always() && needs.plan.outputs.any == 'true' && hashFiles('.rh/ingest/ledger.json') != ''
         uses: actions/cache/save@v6
         with:
           path: .rh/ingest/ledger.json
@@ -191,10 +234,10 @@ jobs:
 
       - name: Pack the generate work folders (public context only) and fill manifest.generator
         id: pack
-        if: steps.plan.outputs.any == 'true'
+        if: needs.plan.outputs.any == 'true'
         env:
           GEN: ${{ steps.ingest.outputs.generate }}
-          MODEL: ${{ steps.plan.outputs.model }}
+          MODEL: ${{ needs.plan.outputs.model }}
         run: |
           echo "generate=$GEN" >> "$GITHUB_OUTPUT"
           [ "$GEN" = "[]" ] && exit 0
@@ -210,13 +253,13 @@ jobs:
           done
 
       # 摘录只在 30 天的 artifact 里（ADR 0004 §3、§6）：items artifact 也是 regenerate 的输入
-      - if: steps.plan.outputs.any == 'true'
+      - if: needs.plan.outputs.any == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: daily-items-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/daily-items/
           retention-days: ${{ steps.stored.outputs.retention || 30 }}
-      - if: steps.plan.outputs.any == 'true' && hashFiles('.rh/ingest/cache.json') != ''
+      - if: needs.plan.outputs.any == 'true' && hashFiles('.rh/ingest/cache.json') != ''
         uses: actions/upload-artifact@v7
         with:
           name: daily-cache-${{ github.run_id }}-${{ github.run_attempt }}
@@ -497,3 +540,158 @@ jobs:
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  # Lark 推送（WHI-1972）：每个要看的日期一个矩阵实例。卡片只从线上版本（公开站点 /build.json 的提交）构建，
+  # 卡片输入的哈希必须等于线上页面的 rh-daily-hash；Lark 密钥只在发送那一步。没有 Lark 密钥 = “Lark disabled”，job 成功。
+  # 发送台账：Actions cache 的 key lark-daily-<date>-<卡片输入哈希>，确认发送后才保存。确认发送后尽力去重；仍可能重复；失败可以手动重发。
+  notify:
+    needs: [plan, ingest, generate, commit, deploy]
+    if: always() && needs.plan.result == 'success' && needs.plan.outputs.notify != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        day: ${{ fromJSON(needs.plan.outputs.notify || '[]') }}
+    env:
+      DATE: ${{ matrix.day.date }}
+      FINAL: ${{ matrix.day.final }}
+      REGENERATE: ${{ matrix.day.regenerate }}
+      NOTIFY_ONLY: ${{ needs.plan.outputs.notify_only }}
+      FORCE: ${{ needs.plan.outputs.force }}
+    steps:
+      # 工具（scripts/、cli/）来自这次运行的 workflow 提交；数据来自下面单独 checkout 的线上版本
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Decide from the upstream job results (send / skip / refuse)
+        id: decide
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: node scripts/daily-notify-plan.ts decide
+
+      - name: Find the live version (/build.json)
+        id: live
+        if: steps.decide.outputs.action == 'proceed'
+        env:
+          SOURCE: ${{ steps.decide.outputs.source }}
+          DEPLOYED_SHA: ${{ steps.decide.outputs.deployed_sha }}
+        run: node scripts/daily-notify-plan.ts live
+
+      - name: Check out the live version (daily/ and the root config only)
+        if: steps.live.outputs.sha != ''
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.live.outputs.sha }}
+          path: live
+          persist-credentials: false
+          sparse-checkout: daily
+
+      - name: Check the card input against the live page; eligibility
+        id: verify
+        if: steps.live.outputs.sha != ''
+        run: node scripts/daily-notify-plan.ts verify --live live
+
+      - name: Look up the send ledger
+        id: ledger
+        if: steps.verify.outputs.action == 'send'
+        uses: actions/cache/restore@v6
+        with:
+          path: .rh/lark-ledger
+          key: ${{ steps.verify.outputs.key }}
+          restore-keys: ${{ steps.verify.outputs.prefix }}
+          lookup-only: true
+
+      - name: Ledger decision (skip a confirmed send; Updated / Resent)
+        id: plan-send
+        if: steps.verify.outputs.action == 'send'
+        env:
+          KEY: ${{ steps.verify.outputs.key }}
+          HIT: ${{ steps.ledger.outputs.cache-hit }}
+          MATCHED: ${{ steps.ledger.outputs.cache-matched-key }}
+        run: node scripts/daily-notify-plan.ts ledger
+
+      - name: Build the card from the live version (rh daily card)
+        if: steps.plan-send.outputs.send == 'true'
+        env:
+          RH_ROOT: ${{ github.workspace }}/live
+          VARIANT: ${{ steps.plan-send.outputs.variant }}
+        run: node cli/rh.ts daily card --date "$DATE" --variant "$VARIANT" --out "$RUNNER_TEMP/card.json"
+
+      - name: Send to Lark (Lark secrets only in this step)
+        id: send
+        if: steps.plan-send.outputs.send == 'true'
+        env:
+          LARK_WEBHOOK_URL: ${{ secrets.LARK_WEBHOOK_URL }}
+          LARK_SIGNING_SECRET: ${{ secrets.LARK_SIGNING_SECRET }}
+        run: node scripts/lark-post.ts "$RUNNER_TEMP/card.json"
+
+      - name: Record the confirmed send
+        if: steps.send.outputs.sent == 'true'
+        env:
+          KEY: ${{ steps.verify.outputs.key }}
+        run: mkdir -p .rh/lark-ledger && echo "$KEY" > .rh/lark-ledger/sent
+      - if: steps.send.outputs.sent == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .rh/lark-ledger
+          key: ${{ steps.verify.outputs.key }}
+
+  # 运行失败的提醒（WHI-1972）：取消的运行不提醒；只用 plan 的输出（日期）、各 job 的结果和运行链接（plan 失败时 “date unknown”）。
+  # 不依赖第三方包（只装 node）；自己失败只在 Actions 里标红，不再提醒。关闭：gh variable set LARK_ALERTS --body false
+  alert:
+    needs: [plan, ingest, generate, commit, deploy, notify]
+    if: failure() && vars.LARK_ALERTS != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            lib
+            scripts
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - name: Build the alert card
+        id: card
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node scripts/daily-notify-plan.ts alert --out "$RUNNER_TEMP/alert.json"
+      - name: Look up the send ledger
+        id: ledger
+        uses: actions/cache/restore@v6
+        with:
+          path: .rh/lark-ledger
+          key: ${{ steps.card.outputs.key }}
+          lookup-only: true
+      - name: Send to Lark (Lark secrets only in this step)
+        id: send
+        if: steps.ledger.outputs.cache-hit != 'true'
+        env:
+          LARK_WEBHOOK_URL: ${{ secrets.LARK_WEBHOOK_URL }}
+          LARK_SIGNING_SECRET: ${{ secrets.LARK_SIGNING_SECRET }}
+        run: node scripts/lark-post.ts "$RUNNER_TEMP/alert.json"
+      - name: Record the confirmed send
+        if: steps.send.outputs.sent == 'true'
+        env:
+          KEY: ${{ steps.card.outputs.key }}
+        run: mkdir -p .rh/lark-ledger && echo "$KEY" > .rh/lark-ledger/sent
+      - if: steps.send.outputs.sent == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .rh/lark-ledger
+          key: ${{ steps.card.outputs.key }}

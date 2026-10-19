@@ -305,6 +305,13 @@ test("assemble：按来源 → 站点清单分发；共享白名单进两站；�
   assert.deepEqual(res.privateReports, ["priv-b"]);
   assert.equal(res.thumbnails, 2, "pub-a 与 priv-b 有 card.png；draft-c 的不生成");
 
+  // /build.json（WHI-1972）：构建的提交，只进公开站点；Daily 的 notify job 用它找到线上版本
+  assert.deepEqual(JSON.parse(readFileSync(join(res.publicDir, "build.json"), "utf8")), { sha: null });
+  assert.ok(!priv.includes("build.json"));
+  const sha = "0123456789abcdef0123456789abcdef01234567";
+  const withSha = mixedRepo();
+  assert.equal(readFileSync(join(assemble(withSha.root, fakeAstro(withSha.root), withSha.reports, { sha }).publicDir, "build.json"), "utf8"), `{"sha":"${sha}"}\n`);
+
   for (const extra of [{ "_astro/x.css": "x" }, { "search.json": "[]" }, { "robots.txt": "x" }] as Record<string, string>[]) {
     const r2 = mixedRepo();
     assert.throws(() => assemble(r2.root, fakeAstro(r2.root, extra), r2.reports), /未登记的顶层产物：(_astro|search\.json|robots\.txt)/);

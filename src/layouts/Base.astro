@@ -25,6 +25,7 @@ const { title, titleEn, description = t("zh", "tagline"), nav = "public" } = Ast
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <slot name="head" />
     <title data-en={titleEn && pageTitle(titleEn)}>{pageTitle(title)}</title>
     {/*
       首帧脚本（内联，ADR 0003 §4）：在渲染前定下主题与语言，并提供 window.rhI18n。
