@@ -360,6 +360,30 @@ test("超时：每次尝试都有超时信号；超时算网络错误，按间�
   assert.ok(logs.filter((l) => /timed out after 0\.02 s/.test(l)).length === 4, logs.join("\n"));
 });
 
+test("响应头 200 之后正文卡住或断线（真实的 fetch，本机服务）：算网络错误 / 超时，按间隔重试", async () => {
+  let n = 0;
+  const server = createServer((req, res) => {
+    n++;
+    res.writeHead(200, { "content-type": "application/json" });
+    res.write('{"code":');
+    if (req.url === "/reset") setTimeout(() => res.destroy(), 10); // 断线
+    // /stall：什么都不再写，直到客户端超时
+  });
+  servers.push(server);
+  await new Promise<void>((ok) => server.listen(0, "127.0.0.1", ok));
+  const port = (server.address() as { port: number }).port;
+  for (const [path, why] of [["/stall", /timed out after 0\.1 s/], ["/reset", /network error/]] as const) {
+    n = 0;
+    const local = ((_: string, init: RequestInit) => fetch(`http://127.0.0.1:${port}${path}`, init)) as typeof fetch;
+    const { d, sleeps, logs } = deps(local, { timeoutMs: 100 });
+    const r = await postCard(MSG, URL_OK, SECRET, d);
+    assert.deepEqual([r.ok, r.attempts, n], [false, 4, 4], `${path}: ${logs.join(" | ")}`);
+    assert.deepEqual(sleeps, [...RETRY_DELAYS], path);
+    assert.match(r.last, why, path);
+    assert.ok(!logs.some((l) => /not JSON/.test(l)), `${path}: 不能当成格式错误`);
+  }
+});
+
 test("超过 20 KB 的请求不发；日志里没有 URL、token、secret 或请求体", async () => {
   const big: LarkMessage = { msg_type: "interactive", card: { elements: [{ tag: "div", text: { tag: "lark_md", content: "x".repeat(21_000) } }] } };
   const { f, calls } = fakeLark([[200, { code: 0 }]]);

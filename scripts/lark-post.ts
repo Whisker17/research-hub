@@ -89,10 +89,12 @@ export async function postCard(message: LarkMessage, url: string, secret: string
         redirect: "error",
         signal: AbortSignal.timeout(deps.timeoutMs ?? TIMEOUT_MS),
       });
+      // 读正文时的超时 / 断线是网络错误（外层 catch 重试）；只有解析失败才算 “不是 JSON”
+      const text = await res.text();
       let code: unknown = null;
       let msg: unknown = "";
       try {
-        const j = JSON.parse(await res.text()) as { code?: unknown; msg?: unknown };
+        const j = JSON.parse(text) as { code?: unknown; msg?: unknown };
         code = j.code ?? null;
         msg = j.msg ?? "";
       } catch {
