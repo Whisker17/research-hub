@@ -1,0 +1,203 @@
+schema: 1
+date: 2026-10-19
+note: 当天条目以行情、清算监测和活动公告为主，满足证据要求的研究题目只有 4 个。
+topics:
+  - id: 2026-10-19-1e5e80
+    title: Glamsterdam 将 gas limit 提至 200M 之后的状态增长约束
+    title_en: State growth constraints after Glamsterdam raises the gas limit to 200M
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - gas-limit
+      - state-growth
+    why_now: 据 nero_eth 引述以太坊基金会博客的公告，Hoodi 是主网前的最后一个测试网，相关升级排期在 10 月 26 日；Glamsterdam 上线后 gas limit 预计由 60M 升到 200M，并有人认为 300M 是下一个现实目标。同日该作者也提到，历史修剪和状态增长放缓并没有真正解决问题，长期可能仍需要状态分片、过期或分层。
+    questions:
+      - gas limit 从 60M 升到 200M 后，状态大小、带宽和同步时间的增长在客户端实测中是多少？
+      - 超过 300M 需要通过硬分叉重新定价哪些资源，传播机制要做哪些优化？
+      - 状态分片、状态过期、分层存储这几类方案各自的权衡是什么？
+    angle: 对照公告中的升级参数与各客户端团队公开的基准数据，梳理 gas limit 与状态增长之间的关系，再比较已有的状态过期与分层提案。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2111717098271732040
+        type: secondary
+      - item_id: ethtao:2111782952065499341
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: medium
+  - id: 2026-10-19-f937c7
+    title: 以太坊后量子迁移：优先采用哈希签名还是格基签名
+    title_en: "Post-quantum migration for Ethereum: hash-based versus lattice-based signatures"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - post-quantum
+      - cryptography
+    why_now: ladislaus0x 在参加以太坊基金会的后量子研发研讨周后，发布了个人笔记，涉及迁移路径、leanVM、形式验证和共识的未来。随后该作者在讨论中提出，以太坊最需要的是抗量子的签名而非加密，且基于哈希的签名只依赖哈希函数的安全性，与 ZK 证明的假设一致，相比 ML-DSA、Falcon 等格基方案更保守。需要注意这是个人观点，作者自述并非密码学家。
+    questions:
+      - 哈希签名与格基签名在签名体积、验证成本和聚合能力上的差距有多大，对账户与共识层各意味着什么？
+      - 迁移到抗量子签名时，现有账户和验证者密钥的过渡方案有哪些？
+    angle: 以研讨会笔记为线索，对比各方案的安全假设和链上成本，并查找以太坊基金会及研究者公开的相关提案与基准。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2111768536062595545
+        type: secondary
+      - item_id: ethtao:2111797433478836652
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: medium
+  - id: 2026-10-19-929e36
+    title: EthLib：用 Lean4 为以太坊协议建立共享的形式化验证库
+    title_en: "EthLib: a shared Lean4 library for formal verification of Ethereum"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - formal-verification
+    why_now: 10 月 18 日，tcoratger 公开征求对 EthLib 的意见，设想它是类似 Mathlib 的以太坊 Lean4 库，让规范、定理和证明可以在协议及各实现之间复用，并说明它的范围会比纯密码学更广。另一位开发者 leolarav 则介绍了自己团队基于共识层分叉实现搭建的现成规范库，认为 Lean Protocol 可以在其上构建。
+    questions:
+      - EthLib 与已有的共识层 Lean 规范库在范围和分工上如何划分？
+      - 共享的形式化库对多客户端实现之间的一致性检查能提供什么保证？
+    angle: 比较两个库的公开仓库结构、已覆盖的分叉与定理范围，并检查它们与 VCVio 等密码学库的整合方式。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2111797531315147170
+        type: secondary
+      - item_id: ethtao:2111831540237844891
+        type: secondary
+      - item_id: ethtao:2111842226393543034
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: low
+  - id: 2026-10-19-7b8210
+    title: 证明者多样性与本地构建者：zkEVM 证明对 solo staker 的影响
+    title_en: "Prover diversity and local block builders: implications of proving for solo stakers"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - zkevm
+      - solo-staking
+    why_now: 10 月 18 日，gballet 在两处讨论中表达了对证明机制的担忧：一是若区块证明无法由本地构建者完成，证明、构建和状态服务可能趋于集中，进而挤出 solo staker；二是证明者数量只有两三个时，出现分歧很难判断谁出错，形式验证要达到多样性带来的安全水平还需要时间。这些是个人立场，需要用实现与基准数据核对。
+    questions:
+      - 在目前公开的基准中，普通硬件上本地生成区块证明的成本与延迟是多少？
+      - 需要多少个相互独立的证明者实现，才能在出现分歧时可靠地定位错误方？
+      - 形式验证能在多大程度上替代证明者多样性？
+    angle: 整理各 zkVM 与 guest program 的公开基准、硬件要求和多证明者设计，并对比以往执行与共识客户端多样性在事故中发挥的作用。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2111711009039593725
+        type: secondary
+      - item_id: ethtao:2111911276066570433
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: medium
+items:
+  ethtao:2111711009039593725:
+    source: ethtao
+    url: https://x.com/gballet/status/2111711009039593725
+    origin_url: https://x.com/URozmej/status/2111502209737269526
+    title: null
+    author: gballet
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T06:48:32.000Z
+    fetched_at: 2026-10-20T13:32:57.828Z
+    incomplete: false
+  ethtao:2111717098271732040:
+    source: ethtao
+    url: https://x.com/nero_eth/status/2111717098271732040
+    origin_url: https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement
+    title: null
+    author: nero_eth
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T07:12:44.000Z
+    fetched_at: 2026-10-20T13:32:57.676Z
+    incomplete: false
+  ethtao:2111768536062595545:
+    source: ethtao
+    url: https://x.com/ladislaus0x/status/2111768536062595545
+    origin_url: https://hackmd.io/@Ladislaus/r1ZZzxenMe
+    title: null
+    author: ladislaus0x
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T10:37:08.000Z
+    fetched_at: 2026-10-20T13:32:58.607Z
+    incomplete: false
+  ethtao:2111782952065499341:
+    source: ethtao
+    url: https://x.com/nero_eth/status/2111782952065499341
+    origin_url: null
+    title: null
+    author: nero_eth
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T11:34:25.000Z
+    fetched_at: 2026-10-20T13:32:58.034Z
+    incomplete: false
+  ethtao:2111797433478836652:
+    source: ethtao
+    url: https://x.com/ladislaus0x/status/2111797433478836652
+    origin_url: null
+    title: null
+    author: ladislaus0x
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T12:31:58.000Z
+    fetched_at: 2026-10-20T13:32:58.318Z
+    incomplete: false
+  ethtao:2111797531315147170:
+    source: ethtao
+    url: https://x.com/tcoratger/status/2111797531315147170
+    origin_url: null
+    title: null
+    author: tcoratger
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T12:32:21.000Z
+    fetched_at: 2026-10-20T13:32:58.740Z
+    incomplete: false
+  ethtao:2111831540237844891:
+    source: ethtao
+    url: https://x.com/tcoratger/status/2111831540237844891
+    origin_url: null
+    title: null
+    author: tcoratger
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T14:47:29.000Z
+    fetched_at: 2026-10-20T13:32:59.043Z
+    incomplete: false
+  ethtao:2111842226393543034:
+    source: ethtao
+    url: https://x.com/leolarav/status/2111842226393543034
+    origin_url: null
+    title: null
+    author: leolarav
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T15:29:57.000Z
+    fetched_at: 2026-10-20T13:32:58.865Z
+    incomplete: false
+  ethtao:2111911276066570433:
+    source: ethtao
+    url: https://x.com/gballet/status/2111911276066570433
+    origin_url: null
+    title: null
+    author: gballet
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112019554000130533
+    published_at: 2026-10-18T20:04:20.000Z
+    fetched_at: 2026-10-20T13:32:58.152Z
+    incomplete: false

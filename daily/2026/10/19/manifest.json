@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "date": "2026-10-19",
+  "status": "degraded",
+  "reasons": [
+    "few_topics"
+  ],
+  "window": {
+    "from": "2026-10-18T00:00:00.000Z",
+    "to": "2026-10-19T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2112019554000130533",
+    "posted_at": "2026-10-19T03:14:35.000Z"
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "ok",
+      "items": 14,
+      "calls": 15,
+      "covered": null,
+      "error": null
+    },
+    {
+      "id": "blockbeats",
+      "status": "skipped",
+      "items": 0,
+      "calls": 0,
+      "covered": null,
+      "error": "skipped: 时间窗结束已超过 24 小时，一次调用够不到"
+    },
+    {
+      "id": "odaily",
+      "status": "ok",
+      "items": 55,
+      "calls": 4,
+      "covered": {
+        "from": "2026-10-18T00:00:00.000Z",
+        "to": "2026-10-19T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "ethresearch",
+      "status": "ok",
+      "items": 0,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-18T00:00:00.000Z",
+        "to": "2026-10-19T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "magicians",
+      "status": "ok",
+      "items": 1,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-18T00:00:00.000Z",
+        "to": "2026-10-19T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "theblock",
+      "status": "ok",
+      "items": 2,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-18T00:00:00.000Z",
+        "to": "2026-10-19T00:00:00.000Z"
+      },
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 72,
+    "cited_items": 9,
+    "topics": 4,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": {
+    "skill_version": "daily-topics/1.0.0+e67bab7de412",
+    "model": "claude-sonnet-5-5",
+    "inputs_sha256": "196d2150c1dc80e4448b19d8e781280d442e025512ad6ecf11401a3e6cfcbfd0"
+  },
+  "run": {
+    "id": "39431194635",
+    "attempt": 1,
+    "at": "2026-10-20T13:32:56.028Z"
+  },
+  "generated_at": "2026-10-20T13:32:56.028Z",
+  "updated_at": "2026-10-20T13:32:56.028Z"
+}
