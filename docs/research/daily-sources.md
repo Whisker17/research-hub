@@ -127,10 +127,18 @@ these; following them directly would add volume, not coverage. Not recommended f
   measured 100 and 101 locally without a valid key). Check the body, not only the HTTP code.
 - **Runner, with `secrets.BLOCKBEATS_API_KEY`** (2 calls; only status, counts and header names
   printed): `/v1/newsflash/important?size=50` → HTTP 200, `status 0`, 50 items spanning
-  2026-10-17 20:19 → 10-18 20:41 (UTC+8), i.e. **one call covers ~24 h of important items**;
+  2026-10-17 20:19 → 10-18 20:41 (UTC+8), i.e. one call covered ~24 h of important items on that
+  weekend (Sat–Sun) — **not a constant; see the weekday re-measurement below**;
   `/v1/newsflash?size=50` → 50 items over ~11.5 h. Response headers: `connection,
   content-encoding, content-type, date, eo-cache-status, eo-log-uuid, server,
   strict-transport-security, transfer-encoding, vary` — **no rate-limit / quota headers**.
+- **Re-measured on a weekday (WHI-2078), runner, first real Daily run
+  [39413681633](https://github.com/Whisker17/research-hub/actions/runs/39413681633)**
+  (2026-10-20, Tuesday, `daily-cache-…` artifact): one `/v1/newsflash/important?size=50` call
+  at 11:16 UTC returned 50 items spanning 2026-10-20 02:34 → 11:16 UTC, i.e. **one page covers
+  ~8.7 h on a weekday**, not ~24 h (none of them fell in that run's window W(10-20), as
+  expected with no cache from 10-19). One sample each: plan with ~9 h per page and treat ~24 h as
+  a quiet-day figure.
 - **Quota size, reset period and the over-quota response are not published.** The API doc only
   says "免费额度即刻可用，订阅后解锁更高调用上限"; neither the docs, the official skill / MCP package
   (`blockbeats-mcp` 1.0.4) nor the response headers state a number. Finding it empirically would
@@ -138,8 +146,14 @@ these; following them directly would add volume, not coverage. Not recommended f
   2026-10-18:** the owner does not know the quota either; record it as **undisclosed**.
 - **Daily budget (owner decision 2026-10-18): 4 calls/day, hard cap 6/day**, counted and persisted across runs (retries,
   backfills and regenerations count): one `important?size=50` call per scheduled run (3 runs),
-  plus at most one retry per day. Skip the call when the previous successful call is < 6 h old
-  (one call covers ~24 h). Treat HTTP ≠ 200 or body `status ≠ 0` as `degraded` for BlockBeats;
+  plus at most one retry per day. The first plan (skip the call when the previous successful call
+  is < 6 h old, because one call covers ~24 h) is superseded by WHI-2078, since the ~24 h reach
+  does not hold on weekdays:
+  call only when the cached coverage leaves a gap in the Daily window, and page back (`page=2`, …,
+  every page counts against the same 4/day) until the gap is closed; with ~9 h pages the
+  04:30 UTC run pages 3 times and the 08:15 / 13:30 runs skip. Above ~200 important items/day
+  (pages < 6 h) 4 pages cannot cover the window and it stays `partial`.
+  Treat HTTP ≠ 200 or body `status ≠ 0` as `degraded` for BlockBeats;
   do not retry `100–103`. The numbers are adjustable later in `sources.yml`.
 - Keyless BlockBeats routes, both excluded: `api.theblockbeats.news/v1/open-api/open-flash`
   answers `{"status":0,"data":[]}` (runner and local; dead); RSSHub's route signs requests to the

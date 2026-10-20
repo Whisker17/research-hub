@@ -168,6 +168,7 @@ interface Server {
   requests: { path: string; headers: IncomingMessage["headers"] }[];
   /** 返回 HTTP 状态（或 null 表示正常）的故障注入 */
   fail: (path: string, nth: number) => number | null;
+  /** BlockBeats 的响应：固定的 body，或按请求 URL（page、size）生成 */
   bb: unknown;
   /** 这个路径的响应延迟多少毫秒（超时注入） */
   delay: (path: string) => number;
@@ -203,7 +204,7 @@ const httpServer = createServer(async (req, res) => {
   if (u.pathname === "/theblock/bounded.xml") return send(200, readFileSync(join(RAW, "theblock-rss.xml"), "utf8").replace(/<atom:link[^>]*rel="next"[^>]*\/>/, ""), "text/xml");
   if (u.pathname === "/bb/v1/newsflash/important") {
     if (req.headers["api-key"] !== KEY) return send(200, JSON.stringify({ status: 101, message: "invalid key", data: [] }));
-    return send(200, JSON.stringify(srv.bb));
+    return send(200, JSON.stringify(typeof srv.bb === "function" ? srv.bb(u) : srv.bb));
   }
   send(404, "{}");
 });
@@ -659,6 +660,143 @@ test("账本跨运行累计：失败、重试、regenerate、补跑都计数；�
   assert.equal(l.days["2026-10-19"].calls, 1);
 });
 
+// ───────────────────────── BlockBeats 覆盖计划：按真实时刻表跨运行模拟（WHI-2078） ─────────────────────────
+
+const HOUR = 3_600_000;
+
+/**
+ * 假 BlockBeats：重要快讯匀速发布，每 50 条（一页）跨 pageHours 小时，最新一条不晚于 clock()；
+ * page=p 返回第 p 个 size 条，新的在前（create_time 和真实接口一样是不带时区的 UTC+8 文本）。
+ */
+const bbStream = (pageHours: number, clock: () => number) => (u: URL) => {
+  const size = Number(u.searchParams.get("size"));
+  const page = Number(u.searchParams.get("page"));
+  const step = (pageHours * HOUR) / 50;
+  const newest = Math.floor(clock() / step);
+  const data = Array.from({ length: size }, (_, k) => newest - (page - 1) * size - k).map((i) => ({
+    id: i,
+    title: `快讯 ${i}`,
+    content: `<p>快讯 ${i}</p>`,
+    link: `https://www.theblockbeats.info/flash/${i}`,
+    url: "",
+    create_time: new Date(i * step + 8 * HOUR).toISOString().slice(0, 19).replace("T", " "),
+  }));
+  return { status: 0, message: "", data: { page, size, data } };
+};
+
+/** 仓库里真实的 sources.yml BlockBeats 配置（只把 base_url 换成本地服务器），其他源关掉。 */
+const realBB = () => ({ ...bbOnly(), blockbeats: { ...parseYaml(readFileSync(join(REPO, "sources.yml"), "utf8")).sources.blockbeats, base_url: `${srv.base}/bb` } });
+
+/** 像 daily.yml 那样跑一次：按给的顺序（今天在前、昨天在后）逐个 ingest，共用状态目录；按 UTC 日累计 BlockBeats 请求数。 */
+function simulate(root: string, pageHours: number) {
+  const perDay = new Map<string, number>();
+  const run = async (now: string, dates: string[], fail = false) => {
+    const out: Run["manifest"]["sources"] = [];
+    for (const d of dates) {
+      reset(bbStream(pageHours, () => Date.parse(now)), (p) => (fail && p.startsWith("/bb/") ? 500 : null));
+      out.push(src((await ingest(root, d, now)).manifest, "blockbeats"));
+      perDay.set(now.slice(0, 10), (perDay.get(now.slice(0, 10)) ?? 0) + bbRequests());
+    }
+    return out;
+  };
+  return { run, perDay };
+}
+const yesterday = (d: string) => dailyWindow(d).from.slice(0, 10);
+
+test("BlockBeats 覆盖：工作日（每页约 8.7 小时）按 04:30 / 08:15 / 13:30 跑，每个 W(D) 在 D 的第一次运行就完整覆盖，每天 ≤ 4 次（WHI-2078）", async () => {
+  const { root, state } = makeRoot(realBB());
+  const { run, perDay } = simulate(root, 8.7); // run 39413681633 实测：50 条跨 8.7 小时
+  // 10-20 11:16：第一次真实运行（seed_ledger，没有 cache）
+  const [seed] = await run("2026-10-20T11:16:51.000Z", ["2026-10-20"]);
+  await run("2026-10-20T13:30:00.000Z", ["2026-10-20", "2026-10-19"]);
+  // 每一次运行里“今天”这个日期的 BlockBeats 记录：调用了几次、W(D) 覆盖到了哪里
+  const got: string[] = [];
+  const want: string[] = [];
+  for (const D of ["2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24"]) {
+    for (const t of ["04:30", "08:15", "13:30"]) {
+      const [bb] = await run(`${D}T${t}:00.000Z`, [D, yesterday(D)]);
+      got.push(`${D} ${t} covered=${bb.covered?.from}…${bb.covered?.to}`);
+      want.push(`${D} ${t} covered=${dailyWindow(D).from}…${dailyWindow(D).to}`);
+    }
+  }
+  assert.deepEqual(got, want);
+  // 没有 cache 的第一次运行：要往回翻 35.3 小时，4 页只够 34.8 小时 → partial，covered 写实际覆盖的区间
+  assert.deepEqual([seed.status, seed.calls, seed.covered!.to], ["partial", 4, dailyWindow("2026-10-20").to]);
+  assert.ok(Date.parse(seed.covered!.from) - Date.parse(dailyWindow("2026-10-20").from) < HOUR, `残缺 < 1 小时：${seed.covered!.from}`);
+  // 稳态：每天只在 04:30 翻 3 页（24 小时 ÷ 8.7），留 1 次给重试和手动运行
+  assert.deepEqual(Object.fromEntries(perDay), { "2026-10-20": 4, "2026-10-21": 2, "2026-10-22": 3, "2026-10-23": 3, "2026-10-24": 3 });
+  for (const [d, n] of perDay) assert.equal(ledgerOf(state).days[d].calls, n, d);
+});
+
+test("BlockBeats 覆盖：忙的一天（每页 5 小时）4 次翻不完 → partial，covered 写实际覆盖的区间，残缺 ≤ 一页，预算不超（WHI-2078）", async () => {
+  const { root, state } = makeRoot(realBB());
+  const { run, perDay } = simulate(root, 5);
+  for (const D of ["2026-10-21", "2026-10-22", "2026-10-23"]) {
+    for (const t of ["04:30", "08:15", "13:30"]) {
+      const [bb] = await run(`${D}T${t}:00.000Z`, [D, yesterday(D)]);
+      if (t !== "04:30") {
+        assert.deepEqual([bb.status, bb.calls], ["skipped", 0], `${D} ${t}`);
+        continue;
+      }
+      // 4 页 = 20 小时：翻不到前一天 04:30 的那一段记为 partial（第一天没有 cache，差得更多）
+      assert.deepEqual([bb.status, bb.calls, bb.covered!.to], ["partial", 4, dailyWindow(D).to], D);
+      if (D === "2026-10-21") continue;
+      const missing = Date.parse(bb.covered!.from) - Date.parse(`${yesterday(D)}T04:30:00.000Z`);
+      assert.ok(missing > 0 && missing <= 5 * HOUR, `${D}：残缺 ${missing / HOUR} 小时`);
+    }
+  }
+  for (const [d, n] of perDay) assert.deepEqual([n, ledgerOf(state).days[d].calls], [4, 4], d);
+});
+
+test("BlockBeats 预算跨运行：失败、手动重跑、补跑、预算用完后的运行都不让一天超过 4 次（WHI-2078）", async () => {
+  const { root, state } = makeRoot(realBB());
+  const { run, perDay } = simulate(root, 8.7);
+  await run("2026-10-20T11:16:51.000Z", ["2026-10-20"]); // seed：4 次
+  assert.equal((await run("2026-10-20T18:00:00.000Z", ["2026-10-20", "2026-10-19"]))[0].calls, 0); // 手动运行：预算已用完
+  let [bb] = await run("2026-10-21T04:30:00.000Z", ["2026-10-21", "2026-10-20"], true); // 定时运行，BlockBeats 500
+  assert.deepEqual([bb.status, bb.calls], ["failed", 1]);
+  [bb] = await run("2026-10-21T04:40:00.000Z", ["2026-10-21"]); // 手动重跑：补齐
+  assert.deepEqual([bb.status, bb.covered], ["ok", dailyWindow("2026-10-21")]);
+  assert.equal((await run("2026-10-21T09:00:00.000Z", ["2026-10-17"]))[0].calls, 0); // 补跑更早的日期：够不到，不花预算
+  await run("2026-10-21T13:30:00.000Z", ["2026-10-21", "2026-10-20"]);
+  [bb] = await run("2026-10-22T04:30:00.000Z", ["2026-10-22", "2026-10-21"], true); // 又失败一次
+  [bb] = await run("2026-10-22T08:15:00.000Z", ["2026-10-22", "2026-10-21"]); // 08:15 只剩 3 次：差的不到一页，记为 partial
+  assert.deepEqual([bb.status, bb.calls], ["partial", 3]);
+  assert.equal(bb.covered!.to, dailyWindow("2026-10-22").to);
+  [bb] = await run("2026-10-22T13:30:00.000Z", ["2026-10-22", "2026-10-21"]);
+  assert.match(bb.error!, /预算 4 次已用完/);
+  await run("2026-10-22T20:00:00.000Z", ["2026-10-22"]);
+  [bb] = await run("2026-10-23T04:30:00.000Z", ["2026-10-23", "2026-10-22"]); // 第二天照常
+  assert.deepEqual([bb.status, bb.covered], ["ok", dailyWindow("2026-10-23")]);
+  const l = ledgerOf(state);
+  for (const [d, n] of perDay) {
+    assert.equal(l.days[d].calls, n, `${d}：账本 = 实际请求数`);
+    assert.ok(n <= 4, `${d}：${n} 次`);
+  }
+  assert.deepEqual([...perDay.keys()], ["2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]);
+});
+
+test("BlockBeats 第 2 页的 create_time 不能用（不满一页 / 满一页）→ format 错误，只保留第 1 页证明的覆盖，下一次运行接着补（WHI-2078 PR-F1）", async () => {
+  const W = dailyWindow("2026-10-21");
+  const rec = (id: number, create_time: string) => ({ id, title: `快讯 ${id}`, content: "<p>x</p>", link: `https://www.theblockbeats.info/flash/${id}`, url: "", create_time });
+  for (const [label, page2] of [
+    ["不满一页", [rec(800000, "invalid")]],
+    ["满一页", Array.from({ length: 50 }, (_, k) => rec(800000 + k, "invalid"))],
+  ] as const) {
+    const { root, state } = makeRoot(realBB());
+    // 第 1 页：50 条都在 10-20 20:00Z（UTC+8 10-21 04:00），没翻到时间窗起点；第 2 页的时间都不能用
+    reset((u: URL) => ({ status: 0, data: { data: u.searchParams.get("page") === "1" ? Array.from({ length: 50 }, (_, k) => rec(900000 + k, "2026-10-21 04:00:00")) : page2 } }));
+    const bb = src((await ingest(root, "2026-10-21", "2026-10-21T04:30:00.000Z")).manifest, "blockbeats");
+    assert.deepEqual([bb.status, bb.calls, bb.covered], ["partial", 2, { from: "2026-10-20T20:00:00.000Z", to: W.to }], label);
+    assert.match(bb.error!, /^format: /, label);
+    assert.deepEqual(loadCache(state).cache.sources.blockbeats.spans, [{ from: "2026-10-20T20:00:00.000Z", to: "2026-10-21T04:30:00.000Z" }], label);
+    // 下一次运行：时间窗没有被当成已覆盖，接着翻页补齐
+    reset(bbStream(24, () => Date.parse("2026-10-21T08:15:00.000Z")));
+    const next = src((await ingest(root, "2026-10-21", "2026-10-21T08:15:00.000Z")).manifest, "blockbeats");
+    assert.deepEqual([next.status, next.calls, next.covered], ["ok", 2, W], label);
+  }
+});
+
 test("账本丢失或损坏 → 当天不调用（失败即关闭），第二天恢复", async () => {
   const { root, state } = makeRoot(bbOnly(), null);
   reset();
@@ -758,6 +896,41 @@ test("跨 UTC 午夜：请求记到发出请求的那一天，并受那一天的
   assert.equal(r3.calls, 0);
   assert.match(r3.skipped!, /已停止调用/);
   assert.equal(requests, 0);
+
+  // 翻页跨过午夜：每一页记到它发出的那一天，新的一天用完了就不再翻（WHI-2078）
+  const clock = ["2026-10-18T23:59:58.000Z", "2026-10-19T00:00:01.000Z"];
+  const pages: string[] = [];
+  let ignorePage = false;
+  const fullPages: HttpCtx = {
+    ...ctx,
+    fetch: async (u) => {
+      const page = new URL(u).searchParams.get("page")!;
+      pages.push(page);
+      // 第 p 页的条目在 UTC+8 10-19 (8−p):00（都晚于 W 的起点），ignorePage 时每次都返回第 1 页
+      const hour = 8 - (ignorePage ? 1 : Number(page));
+      const data = Array.from({ length: cfg.size }, (_, k) => ({ id: `${page}${k}`, title: "t", link: `https://www.theblockbeats.info/flash/${page}${k}`, url: "", create_time: `2026-10-19 0${hour}:00:00` }));
+      return new Response(JSON.stringify({ status: 0, data: { data } }));
+    },
+  };
+  const paged = (ledger: Ledger) => {
+    let n = 0;
+    const many = { ...cfg, max_calls_per_run: 4 };
+    return runBlockBeats({ id: "blockbeats", cfg: many, ctx: fullPages, key: KEY, ledger, persist: () => {}, at, w: dailyWindow("2026-10-19"), cached: null, now: () => clock[Math.min(n++, 1)] });
+  };
+  const split: Ledger = { schema: 1, days: { "2026-10-18": { calls: 3 } }, last_success_at: null };
+  const r4 = await paged(split);
+  assert.deepEqual(split.days, { "2026-10-18": { calls: 4 }, "2026-10-19": { calls: 3 } }, "第 1 页记到 10-18，之后的页记到 10-19");
+  assert.deepEqual([r4.calls, pages], [4, ["1", "2", "3", "4"]]);
+  pages.length = 0;
+  const late: Ledger = { schema: 1, days: { "2026-10-18": { calls: 0 }, "2026-10-19": { calls: 3 } }, last_success_at: null };
+  const r5 = await paged(late);
+  assert.deepEqual(late.days, { "2026-10-18": { calls: 1 }, "2026-10-19": { calls: 4 } });
+  assert.deepEqual([r5.calls, pages], [2, ["1", "2"]], "10-19 只剩 1 次：第 3 页不发");
+  // 接口不认 page（第 2 页没有更早的条目）：不再往下翻，不白花预算
+  pages.length = 0;
+  ignorePage = true;
+  const r6 = await paged({ schema: 1, days: {}, last_success_at: null });
+  assert.deepEqual([r6.calls, pages], [2, ["1", "2"]]);
 });
 
 test("sources.yml：max_calls_per_day 不能超过硬上限，endpoint 只能是两个 important 接口，源必须已登记", () => {
@@ -769,10 +942,10 @@ test("sources.yml：max_calls_per_day 不能超过硬上限，endpoint 只能是
   assert.ok(bad({ blockbeats: { ...bbCfg, endpoints: ["newsflash/important", "article/important"] } })); // 2 个 endpoint 需要每次运行 2 次
   assert.ok(bad({ coindesk: { type: "rss", url: "https://www.coindesk.com/rss", max_calls_per_run: 1 } }));
   assert.ok(!bad({}));
-  // 仓库里的 sources.yml 本身合法，且 BlockBeats 是所有者定的 4 / 6
+  // 仓库里的 sources.yml 本身合法，且 BlockBeats 是所有者定的 4 / 6；一次运行最多翻 4 页，是否调用只看缓存覆盖（WHI-2078）
   const real = sourcesFileSchema.parse(parseYaml(readFileSync(join(REPO, "sources.yml"), "utf8")));
   const rb = real.sources.blockbeats as BlockBeatsConfig;
-  assert.deepEqual([rb.max_calls_per_day, rb.hard_cap_per_day, rb.max_calls_per_run, rb.endpoints], [4, 6, 1, ["newsflash/important"]]);
+  assert.deepEqual([rb.max_calls_per_day, rb.hard_cap_per_day, rb.max_calls_per_run, rb.min_interval_hours, rb.endpoints], [4, 6, 4, 0, ["newsflash/important"]]);
 });
 
 // ───────────────────────── 凭据 ─────────────────────────

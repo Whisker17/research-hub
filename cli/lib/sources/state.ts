@@ -2,7 +2,7 @@
  * rh ingest 跨运行保存的状态（一个目录，WHI-1937 负责在 Actions 里恢复和保存）：
  *   ledger.json  BlockBeats 调用账本：按 UTC 日计数，没有任何内容，也没有凭据
  *   cache.json   最近几天抓到的条目（含 ≤400 字摘录）、每个源成功抓取覆盖的区间、找到的日报
- * cache 让后一次运行补齐前一次没覆盖到的时间（ADR 0004 §4：BlockBeats 一次只覆盖约 24 小时），
+ * cache 让后一次运行补齐前一次没覆盖到的时间（BlockBeats 一页工作日只覆盖约 9 小时，翻页接上缓存，WHI-2078），
  * 也让某次抓取失败时保留上一次的好数据（失败不会覆盖它）。
  */
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
