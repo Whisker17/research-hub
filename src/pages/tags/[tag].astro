@@ -1,26 +1,17 @@
 ---
+/** 公开标签页：只有被 public + published 报告用到的标签（siteView("public")，ADR 0003 §2、§3）。 */
 import Base from "../../layouts/Base.astro";
-import ReportList from "../../components/ReportList.astro";
-import SiteFoot from "../../components/SiteFoot.astro";
-import { siteData, toCard, usedTags } from "../../../lib/site-data.ts";
+import TagPage from "../../components/TagPage.astro";
+import { t } from "../../i18n.ts";
+import { siteView } from "../../../lib/site-data.ts";
 
 export function getStaticPaths() {
-  const { publicReports, tags } = siteData();
-  return usedTags(publicReports, tags).map((t) => ({ params: { tag: t.key }, props: { label: t.label } }));
+  const v = siteView("public");
+  return v.usedTags.map((u) => ({ params: { tag: u.key }, props: { tag: v.tag(u.key)! } }));
 }
 
-const { tag } = Astro.params;
-const { label } = Astro.props;
-const { publicReports, tags } = siteData();
-const cards = publicReports.filter((r) => r.meta.tags.includes(tag)).map((r) => toCard(r, tags));
+const { tag } = Astro.props;
 ---
-<Base title={`标签：${label}`}>
-  <div class="crumbs-bar">
-    <p class="crumbs"><a href="/">Research Hub</a> / <a href="/tags/">标签</a></p>
-    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
-  </div>
-  <h1 class="page-title">{label}</h1>
-  <p class="page-sub">{cards.length} 篇报告</p>
-  <ReportList cards={cards} linkTags />
-  <SiteFoot />
+<Base title={t("zh", "tagTitle", { label: tag.label })} titleEn={t("en", "tagTitle", { label: tag.label_en ?? tag.label })} description={tag.description}>
+  <TagPage site="public" tag={tag} />
 </Base>

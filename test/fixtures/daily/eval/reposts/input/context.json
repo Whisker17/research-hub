@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "date": "2026-10-18",
+  "window": {
+    "from": "2026-10-17T00:00:00.000Z",
+    "to": "2026-10-18T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2111652016124784867"
+  },
+  "avoid_terms": [
+    "Mantle"
+  ],
+  "public_tags": {
+    "ethereum": {
+      "label": "Ethereum"
+    }
+  },
+  "public_reports": [
+    {
+      "slug": "glamsterdam-overview",
+      "title": "Glamsterdam 升级概览",
+      "title_en": "Glamsterdam upgrade overview",
+      "summary": "Glamsterdam 升级包含哪些 EIP、各自解决什么问题、对 L1 容量和 blob 空间的影响。",
+      "summary_en": "Which EIPs Glamsterdam includes, what each one solves, and how they change L1 capacity and blob space.",
+      "domain": "crypto",
+      "tags": [
+        "ethereum"
+      ],
+      "created": "2026-10-01",
+      "updated": "2026-10-01"
+    }
+  ],
+  "recent_days": [
+    {
+      "date": "2026-10-17",
+      "status": "degraded",
+      "reasons": [
+        "few_topics"
+      ],
+      "window": {
+        "from": "2026-10-16T00:00:00.000Z",
+        "to": "2026-10-17T00:00:00.000Z"
+      },
+      "generated_at": "2026-10-17T04:31:00.000Z",
+      "counts": {
+        "topics": 1
+      },
+      "note": "当天满足证据要求的研究题目只有 1 个。",
+      "topics": [
+        {
+          "id": "2026-10-17-b2ded1",
+          "title": "Glamsterdam 进入 Hoodi 测试网：激活时间表与主网前提",
+          "title_en": "Glamsterdam reaches the Hoodi testnet: activation schedule and mainnet prerequisites",
+          "domain": "crypto",
+          "tags": [
+            "ethereum"
+          ],
+          "proposed_tags": [
+            "glamsterdam"
+          ],
+          "why_now": "以太坊基金会公布 Hoodi 测试网分叉定在 10 月 26 日，主网日期取决于测试网结果。",
+          "questions": [
+            "测试网分叉需要满足哪些条件才会定主网日期？",
+            "这次升级的哪些 EIP 影响 L1 容量与 blob 空间？"
+          ],
+          "angle": "从激活表、客户端发布与协调帖出发，梳理主网上线前的检查点。",
+          "novelty": {
+            "kind": "update",
+            "related": [
+              "glamsterdam-overview"
+            ]
+          },
+          "references": [
+            {
+              "item_id": "odaily:990010",
+              "type": "secondary"
+            },
+            {
+              "item_id": "magicians:29960",
+              "type": "primary"
+            }
+          ],
+          "evidence": {
+            "independent_sources": 2
+          },
+          "confidence": "high"
+        }
+      ],
+      "items": {
+        "odaily:990010": {
+          "source": "odaily",
+          "url": "https://www.odaily.news/zh-CN/newsflash/990010",
+          "origin_url": "https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+          "title": "以太坊基金会公布 Glamsterdam 测试网激活时间表",
+          "author": null,
+          "via": null,
+          "published_at": "2026-10-16T20:00:00.000Z",
+          "incomplete": false
+        },
+        "magicians:29960": {
+          "source": "magicians",
+          "url": "https://ethereum-magicians.org/t/glamsterdam-hoodi-fork-coordination/29960",
+          "origin_url": null,
+          "title": "Glamsterdam Hoodi fork coordination",
+          "author": null,
+          "via": null,
+          "published_at": "2026-10-16T15:00:00.000Z",
+          "incomplete": false
+        }
+      }
+    }
+  ]
+}

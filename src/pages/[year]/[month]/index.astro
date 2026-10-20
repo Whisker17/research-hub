@@ -1,26 +1,17 @@
 ---
+/** 公开月归档 /YYYY/MM/：只有 public + published 报告的创建月份（siteView("public")）。 */
 import Base from "../../../layouts/Base.astro";
-import ReportList from "../../../components/ReportList.astro";
-import SiteFoot from "../../../components/SiteFoot.astro";
-import { byMonth, siteData, toCard } from "../../../../lib/site-data.ts";
+import MonthPage from "../../../components/MonthPage.astro";
+import { monthVars, t } from "../../../i18n.ts";
+import { siteView } from "../../../../lib/site-data.ts";
 
 export function getStaticPaths() {
-  const { publicReports } = siteData();
-  return byMonth(publicReports).map((m) => ({ params: { year: m.year, month: m.month }, props: { slugs: m.reports.map((r) => r.slug) } }));
+  return siteView("public").months.map((m) => ({ params: { year: m.year, month: m.month }, props: { month: m } }));
 }
 
-const { year, month } = Astro.params;
-const { slugs } = Astro.props;
-const { publicReports, tags } = siteData();
-const cards = publicReports.filter((r) => slugs.includes(r.slug)).map((r) => toCard(r, tags));
+const { month } = Astro.props;
+const ym = monthVars(month.year, month.month);
 ---
-<Base title={`${year} 年 ${Number(month)} 月`}>
-  <div class="crumbs-bar">
-    <p class="crumbs"><a href="/">Research Hub</a> / <a href="/archive/">按月归档</a></p>
-    <button class="lang-toggle" type="button" id="rh-lang-toggle" aria-label="Toggle language">English</button>
-  </div>
-  <h1 class="page-title">{year} 年 {Number(month)} 月</h1>
-  <p class="page-sub">{cards.length} 篇报告（按创建月份）</p>
-  <ReportList cards={cards} linkTags />
-  <SiteFoot />
+<Base title={t("zh", "month", ym)} titleEn={t("en", "month", ym)}>
+  <MonthPage site="public" month={month} />
 </Base>

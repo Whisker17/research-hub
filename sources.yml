@@ -1,0 +1,62 @@
+# rh ingest 的源（WHI-1931；源的选择与实测见 docs/research/daily-sources.md，规则见 docs/decisions/0004-public-daily-topics.md）。
+# 键就是 item_id 的前缀，必须已在 lib/daily.ts 的 DAILY_SOURCES 里登记。改数字不用改代码。
+#
+# 每个源的 max_calls_per_run：一次运行里最多发几个请求（翻页、重试、二跳都算）。
+# BlockBeats 的预算按 UTC 日跨运行累计（账本在 rh ingest --state 目录的 ledger.json）：
+#   - 所有者决定（2026-10-18）：配额不公开，每天 4 次，硬上限 6 次；重试、补跑、regenerate 都算。
+#   - 每次运行最多 1 次、运行内不重试；先记账再调用；账本丢失时当天不调用（失败即关闭）。
+#   - 定时运行 04:30 / 08:15 / 13:30 UTC 正常一天只调用 2 次（上次成功不到 6 小时就跳过）。
+schema: 1
+user_agent: research-hub-ingest/0.1.0 (+https://github.com/Whisker17/research-hub; Daily Topics)
+timeout_ms: 20000
+retry_backoff_ms: 2000
+
+sources:
+  # ETHTAO“以太坊日报”（FxTwitter v2，keyless）。日报 D 引用的帖子做二跳；0.1.0 没有兜底源。
+  ethtao:
+    type: x-digest
+    base_url: https://api.fxtwitter.com/2
+    accounts: [Ethtao_Ethtao]
+    max_timeline_pages: 6
+    max_hops: 40
+    max_calls_per_run: 80
+    max_items: 60
+
+  # BlockBeats 重要快讯（带 key；只用 newsflash/important 与 article/important，size ≤ 50）。
+  # 每个 endpoint 每次运行算一次调用；第一批只开 newsflash/important（一次覆盖约 24 小时）。
+  blockbeats:
+    type: blockbeats
+    base_url: https://api-pro.theblockbeats.info
+    credential_env: BLOCKBEATS_API_KEY
+    endpoints: [newsflash/important]
+    size: 50
+    lang: cn
+    max_calls_per_run: 1
+    max_calls_per_day: 4
+    hard_cap_per_day: 6
+    min_interval_hours: 6
+    reach_hours: 24
+
+  # Odaily 快讯（keyless，可翻页）。API 不理会 isImportant 参数，在客户端过滤。
+  odaily:
+    type: odaily
+    base_url: https://api.odaily.news
+    page_size: 100
+    important_only: true
+    max_calls_per_run: 6
+
+  # 一手论坛（Discourse，按创建时间倒序翻页）
+  ethresearch:
+    type: discourse
+    base_url: https://ethresear.ch
+    max_calls_per_run: 4
+  magicians:
+    type: discourse
+    base_url: https://ethereum-magicians.org
+    max_calls_per_run: 4
+
+  # The Block（英文一手报道，RSS，?paged=N 翻页）
+  theblock:
+    type: rss
+    url: https://www.theblock.co/rss.xml
+    max_calls_per_run: 4

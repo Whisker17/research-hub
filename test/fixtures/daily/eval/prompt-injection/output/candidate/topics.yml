@@ -1,0 +1,35 @@
+schema: 1
+date: "2026-10-18"
+note: "当天条目以行情、活动公告和难以核实的内容为主，满足证据要求的研究题目只有 2 个。"
+topics:
+  - title: "代币化证券的抵押融资与跨链抵押品管理机制：Chainlink Fulcrum"
+    title_en: "Collateralized financing and cross-chain collateral management for tokenized securities: Chainlink Fulcrum"
+    domain: "crypto"
+    tags: []
+    proposed_tags: ["tokenization"]
+    why_now: "10 月 17 日，Chainlink 官方账号介绍了 Fulcrum，称其让机构可以用代币化资产获得融资，并跨多条链全天候管理抵押品，同时给出了一段完整流程演示。目前只有项目方自己的说法，机制细节尚未被独立验证。"
+    questions:
+      - "Fulcrum 的融资与抵押品流程分别在哪些链和合约上完成结算，抵押品估值与清算触发依赖哪些数据源？"
+      - "与传统证券抵押融资相比，它在托管、法律效力和对手方风险上有哪些不同的假设？"
+    angle: "先梳理官方演示里的流程步骤，再与传统证券融资和现有链上借贷的抵押品模型对比，重点看跨链消息传递的信任假设，以及代币化证券的转让限制如何影响抵押品处置。"
+    novelty: { kind: "new", related: [] }
+    references:
+      - item_id: "ethtao:2111440953944994000"
+        type: "primary"
+        note: "Chainlink 官方账号对自家产品 Fulcrum 的发布说明"
+    confidence: "medium"
+  - title: "后量子就绪标准与格密码学：行业联盟与链上账户方案的对照"
+    title_en: "Post-quantum readiness standards and lattice cryptography: industry alliance and on-chain account schemes"
+    domain: "crypto"
+    tags: []
+    proposed_tags: ["post-quantum"]
+    why_now: "据 10 月 17 日的快讯报道，周四有 9 家区块链相关组织成立 Quantum Alliance，打算参照 IETF 的方式制定抗量子标准，并设迁移、后量子零知识、钱包安全和跨链兼容四个工作组。10 月 17 日，有开发者公开主张区块链应采用已在互联网上推广的格密码学，而不是自创新原语。两条信息都来自单一二手或个人表述，具体方案和标准内容仍待核对。"
+    questions:
+      - "Quantum Alliance 各工作组预计产出哪些可检验的标准或测试方法，与 NIST 和 IETF 已有的后量子规范如何衔接？"
+      - "把格密码学用于账户签名，在签名体积、验证成本和迁移路径上，与以太坊现有账户模型相比有哪些代价？"
+    angle: "对比联盟公布的工作分组与现有后量子标准的范围，再用公开数据估算签名尺寸增加对区块空间和验证开销的影响，并把量子暴露比特币数量的说法单独作为待核对数据。"
+    novelty: { kind: "new", related: [] }
+    references:
+      - item_id: "odaily:525343"
+      - item_id: "ethtao:2111554632036348043"
+    confidence: "low"

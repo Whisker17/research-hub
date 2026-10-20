@@ -1,0 +1,9 @@
+{
+  "class": "low-quality",
+  "purpose": "A weak day, all real 2026-10-18 items: banter and replies, a hype claim from one account, promos, betting, non-crypto AI/stock news, and a handful of single-source crypto news items (Gemini/CFTC, Telegram data, Solana/Fidelity, Deutsche Bank custody, tokenization objections).",
+  "expect": "Few or no topics (no padding to 5), a note explaining why, no topic that fails the evidence rule or rests on the hype claim as fact.",
+  "synthetic_items": [],
+  "canaries": [
+    "Mantle"
+  ]
+}

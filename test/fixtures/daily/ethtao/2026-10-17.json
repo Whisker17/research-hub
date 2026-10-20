@@ -1,0 +1,714 @@
+{
+ "issue": "WHI-1925",
+ "runner_run_id": "39128600115",
+ "runner_fetched_at": "2026-10-18T12:45:21.148Z",
+ "via": "https://api.fxtwitter.com/2 (FxTwitter v2, keyless)",
+ "raw_text_fetched_at": "2026-10-18T12:33:41Z (residential IP, same status id)",
+ "input": {
+  "id": "2111292354196099556",
+  "url": "https://x.com/Ethtao_Ethtao/status/2111292354196099556",
+  "created_at": "Sat Oct 17 03:04:57 +0000 2026",
+  "created_timestamp": 1792206297,
+  "is_note_tweet": true,
+  "text": "🗓️以太坊日报 2026-10-17\n\n【区块链技术讨论】\n1⃣@nero_eth、@kevaundray、@lightclients与@ignaciohagopian就EIP-8025展开激烈争论，核心分歧在于是否应以非承载方式提前引入SNARK/zkVM概念，以及该提案应归类为信息性EIP还是核心硬分叉议程，同时涉及对后续提案规范约束与状态丢弃风险的权衡 [原文] (https://x.com/nero_eth/status/2110955329139757262)\n\n2⃣@nero_eth披露明年Hegotá分叉已有23个EIPs进入CFI/SFI状态，但仅FOCIL与Frame Transactions为SFI'd；强调AI虽加速开发，但治理协调需防范范围蔓延以确保安全可控 [原文] (https://x.com/nero_eth/status/2111038056597712979)\n\n3⃣@pcaversaccio分析EIP-8246拟移除SELFDESTRUCT燃烧机制，指出当前超26,792 ETH存于主要燃烧地址但开发者普遍不知协议级不可逆燃烧，主张引入一级燃烧原语真正从供应中移除ETH [原文] (https://x.com/pcaversaccio/status/2111108120990892251)\n\n4⃣@ralexstokes宣布Glamsterdam升级推进，Hoodi测试网定于10月26日激活，主网日期待另行公布，相关客户端版本与漏洞赏金计划已发布 [原文] (https://x.com/ralexstokes/status/2111165223780454451)\n\n5⃣@gballet称\"Lean is the new rust\"，暗示形式验证语言Lean正成为以太坊协议开发的新范式 [原文] (https://x.com/gballet/status/2111041690916057345)\n\n6⃣@nero_eth与@BenDiFrancesco等认为某测试网钱包使用公开开发者恢复短语派生密钥并非严重安全问题，属已知测试惯例 [原文] (https://x.com/nero_eth/status/2110996334064873474)\n\n【行业观点碰撞】\n1⃣@fradamt提出AI正使以太坊更有野心以应对后AI世界挑战，该观点获@barnabemonnot、@casparschwa、@_julianma、@corcoranwill等广泛认同与传播 [原文] (https://x.com/barnabemonnot/status/2111136356126925188)\n\n2⃣@barnabemonnot建议AMC应在以太坊L1原生发行自身股份以获得最大安全性与可组合性，并通过L2与DeFi进行分销；@casparschwa转推支持 [原文] (https://x.com/barnabemonnot/status/2111060880733454664)\nCharles Schwab已完成直接以太坊原生交易推广，所有客户现可访问Schwab Crypto进行以太坊交易 [原文] (https://x.com/davwals/status/2111096163869049265)\n\n3⃣@growthepie_eth转推指出数万亿美元稳定币将在以太坊上流动；@base同日推动代币化股票、代理支付（x402）及稳定币企业卡等链上金融创新 [原文] (https://x.com/growthepie_eth/status/2111103906692391332)\n\n4⃣@chainlink推出Fulcrum连接代币化证券与跨链融资场所，并宣布与Pacific Meta达成战略合作在日本推广机构代币化，采用CCIP与自动合规引擎 [原文] (https://x.com/chainlink/status/2111079920436674579)\n\n5⃣@Asbet0s强调以太坊是面向企业与公共部门的开放、中立数字基础设施；@nloureiro转推ethdotorg新上线的组织使用指南 [原文] (https://x.com/Asbet0s/status/2111026495363903573)\n\n6⃣@corcoranwill转推@ethereum官方表示，以太坊正以形式验证等手段实现更快升级且更少bug；@soispoke等从剑桥研讨会反馈称后量子安全与快速终结技术正加速落地 [原文] (https://x.com/corcoranwill/status/2111144070953468224)\n\n7⃣@barnabemonnot调侃AI代理正在解决以太坊的\"千年难题\"——获取Sepolia测试网ETH，反映测试网资源分配与AI代理需求的碰撞 [原文] (https://x.com/barnabemonnot/status/2110990946125095398)\n\n【开发者生态】\n1⃣@austingriffith发布\"Wedgie\"开源DIY硬件钱包，使用三种常见零件与3D打印外壳（MIT许可），可作为@safe签名者并采用VRGDA定价；获@dankrad认可并将在Devcon开放硬件区展示 [原文] (https://x.com/austingriffith/status/2111105390368948680)\n\n2⃣@ignaciohagopian转推@ethrex_client立场，认为ACDC将EIP-8025 DFI是错误的决定，不利于以太坊长期利益 [原文] (https://x.com/ignaciohagopian/status/2111089453146292538)\n\n3⃣@DavideCrapis透露与@binji_x合作的dAI项目正推进v1，后续还将实现安全性、私有问责等改进 [原文] (https://x.com/DavideCrapis/status/2111177680070877516)@nixorokish转推提及Lighter EVM公共devnet已上线，为开发者提供新的测试与实验环境 [原文] (https://x.com/nixorokish/status/2110930474143268915)\n\n4⃣@nixorokish转推@austingriffith的ethskills ChatGPT插件已获批，可增强AI对以太坊技术与生态的理解 [原文] (https://x.com/nixorokish/status/2110949080818147758)\n\n5⃣@matteoikari宣布@Zac_Aztec项目达到Stage 2 L2里程碑，标志着去中心化与安全性进一步提升 [原文] (https://x.com/matteoikari/status/2111089285218566372)\n\n6⃣@DavideCrapis转推VitalikButerin关于Wrapped zkAPI结合Tor、覆盖流量与本地LLM提示重写的隐私方案，为开发者提供抗审查与隐私保护思路 [原文] (https://x.com/DavideCrapis/status/2111081178186870833)\n\n其他有趣内容：\n1⃣@corcoranwill公布剑桥研讨会69个参与组织名单，涵盖全球顶尖大学、研究机构与行业团队，展现以太坊研究生态的广度与深度 [原文] (https://x.com/corcoranwill/status/2111105812097564797)\n\n2⃣@growthepie_eth监测到Ronin L2出现740万笔交易与725万个地址的活动激增，但交易成本低导致链上利润暂时转负 [原文] (https://x.com/growthepie_eth/status/2111060869530427618)\n\n3⃣@evan_van_ness转推指出，AI彻底打破了电子媒介的人类信任系统，因此区块链比以往任何时候都更加必要 [原文] (https://x.com/evan_van_ness/status/2110981884146831684)\n\n4⃣@austingriffith转推@petejkim指出，比特币与以太坊选择secp256k1而非P-256深受对NSA后门恐惧的影响 [原文] (https://x.com/austingriffith/status/2111215339455623455)"
+ },
+ "expected": {
+  "digest_date": "2026-10-17",
+  "status_id": "2111292354196099556",
+  "url": "https://x.com/Ethtao_Ethtao/status/2111292354196099556",
+  "posted_at": "2026-10-17T03:04:57.000Z",
+  "first_line": "🗓️以太坊日报 2026-10-17",
+  "format": "bracket-ref",
+  "sections": [
+   {
+    "name": "区块链技术讨论",
+    "items": [
+     {
+      "text": "@nero_eth、@kevaundray、@lightclients与@ignaciohagopian就EIP-8025展开激烈争论，核心分歧在于是否应以非承载方式提前引入SNARK/zkVM概念，以及该提案应归类为信息性EIP还是核心硬分叉议程，同时涉及对后续提案规范约束与状态丢弃风险的权衡",
+      "mention": "nero_eth",
+      "refs": [
+       {
+        "handle": "nero_eth",
+        "id": "2110955329139757262",
+        "url": "https://x.com/nero_eth/status/2110955329139757262",
+        "hop": {
+         "ref": "https://x.com/nero_eth/status/2110955329139757262",
+         "status": 200,
+         "code": 200,
+         "ms": 109,
+         "resolved_id": "2110955329139757262",
+         "resolved_url": "https://x.com/nero_eth/status/2110955329139757262",
+         "author": "nero_eth",
+         "reposted_by": null,
+         "created_at": "2026-10-16T04:45:44.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "It changes specs and forces all hegota + I* proposals to comply. Don't get me wrong, zkVMs are the future and new proposals should comply, but adding unnecessary complexities/dependencies early feels wrong.\nThe more nodes that drop state, the more difficult to bootstrap new nodes, and the bigger dtate grows the earlier we'll see nodes dropping data, no matter if named optional or not.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@nero_eth披露明年Hegotá分叉已有23个EIPs进入CFI/SFI状态，但仅FOCIL与Frame Transactions为SFI'd；强调AI虽加速开发，但治理协调需防范范围蔓延以确保安全可控",
+      "mention": "nero_eth",
+      "refs": [
+       {
+        "handle": "nero_eth",
+        "id": "2111038056597712979",
+        "url": "https://x.com/nero_eth/status/2111038056597712979",
+        "hop": {
+         "ref": "https://x.com/nero_eth/status/2111038056597712979",
+         "status": 200,
+         "code": 200,
+         "ms": 153,
+         "resolved_id": "2111038056597712979",
+         "resolved_url": "https://x.com/nero_eth/status/2111038056597712979",
+         "author": "nero_eth",
+         "reposted_by": null,
+         "created_at": "2026-10-16T10:14:28.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "So far, 23 EIPs are CFI'd/SFI'd for next year's fork, Hegotá.\nThat's a lot already, but tbf, only the two headliners (FOCIL + Frame Transactions) are SFI'd. The rest are still CFI'd and could end up being DFI'd.\nOver the next couple of weeks, we'll see how many make it into devnets (and thus get implemented by clients), before eventually being SFI'd or DFI'd.\n\nAI has accelerated development, and d",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@pcaversaccio分析EIP-8246拟移除SELFDESTRUCT燃烧机制，指出当前超26,792 ETH存于主要燃烧地址但开发者普遍不知协议级不可逆燃烧，主张引入一级燃烧原语真正从供应中移除ETH",
+      "mention": "pcaversaccio",
+      "refs": [
+       {
+        "handle": "pcaversaccio",
+        "id": "2111108120990892251",
+        "url": "https://x.com/pcaversaccio/status/2111108120990892251",
+        "hop": {
+         "ref": "https://x.com/pcaversaccio/status/2111108120990892251",
+         "status": 200,
+         "code": 200,
+         "ms": 227,
+         "resolved_id": "2111108120990892251",
+         "resolved_url": "https://x.com/pcaversaccio/status/2111108120990892251",
+         "author": "pcaversaccio",
+         "reposted_by": null,
+         "created_at": "2026-10-16T14:52:53.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "alright, i keep looking into the Glamsterdam EIPs. let's take EIP-8246: https://eips.ethereum.org/EIPS/eip-8246. we have more than 26,792 ETH sitting in major burn addresses. EIP-8246 wants to remove the remaining SELFDESTRUCT burn mechanics (see my quoted tweet, where i showcase the mechanics to be removed). and yes, it's correct that this mechanism is barely used in practice (unfortunately). but",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@ralexstokes宣布Glamsterdam升级推进，Hoodi测试网定于10月26日激活，主网日期待另行公布，相关客户端版本与漏洞赏金计划已发布",
+      "mention": "ralexstokes",
+      "refs": [
+       {
+        "handle": "ralexstokes",
+        "id": "2111165223780454451",
+        "url": "https://x.com/ralexstokes/status/2111165223780454451",
+        "hop": {
+         "ref": "https://x.com/ralexstokes/status/2111165223780454451",
+         "status": 200,
+         "code": 200,
+         "ms": 111,
+         "resolved_id": "2111165223780454451",
+         "resolved_url": "https://x.com/ralexstokes/status/2111165223780454451",
+         "author": "ralexstokes",
+         "reposted_by": null,
+         "created_at": "2026-10-16T18:39:47.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Glamsterdam charges ahead!\n\nThe Hoodi testnet upgrade is scheduled for the 26th of October while the mainnet date will be announced separately. Activation table, client releases, and info on the bug bounty program can be found here: https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+         "external_url": "https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement"
+        }
+       }
+      ]
+     },
+     {
+      "text": "@gballet称\"Lean is the new rust\"，暗示形式验证语言Lean正成为以太坊协议开发的新范式",
+      "mention": "gballet",
+      "refs": [
+       {
+        "handle": "gballet",
+        "id": "2111041690916057345",
+        "url": "https://x.com/gballet/status/2111041690916057345",
+        "hop": {
+         "ref": "https://x.com/gballet/status/2111041690916057345",
+         "status": 200,
+         "code": 200,
+         "ms": 137,
+         "resolved_id": "2111041690916057345",
+         "resolved_url": "https://x.com/gballet/status/2111041690916057345",
+         "author": "gballet",
+         "reposted_by": null,
+         "created_at": "2026-10-16T10:28:55.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Lean is the new rust 😬",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@nero_eth与@BenDiFrancesco等认为某测试网钱包使用公开开发者恢复短语派生密钥并非严重安全问题，属已知测试惯例",
+      "mention": "nero_eth",
+      "refs": [
+       {
+        "handle": "nero_eth",
+        "id": "2110996334064873474",
+        "url": "https://x.com/nero_eth/status/2110996334064873474",
+        "hop": {
+         "ref": "https://x.com/nero_eth/status/2110996334064873474",
+         "status": 200,
+         "code": 200,
+         "ms": 116,
+         "resolved_id": "2110996334064873474",
+         "resolved_url": "https://x.com/nero_eth/status/2110996334064873474",
+         "author": "nero_eth",
+         "reposted_by": null,
+         "created_at": "2026-10-16T07:28:41.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "\"It derived wallet keys from publicly known developer recovery phrases\".\nThis seems intended - using the default, hardcoded account for testing and since no one cares about testnet ETH it might have not been emptied. \nNot sure that's a big deal, really.",
+         "external_url": null
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "行业观点碰撞",
+    "items": [
+     {
+      "text": "@fradamt提出AI正使以太坊更有野心以应对后AI世界挑战，该观点获@barnabemonnot、@casparschwa、@_julianma、@corcoranwill等广泛认同与传播",
+      "mention": "fradamt",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2111136356126925188",
+        "url": "https://x.com/barnabemonnot/status/2111136356126925188",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2111136356126925188",
+         "status": 200,
+         "code": 200,
+         "ms": 136,
+         "resolved_id": "2111136356126925188",
+         "resolved_url": "https://x.com/barnabemonnot/status/2111136356126925188",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-16T16:45:04.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "AI is making Ethereum more ambitious",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@barnabemonnot建议AMC应在以太坊L1原生发行自身股份以获得最大安全性与可组合性，并通过L2与DeFi进行分销；@casparschwa转推支持",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2111060880733454664",
+        "url": "https://x.com/barnabemonnot/status/2111060880733454664",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2111060880733454664",
+         "status": 200,
+         "code": 200,
+         "ms": 131,
+         "resolved_id": "2111060880733454664",
+         "resolved_url": "https://x.com/barnabemonnot/status/2111060880733454664",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-16T11:45:10.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "AMC’s best reply, in a world of permissionless assets, would be to issue its own shares natively onchain. For maximum security and composability, I’d do that on Ethereum L1.\n\nUse L2s and DeFi for distribution. Lean in to their offerings, innovation and composability, with your capital at the centre. Eat your own cake, before someone else does.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "Charles Schwab已完成直接以太坊原生交易推广，所有客户现可访问Schwab Crypto进行以太坊交易",
+      "mention": null,
+      "refs": [
+       {
+        "handle": "davwals",
+        "id": "2111096163869049265",
+        "url": "https://x.com/davwals/status/2111096163869049265",
+        "hop": {
+         "ref": "https://x.com/davwals/status/2111096163869049265",
+         "status": 200,
+         "code": 200,
+         "ms": 117,
+         "resolved_id": "2111095475415732596",
+         "resolved_url": "https://x.com/ethereuminsti/status/2111095475415732596",
+         "author": "ethereuminsti",
+         "reposted_by": "davwals",
+         "created_at": "2026-10-16T14:02:38.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Charles Schwab has completed its rollout of direct ethereum:native trading.\n\nAll clients can now access Schwab Crypto, CEO Rick Wurster said at the firm’s Fall Business Update yesterday. Clients can also begin transferring existing crypto holdings in.\n\n@CharlesSchwab at a glance:\n→ $13.33 trillion in client assets as of 30 September\n→ 40.26 million active brokerage accounts\n\nETH is one of only two",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@growthepie_eth转推指出数万亿美元稳定币将在以太坊上流动；@base同日推动代币化股票、代理支付（x402）及稳定币企业卡等链上金融创新",
+      "mention": "growthepie_eth",
+      "refs": [
+       {
+        "handle": "growthepie_eth",
+        "id": "2111103906692391332",
+        "url": "https://x.com/growthepie_eth/status/2111103906692391332",
+        "hop": {
+         "ref": "https://x.com/growthepie_eth/status/2111103906692391332",
+         "status": 200,
+         "code": 200,
+         "ms": 157,
+         "resolved_id": "2111097082954002441",
+         "resolved_url": "https://x.com/leolanza/status/2111097082954002441",
+         "author": "leolanza",
+         "reposted_by": "growthepie_eth",
+         "created_at": "2026-10-16T14:09:01.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Tens of trillions of stablecoins will flow on Ethereum",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@chainlink推出Fulcrum连接代币化证券与跨链融资场所，并宣布与Pacific Meta达成战略合作在日本推广机构代币化，采用CCIP与自动合规引擎",
+      "mention": "chainlink",
+      "refs": [
+       {
+        "handle": "chainlink",
+        "id": "2111079920436674579",
+        "url": "https://x.com/chainlink/status/2111079920436674579",
+        "hop": {
+         "ref": "https://x.com/chainlink/status/2111079920436674579",
+         "status": 200,
+         "code": 200,
+         "ms": 141,
+         "resolved_id": "2111079920436674579",
+         "resolved_url": "https://x.com/chainlink/status/2111079920436674579",
+         "author": "chainlink",
+         "reposted_by": null,
+         "created_at": "2026-10-16T13:00:49.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "NEW: @PacificMeta enters a strategic partnership with Chainlink to unlock institutional tokenization in Japan 🇯🇵\n\nThrough the partnership, Pacific Meta has:\n🔗 Adopted Chainlink CCIP as its preferred interoperability solution\n🏛️ Listed Chainlink's Automated Compliance Engine (ACE) on its marketplace, with more services to come\n\nAs Japan's trusted gateway for onchain finance and AI, working with",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@Asbet0s强调以太坊是面向企业与公共部门的开放、中立数字基础设施；@nloureiro转推ethdotorg新上线的组织使用指南",
+      "mention": "Asbet0s",
+      "refs": [
+       {
+        "handle": "Asbet0s",
+        "id": "2111026495363903573",
+        "url": "https://x.com/Asbet0s/status/2111026495363903573",
+        "hop": {
+         "ref": "https://x.com/Asbet0s/status/2111026495363903573",
+         "status": 200,
+         "code": 200,
+         "ms": 106,
+         "resolved_id": "2111026495363903573",
+         "resolved_url": "https://x.com/Asbet0s/status/2111026495363903573",
+         "author": "Asbet0s",
+         "reposted_by": null,
+         "created_at": "2026-10-16T09:28:32.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Ethereum is the open, neutral digital infrastructure for all organizations: from enterprises to public sector.\n\nhttps://ethereum.org/organizations/",
+         "external_url": "https://ethereum.org/organizations/"
+        }
+       }
+      ]
+     },
+     {
+      "text": "@corcoranwill转推@ethereum官方表示，以太坊正以形式验证等手段实现更快升级且更少bug；@soispoke等从剑桥研讨会反馈称后量子安全与快速终结技术正加速落地",
+      "mention": "corcoranwill",
+      "refs": [
+       {
+        "handle": "corcoranwill",
+        "id": "2111144070953468224",
+        "url": "https://x.com/corcoranwill/status/2111144070953468224",
+        "hop": {
+         "ref": "https://x.com/corcoranwill/status/2111144070953468224",
+         "status": 200,
+         "code": 200,
+         "ms": 170,
+         "resolved_id": "2111129654539235514",
+         "resolved_url": "https://x.com/ethereum/status/2111129654539235514",
+         "author": "ethereum",
+         "reposted_by": "corcoranwill",
+         "created_at": "2026-10-16T16:18:27.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Ethereum is shipping upgrades faster while the chain is getting less, not more buggy. Advancements in formal verification help make this possible",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@barnabemonnot调侃AI代理正在解决以太坊的\"千年难题\"——获取Sepolia测试网ETH，反映测试网资源分配与AI代理需求的碰撞",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2110990946125095398",
+        "url": "https://x.com/barnabemonnot/status/2110990946125095398",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2110990946125095398",
+         "status": 200,
+         "code": 200,
+         "ms": 129,
+         "resolved_id": "2110990946125095398",
+         "resolved_url": "https://x.com/barnabemonnot/status/2110990946125095398",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-16T07:07:16.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Agents are solving Ethereum’s Navier-Stokes-level millenium problem: finding Sepolia ETH",
+         "external_url": null
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "开发者生态",
+    "items": [
+     {
+      "text": "@austingriffith发布\"Wedgie\"开源DIY硬件钱包，使用三种常见零件与3D打印外壳（MIT许可），可作为@safe签名者并采用VRGDA定价；获@dankrad认可并将在Devcon开放硬件区展示",
+      "mention": "austingriffith",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2111105390368948680",
+        "url": "https://x.com/austingriffith/status/2111105390368948680",
+        "hop": {
+         "ref": "https://x.com/austingriffith/status/2111105390368948680",
+         "status": 200,
+         "code": 200,
+         "ms": 101,
+         "resolved_id": "2111105390368948680",
+         "resolved_url": "https://x.com/austingriffith/status/2111105390368948680",
+         "author": "austingriffith",
+         "reposted_by": null,
+         "created_at": "2026-10-16T14:42:02.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "give yourself a wedgie! \n\nit's a DIY hardware wallet\n\nuse it as a signer on a @safe\n\nthree common parts _wedged_ together \n\n3d print your own case \n\neverything is MIT \n\nhttps://wedgie.dev",
+         "external_url": "https://wedgie.dev"
+        }
+       }
+      ]
+     },
+     {
+      "text": "@ignaciohagopian转推@ethrex_client立场，认为ACDC将EIP-8025 DFI是错误的决定，不利于以太坊长期利益",
+      "mention": "ignaciohagopian",
+      "refs": [
+       {
+        "handle": "ignaciohagopian",
+        "id": "2111089453146292538",
+        "url": "https://x.com/ignaciohagopian/status/2111089453146292538",
+        "hop": {
+         "ref": "https://x.com/ignaciohagopian/status/2111089453146292538",
+         "status": 200,
+         "code": 200,
+         "ms": 155,
+         "resolved_id": "2111088631393800511",
+         "resolved_url": "https://x.com/ethrex_client/status/2111088631393800511",
+         "author": "ethrex_client",
+         "reposted_by": "ignaciohagopian",
+         "created_at": "2026-10-16T13:35:26.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "From our point of view, yesterday's ACDC decision on EIP-8025 was the wrong call for Ethereum's long-term interests.\n\nEIP-8025 proposes optional execution proofs, a first step toward the zkEVM roadmap, and the client teams declined to commit to it.\n\nFraming the proposal as an \"optional feature\" may have worked against it. Calling something optional makes it easy to dismiss as low priority. To be c",
+         "external_url": "https://forkcast.org/calls/acdc/189/"
+        }
+       }
+      ]
+     },
+     {
+      "text": "@DavideCrapis透露与@binji_x合作的dAI项目正推进v1，后续还将实现安全性、私有问责等改进@nixorokish转推提及Lighter EVM公共devnet已上线，为开发者提供新的测试与实验环境",
+      "mention": "DavideCrapis",
+      "refs": [
+       {
+        "handle": "DavideCrapis",
+        "id": "2111177680070877516",
+        "url": "https://x.com/DavideCrapis/status/2111177680070877516",
+        "hop": {
+         "ref": "https://x.com/DavideCrapis/status/2111177680070877516",
+         "status": 200,
+         "code": 200,
+         "ms": 100,
+         "resolved_id": "2111177680070877516",
+         "resolved_url": "https://x.com/DavideCrapis/status/2111177680070877516",
+         "author": "DavideCrapis",
+         "reposted_by": null,
+         "created_at": "2026-10-16T19:29:17.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "@donnoh_eth @binji_x consider this a v1. there's also other things we want to implement to improve security, private accountability, etc.",
+         "external_url": null
+        }
+       },
+       {
+        "handle": "nixorokish",
+        "id": "2110930474143268915",
+        "url": "https://x.com/nixorokish/status/2110930474143268915",
+        "hop": {
+         "ref": "https://x.com/nixorokish/status/2110930474143268915",
+         "status": 200,
+         "code": 200,
+         "ms": 129,
+         "resolved_id": "2110820559705805165",
+         "resolved_url": "https://x.com/forkcast_eth/status/2110820559705805165",
+         "author": "forkcast_eth",
+         "reposted_by": "nixorokish",
+         "created_at": "2026-10-15T19:50:13.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "hegota scoping ⚡\n\nACDC #189 - ultra tl;dr\n\nDFI:\n🪓 7716: Anti-Correlation Attestation Penalties\n🪓 8025: Optional Execution Proofs\n🪓 8359: Beacon Block Reporting Field\n🪓 8371: RowDAS\n\ngenerally liked EIPs, but teams found that they weren't urgent enough to schedule (7716, 8359, 8371) or that they could be tackled without CFI (8025)\n\n5 more EIPs to assess next meeting\n\nvideo and summary:\nhttps://",
+         "external_url": "https://forkcast.org/calls/acdc/189/"
+        }
+       }
+      ]
+     },
+     {
+      "text": "@nixorokish转推@austingriffith的ethskills ChatGPT插件已获批，可增强AI对以太坊技术与生态的理解",
+      "mention": "nixorokish",
+      "refs": [
+       {
+        "handle": "nixorokish",
+        "id": "2110949080818147758",
+        "url": "https://x.com/nixorokish/status/2110949080818147758",
+        "hop": {
+         "ref": "https://x.com/nixorokish/status/2110949080818147758",
+         "status": 200,
+         "code": 200,
+         "ms": 125,
+         "resolved_id": "2110843733931602426",
+         "resolved_url": "https://x.com/austingriffith/status/2110843733931602426",
+         "author": "austingriffith",
+         "reposted_by": "nixorokish",
+         "created_at": "2026-10-15T21:22:18.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "my ethskills chatgpt plugin just got approved!!!\n\nmake your chatgpt way smarter about ethereum \n\nwith this one simple trick:\n\nhttps://chatgpt.com/share/6ad14382-a128-83e8-a217-4b838cc0d7f5",
+         "external_url": "https://chatgpt.com/share/6ad14382-a128-83e8-a217-4b838cc0d7f5"
+        }
+       }
+      ]
+     },
+     {
+      "text": "@matteoikari宣布@Zac_Aztec项目达到Stage 2 L2里程碑，标志着去中心化与安全性进一步提升",
+      "mention": "matteoikari",
+      "refs": [
+       {
+        "handle": "matteoikari",
+        "id": "2111089285218566372",
+        "url": "https://x.com/matteoikari/status/2111089285218566372",
+        "hop": {
+         "ref": "https://x.com/matteoikari/status/2111089285218566372",
+         "status": 200,
+         "code": 200,
+         "ms": 156,
+         "resolved_id": "2111089285218566372",
+         "resolved_url": "https://x.com/matteoikari/status/2111089285218566372",
+         "author": "matteoikari",
+         "reposted_by": null,
+         "created_at": "2026-10-16T13:38:02.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "@Zac_Aztec A stage 2 L2!\n\nhttps://x.com/matteoikari/status/2110312129832075521?s=46&t=nd38PHXVtHWfOYxM_jY3WA",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@DavideCrapis转推VitalikButerin关于Wrapped zkAPI结合Tor、覆盖流量与本地LLM提示重写的隐私方案，为开发者提供抗审查与隐私保护思路",
+      "mention": "DavideCrapis",
+      "refs": [
+       {
+        "handle": "DavideCrapis",
+        "id": "2111081178186870833",
+        "url": "https://x.com/DavideCrapis/status/2111081178186870833",
+        "hop": {
+         "ref": "https://x.com/DavideCrapis/status/2111081178186870833",
+         "status": 200,
+         "code": 200,
+         "ms": 120,
+         "resolved_id": "2111046730959433793",
+         "resolved_url": "https://x.com/VitalikButerin/status/2111046730959433793",
+         "author": "VitalikButerin",
+         "reposted_by": "DavideCrapis",
+         "created_at": "2026-10-16T10:48:56.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Wrapped zkAPI + Tor + extra cover traffic + local LLM prompt rewriting in an open-AI compatible daemon, and made a \"paranoid mode\" wrapper for my agent harness (pi):\n\nEach conversation gets assigned a separate Tor circuit, your requests are masked with random cover traffic, zkAPI ensures you don't leak your identity through payments, and all prompts are locally rewritten (bring-your-own-local-mode",
+         "external_url": null
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "其他有趣内容",
+    "items": [
+     {
+      "text": "@corcoranwill公布剑桥研讨会69个参与组织名单，涵盖全球顶尖大学、研究机构与行业团队，展现以太坊研究生态的广度与深度",
+      "mention": "corcoranwill",
+      "refs": [
+       {
+        "handle": "corcoranwill",
+        "id": "2111105812097564797",
+        "url": "https://x.com/corcoranwill/status/2111105812097564797",
+        "hop": {
+         "ref": "https://x.com/corcoranwill/status/2111105812097564797",
+         "status": 200,
+         "code": 200,
+         "ms": 135,
+         "resolved_id": "2111105812097564797",
+         "resolved_url": "https://x.com/corcoranwill/status/2111105812097564797",
+         "author": "corcoranwill",
+         "reposted_by": null,
+         "created_at": "2026-10-16T14:43:42.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "a list of all 69 participating orgs: \n\n* 3mi labs\n* aarhus university\n* aria\n* axiom\n* aztec foundation\n* bar-ilan university\n* binius\n* blockstream\n* carnegie mellon university\n* category labs\n* cnrs\n* complutense university of madrid\n* consensys\n* epfl\n* elte / university of birmingham\n* etherealize\n* ethereum foundation\n* ethlabs\n* ideal\n* imperial college london\n* inria\n* ku leuven\n* lambdacla",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@growthepie_eth监测到Ronin L2出现740万笔交易与725万个地址的活动激增，但交易成本低导致链上利润暂时转负",
+      "mention": "growthepie_eth",
+      "refs": [
+       {
+        "handle": "growthepie_eth",
+        "id": "2111060869530427618",
+        "url": "https://x.com/growthepie_eth/status/2111060869530427618",
+        "hop": {
+         "ref": "https://x.com/growthepie_eth/status/2111060869530427618",
+         "status": 200,
+         "code": 200,
+         "ms": 246,
+         "resolved_id": "2111060869530427618",
+         "resolved_url": "https://x.com/growthepie_eth/status/2111060869530427618",
+         "author": "growthepie_eth",
+         "reposted_by": null,
+         "created_at": "2026-10-16T11:45:07.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Huge activity spike on @Ronin_Network L2.\n\n7.4 million transactions by 7.25 million addresses.\n\nThroughput also rose, but not by much, suggesting these were low-complexity transactions. This is further supported by the drop in median transaction costs during the spike.\n\nTransaction costs were so low that onchain profit turned into an onchain loss, as rent paid to L1 temporarily exceeded revenue.\n\n",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@evan_van_ness转推指出，AI彻底打破了电子媒介的人类信任系统，因此区块链比以往任何时候都更加必要",
+      "mention": "evan_van_ness",
+      "refs": [
+       {
+        "handle": "evan_van_ness",
+        "id": "2110981884146831684",
+        "url": "https://x.com/evan_van_ness/status/2110981884146831684",
+        "hop": {
+         "ref": "https://x.com/evan_van_ness/status/2110981884146831684",
+         "status": 200,
+         "code": 200,
+         "ms": 124,
+         "resolved_id": "2110761836899631139",
+         "resolved_url": "https://x.com/MuteDialog/status/2110761836899631139",
+         "author": "MuteDialog",
+         "reposted_by": "evan_van_ness",
+         "created_at": "2026-10-15T15:56:52.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Blockchain is required more than ever because AI completely breaks electronically mediated Human systems of trust. Agents can fake anything and have nothing to lose.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@austingriffith转推@petejkim指出，比特币与以太坊选择secp256k1而非P-256深受对NSA后门恐惧的影响",
+      "mention": "austingriffith",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2111215339455623455",
+        "url": "https://x.com/austingriffith/status/2111215339455623455",
+        "hop": {
+         "ref": "https://x.com/austingriffith/status/2111215339455623455",
+         "status": 200,
+         "code": 200,
+         "ms": 130,
+         "resolved_id": "2111202154505494867",
+         "resolved_url": "https://x.com/petejkim/status/2111202154505494867",
+         "author": "petejkim",
+         "reposted_by": "austingriffith",
+         "created_at": "2026-10-16T21:06:32.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "the choice of secp256k1 over r1 (P-256) in bitcoin (and ethereum) was heavily influenced by the fear of an NSA backdoor. this has been very annoying for wallet developers because the secure enclave chips found in most consumer devices only support r1. passkeys use r1 as well.\n\nturns out there is no backdoor after all... amazing work by anthropic.\n\nhttps://www.anthropic.com/research/ecdsa-curve-ori",
+         "external_url": "https://www.anthropic.com/research/ecdsa-curve-origins"
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

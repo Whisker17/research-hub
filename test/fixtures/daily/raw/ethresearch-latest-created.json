@@ -1,0 +1,278 @@
+{
+"topic_list": {
+"more_topics_url": "/latest?no_definitions=true&order=created&page=1",
+"per_page": 30,
+"topics": [
+{
+"id": 26158,
+"title": "How Much Screening Buys a Second? Speed, Selection, and the Maker's Spread",
+"fancy_title": "How Much Screening Buys a Second? Speed, Selection, and the Maker&rsquo;s Spread",
+"slug": "how-much-screening-buys-a-second-speed-selection-and-the-makers-spread",
+"created_at": "2026-10-15T13:04:19.126Z",
+"last_posted_at": "2026-10-15T13:04:19.314Z",
+"pinned": false
+},
+{
+"id": 26157,
+"title": "Rapidblocks with split proofs: execution proofs that outlive their state",
+"fancy_title": "Rapidblocks with split proofs: execution proofs that outlive their state",
+"slug": "rapidblocks-with-split-proofs-execution-proofs-that-outlive-their-state",
+"created_at": "2026-10-14T07:58:50.097Z",
+"last_posted_at": "2026-10-14T07:58:50.314Z",
+"pinned": false
+},
+{
+"id": 26156,
+"title": "Measuring priority fees, positions and transaction classification of Ethereum blocks, July 2025 to October 2026",
+"fancy_title": "Measuring priority fees, positions and transaction classification of Ethereum blocks, July 2025 to October 2026",
+"slug": "measuring-priority-fees-positions-and-transaction-classification-of-ethereum-blocks-july-2025-to-october-2026",
+"created_at": "2026-10-14T01:46:30.506Z",
+"last_posted_at": "2026-10-16T05:33:26.565Z",
+"pinned": false
+},
+{
+"id": 26152,
+"title": "Rapidblocks, take two: a pipelined consensus for independent blocks",
+"fancy_title": "Rapidblocks, take two: a pipelined consensus for independent blocks",
+"slug": "rapidblocks-take-two-a-pipelined-consensus-for-independent-blocks",
+"created_at": "2026-10-13T08:27:07.291Z",
+"last_posted_at": "2026-10-13T08:27:07.515Z",
+"pinned": false
+},
+{
+"id": 26151,
+"title": "Informed Diffusion: making home builders publish fast",
+"fancy_title": "Informed Diffusion: making home builders publish fast",
+"slug": "informed-diffusion-making-home-builders-publish-fast",
+"created_at": "2026-10-13T06:36:48.010Z",
+"last_posted_at": "2026-10-13T06:36:48.248Z",
+"pinned": false
+},
+{
+"id": 26147,
+"title": "ERC-8403: an account as one hash, and post-quantum keys",
+"fancy_title": "ERC-8403: an account as one hash, and post-quantum keys",
+"slug": "erc-8403-an-account-as-one-hash-and-post-quantum-keys",
+"created_at": "2026-10-11T04:24:19.437Z",
+"last_posted_at": "2026-10-11T04:24:19.630Z",
+"pinned": false
+},
+{
+"id": 26140,
+"title": "Private Stablecoin on Ethereum",
+"fancy_title": "Private Stablecoin on Ethereum",
+"slug": "private-stablecoin-on-ethereum",
+"created_at": "2026-10-09T12:40:45.048Z",
+"last_posted_at": "2026-10-09T12:40:45.190Z",
+"pinned": false
+},
+{
+"id": 26138,
+"title": "BRO-AMM: A Bonded Reconciliation Oracle AMM as a Low-Risk DeFi Primitive",
+"fancy_title": "BRO-AMM: A Bonded Reconciliation Oracle AMM as a Low-Risk DeFi Primitive",
+"slug": "bro-amm-a-bonded-reconciliation-oracle-amm-as-a-low-risk-defi-primitive",
+"created_at": "2026-10-09T04:06:26.658Z",
+"last_posted_at": "2026-10-09T04:06:26.828Z",
+"pinned": false
+},
+{
+"id": 26136,
+"title": "Exposing an ISA for post-quantum proofs on Ethereum",
+"fancy_title": "Exposing an ISA for post-quantum proofs on Ethereum",
+"slug": "exposing-an-isa-for-post-quantum-proofs-on-ethereum",
+"created_at": "2026-10-08T15:34:01.226Z",
+"last_posted_at": "2026-10-12T00:39:03.484Z",
+"pinned": false
+},
+{
+"id": 26133,
+"title": "The unleashed power of stacking EEZ & FCR seen through an example",
+"fancy_title": "The unleashed power of stacking EEZ &amp; FCR seen through an example",
+"slug": "the-unleashed-power-of-stacking-eez-fcr-seen-through-an-example",
+"created_at": "2026-10-08T08:04:16.358Z",
+"last_posted_at": "2026-10-08T08:04:16.526Z",
+"pinned": false
+},
+{
+"id": 26131,
+"title": "Price of Censorship Resistance in Multiple Proposer Protocols Under Sybils",
+"fancy_title": "Price of Censorship Resistance in Multiple Proposer Protocols Under Sybils",
+"slug": "price-of-censorship-resistance-in-multiple-proposer-protocols-under-sybils",
+"created_at": "2026-10-08T03:50:19.357Z",
+"last_posted_at": "2026-10-08T03:50:19.529Z",
+"pinned": false
+},
+{
+"id": 26129,
+"title": "Ethereum PropAMMs: today and tomorrow",
+"fancy_title": "Ethereum PropAMMs: today and tomorrow",
+"slug": "ethereum-propamms-today-and-tomorrow",
+"created_at": "2026-10-07T15:25:15.355Z",
+"last_posted_at": "2026-10-07T15:25:15.627Z",
+"pinned": false
+},
+{
+"id": 26127,
+"title": "Who cleans up the code? SETCODEFROM's dangling bytecode and futureproof design choices",
+"fancy_title": "Who cleans up the code? SETCODEFROM&rsquo;s dangling bytecode and futureproof design choices",
+"slug": "who-cleans-up-the-code-setcodefroms-dangling-bytecode-and-futureproof-design-choices",
+"created_at": "2026-10-06T21:00:56.526Z",
+"last_posted_at": "2026-10-06T21:00:56.725Z",
+"pinned": false
+},
+{
+"id": 26125,
+"title": "Breaking the Serial Verification Loop via an Asynchronous Pipeline Consensus Architecture",
+"fancy_title": "Breaking the Serial Verification Loop via an Asynchronous Pipeline Consensus Architecture",
+"slug": "breaking-the-serial-verification-loop-via-an-asynchronous-pipeline-consensus-architecture",
+"created_at": "2026-10-06T15:38:23.068Z",
+"last_posted_at": "2026-10-06T15:38:23.253Z",
+"pinned": false
+},
+{
+"id": 26123,
+"title": "Accountability for Encrypted Mempools",
+"fancy_title": "Accountability for Encrypted Mempools",
+"slug": "accountability-for-encrypted-mempools",
+"created_at": "2026-10-05T13:32:04.370Z",
+"last_posted_at": "2026-10-05T13:32:04.657Z",
+"pinned": false
+},
+{
+"id": 26110,
+"title": "Proposal for a minimal compute-anchored purchasing power signal",
+"fancy_title": "Proposal for a minimal compute-anchored purchasing power signal",
+"slug": "proposal-for-a-minimal-compute-anchored-purchasing-power-signal",
+"created_at": "2026-10-02T20:36:21.453Z",
+"last_posted_at": "2026-10-11T09:29:34.443Z",
+"pinned": false
+},
+{
+"id": 26109,
+"title": "Six defects in one signature verification tool, found from outside in six rounds",
+"fancy_title": "Six defects in one signature verification tool, found from outside in six rounds",
+"slug": "six-defects-in-one-signature-verification-tool-found-from-outside-in-six-rounds",
+"created_at": "2026-10-02T17:19:31.239Z",
+"last_posted_at": "2026-10-02T17:19:31.391Z",
+"pinned": false
+},
+{
+"id": 26095,
+"title": "PQ spending for Stealth Address Protocol",
+"fancy_title": "PQ spending for Stealth Address Protocol",
+"slug": "pq-spending-for-stealth-address-protocol",
+"created_at": "2026-09-28T01:09:06.485Z",
+"last_posted_at": "2026-09-28T01:09:06.694Z",
+"pinned": false
+},
+{
+"id": 26094,
+"title": "PQ anonymity for Stealth Address Protocol",
+"fancy_title": "PQ anonymity for Stealth Address Protocol",
+"slug": "pq-anonymity-for-stealth-address-protocol",
+"created_at": "2026-09-28T01:05:52.511Z",
+"last_posted_at": "2026-10-10T11:41:55.459Z",
+"pinned": false
+},
+{
+"id": 26086,
+"title": "Ethereum's TCB, Part 1: The client",
+"fancy_title": "Ethereum&rsquo;s TCB, Part 1: The client",
+"slug": "ethereums-tcb-part-1-the-client",
+"created_at": "2026-09-25T10:11:41.961Z",
+"last_posted_at": "2026-09-29T09:35:03.776Z",
+"pinned": false
+},
+{
+"id": 26078,
+"title": "Snappy with a memory: ~40% less gossip traffic",
+"fancy_title": "Snappy with a memory: ~40% less gossip traffic",
+"slug": "snappy-with-a-memory-40-less-gossip-traffic",
+"created_at": "2026-09-24T12:28:07.892Z",
+"last_posted_at": "2026-09-25T10:04:35.210Z",
+"pinned": false
+},
+{
+"id": 26074,
+"title": "CHAMP: Hardening the Mempool with CHain-Anchored, Multi-dimensional Peer Protection",
+"fancy_title": "CHAMP: Hardening the Mempool with CHain-Anchored, Multi-dimensional Peer Protection",
+"slug": "champ-hardening-the-mempool-with-chain-anchored-multi-dimensional-peer-protection",
+"created_at": "2026-09-24T10:58:21.867Z",
+"last_posted_at": "2026-09-24T10:58:22.182Z",
+"pinned": false
+},
+{
+"id": 26071,
+"title": "Post-Poseidon: Hash Function Variants for Ethereum",
+"fancy_title": "Post-Poseidon: Hash Function Variants for Ethereum",
+"slug": "post-poseidon-hash-function-variants-for-ethereum",
+"created_at": "2026-09-23T09:50:36.057Z",
+"last_posted_at": "2026-09-23T09:50:36.338Z",
+"pinned": false
+},
+{
+"id": 26070,
+"title": "EIP-8411 payload segmentation under the Shadow simulator",
+"fancy_title": "EIP-8411 payload segmentation under the Shadow simulator",
+"slug": "eip-8411-payload-segmentation-under-the-shadow-simulator",
+"created_at": "2026-09-23T07:16:05.136Z",
+"last_posted_at": "2026-09-23T07:16:05.379Z",
+"pinned": false
+},
+{
+"id": 26063,
+"title": "Etheorem update: the complete executable consensus specs written in Lean 4",
+"fancy_title": "Etheorem update: the complete executable consensus specs written in Lean 4",
+"slug": "etheorem-update-the-complete-executable-consensus-specs-written-in-lean-4",
+"created_at": "2026-09-21T12:51:22.082Z",
+"last_posted_at": "2026-09-21T12:51:22.274Z",
+"pinned": false
+},
+{
+"id": 26062,
+"title": "Post-Glamsterdam One-dimensional Fee Market and Comparison with EIP-7999",
+"fancy_title": "Post-Glamsterdam One-dimensional Fee Market and Comparison with EIP-7999",
+"slug": "post-glamsterdam-one-dimensional-fee-market-and-comparison-with-eip-7999",
+"created_at": "2026-09-21T10:40:48.802Z",
+"last_posted_at": "2026-09-21T10:40:49.053Z",
+"pinned": false
+},
+{
+"id": 26051,
+"title": "Strict role alternation: reciprocal broadcast without relayers for EVM shielded pools (spec + population simulation, no code yet)",
+"fancy_title": "Strict role alternation: reciprocal broadcast without relayers for EVM shielded pools (spec + population simulation, no code yet)",
+"slug": "strict-role-alternation-reciprocal-broadcast-without-relayers-for-evm-shielded-pools-spec-population-simulation-no-code-yet",
+"created_at": "2026-09-19T07:07:15.890Z",
+"last_posted_at": "2026-09-19T07:07:16.031Z",
+"pinned": false
+},
+{
+"id": 26040,
+"title": "Towards Encrypted Mempools from Threshold IBE without Batching",
+"fancy_title": "Towards Encrypted Mempools from Threshold IBE without Batching",
+"slug": "towards-encrypted-mempools-from-threshold-ibe-without-batching",
+"created_at": "2026-09-18T16:09:08.715Z",
+"last_posted_at": "2026-09-29T22:10:32.923Z",
+"pinned": false
+},
+{
+"id": 26030,
+"title": "Staking rewards as venture capital, governed by futarchy",
+"fancy_title": "Staking rewards as venture capital, governed by futarchy",
+"slug": "staking-rewards-as-venture-capital-governed-by-futarchy",
+"created_at": "2026-09-17T18:56:10.206Z",
+"last_posted_at": "2026-10-01T22:08:45.849Z",
+"pinned": false
+},
+{
+"id": 26025,
+"title": "EIP-8411: what segmented payload diffusion is made of",
+"fancy_title": "EIP-8411: what segmented payload diffusion is made of",
+"slug": "eip-8411-what-segmented-payload-diffusion-is-made-of",
+"created_at": "2026-09-17T03:41:53.333Z",
+"last_posted_at": "2026-09-17T03:41:53.499Z",
+"pinned": false
+}
+]
+}
+}

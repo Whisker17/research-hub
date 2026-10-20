@@ -12,7 +12,7 @@
     "dev": "astro dev",
     "test": "node --test \"test/**/*.test.ts\"",
     "typecheck": "astro check && tsc --noEmit -p tsconfig.json",
-    "verify": "pnpm typecheck && pnpm test && node cli/rh.ts check --no-shot && node cli/rh.ts build",
+    "verify": "pnpm typecheck && pnpm test && node cli/rh.ts check --no-shot && node cli/rh.ts daily check && node cli/rh.ts build",
     "access:setup": "NODE_USE_ENV_PROXY=1 node scripts/access-setup.ts",
     "smoke": "bash scripts/smoke.sh",
     "figshot": "node scripts/figshot.ts",

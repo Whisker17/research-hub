@@ -15,6 +15,10 @@ for attempt in $(seq 1 24); do
   sleep 5
 done
 
+# 1b. /build.json（构建的提交 SHA，Daily 的 Lark 推送用它找到线上版本）与部署产物一致
+curl -sf --max-time 15 "${PUBLIC_URL}/build.json" | cmp -s - dist/public/build.json || { echo "::error::公开站点 /build.json 不是刚部署的版本"; exit 1; }
+echo "✓ 公开站点 /build.json：$(cat dist/public/build.json)"
+
 # 2. 公开站点上不存在 /p/
 CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "${PUBLIC_URL}/p/")
 [ "${CODE}" = 404 ] || { echo "::error::公开站点 /p/ 返回 ${CODE}（应为 404）"; exit 1; }

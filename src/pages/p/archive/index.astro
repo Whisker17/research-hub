@@ -1,0 +1,9 @@
+---
+/** 私有月归档 /p/archive/（WHI-1932 决定做，ADR 0003 §2）：全部 published 报告的创建月份。 */
+import Base from "../../../layouts/Base.astro";
+import ArchiveIndex from "../../../components/ArchiveIndex.astro";
+import { t } from "../../../i18n.ts";
+---
+<Base title={t("zh", "archive")} titleEn={t("en", "archive")} nav="private">
+  <ArchiveIndex site="private" emptyKey="emptyPublished" />
+</Base>

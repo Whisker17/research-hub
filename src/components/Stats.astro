@@ -1,0 +1,18 @@
+---
+/** 统计条（WHI-1932，参考 paperswithcode Task 页）：等宽小标签 + 数值，一行排开，窄屏换行。 */
+import type { I18nKey } from "../i18n.ts";
+import T from "./T.astro";
+
+interface Props {
+  items: { k: I18nKey; v: string | number }[];
+}
+const { items } = Astro.props;
+---
+<dl class="stats">
+  {items.map((i) => (
+    <div>
+      <dt><T k={i.k} /></dt>
+      <dd>{i.v}</dd>
+    </div>
+  ))}
+</dl>

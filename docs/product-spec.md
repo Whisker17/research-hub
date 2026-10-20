@@ -47,7 +47,7 @@ rh publish → push main → CI → Cloudflare
 
 - `rh` 只做确定性的搬运与检查，**不调用 LLM**。它用 TypeScript 写，位于 `cli/`，通过 `pnpm rh` 调用。
 - 需要 LLM 的步骤（调研、写 explainer）由 Claude Code 会话完成。项目 skill `.claude/skills/research-hub/` 负责驱动流程，并在每一步调用 `rh`。
-- 不做全自动流水线（vault 变更直接触发发布）。
+- 不做报告的全自动流水线（vault 变更直接触发发布、自动建报告）。唯一的有界例外是 Daily Topics（3.4）：它无人值守地发布公开的**推荐**，但不建报告、不发布报告、不写 vault。它的 LLM 步骤跑在 GitHub Actions 的 generate job 里，不在 `rh` 里。
 
 ### 3.2 Brief 来源
 
@@ -60,6 +60,29 @@ rh publish → push main → CI → Cloudflare
 - 默认由本地 Claude Code 后台 agent 执行，按 `research` skill 查一手来源。
 - 也可以用外部 Deep Research（ChatGPT、Gemini），结果通过 `rh import` 放进 `research/`，并标明来源工具。
 - `research/` 必须包含**论断台账**：论断 → 证据（URL、`file:line`、命令输出）→ 类型（observed / inferred / speculative）。`rh check` 检查台账是否存在。
+
+### 3.4 Daily Topics（0.1.0，设计见 [decisions/0004](decisions/0004-public-daily-topics.md)）
+
+```
+GitHub Actions（每天 04:30 / 08:15 / 13:30 UTC，可手动补跑）
+  ingest   只读 + BlockBeats key：rh ingest --date D（ETHTAO 日报是骨干，其他源按时间窗归日）→ 只含公开上下文的输入目录
+  generate 不碰仓库 + LLM key：daily-topics skill → 候选 topics.yml（不可信）
+  commit   可写、无 LLM key：导入并校验 → rh daily check → 构建与泄漏检查 → 只提交 daily/YYYY/MM/DD/ → push main → 部署
+        ▼
+公开站点 /daily/、/daily/<date>/：每天 0–10 个推荐（目标 5–10）
+        │  所有者挑选：rh topic select <id>（只写 daily/state.yml）
+        ▼                                     ← 人工把关 ①：research-hub skill 在对话里起草 brief 与 meta
+vault brief + rh new（默认 private）→ rh topic link <id> <slug> → 之后仍是 ② ③
+```
+
+- **边界**：Daily 只发布推荐。报告仍要过 ①②③ 三个把关点；从 Daily topic 建出的报告仍默认 private。
+- **输入隔离**：生成器只拿公开上下文，包括当天的条目、public 报告的 meta、近 14 天的公开 topic 和公开标签；不读私有报告、`state.yml` 或 vault。这一点靠真实权限保证：generate job 不 checkout 仓库。
+- **日期与状态**：日期 D 取 ETHTAO “以太坊日报 D”的日期；其他源的时间窗是 `[D−1 00:00Z, D 00:00Z)`。每天的状态是 `pending | complete | degraded | empty` 之一：日报发布前是 `pending`；到最后一次尝试（13:30 UTC）仍没有日报，或者不足 5 条，就是 `degraded`；0 条是 `empty`。
+- **数据**：
+  - `daily/YYYY/MM/DD/manifest.json`（运行记录）与 `topics.yml`（推荐 + 被引用条目的元数据）只由 workflow 的 commit job 写。
+  - `daily/state.yml`（选中 / 忽略 / 关联的报告）只由 `rh topic` 写，不公开渲染。
+  - 完整条目（含摘录）只存在 30 天的 Actions artifact 里，仓库里没有正文。
+- **证据**：每个 topic 至少要有 2 个独立出处（按原始出处计，不按转帖人计），或者至少 1 条一手来源；不推荐纯行情。公开页面只显示标题、链接和我们自己写的文字，口吻中立（`dailyAvoidTerms`）。
 
 ## 4. 内容模型
 
@@ -107,17 +130,23 @@ tags.yml                     ← 标签登记表
 
 ## 5. 站点
 
-- **框架**：Astro 静态站。报告 HTML 原样作为静态资源发布；Astro 只生成索引页和归档页，并校验 meta。
+- **框架**：Astro 静态站。报告 HTML 原样作为静态资源发布；Astro 只生成索引页和归档页，并校验 meta。不引入客户端框架 bundle，只用 `is:inline` 小脚本。
+- **0.1.0 改版**（paperswithcode 风格）：只改索引页、注入的站点外壳和 `rh build` 的分发，已发布报告不重新渲染。页面集合、资源归属、保留路由名与公开规则见 [decisions/0003](decisions/0003-index-redesign-scope-routes-publishing.md)。
 - **路由**：
   - `/`：公开索引，**只列 public 报告**，按 `updated` 倒序，可按 domain 和 tag 筛选，卡片显示创建与更新日期。
-  - `/tags/<tag>`、`/YYYY/MM`：归档页。
+  - `/tags/<tag>`、`/YYYY/MM`：归档页。公开站点的标签、月份、计数等派生数据只来自 public 报告。
   - `/r/<slug>`：公开报告，全站 `noindex`。
   - `/p/`、`/p/<slug>`：私有索引（列出全部报告）与私有报告，由 Cloudflare Access 保护。**实现时放在单独的私有 Worker 域名上**（workers.dev 的 Access 只能按整个域名开启），详见 [decisions/0001](decisions/0001-site-architecture.md)。
+  - `/p/tags/<tag>`：私有标签页（0.1.0 新增）。
+  - `/daily/`、`/daily/<date>`：公开的 Daily Topics（0.1.0 新增，见 §3.4 与 [decisions/0004](decisions/0004-public-daily-topics.md)）。页面只显示 topic、被引用条目的标题和链接、状态的固定说明，并注明“自动生成、未经人工审阅”；`state.yml` 和 manifest 的内部字段不公开。
+  - 保留路由名：报告 slug 不能是 `daily`、`tags`、`archive`、`fonts`、`about` 或纯数字；`rh new` 与 `rh check` 拒绝。
+- **标签描述**：`tags.yml` 的每个标签可选填 `description` / `description_en`，显示在标签页上；只有被 public 报告用到的标签，描述才会出现在公开站点。
+- **静态资源**：字体（自托管拉丁子集）、`favicon.svg`、`404.html` 两站共享；报告的图片、卡片图和缩略图只进报告所在的站点。
 - **返回导航**：构建时在报告的输出副本里注入一个 "← Research Hub" 链接。它在文档流里，不用 fixed，也不改样式，源文件不动。不用 iframe 外壳。
 - **语言切换**：有英文版的报告，构建时在右上角（am 工具栏开头；窄屏在返回链接一行的右侧）注入“中文 / EN”切换。切换时保留锚点，并写入与首页共用的 `localStorage.rh_lang`。
 - **推特卡片模式**：报告有 `card.png` 时，构建时在 am 阅读路径（5 分钟 / 30 分钟 / 完整）后面注入“推特卡片”模式：显示推文文案与卡片图、“复制文案”“复制图片”（Clipboard API 写入文本 / PNG）和源推文链接。卡片与推文只有英文版（推特统一用英文发），中英文页共用，卡片图复制到 `<slug>/card.png` 与 `<slug>/en/card.png`。卡片以中立研究者口吻写，尽量不提 Mantle（`cardAvoidTerms`），页脚是日期与水印（`cardHandle`）。详见 [decisions/0002](decisions/0002-lang-toggle-and-tweet-card.md)。
 - **托管**：Cloudflare Workers 静态资源 + Access。公开站 `research-hub`，私有站 `research-hub-private`（Access 保护整个域名，Worker 再校验 Access JWT）。v1 用 `workers.dev` 域名。
-- **部署**：push 到 `main` 后，由 GitHub Actions 先跑 `rh check`（不含截图），再执行 `wrangler deploy`。不设 PR 审核门。
+- **部署**：push 到 `main` 后，由 GitHub Actions 先跑 `rh check`（不含截图），再执行 `wrangler deploy`。不设 PR 审核门。Daily workflow 用 `GITHUB_TOKEN` 推送，不会触发 push 部署，所以它要自己触发部署，并且部署的必须是它刚推上去的那个提交（ADR 0004 决定 11）。Daily workflow 默认关闭，`vars.DAILY_ENABLED` 为 `true` 时才运行。
 
 ## 6. 手机适配
 
@@ -145,7 +174,19 @@ tags.yml                     ← 标签登记表
 
 做：第 3–6 节的全部内容，以及 doc-hub 迁移。
 
-不做：视频讲解、全文搜索（v2 用 Pagefind）、评论、多语言、全自动流水线、自定义域名。
+不做：视频讲解、全文搜索（v2 用 Pagefind）、评论、多语言、报告的全自动流水线（Daily 推荐是 §3.1 里的有界例外）、自定义域名。
+
+### 7.1 0.1.0 范围（站点改版 + Daily Topics）
+
+做：
+
+- 索引站改版（首页、私有索引、标签页、私有标签页、月归档、报告外壳），见 [decisions/0003](decisions/0003-index-redesign-scope-routes-publishing.md)；
+- 公开 Daily Topics：只做 crypto；第一批源是 ETHTAO 日报、BlockBeats、ethresear.ch / Ethereum Magicians、Odaily、The Block；GitHub Actions 三段 job；加上 `rh ingest`、`rh daily check`、`rh topic` 与 `/daily/` 页面。见 §3.4 与 [decisions/0004](decisions/0004-public-daily-topics.md)。
+
+不做：
+
+- 报告概览页（about）、独立的 `search.json` 与模糊搜索（⌘K 只聚焦现有筛选框）、重新渲染已发布报告、两个站点之间同步主题 / 语言偏好；
+- Daily 与私有报告去重、ETHTAO 兜底源（自建 FxEmbed / 付费 API）、偏好学习、推送通知、crypto 以外的领域。
 
 ## 8. 迁移
 

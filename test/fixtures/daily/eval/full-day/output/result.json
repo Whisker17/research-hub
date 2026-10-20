@@ -1,0 +1,17 @@
+{
+  "import_exit": 0,
+  "check_exit": 0,
+  "status": "degraded",
+  "reasons": [
+    "few_topics"
+  ],
+  "topics": 4,
+  "dropped": [],
+  "warnings": 0,
+  "canaries_found": [],
+  "max_shared_chars": 22,
+  "import_log": [
+    "✓ daily/2026/10/18/：degraded（few_topics），4 个 topic，丢弃 0 个",
+    "✓ daily 检查通过（1 天，4 个 topic，0 条人工状态）"
+  ]
+}

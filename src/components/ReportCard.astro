@@ -1,46 +1,52 @@
 ---
+/**
+ * 列表行（WHI-1930，参考 paperswithcode Trending）：缩略图、等宽元信息行、衬线标题、三行摘要、标签 chip。
+ * 次要信息在元信息行里：台账论断数（导入报告显示 n/a）、EN 标记、卡片标记、私有索引里的“私有 / 公开”。
+ * 整行可点（标题链接的 ::after 盖住整行）；标签链接浮在上面。
+ */
 import type { CardData } from "../../lib/site-data.ts";
+import T from "./T.astro";
 
 interface Props {
   card: CardData;
-  /** 公开站点：标签链接到 /tags/<tag>/；私有索引：标签只是文字 */
-  linkTags: boolean;
-  /** 私有索引里显示“私有”标记 */
+  /** 标签链接的前缀：公开站点 "/tags/"、私有站点 "/p/tags/"（ADR 0003 §2 导航规则）；不给时标签只是文字 */
+  tagBase?: string;
+  /** 私有索引里显示“私有 / 公开”标记 */
   showVisibility?: boolean;
 }
-const { card, linkTags, showVisibility = false } = Astro.props;
-const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.summary_en ?? ""} ${card.tags.map((t) => `${t.key} ${t.label}`).join(" ")}`.toLowerCase();
+const { card, tagBase, showVisibility = false } = Astro.props;
+const searchText = `${card.title} ${card.title_en ?? ""} ${card.summary} ${card.summary_en ?? ""} ${card.tags.map((t) => `${t.key} ${t.label} ${t.label_en ?? ""}`).join(" ")}`.toLowerCase();
+const ledgerTitle = card.ledger && `observed ${card.ledger.observed} · inferred ${card.ledger.inferred} · speculative ${card.ledger.speculative}`;
 ---
 <article
-  class="card"
+  class="row"
   data-card
+  data-slug={card.slug}
+  data-created={card.created}
+  data-updated={card.updated}
   data-domain={card.domain}
   data-tags={card.tags.map((t) => t.key).join(" ")}
   data-search={searchText}
-  data-title-zh={card.title}
-  data-title-en={card.title_en ?? ""}
-  data-summary-zh={card.summary}
-  data-summary-en={card.summary_en ?? ""}
-  data-href-zh={card.href}
-  data-href-en={card.href_en ?? ""}
-  data-created={card.created}
-  data-updated={card.updated}
 >
-  <div class="card-top">
-    <span class="domain">{card.domainLabel}</span>
-    {showVisibility && card.visibility === "private" && <span class="lock" data-i18n="private">私有</span>}
-    {showVisibility && card.visibility === "public" && <span class="lock" data-i18n="public">公开</span>}
+  <div class="row-thumb" aria-hidden="true">
+    {card.thumb ? <img src={card.thumb} alt="" width="240" height="300" loading="lazy" decoding="async" /> : <span class="thumb-ph" data-domain={card.domain}>{card.domainLabel}</span>}
   </div>
-  <h2><a href={card.href}>{card.title}</a></h2>
-  <p class="summary">{card.summary}</p>
+  <div class="row-meta">
+    <span class="domain">{card.domainLabel}</span>
+    <span>{card.updated !== card.created && <><T k="updated" /> {card.updated} · </>}<T k="created" /> {card.created}</span>
+    <span class="ledger" title={ledgerTitle}>{card.ledger ? <T k="claims" vars={{ n: card.ledger.total }} /> : <T k="claimsNa" />}</span>
+    {card.href_en && <span class="chip-info" lang="en">EN</span>}
+    {card.thumb && <span class="chip-highlight"><T k="cardBadge" /></span>}
+    {showVisibility && card.visibility === "private" && <span class="chip-neutral"><T k="private" /></span>}
+    {showVisibility && card.visibility === "public" && <span class="chip-positive"><T k="public" /></span>}
+  </div>
+  <h2><a href={card.href} data-en-href={card.href_en} data-en={card.title_en}>{card.title}</a></h2>
+  <p class="summary" data-en={card.summary_en}>{card.summary}</p>
   {
     card.tags.length > 0 && (
       <div class="tags">
-        {card.tags.map((t) => (linkTags ? <a class="tag" href={`/tags/${t.key}/`}>{t.label}</a> : <span class="tag">{t.label}</span>))}
+        {card.tags.map((t) => (tagBase ? <a class="tag" href={`${tagBase}${t.key}/`} data-en={t.label_en}>{t.label}</a> : <span class="tag" data-en={t.label_en}>{t.label}</span>))}
       </div>
     )
   }
-  <div class="dates">
-    {card.updated === card.created ? <span>创建于 {card.created}</span> : <span>更新于 {card.updated} · 创建于 {card.created}</span>}
-  </div>
 </article>

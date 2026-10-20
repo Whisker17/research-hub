@@ -1,0 +1,23 @@
+---
+/** 一个月的归档（WHI-1932）：面包屑、eyebrow、标题、统计条（篇数 · 最近更新）、报告列表。 */
+import type { CardData, Site } from "../../lib/site-data.ts";
+import Crumbs from "./Crumbs.astro";
+import ReportList from "./ReportList.astro";
+import Stats from "./Stats.astro";
+import T from "./T.astro";
+import { monthVars } from "../i18n.ts";
+
+interface Props {
+  site: Site;
+  month: { year: string; month: string; updated: string; cards: CardData[] };
+}
+const { site, month } = Astro.props;
+const base = site === "private" ? "/p" : "";
+const ym = monthVars(month.year, month.month);
+---
+<Crumbs site={site} trail={[{ href: `${base}/archive/`, k: "archive" }, { k: "month", vars: ym }]} />
+<p class="eyebrow"><T k="eyebrowMonth" /></p>
+<h1 class="page-title"><T k="month" vars={ym} /></h1>
+<p class="page-sub"><T k="archiveSub" /></p>
+<Stats items={[{ k: "statReports", v: month.cards.length }, { k: "statUpdated", v: month.updated }]} />
+<ReportList cards={month.cards} tagBase={`${base}/tags/`} showVisibility={site === "private"} />

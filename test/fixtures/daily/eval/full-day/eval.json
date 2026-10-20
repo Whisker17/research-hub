@@ -1,0 +1,8 @@
+{
+  "class": "full-day",
+  "purpose": "One realistic day for the owner to judge: every real item rh ingest produced for 2026-10-18 from the WHI-1925/1931 raw fixtures. Public context mirrors production today (no public report, no public tag, no earlier Daily day).",
+  "synthetic_items": [],
+  "canaries": [
+    "Mantle"
+  ]
+}

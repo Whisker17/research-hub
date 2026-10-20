@@ -1,0 +1,39 @@
+{
+  "issue": "WHI-1951",
+  "note": "Synthetic (R1-F4). Two FxTwitter timeline pages for @Ethtao_Ethtao with two digests for 2026-10-18, newer first: 08:00 UTC+8 on page 0, 03:00 UTC+8 on page 1. Page 1 ends with the 2026-10-17 digest, which is older than the D cutoff (2026-10-18 00:00 UTC+8). ADR 0004 §4: use the earliest digest (page 1), record the other.",
+  "pages": [
+    {
+      "code": 200,
+      "results": [
+        {
+          "id": "2111700000000000002",
+          "url": "https://x.com/Ethtao_Ethtao/status/2111700000000000002",
+          "created_timestamp": 1792281600,
+          "author": { "screen_name": "Ethtao_Ethtao" },
+          "text": "🗓️以太坊日报 2026-10-18\n\n【区块链技术讨论】\n1⃣@barnabemonnot 重发的那条 [原文] (https://x.com/barnabemonnot/status/2111527644223127741)"
+        }
+      ],
+      "cursor": { "top": null, "bottom": "page-1" }
+    },
+    {
+      "code": 200,
+      "results": [
+        {
+          "id": "2111600000000000001",
+          "url": "https://x.com/Ethtao_Ethtao/status/2111600000000000001",
+          "created_timestamp": 1792263600,
+          "author": { "screen_name": "Ethtao_Ethtao" },
+          "text": "🗓️以太坊日报 2026-10-18\n\n【区块链技术讨论】\n1⃣@ralexstokes 宣布 Hoodi 升级时间 [原文] (https://x.com/nero_eth/status/2111528856737702274)"
+        },
+        {
+          "id": "2111292354196099556",
+          "url": "https://x.com/Ethtao_Ethtao/status/2111292354196099556",
+          "created_timestamp": 1792205647,
+          "author": { "screen_name": "Ethtao_Ethtao" },
+          "text": "🗓️以太坊日报 2026-10-17\n\n【区块链技术讨论】\n1⃣@someone 前一天的 [原文] (https://x.com/someone/status/2111000000000000000)"
+        }
+      ],
+      "cursor": { "top": null, "bottom": null }
+    }
+  ]
+}

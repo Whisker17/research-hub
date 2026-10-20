@@ -1,0 +1,17 @@
+---
+/** 私有月归档 /p/YYYY/MM/：全部 published 报告（siteView("private")）；只在私有站点。 */
+import Base from "../../../../layouts/Base.astro";
+import MonthPage from "../../../../components/MonthPage.astro";
+import { monthVars, t } from "../../../../i18n.ts";
+import { siteView } from "../../../../../lib/site-data.ts";
+
+export function getStaticPaths() {
+  return siteView("private").months.map((m) => ({ params: { year: m.year, month: m.month }, props: { month: m } }));
+}
+
+const { month } = Astro.props;
+const ym = monthVars(month.year, month.month);
+---
+<Base title={t("zh", "month", ym)} titleEn={t("en", "month", ym)} nav="private">
+  <MonthPage site="private" month={month} />
+</Base>

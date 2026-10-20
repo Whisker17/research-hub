@@ -1,0 +1,11 @@
+{
+  "class": "no-qualifying",
+  "purpose": "Nothing researchable: price ticks, whale positions, prediction-market bets, an exchange promo, AI stock news and banter.",
+  "expect": "topics: [] with a note → status empty (no_qualifying_topic).",
+  "synthetic_items": [
+    "odaily:990301"
+  ],
+  "canaries": [
+    "Mantle"
+  ]
+}

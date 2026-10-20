@@ -6,17 +6,25 @@
  *        ├─► dist/public/   公开站点：索引、标签、归档、/r/<slug>/（public + published）
  *        └─► dist/private/  私有站点：/p/ 私有索引、/p/<slug>/（private + published）
  *
+ * Astro 顶层产物按 ASTRO_OUTPUT 清单分发（ADR 0003 §4）：清单外的顶层产物让构建失败，不再默认进公开站点。
  * draft 不进入任何产物。报告 HTML 原样复制，只注入站点外壳（decorateReport）：返回链接、
  * 中文 / EN 切换、推特卡片模式（文档流内、无 fixed、样式只作用于注入的元素），并在 <head> 补 robots noindex。
- * 推特卡片 PNG（card.png，只有英文版）复制到 <slug>/card.png 与 <slug>/en/card.png。
- * 最后做泄漏检查：公开产物里不能出现任何私有报告或 draft 的标题、摘要、路径。
+ * 推特卡片 PNG（card.png，只有英文版）复制到 <slug>/card.png 与 <slug>/en/card.png，并生成列表缩略图 <slug>/thumb.png。
+ * 最后做泄漏检查：公开产物里不能出现任何私有报告或 draft 的标题、摘要、路径，只用于非公开报告的标签描述，
+ * 以及调用方登记的内部数据（如 Daily 的状态与内部清单字段）。
  */
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
-import { REPORT_FILES, isPublished, type Report } from "../../lib/reports.ts";
+import { crc32, deflateSync, inflateSync } from "node:zlib";
+import { dailyForbidden, type DailyLoad } from "../../lib/daily.ts";
+import { REPORT_FILES, isPublicPublished, isPublished, type Report } from "../../lib/reports.ts";
+import type { TagRegistry } from "../../lib/schema.ts";
+import { THUMB_FILE, type Site } from "../../lib/site-data.ts";
 import { loadCard, tweetLength } from "./card.ts";
 
 export const BACK_LINK_ATTR = "data-rh-back";
+/** 公开站点上的构建信息（WHI-1972） */
+export const BUILD_INFO = "build.json";
 /** 推特卡片模式在地址栏里的锚点：带上它打开页面就直接进入卡片模式（切换语言时保留）。 */
 export const CARD_ANCHOR = "tweet-card";
 
@@ -74,31 +82,46 @@ const UI: Record<PageLang, Record<string, string>> = {
   },
 };
 
+/** 外壳专用的字体名：和报告自己的字体互不影响（ADR 0003 §1：共享字体只用在 data-rh-* 元素上）。 */
+const SHELL_UI = `"rh-inter",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif`;
+const SHELL_SERIF = `"rh-newsreader",Georgia,"Times New Roman","PingFang SC",serif`;
+/** 与 src/styles/tokens.css 的 @font-face 同一个 unicode-range（拉丁子集；中文落到系统字体）。 */
+export const FONT_RANGE =
+  "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-2013, U+2015-2017, U+2020-2025, U+2027-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD";
+const fontFace = (family: string, file: string) =>
+  `@font-face{font-family:"${family}";src:url("/fonts/${file}") format("woff2");font-weight:400 600;font-style:normal;font-display:swap;unicode-range:${FONT_RANGE}}`;
+
 /**
  * 注入的样式只作用于注入的元素（data-rh-*），外加卡片模式下隐藏正文的一条规则；不改报告自身的排版。
+ * 颜色取报告自己的 am 主题变量（跟着报告的主题与明暗走），没有时回退到系统颜色。
  * am 页面：语言切换在桌面放进右上角工具栏，在窄屏（工具栏占满一行）放在返回链接那一行的右侧。
  */
 function injectedStyle(o: { amToolbar: boolean; amPaths: boolean; lang: boolean; card: boolean }): string {
-  const font = `var(--font-sans,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif)`;
+  const font = SHELL_UI;
   const langRules = [
-    `[data-rh-lang]{display:inline-flex;align-items:stretch;flex:none;border:1px solid var(--line-2,rgba(127,127,127,.45));border-radius:var(--radius,6px);overflow:hidden;background:var(--paper,transparent);font:12px/1 ${font}}`,
-    `[data-rh-lang]>*{display:flex;align-items:center;padding:7px 10px;color:var(--ink,inherit);text-decoration:none;opacity:1}`,
-    `[data-rh-lang]>a:hover{background:var(--line-2,rgba(127,127,127,.15))}`,
-    `[data-rh-lang]>[aria-current]{background:var(--head-bg,#16181d);color:var(--head-fg,#fff);font-weight:600}`,
+    `[data-rh-lang]{display:inline-flex;align-items:stretch;flex:none;min-height:32px;border:1px solid var(--line,rgba(127,127,127,.45));border-radius:8px;overflow:hidden;background:var(--paper,Canvas);font:500 12px/1 ${font};letter-spacing:.01em}`,
+    `[data-rh-lang]>*{display:flex;align-items:center;padding:0 11px;color:var(--ink-2,inherit);text-decoration:none;opacity:1}`,
+    `[data-rh-lang]>a:hover{color:var(--ink,inherit);background:var(--fill,rgba(127,127,127,.12))}`,
+    `[data-rh-lang]>[aria-current]{background:var(--ink,CanvasText);color:var(--paper,Canvas);font-weight:600}`,
   ];
+  const btn = `font:500 13px/1 ${font};min-height:36px;padding:0 14px;display:inline-flex;align-items:center;border-radius:8px;border:1px solid var(--line,rgba(127,127,127,.45));background:var(--paper,Canvas);color:var(--ink,inherit);text-decoration:none;cursor:pointer`;
   const cardRules = [
     `[data-rh-card][hidden],[data-rh-card-msg][hidden]{display:none!important}`,
     `[data-rh-card]{max-width:620px;margin:0 0 28px}`,
     `[data-rh-card-bar]{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}`,
-    `[data-rh-card-bar] .am-btn,[data-rh-card-bar]>a,[data-rh-card-bar]>button{font:13px/1 ${font};padding:9px 14px;border-radius:var(--radius,6px);border:1px solid var(--line-2,rgba(127,127,127,.45));background:var(--paper,transparent);color:var(--ink,inherit);text-decoration:none;cursor:pointer}`,
-    `[data-rh-card-bar]>[data-rh-card-copy]{background:var(--head-bg,#16181d);color:var(--head-fg,#fff);border-color:var(--head-bg,#16181d);font-weight:600}`,
+    `[data-rh-card-bar] .am-btn,[data-rh-card-bar]>a,[data-rh-card-bar]>button{${btn}}`,
+    // 非 am 页面：卡片按钮在返回条里（am 页面上它在阅读路径里，用 am 自己的按钮样式）
+    `nav[${BACK_LINK_ATTR}] [data-rh-card-btn]{${btn};min-height:32px;font-size:12px}`,
+    `nav[${BACK_LINK_ATTR}] [data-rh-card-btn][aria-pressed="true"]{background:var(--ink,CanvasText);color:var(--paper,Canvas);border-color:var(--ink,CanvasText)}`,
+    `[data-rh-card-bar]>a:hover,[data-rh-card-bar]>button:hover{background:var(--fill,rgba(127,127,127,.12))}`,
+    `[data-rh-card-bar]>[data-rh-card-copy],[data-rh-card-bar]>[data-rh-card-copy]:hover{background:var(--ink,CanvasText);color:var(--paper,Canvas);border-color:var(--ink,CanvasText);font-weight:600}`,
     `[data-rh-card-bar]>[data-rh-card-copy]:disabled{opacity:.6;cursor:default}`,
-    `[data-rh-card-hint]{flex:1 1 220px;font:13px/1.5 ${font};color:var(--ink-3,#888)}`,
+    `[data-rh-card-hint]{flex:1 1 220px;font:13px/1.5 ${font};color:var(--ink-3,GrayText)}`,
     `[data-rh-card-msg]{margin:0 0 12px;font:14px/1.5 ${font};color:var(--warn,#b45309)}`,
-    `[data-rh-card-tweet]{margin:0 0 14px;padding:12px 14px;border:1px solid var(--line-2,rgba(127,127,127,.35));border-radius:12px;background:var(--paper,transparent)}`,
-    `[data-rh-card-tweet]>figcaption{margin:0 0 6px;font:12px/1.4 ${font};color:var(--ink-3,#888)}`,
+    `[data-rh-card-tweet]{margin:0 0 14px;padding:14px 16px;border:1px solid var(--line,rgba(127,127,127,.35));border-radius:8px;background:var(--paper,Canvas)}`,
+    `[data-rh-card-tweet]>figcaption{margin:0 0 8px;font:500 11px/1.4 ${font};letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3,GrayText)}`,
     `[data-rh-card-tweet-text]{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font:15px/1.6 ${font};color:var(--ink,inherit)}`,
-    `[data-rh-card-img]{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line-2,rgba(127,127,127,.35));box-shadow:0 10px 30px rgba(0,0,0,.18)}`,
+    `[data-rh-card-img]{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--line,rgba(127,127,127,.35));box-shadow:0 10px 30px rgba(0,0,0,.18)}`,
     o.amPaths
       ? `html[data-rh-view="card"] .am-research>:not(.am-paths):not([data-rh-card]){display:none!important}`
       : `html[data-rh-view="card"] body>:not([${BACK_LINK_ATTR}]):not([data-rh-card]):not(.am-toolbar):not(script):not(style){display:none!important}`,
@@ -109,7 +132,8 @@ function injectedStyle(o: { amToolbar: boolean; amPaths: boolean; lang: boolean;
     rules.push(`@media (max-width:760px){nav[${BACK_LINK_ATTR}]{padding-top:50px!important}${o.lang ? ".am-toolbar>[data-rh-lang]{display:none}" : ""}}`);
     if (o.lang) rules.push(`@media (min-width:761px){nav[${BACK_LINK_ATTR}] [data-rh-lang]{display:none}}`);
   }
-  return rules.length ? `<style data-rh-style>${rules.join("")}</style>` : "";
+  // 只要注入了样式，就带上外壳字体（字体只在用到时才下载）
+  return rules.length ? `<style data-rh-style>${fontFace("rh-inter", "inter.woff2")}${fontFace("rh-newsreader", "newsreader.woff2")}${rules.join("")}</style>` : "";
 }
 
 function langToggle(lang: PageLang, altHref: string, ui: Record<string, string>): string {
@@ -207,9 +231,13 @@ export function decorateReport(html: string, opts: DecorateOptions): string {
     const section = opts.card ? cardSection(opts.card, ui) : "";
 
     const right = `${amPaths ? "" : cardBtn}${toggle}`;
+    // 返回条：和索引页页头同一套标志（方块 + 衬线 “Research Hub”）；行内样式，没有样式块的页面也成立
     const nav =
-      `<nav ${BACK_LINK_ATTR} style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0;padding:12px 16px 0;font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC',sans-serif;">` +
-      `<a href="${escapeHtml(opts.backHref)}" style="color:inherit;opacity:.72;text-decoration:none;">← ${escapeHtml(opts.backLabel)}</a>` +
+      `<nav ${BACK_LINK_ATTR} style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0;padding:12px 16px 0;font:500 13px/1.5 ${SHELL_UI.replace(/"/g, "'")};">` +
+      `<a href="${escapeHtml(opts.backHref)}" style="display:inline-flex;align-items:center;gap:8px;min-height:32px;color:var(--ink,inherit);text-decoration:none;">` +
+      `<span aria-hidden="true" style="color:var(--ink-3,inherit);">←</span>` +
+      `<span aria-hidden="true" style="width:12px;height:12px;flex:none;background:currentColor;"></span>` +
+      `<span style="font:600 16px/1 ${SHELL_SERIF.replace(/"/g, "'")};letter-spacing:-.02em;">${escapeHtml(opts.backLabel)}</span></a>` +
       (right ? `<span style="display:flex;gap:8px;align-items:center;">${right}</span>` : "") +
       `</nav>`;
 
@@ -258,6 +286,8 @@ export interface AssembleResult {
   privateDir: string;
   publicReports: string[];
   privateReports: string[];
+  /** 从 card.png 生成的缩略图数 */
+  thumbnails: number;
 }
 
 const PUBLIC_HEADERS = `/*
@@ -273,8 +303,122 @@ const PRIVATE_HEADERS = `/*
 `;
 const ROBOTS = "User-agent: *\nDisallow: /\n";
 
-/** 把 Astro 产物与报告 HTML 分发到 dist/public 与 dist/private。 */
-export function assemble(root: string, astroOut: string, reports: Report[]): AssembleResult {
+/**
+ * Astro 顶层产物 → 站点（ADR 0003 §4）。共享白名单（进两站）只有 favicon.svg、404.html、fonts/，不能含任何报告数据；
+ * 四位数字的顶层目录是公开的月归档 /YYYY/MM/。新增站点路由时先在这里登记（并把名字加进 lib/schema.ts 的保留名）。
+ */
+export const ASTRO_OUTPUT: Record<string, readonly Site[]> = {
+  "favicon.svg": ["public", "private"],
+  "404.html": ["public", "private"],
+  fonts: ["public", "private"],
+  "index.html": ["public"],
+  tags: ["public"],
+  archive: ["public"],
+  daily: ["public"],
+  p: ["private"],
+};
+
+/** 一个 Astro 顶层产物进哪些站点；不在清单里返回 undefined。 */
+export const astroOutputSites = (name: string): readonly Site[] | undefined =>
+  Object.hasOwn(ASTRO_OUTPUT, name) ? ASTRO_OUTPUT[name] : /^\d{4}$/.test(name) ? ["public"] : undefined;
+
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+/** 列表缩略图的宽度（像素）；高度按 card.png 的比例（1200×1500 → 240×300）。 */
+export const THUMB_WIDTH = 240;
+
+/**
+ * 从 card.png 生成列表缩略图：按面积平均缩小到 THUMB_WIDTH 宽的 PNG。只用 node:zlib，同样的输入得到同样的字节。
+ * card.png 是 rh card 的 Chrome 截图（8 位 RGB，非隔行）；只支持这种格式，其他格式报错（带文件名与原因）。
+ */
+export function pngThumbnail(png: Buffer, file: string, width = THUMB_WIDTH): Buffer {
+  const bad = (why: string) => new Error(`${file}：无法生成缩略图（${why}）`);
+  if (png.length < 8 || !png.subarray(0, 8).equals(PNG_SIGNATURE)) throw bad("不是 PNG 文件");
+  let w = 0;
+  let h = 0;
+  const idat: Buffer[] = [];
+  for (let at = 8; at + 8 <= png.length; ) {
+    const len = png.readUInt32BE(at);
+    const type = png.toString("latin1", at + 4, at + 8);
+    const data = png.subarray(at + 8, at + 8 + len);
+    if (type === "IHDR") {
+      [w, h] = [data.readUInt32BE(0), data.readUInt32BE(4)];
+      if (data[8] !== 8 || data[9] !== 2) throw bad(`只支持 8 位 RGB（颜色类型 2），实际位深 ${data[8]}、颜色类型 ${data[9]}`);
+      if (data[12] !== 0) throw bad("不支持隔行扫描（interlace）的 PNG");
+    } else if (type === "IDAT") idat.push(data);
+    else if (type === "IEND") break;
+    at += 12 + len;
+  }
+  if (!w || !h || !idat.length) throw bad("缺少 IHDR 或 IDAT");
+  const bpp = 3;
+  const stride = w * bpp;
+  let raw: Buffer;
+  try {
+    raw = inflateSync(Buffer.concat(idat));
+  } catch (e) {
+    throw bad(`图像数据无法解压：${(e as Error).message}`);
+  }
+  if (raw.length < (stride + 1) * h) throw bad("图像数据不完整");
+  // 还原行过滤（PNG 规范 §9）
+  const px = Buffer.alloc(stride * h);
+  for (let y = 0; y < h; y++) {
+    const filter = raw[y * (stride + 1)];
+    const src = y * (stride + 1) + 1;
+    const row = y * stride;
+    for (let i = 0; i < stride; i++) {
+      const a = i >= bpp ? px[row + i - bpp] : 0;
+      const b = y ? px[row - stride + i] : 0;
+      const c = y && i >= bpp ? px[row - stride + i - bpp] : 0;
+      let v = raw[src + i];
+      if (filter === 1) v += a;
+      else if (filter === 2) v += b;
+      else if (filter === 3) v += (a + b) >> 1;
+      else if (filter === 4) {
+        const p = a + b - c;
+        const [pa, pb, pc] = [Math.abs(p - a), Math.abs(p - b), Math.abs(p - c)];
+        v += pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+      } else if (filter !== 0) throw bad(`未知的行过滤类型 ${filter}`);
+      px[row + i] = v & 255;
+    }
+  }
+  // 面积平均缩小；每行前面是过滤类型 0（不过滤）
+  const tw = Math.min(width, w);
+  const th = Math.max(1, Math.round((h * tw) / w));
+  const out = Buffer.alloc((tw * bpp + 1) * th);
+  for (let y = 0; y < th; y++) {
+    const y0 = Math.floor((y * h) / th);
+    const y1 = Math.max(y0 + 1, Math.floor(((y + 1) * h) / th));
+    for (let x = 0; x < tw; x++) {
+      const x0 = Math.floor((x * w) / tw);
+      const x1 = Math.max(x0 + 1, Math.floor(((x + 1) * w) / tw));
+      const n = (y1 - y0) * (x1 - x0);
+      for (let k = 0; k < bpp; k++) {
+        let sum = 0;
+        for (let yy = y0; yy < y1; yy++) for (let xx = x0; xx < x1; xx++) sum += px[yy * stride + xx * bpp + k];
+        out[y * (tw * bpp + 1) + 1 + x * bpp + k] = Math.round(sum / n);
+      }
+    }
+  }
+  const chunk = (type: string, data: Buffer) => {
+    const body = Buffer.concat([Buffer.from(type, "latin1"), data]);
+    const len = Buffer.alloc(4);
+    len.writeUInt32BE(data.length);
+    const crc = Buffer.alloc(4);
+    crc.writeUInt32BE(crc32(body));
+    return Buffer.concat([len, body, crc]);
+  };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(tw, 0);
+  ihdr.writeUInt32BE(th, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 2;
+  return Buffer.concat([PNG_SIGNATURE, chunk("IHDR", ihdr), chunk("IDAT", deflateSync(out, { level: 9 })), chunk("IEND", Buffer.alloc(0))]);
+}
+
+/**
+ * 把 Astro 产物与报告 HTML 分发到 dist/public 与 dist/private。
+ * 公开站点另有 /build.json = {"sha": <构建的提交>}（WHI-1972）：Daily 的 notify job 用它找到线上版本；不在 git 里构建时为 null。
+ */
+export function assemble(root: string, astroOut: string, reports: Report[], o: { sha?: string | null } = {}): AssembleResult {
   const dist = join(root, "dist");
   const publicDir = join(dist, "public");
   const privateDir = join(dist, "private");
@@ -282,19 +426,17 @@ export function assemble(root: string, astroOut: string, reports: Report[]): Ass
   mkdirSync(publicDir, { recursive: true });
   mkdirSync(privateDir, { recursive: true });
 
-  // 1. 索引页：/p/ 只进私有站点，其余进公开站点
-  for (const name of readdirSync(astroOut)) {
-    const src = join(astroOut, name);
-    if (name === "p") cpSync(src, join(privateDir, "p"), { recursive: true });
-    else cpSync(src, join(publicDir, name), { recursive: true });
+  // 1. 索引页与共享资源：按 ASTRO_OUTPUT 清单分发；清单外的顶层产物让构建失败
+  const unlisted = readdirSync(astroOut).filter((name) => !astroOutputSites(name));
+  if (unlisted.length) {
+    throw new Error(`Astro 产物里有未登记的顶层产物：${unlisted.join("、")}（先在 cli/lib/build.ts 的 ASTRO_OUTPUT 里登记它进哪个站点）`);
   }
-  // 私有站点也需要 404 与图标
-  for (const shared of ["404.html", "favicon.svg"]) {
-    if (existsSync(join(astroOut, shared))) cpSync(join(astroOut, shared), join(privateDir, shared));
+  for (const name of readdirSync(astroOut)) {
+    for (const site of astroOutputSites(name)!) cpSync(join(astroOut, name), join(site === "public" ? publicDir : privateDir, name), { recursive: true });
   }
 
   // 2. 报告：只分发 published；draft 一律跳过
-  const result: AssembleResult = { publicDir, privateDir, publicReports: [], privateReports: [] };
+  const result: AssembleResult = { publicDir, privateDir, publicReports: [], privateReports: [], thumbnails: 0 };
   for (const r of reports) {
     if (!isPublished(r)) continue;
     const html = join(r.dir, REPORT_FILES.html);
@@ -307,7 +449,12 @@ export function assemble(root: string, astroOut: string, reports: Report[]): Ass
     const assets = join(r.dir, REPORT_FILES.assetsDir);
     const hasAssets = existsSync(assets) && statSync(assets).isDirectory();
     if (hasAssets) cpSync(assets, join(target, "assets"), { recursive: true });
-    if (existsSync(join(r.dir, REPORT_FILES.cardPng))) cpSync(join(r.dir, REPORT_FILES.cardPng), join(target, "card.png"));
+    const cardPng = join(r.dir, REPORT_FILES.cardPng);
+    if (existsSync(cardPng)) {
+      cpSync(cardPng, join(target, "card.png"));
+      writeFileSync(join(target, THUMB_FILE), pngThumbnail(readFileSync(cardPng), relative(root, cardPng)));
+      result.thumbnails++;
+    }
 
     if (existsSync(join(r.dir, REPORT_FILES.htmlEn))) {
       const enTarget = join(target, "en");
@@ -320,6 +467,7 @@ export function assemble(root: string, astroOut: string, reports: Report[]): Ass
     (isPublic ? result.publicReports : result.privateReports).push(r.slug);
   }
 
+  writeFileSync(join(publicDir, BUILD_INFO), `${JSON.stringify({ sha: o.sha ?? null })}\n`);
   writeFileSync(join(publicDir, "_headers"), PUBLIC_HEADERS);
   writeFileSync(join(publicDir, "robots.txt"), ROBOTS);
   writeFileSync(join(privateDir, "_headers"), PRIVATE_HEADERS);
@@ -335,55 +483,99 @@ function* walk(dir: string): Generator<string> {
   }
 }
 
-/** 一个报告在产物里可能出现的“指纹”：标题、摘要（原文与 HTML 转义后）和站点路径。 */
-export function fingerprints(r: Report): string[] {
-  const texts = [r.meta.title, r.meta.summary, r.meta.title_en, r.meta.summary_en].filter(
-    (s): s is string => typeof s === "string" && s.trim().length >= 4,
-  );
+/** 文字在产物里可能出现的形式：原文与 HTML 转义后。过短的文字（< 4 个字符）不作指纹，避免误报。 */
+function textForms(texts: (string | undefined)[]): string[] {
   const out = new Set<string>();
   for (const t of texts) {
+    if (typeof t !== "string" || t.trim().length < 4) continue;
     out.add(t);
     out.add(escapeHtml(t));
     out.add(t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
   }
-  out.add(`/p/${r.slug}/`);
-  out.add(`/r/${r.slug}/`);
-  out.add(`/p/${r.slug}/en/`);
-  out.add(`/r/${r.slug}/en/`);
   return [...out];
+}
+
+/** 一个报告在产物里可能出现的“指纹”：标题、摘要（原文与 HTML 转义后）和站点路径。 */
+export function fingerprints(r: Report): string[] {
+  const out = new Set(textForms([r.meta.title, r.meta.summary, r.meta.title_en, r.meta.summary_en]));
+  for (const p of [`/p/${r.slug}/`, `/r/${r.slug}/`, `/p/${r.slug}/en/`, `/r/${r.slug}/en/`]) out.add(p);
+  return [...out];
+}
+
+/** 要查找的指纹；what 说明它属于谁（出现在错误信息里）。 */
+export interface Needle {
+  what: string;
+  needle: string;
 }
 
 export interface LeakFinding {
   file: string;
-  slug: string;
+  what: string;
   needle: string;
 }
 
-/** 在目录的所有文件里查找给定报告的指纹。 */
-export function findLeaks(dir: string, reports: Report[]): LeakFinding[] {
-  const needles = reports.flatMap((r) => fingerprints(r).map((n) => ({ slug: r.slug, needle: n })));
+/**
+ * 公开产物里不能出现的内部数据（调用方登记）：例如 Daily 的 daily/state.yml 内容与内部清单字段
+ * （调用次数、错误详情、输入哈希）。text 按原文与 HTML 转义后查找；短于 4 个字符的不查。
+ */
+export interface PublicForbidden {
+  source: string;
+  text: string;
+}
+
+/**
+ * 公开产物的全部指纹（ADR 0003 §3、§6）：
+ *  - 非公开（private 或 draft）报告的标题、摘要与路径；
+ *  - 没有被任何 public + published 报告用到的标签的描述（标签名太短太常见，不作指纹）；
+ *  - 调用方登记的内部数据。
+ */
+export function publicNeedles(reports: Report[], tags: TagRegistry, forbidden: PublicForbidden[] = []): Needle[] {
+  const needles: Needle[] = [];
+  for (const r of reports.filter((x) => !isPublicPublished(x))) for (const n of fingerprints(r)) needles.push({ what: `非公开报告 ${r.slug} `, needle: n });
+  const publicTags = new Set(reports.filter(isPublicPublished).flatMap((r) => r.meta.tags));
+  for (const [key, t] of Object.entries(tags)) {
+    if (publicTags.has(key)) continue;
+    for (const n of textForms([t.description, t.description_en])) needles.push({ what: `只用于非公开报告的标签 ${key} 的描述`, needle: n });
+  }
+  for (const f of forbidden) for (const n of textForms([f.text])) needles.push({ what: `${f.source} 的内部数据`, needle: n });
+  return needles;
+}
+
+/** 在目录的所有文件里查找指纹。 */
+export function findLeaks(dir: string, needles: Needle[]): LeakFinding[] {
   const findings: LeakFinding[] = [];
   if (!needles.length) return findings;
   for (const file of walk(dir)) {
     const text = readFileSync(file).toString("utf8");
-    for (const { slug, needle } of needles) {
-      if (text.includes(needle)) findings.push({ file: relative(dir, file), slug, needle: needle.length > 40 ? `${needle.slice(0, 40)}…` : needle });
+    for (const { what, needle } of needles) {
+      if (text.includes(needle)) findings.push({ file: relative(dir, file), what, needle: needle.length > 40 ? `${needle.slice(0, 40)}…` : needle });
     }
   }
   return findings;
 }
 
 /**
- * 泄漏检查（验收 2、3）：
- *  - 公开产物里不能出现 私有报告 或 draft 的任何指纹，也不能有 /p/ 目录；
+ * 泄漏检查（验收 2、3；ADR 0003 §3、§6）：
+ *  - 公开产物里不能出现 publicNeedles 的任何指纹，也不能有 /p/ 目录；
  *  - 私有产物里不能出现 draft 的任何指纹。
+ * @param forbidden 公开产物里不能出现的内部数据（Daily 的状态与内部清单字段由 Daily 构建登记）
  */
-export function leakCheck(res: AssembleResult, reports: Report[]): string[] {
+export function leakCheck(res: AssembleResult, reports: Report[], tags: TagRegistry, forbidden: PublicForbidden[] = []): string[] {
   const errors: string[] = [];
-  const hiddenFromPublic = reports.filter((r) => !(isPublished(r) && r.meta.visibility === "public"));
   const drafts = reports.filter((r) => !isPublished(r));
   if (existsSync(join(res.publicDir, "p"))) errors.push("公开产物里出现了 /p/ 目录");
-  for (const f of findLeaks(res.publicDir, hiddenFromPublic)) errors.push(`公开产物 ${f.file} 含有非公开报告 ${f.slug} 的内容：“${f.needle}”`);
-  for (const f of findLeaks(res.privateDir, drafts)) errors.push(`私有产物 ${f.file} 含有 draft ${f.slug} 的内容：“${f.needle}”`);
+  for (const f of findLeaks(res.publicDir, publicNeedles(reports, tags, forbidden))) errors.push(`公开产物 ${f.file} 含有${f.what}的内容：“${f.needle}”`);
+  const draftNeedles = drafts.flatMap((r) => fingerprints(r).map((n) => ({ what: ` draft ${r.slug} `, needle: n })));
+  for (const f of findLeaks(res.privateDir, draftNeedles)) errors.push(`私有产物 ${f.file} 含有${f.what}的内容：“${f.needle}”`);
   return errors;
+}
+
+/**
+ * 公开产物里不能出现的 Daily 内部数据：dailyForbidden（内部字段名、manifest 内部字段的值、dismiss 理由），
+ * 再加上 state.yml 里 link 到非公开报告的 slug——“某个 topic 已经变成某篇私有报告”这件事也不能公开（ADR 0004 §9）。
+ */
+export function dailyPublicForbidden(load: DailyLoad, reports: Report[]): PublicForbidden[] {
+  const nonPublic = new Set(reports.filter((r) => !isPublicPublished(r)).map((r) => r.slug));
+  const linked = Object.entries(load.state.topics).flatMap(([id, e]) => (e.state === "linked" && nonPublic.has(e.report) ? [{ source: `daily/state.yml ${id}`, text: e.report }] : []));
+  return [...dailyForbidden(load), ...linked];
 }

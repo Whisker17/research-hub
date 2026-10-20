@@ -1,0 +1,113 @@
+{
+ "note": "SYNTHETIC (WHI-1931). No real BlockBeats body exists in the repo: the WHI-1925 keyed probe printed counts only, and the key exists only as a GitHub secret. Shape follows the official skill (BlockBeatsOfficial/blockbeats-skill@0298a8e: {status, message, data}; items id, title, content (HTML), pic, link, url (origin), create_time 'Y-m-d H:i:s' in UTC+8 without zone) and the WHI-1925 runner probe (list under data.data). Titles are invented; times straddle the UTC+8 / UTC day boundary on purpose. `a` = a call at 2026-10-17T13:30Z, `b` = a call at 2026-10-18T04:30Z (size 5).",
+ "a": {
+  "status": 0,
+  "message": "",
+  "data": {
+   "page": 1,
+   "size": 5,
+   "data": [
+    {
+     "id": 330105,
+     "title": "以太坊基金会公布 Glamsterdam 在 Hoodi 测试网的激活时间",
+     "content": "<p>BlockBeats 消息，以太坊基金会公布 Glamsterdam 在 Hoodi 测试网的激活时间（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330105",
+     "url": "https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+     "create_time": "2026-10-17 21:20:00"
+    },
+    {
+     "id": 330101,
+     "title": "某 L2 宣布进入 Stage 2",
+     "content": "<p>BlockBeats 消息，某 L2 宣布进入 Stage 2（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330101",
+     "url": " https://x.com/matteoikari/status/2111089285218566372",
+     "create_time": "2026-10-17 15:05:00"
+    },
+    {
+     "id": 330090,
+     "title": "UTC+8 早于 10-17 08:00：属于 W(2026-10-17)",
+     "content": "<p>BlockBeats 消息，UTC+8 早于 10-17 08:00：属于 W(2026-10-17)（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330090",
+     "url": "",
+     "create_time": "2026-10-17 07:59:59"
+    },
+    {
+     "id": 330080,
+     "title": "某交易所上线代币化股票",
+     "content": "<p>BlockBeats 消息，某交易所上线代币化股票（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330080",
+     "url": "",
+     "create_time": "2026-10-16 23:10:00"
+    },
+    {
+     "id": 330070,
+     "title": "某稳定币发行量突破新高",
+     "content": "<p>BlockBeats 消息，某稳定币发行量突破新高（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330070",
+     "url": "",
+     "create_time": "2026-10-16 20:00:00"
+    }
+   ]
+  }
+ },
+ "b": {
+  "status": 0,
+  "message": "",
+  "data": {
+   "page": 1,
+   "size": 5,
+   "data": [
+    {
+     "id": 330160,
+     "title": "Charles Schwab 向全部客户开放以太坊现货交易",
+     "content": "<p>BlockBeats 消息，Charles Schwab 向全部客户开放以太坊现货交易（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330160",
+     "url": "https://x.com/davwals/status/2111096163869049265",
+     "create_time": "2026-10-18 12:20:00"
+    },
+    {
+     "id": 330150,
+     "title": "UTC+8 10-18 08:00 = 10-18T00:00Z：属于 W(2026-10-19)",
+     "content": "<p>BlockBeats 消息，UTC+8 10-18 08:00 = 10-18T00:00Z：属于 W(2026-10-19)（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330150",
+     "url": "",
+     "create_time": "2026-10-18 08:00:00"
+    },
+    {
+     "id": 330140,
+     "title": "UTC+8 10-18 07:59:59 = 10-17T23:59:59Z：属于 W(2026-10-18)",
+     "content": "<p>BlockBeats 消息，UTC+8 10-18 07:59:59 = 10-17T23:59:59Z：属于 W(2026-10-18)（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330140",
+     "url": "",
+     "create_time": "2026-10-18 07:59:59"
+    },
+    {
+     "id": 330120,
+     "title": "Aztec 达到 Stage 2",
+     "content": "<p>BlockBeats 消息，Aztec 达到 Stage 2（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330120",
+     "url": "",
+     "create_time": "2026-10-17 23:30:00"
+    },
+    {
+     "id": 330110,
+     "title": "某 DeFi 协议治理提案通过",
+     "content": "<p>BlockBeats 消息，某 DeFi 协议治理提案通过（合成样本正文）。</p>",
+     "pic": "https://image.example/bb.png",
+     "link": "https://www.theblockbeats.info/flash/330110",
+     "url": "",
+     "create_time": "2026-10-17 14:00:00"
+    }
+   ]
+  }
+ }
+}

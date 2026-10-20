@@ -1,0 +1,81 @@
+schema: 1
+date: 2026-10-17
+note: 当天没有以太坊日报，只用论坛来源生成了 2 个 topic。
+topics:
+  - id: 2026-10-17-1dc25d
+    title: RapidBlocks：执行证明与状态解耦的流水线共识
+    title_en: "RapidBlocks: pipelined consensus with execution proofs that outlive their state"
+    domain: crypto
+    tags:
+      - ethereum
+    proposed_tags: []
+    why_now: ethresear.ch 上同一作者连续发了两篇 RapidBlocks，第二篇给出拆分证明的设计。
+    questions:
+      - 拆分证明如何让区块独立于状态被验证？
+    angle: 对比现有的 ePBS 与 FOCIL 路线，看它改变了哪些时延假设。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethresearch:26157
+        type: primary
+      - item_id: ethresearch:26152
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: medium
+  - id: 2026-10-17-d9cf83
+    title: EIP-8442：EVM 的 64 位操作码
+    title_en: "EIP-8442: 64-bit opcodes for the EVM"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - evm
+    why_now: 提案 10 月 15 日在 Ethereum Magicians 上开帖，正在收集反馈。
+    questions:
+      - 64 位操作码对 gas 计价和现有合约有什么影响？
+      - 它和 EVM 对象格式的改动是什么关系？
+    angle: 用基准测试数据评估性能收益是否值得增加的复杂度。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: magicians:29982
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: medium
+items:
+  ethresearch:26152:
+    source: ethresearch
+    url: https://ethresear.ch/t/rapidblocks-take-two-a-pipelined-consensus-for-independent-blocks/26152
+    origin_url: null
+    title: "Rapidblocks, take two: a pipelined consensus for independent blocks"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-13T08:27:07.291Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  ethresearch:26157:
+    source: ethresearch
+    url: https://ethresear.ch/t/rapidblocks-with-split-proofs-execution-proofs-that-outlive-their-state/26157
+    origin_url: null
+    title: "Rapidblocks with split proofs: execution proofs that outlive their state"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-14T07:58:50.097Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false
+  magicians:29982:
+    source: magicians
+    url: https://ethereum-magicians.org/t/eip-8442-64-bit-opcodes-for-the-evm/29982
+    origin_url: null
+    title: "EIP-8442: 64-bit Opcodes for the EVM"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-15T22:25:30.254Z
+    fetched_at: 2026-10-18T12:45:21.148Z
+    incomplete: false

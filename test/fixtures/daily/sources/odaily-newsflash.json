@@ -1,0 +1,2110 @@
+{
+ "issue": "WHI-1925",
+ "source": "odaily-newsflash",
+ "runner_run_id": "39128600115",
+ "fetched_at": "2026-10-18T12:45:21.148Z",
+ "endpoint": "https://api.odaily.news/api/v1/newsflash?page=1..3&size=100",
+ "items": [
+  {
+   "title": "Strive CEO发图暗示或于下周披露BTC增持数据",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525462",
+   "origin_url": "https://x.com/ColeMacro/status/2111796303902715954",
+   "important": true,
+   "published_at": "2026-10-18T12:37:18.000Z"
+  },
+  {
+   "title": "Deepseek公布API网页搜索与抓取费用：每1000次成功请求5元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525460",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T12:29:35.000Z"
+  },
+  {
+   "title": "俄罗斯央行：2027年7月起禁止居民通过自托管钱包进行加密交易",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525458",
+   "origin_url": "https://news.bitcoin.com/regulation-and-legal/russia-sets-july-2027-deadline-to-halt-p2p-crypto-transactions/",
+   "important": false,
+   "published_at": "2026-10-18T12:08:41.000Z"
+  },
+  {
+   "title": "伊朗：已针对可能的新“冒险行径”制定应对方案",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525457",
+   "origin_url": "https://h.xinhuaxmt.com/vh512/share/13334089?docid=13334089&newstype=1001&d=135289a",
+   "important": false,
+   "published_at": "2026-10-18T12:07:59.000Z"
+  },
+  {
+   "title": "某账户购入10.9万美元CS2 Thunderpick World Championship 2026 Aurora战胜Falcons",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525455",
+   "origin_url": "https://polymarket.com/profile/0x3eb31daa061a19855cbf0a4884c202fb86976a2a",
+   "important": true,
+   "published_at": "2026-10-18T12:05:57.000Z"
+  },
+  {
+   "title": "币安、Coinbase参与西非反诈行动，协助识别逾1100万美元待冻结资金",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525454",
+   "origin_url": "https://www.coindesk.com/business/2026/10/14/crypto-exchanges-binance-coinbase-join-west-africa-scam-sweep-that-flagged-usd11-million",
+   "important": false,
+   "published_at": "2026-10-18T12:04:39.000Z"
+  },
+  {
+   "title": "星球晚讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525442",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T11:30:00.000Z"
+  },
+  {
+   "title": "Papertrade永续合约已在Hyperliquid上线，现报0.012美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525453",
+   "origin_url": "https://x.com/tradeparagon/status/2111776973353550158?s=20",
+   "important": true,
+   "published_at": "2026-10-18T11:25:56.000Z"
+  },
+  {
+   "title": "交易员Killa：比特币达到12.6万美元前不会平仓",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525452",
+   "origin_url": "https://x.com/KillaXBT/status/2111778314444587186",
+   "important": true,
+   "published_at": "2026-10-18T11:18:06.000Z"
+  },
+  {
+   "title": "某交易员持有5个月后清仓ONDO和LINK，获利超40万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525451",
+   "origin_url": "https://arkm.com/explorer/address/0x58b7312a55BCa4780fBA5d024387262D2905cc69",
+   "important": true,
+   "published_at": "2026-10-18T11:16:31.000Z"
+  },
+  {
+   "title": "Cysic跨链桥因未经授权增发1000万枚CYS暂停",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525448",
+   "origin_url": "https://cointelegraph.com/news/cysic-crypto-bridge-halted-after-unauthorized-mint-of-10m-cys/",
+   "important": false,
+   "published_at": "2026-10-18T10:52:29.000Z"
+  },
+  {
+   "title": "分析：市场对通胀的定价力量正在快速衰竭，长端定价锚已明确切向“增长/AI周期”",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525447",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T10:46:31.000Z"
+  },
+  {
+   "title": "分析师：中小市值加密资产市值增长罕见领先BTC",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525445",
+   "origin_url": "https://x.com/Darkfost_Coc/status/2111765256166838618",
+   "important": true,
+   "published_at": "2026-10-18T10:25:41.000Z"
+  },
+  {
+   "title": "Nscale IPO前再遇打击：微软退出数据中心合作项目",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525444",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T10:08:51.000Z"
+  },
+  {
+   "title": "某鲸鱼从CEX提取1000万枚ARB，价值182万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525441",
+   "origin_url": "https://arkm.com/explorer/address/0x204EAC72bed12D5B11DeFBAA4C102A91B2c364D5",
+   "important": true,
+   "published_at": "2026-10-18T09:58:08.000Z"
+  },
+  {
+   "title": "Variational创始人：2027年将推出覆盖期权、结构化产品及其他场外衍生品的Variational Pro",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525439",
+   "origin_url": "https://x.com/variational_lvs/status/2111715848360767845",
+   "important": true,
+   "published_at": "2026-10-18T09:36:10.000Z"
+  },
+  {
+   "title": "场外市值降至1.909万亿美元，Entropy在Hyperliquid推出Anthropic Pre-IPO市场",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525438",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-18T09:34:17.000Z"
+  },
+  {
+   "title": "Anthropic联创：AI或推动美国GDP升至44万亿美元，人类仅剩数年设防",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525437",
+   "origin_url": "https://x.com/coinbureau/status/2111640440642654693",
+   "important": true,
+   "published_at": "2026-10-18T09:31:11.000Z"
+  },
+  {
+   "title": "伊朗外长：“7天内重新开放霍尔木兹海峡”方案仍然有效",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525436",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T09:20:00.000Z"
+  },
+  {
+   "title": "Hyperscale Data完成5000金衡盎司白银代币化，旗下AI子公司askROI拟明年Q2或Q3上市",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525435",
+   "origin_url": "https://www.prnewswire.com/news-releases/hyperscale-data-announces-plan-for-its-askroi-subsidiary-to-go-public-in-the-second-or-third-quarter-of-2027-302911628.html",
+   "important": false,
+   "published_at": "2026-10-18T09:07:53.000Z"
+  },
+  {
+   "title": "“AI股神”Leopold旗下基金9月初重押AI股后再遇抛售，7只标的平均下跌18.3%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525434",
+   "origin_url": "https://x.com/coinbureau/status/2111460976054739318",
+   "important": true,
+   "published_at": "2026-10-18T08:59:45.000Z"
+  },
+  {
+   "title": "三星电子将按英伟达要求采用TSMC 3nm工艺制造NVHBM基础裸片",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525433",
+   "origin_url": "https://x.com/jukan05/status/2111743054436802880",
+   "important": false,
+   "published_at": "2026-10-18T08:58:35.000Z"
+  },
+  {
+   "title": "Hyperliquid调整交易优先级机制，部分CoreWriter用户将被降级",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525432",
+   "origin_url": "https://discord.com/login?redirect_to=%2Fchannels%2F1029781241702129716%2F1208476333089497189%2F1561018058703773879",
+   "important": true,
+   "published_at": "2026-10-18T08:46:54.000Z"
+  },
+  {
+   "title": "某鲸鱼“反向操作”斥资432万美元买入WLD，浮亏已超78万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525431",
+   "origin_url": "https://arkm.com/explorer/address/0xc24eF06EeA0E20c34e4818FC91E119d0e34e5990",
+   "important": true,
+   "published_at": "2026-10-18T08:38:50.000Z"
+  },
+  {
+   "title": "BILL被指涉嫌骗局：13.6%总供应量近两个月流入CEX，团队曾融资3000万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525430",
+   "origin_url": "https://x.com/Naeven_/status/2111727093801435346",
+   "important": true,
+   "published_at": "2026-10-18T08:33:44.000Z"
+  },
+  {
+   "title": "Michael Saylor回应MSCI或将剔除MSTR：开了“坏先例”，希望MSCI重新考虑",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525429",
+   "origin_url": "https://x.com/thepowerfulHRV/status/2111102413273018502",
+   "important": true,
+   "published_at": "2026-10-18T08:31:28.000Z"
+  },
+  {
+   "title": "Ansem：HYPE、ZEC走出独立行情或让山寨币投资逻辑转变，本轮周期不再只看BTC和ETH",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525428",
+   "origin_url": "https://x.com/blknoiz06/status/2111733530757570629",
+   "important": true,
+   "published_at": "2026-10-18T08:22:46.000Z"
+  },
+  {
+   "title": "英伟达辟谣RTX 5090停产：只是产能不足，将持续供货",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525427",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T08:11:25.000Z"
+  },
+  {
+   "title": "观点：比特币在8.7万美元附近受阻后重返历史低估值区间，积累信号仍存",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525426",
+   "origin_url": "https://x.com/Darkfost_Coc/status/2111725402498421088",
+   "important": true,
+   "published_at": "2026-10-18T08:01:54.000Z"
+  },
+  {
+   "title": "某账户购入4.1万美元VCT Champions总决赛Vitality战胜LOUD",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525423",
+   "origin_url": "https://polymarket.com/profile/0x866056133a70de9282a080758858d1a0c8b393ed",
+   "important": true,
+   "published_at": "2026-10-18T07:43:24.000Z"
+  },
+  {
+   "title": "AIsa完成种子轮扩展融资，Tether、HIVEN战略投资，累计融资超900万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525422",
+   "origin_url": "https://cointelegraph.com/news/tether-backs-aisa-as-strategic-investor-completing-seed-extension-round/",
+   "important": false,
+   "published_at": "2026-10-18T06:44:00.000Z"
+  },
+  {
+   "title": "GasFree用户突破50万，TRC-20代币转账免持TRX更便捷",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525420",
+   "origin_url": "https://x.com/DeFi_JUST/status/2110943836788920369",
+   "important": false,
+   "published_at": "2026-10-18T06:03:35.000Z"
+  },
+  {
+   "title": "DeepSeek新模型Token消耗降超五成",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525419",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T05:59:17.000Z"
+  },
+  {
+   "title": "星球午讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525416",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T05:30:00.000Z"
+  },
+  {
+   "title": "韩国五大加密交易所拟推动22%加密税第四次延期，执政党提案延至2029年",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525414",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-18T04:40:13.000Z"
+  },
+  {
+   "title": "仍持有1736万美元空单，某Hyperliquid交易员两笔BTC和ZEC空单被清算",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525412",
+   "origin_url": "https://x.com/OnchainLens/status/2111674884778783191",
+   "important": false,
+   "published_at": "2026-10-18T04:25:44.000Z"
+  },
+  {
+   "title": "某鲸鱼从CEX提取100万枚CAKE，价值216万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525410",
+   "origin_url": "https://arkm.com/explorer/address/0xf82df5ab651D284A731314C8b216EA09604B3a8D",
+   "important": true,
+   "published_at": "2026-10-18T04:00:23.000Z"
+  },
+  {
+   "title": "BTC突破82000 USDT，24H涨幅0.51%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525408",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T03:45:22.000Z"
+  },
+  {
+   "title": "Papertrade永续合约或将上线，Paragon以约4.5万美元拍下PAPER代码",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525407",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T03:31:14.000Z"
+  },
+  {
+   "title": "计划质押最多6000枚ETH，伦交所上市公司KR1启动以太坊验证者",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525406",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-18T03:05:44.000Z"
+  },
+  {
+   "title": "曾盈利1970万美元，某地址一周多单亏损905万美元仍加仓BTC",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525404",
+   "origin_url": "https://x.com/ai_9684xtpa/status/2111651159228465461",
+   "important": false,
+   "published_at": "2026-10-18T02:52:47.000Z"
+  },
+  {
+   "title": "美股AI概念股永续合约闪崩引发超5159万美元爆仓，多单爆仓占比近74%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525403",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T02:46:56.000Z"
+  },
+  {
+   "title": "法国国民议会以一票优势通过加密货币兑换稳定币征税修正案，拟于2027年实施",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525402",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T02:46:40.000Z"
+  },
+  {
+   "title": "麻吉大哥彻底爆仓后返场再开以太坊多单，现持有1325枚ETH",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525400",
+   "origin_url": " https://hyperbot.network/trader/0x020ca66c30bec2c4fe3861a94e4db4a498a35872",
+   "important": true,
+   "published_at": "2026-10-18T02:28:06.000Z"
+  },
+  {
+   "title": "持有约9700万美元ETH，某地址13倍做多浮亏949.3万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525399",
+   "origin_url": "https://x.com/ai_9684xtpa/status/2111644608296100032",
+   "important": false,
+   "published_at": "2026-10-18T02:26:00.000Z"
+  },
+  {
+   "title": "“麻吉大哥”再次遭全额清算，两天前存入的25万枚USDC几乎全部亏损",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525398",
+   "origin_url": "https://x.com/lookonchain/status/2111640565318328378",
+   "important": true,
+   "published_at": "2026-10-18T02:13:36.000Z"
+  },
+  {
+   "title": "韩国政府拟于10月20日召集五大加密交易所，就2027年征收22%加密税听取意见",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525396",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T02:10:36.000Z"
+  },
+  {
+   "title": "Ledger CEO回怼Mt. Gox前CEO：你不是白衣骑士，不要妄加猜测",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525395",
+   "origin_url": "https://x.com/_pgauthier/status/2111460751449694354",
+   "important": true,
+   "published_at": "2026-10-18T02:02:40.000Z"
+  },
+  {
+   "title": "韩国财长：半导体市场景气至少维持至明年",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525394",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T02:00:23.000Z"
+  },
+  {
+   "title": "Solana官方宣布Yuga Labs旗下Mudwater卡牌游戏上线，包含120幅BAYC艺术作品",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525390",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-18T01:32:20.000Z"
+  },
+  {
+   "title": "星球早讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525379",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T01:30:00.000Z"
+  },
+  {
+   "title": "美股AI概念股永续合约凌晨集体闪崩，西部数据一度跌超7%，美光及SK海力士跌超6%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525389",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T01:24:23.000Z"
+  },
+  {
+   "title": "最后一周“手撸”机会？Variational疑似将于下周五激活交易API",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525388",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T01:23:01.000Z"
+  },
+  {
+   "title": "pump.fun已基于Hyperliquid推出永续合约交易服务，每笔订单最高收取0.1%的Builder Fee",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525386",
+   "origin_url": "https://pump.fun/docs/fees",
+   "important": true,
+   "published_at": "2026-10-18T01:13:08.000Z"
+  },
+  {
+   "title": "价值1.1亿美元，某巨鲸1360枚BTC多单设置80500美元市价止损",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525385",
+   "origin_url": "https://x.com/EmberCN/status/2111624539855880539",
+   "important": true,
+   "published_at": "2026-10-18T01:05:44.000Z"
+  },
+  {
+   "title": "高盛、富国银行及摩根士丹利将代币化视为增长机会，均未给出收入预期",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525384",
+   "origin_url": "https://www.coindesk.com/business/2026/10/17/goldman-wells-fargo-morgan-stanley-see-tokenization-as-a-growth-play-not-a-threat",
+   "important": false,
+   "published_at": "2026-10-18T01:01:45.000Z"
+  },
+  {
+   "title": "仓位价值1174万美元，高杠杆巨鲸4890枚ETH多单在2356美元被清算",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525383",
+   "origin_url": "https://x.com/EmberCN/status/2111622423015780397",
+   "important": true,
+   "published_at": "2026-10-18T00:56:58.000Z"
+  },
+  {
+   "title": "马斯克：承认在政治事务中“有些偏离正轨”",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525381",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-18T00:31:38.000Z"
+  },
+  {
+   "title": "Goldman Sachs CEO表示代币化将拓展金融市场机会",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525378",
+   "origin_url": "https://news.bitcoin.com/finance/goldman-sachs-ceo-sees-tokenization-as-wall-streets-next-act/",
+   "important": false,
+   "published_at": "2026-10-17T23:34:52.000Z"
+  },
+  {
+   "title": "德意志银行拟推出机构级加密托管，初期面向德国专业客户",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525376",
+   "origin_url": "https://www.newsbtc.com/crypto-news/deutsche-bank-nears-bitcoin-custody-launch-as-crypto-push-expands-beyo/",
+   "important": true,
+   "published_at": "2026-10-17T22:43:46.000Z"
+  },
+  {
+   "title": "Frgmnt联创表示稳定币无法完全脱离传统银行风险",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525374",
+   "origin_url": "https://news.bitcoin.com/interview/why-stablecoins-never-escape-traditional-banking-risks-frgmnt-ceo/",
+   "important": true,
+   "published_at": "2026-10-17T22:09:30.000Z"
+  },
+  {
+   "title": "23亿美元未偿余额，Coinbase加密抵押贷款与银行存款上链同步推进",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525370",
+   "origin_url": "https://cryptobriefing.com/coinbase-crypto-backed-loans-tokenized-deposits/",
+   "important": false,
+   "published_at": "2026-10-17T21:53:54.000Z"
+  },
+  {
+   "title": "BTC跌破81000 USDT，24H跌幅0.89%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525367",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T21:38:07.000Z"
+  },
+  {
+   "title": "Grayscale与Republic推出三只加密专项基金，门槛2500美元起",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525364",
+   "origin_url": "https://www.newsbtc.com/crypto-news/grayscale-opens-defi-and-ai-crypto-funds-to-investors-with-just-2-500/",
+   "important": false,
+   "published_at": "2026-10-17T20:03:55.000Z"
+  },
+  {
+   "title": "逾2.6亿美元Coinbase代币化股票存入Base DeFi，较年初增约18倍",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525363",
+   "origin_url": "https://cryptobriefing.com/coinbase-tokenized-stocks-in-defi-soar-to-262m-on-base-platform/",
+   "important": false,
+   "published_at": "2026-10-17T19:53:43.000Z"
+  },
+  {
+   "title": "价值3382万美元，两巨鲸转移416.6941枚BTC，钱包沉寂12至13年",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525361",
+   "origin_url": "https://x.com/OnchainLens/status/2111539053732782292",
+   "important": false,
+   "published_at": "2026-10-17T19:25:57.000Z"
+  },
+  {
+   "title": "Polygon Labs完成收购Coinme，借稳定币基础设施进军支付市场",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525360",
+   "origin_url": "https://www.coindesk.com/business/2026/10/17/polygon-sees-coinme-acquisition-as-entry-to-payments-sector-dominated-by-visa-stripe",
+   "important": false,
+   "published_at": "2026-10-17T19:02:08.000Z"
+  },
+  {
+   "title": "前Mt. Gox CEO Mark Karpelès指责Ledger CEO未妥善处理硬件钱包供应链攻击",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525355",
+   "origin_url": "https://x.com/BitcoinNewsCom/status/2111516403190636635",
+   "important": false,
+   "published_at": "2026-10-17T17:55:49.000Z"
+  },
+  {
+   "title": "某新账户购入48.2万美元CS2 Thunderpick World Championship 2026 BetBoom战胜Falcons",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525352",
+   "origin_url": "https://polymarket.com/profile/0x57a85952044f2c8e4d31b475aab6987d2f98ebc2",
+   "important": true,
+   "published_at": "2026-10-17T17:35:00.000Z"
+  },
+  {
+   "title": "此前总未实现盈利365万美元，Hyperliquid交易员账户地址发布",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525349",
+   "origin_url": "https://x.com/OnchainLens/status/2111504193265824150",
+   "important": false,
+   "published_at": "2026-10-17T17:08:41.000Z"
+  },
+  {
+   "title": "未实现盈利365万美元，Hyperliquid交易员持有425万美元TSLA空头头寸",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525348",
+   "origin_url": "https://x.com/OnchainLens/status/2111504187364348330",
+   "important": false,
+   "published_at": "2026-10-17T17:07:13.000Z"
+  },
+  {
+   "title": "ETH跌破2400 USDT，24H跌幅1.36%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525347",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T16:56:10.000Z"
+  },
+  {
+   "title": "Circle计划向约40个新兴市场扩张，覆盖东南亚、拉美、非洲和中东",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525344",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T16:29:01.000Z"
+  },
+  {
+   "title": "约604万枚比特币面临量子暴露风险，9家区块链组织成立Quantum Alliance",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525343",
+   "origin_url": "https://decrypt.co/381236/crypto-firms-launch-quantum-alliance-as-6-million-bitcoin-sit-exposed/",
+   "important": true,
+   "published_at": "2026-10-17T16:05:51.000Z"
+  },
+  {
+   "title": "Michael Saylor：在ParaFi Investor Day讨论比特币、数字资本与金融未来",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525341",
+   "origin_url": "https://x.com/saylor/status/2111478644249899171",
+   "important": false,
+   "published_at": "2026-10-17T15:26:21.000Z"
+  },
+  {
+   "title": "分析师：比特币连续3个周末上涨后于周一反转，周末下跌时常出现相反走势",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525338",
+   "origin_url": "https://x.com/KillaXBT/status/2111472936771031476",
+   "important": false,
+   "published_at": "2026-10-17T15:07:55.000Z"
+  },
+  {
+   "title": "总盈利超1.28亿美元地址减仓约1035万美元ETH空单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525337",
+   "origin_url": "https://hyperbot.network/trader/0xb83de012dba672c76a7dbbbf3e459cb59d7d6e36",
+   "important": true,
+   "published_at": "2026-10-17T14:15:43.000Z"
+  },
+  {
+   "title": "SecuX App紧急维护后仍无法访问，曾推送诱导输入助记词的钓鱼通知",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525335",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T13:57:22.000Z"
+  },
+  {
+   "title": "“AI股神”Leopold旗下基金拟11月16日披露Q3持仓，上半年曾押注闪迪、美光",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525332",
+   "origin_url": "https://x.com/LeopoldTracker_/status/2111121136905802100",
+   "important": true,
+   "published_at": "2026-10-17T13:36:48.000Z"
+  },
+  {
+   "title": "STRK最大多头浮亏101.9万美元，另一巨鲸强平2136万枚STRK并亏损20.7万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525331",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T13:14:06.000Z"
+  },
+  {
+   "title": "Solana连续两年未报告主网宕机，Fidelity提示质押等领域需持续观察",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525330",
+   "origin_url": "https://cointelegraph.com/news/solana-shows-resilience-but-some-areas-need-continued-observation-fidelity-says/",
+   "important": true,
+   "published_at": "2026-10-17T13:12:59.000Z"
+  },
+  {
+   "title": "涉损约80.76万美元，UNCX披露Smart Token Vesting V2跨链攻击事件",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525326",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T12:38:15.000Z"
+  },
+  {
+   "title": "TRUMP背后团队从买币者处获得7.79亿至11.6亿美元利润，买家亏损97%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525324",
+   "origin_url": "https://x.com/ki_young_ju/status/2111432808249930170",
+   "important": true,
+   "published_at": "2026-10-17T12:23:41.000Z"
+  },
+  {
+   "title": "Arthur Hayes：量子计算并非抛售比特币理由，用户应注意钱包管理",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525319",
+   "origin_url": "https://x.com/therollupco/status/2109864204002079096",
+   "important": false,
+   "published_at": "2026-10-17T11:42:40.000Z"
+  },
+  {
+   "title": "星球晚讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525315",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T11:30:00.000Z"
+  },
+  {
+   "title": "盗取资金持续流入ZEC，涉及Cryptobills Ledger事件及价值1200万美元的Triple-A黑客攻击",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525313",
+   "origin_url": "https://x.com/SpecterAnalyst/status/2111414645432922216",
+   "important": true,
+   "published_at": "2026-10-17T11:11:34.000Z"
+  },
+  {
+   "title": "Arthur Hayes：OpenAI、Anthropic没有价值，AI泡沫越大比特币涨幅越高",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525312",
+   "origin_url": "https://news.bitcoin.com/finance/arthur-hayes-ai-waste-of-money-bitcoin-bailout/",
+   "important": true,
+   "published_at": "2026-10-17T11:04:46.000Z"
+  },
+  {
+   "title": "黄金年内恐再承压，主要原因是美联储下一步行动仍有很大不确定性",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525311",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T10:58:20.000Z"
+  },
+  {
+   "title": "Arbitrum推出USDG稳定币增长计划，设200万枚ARB奖励池",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525310",
+   "origin_url": "https://x.com/arbitrum/status/2111221923841552587",
+   "important": false,
+   "published_at": "2026-10-17T10:43:37.000Z"
+  },
+  {
+   "title": "JustLend DAO完成第五次 $JST回购销毁，本次销毁逾1.7亿枚",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525309",
+   "origin_url": "https://x.com/DeFi_JUST/status/2111401347258241062",
+   "important": false,
+   "published_at": "2026-10-17T10:34:24.000Z"
+  },
+  {
+   "title": "全球内存总可寻址市场2030年或超2万亿美元，BofA预计行业市值达10万亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525308",
+   "origin_url": "https://x.com/ParadisLabs/status/2111405001885077924",
+   "important": false,
+   "published_at": "2026-10-17T10:33:08.000Z"
+  },
+  {
+   "title": "Tom Lee：加密货币等已回调至支撑位，基本面稳固下风险回报具吸引力",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525305",
+   "origin_url": "https://x.com/coinbureau/status/2111253359462125839",
+   "important": false,
+   "published_at": "2026-10-17T10:10:54.000Z"
+  },
+  {
+   "title": "约30万亿美元底层资产，DTCC代币化服务首批支持25种证券",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525304",
+   "origin_url": "https://communications.dtcc.com/rs/669-QIL-921/images/DTCC%20Tokenization%20Service%20At-a-Glance.pdf",
+   "important": false,
+   "published_at": "2026-10-17T10:10:34.000Z"
+  },
+  {
+   "title": "创2025年第三季度以来新高，Solana应用收入环比增长48%至2.99亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525303",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T09:22:29.000Z"
+  },
+  {
+   "title": "Anthropic联合创始人：AI或大幅推高美国GDP至44万亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525302",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T09:20:28.000Z"
+  },
+  {
+   "title": "DeepSeek V4.1 Flash新版本发布，许愿式编程一键成真",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525301",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T08:44:26.000Z"
+  },
+  {
+   "title": "欧洲央行行长：数字欧元临近推出，欧元区经济具韧性",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525300",
+   "origin_url": "https://cointelegraph.com/news/lagarde-says-euro-area-economy-is-resilient-digital-euro-imminent/",
+   "important": false,
+   "published_at": "2026-10-17T08:44:05.000Z"
+  },
+  {
+   "title": "Bitget将停止向部分用户提供服务，涉3.88亿美元安全事件",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525298",
+   "origin_url": "https://cointelegraph.com/news/bitget-to-discontinue-services-for-some-users-in-one-off-exercise/",
+   "important": false,
+   "published_at": "2026-10-17T07:40:52.000Z"
+  },
+  {
+   "title": "某账户购入25.8万美元VCT Champions 100T战胜Vitality",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525297",
+   "origin_url": "https://polymarket.com/profile/0x7f7351b5ba33a4be08b7111911b227cdd82414f1",
+   "important": true,
+   "published_at": "2026-10-17T07:36:25.000Z"
+  },
+  {
+   "title": "持仓回报率达272%，某巨鲸5倍做多111.95万枚TIA；另一巨鲸5倍做空浮亏34.2万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525296",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T07:32:54.000Z"
+  },
+  {
+   "title": "Robinhood CEO复盘上市后转型：靠业务多元化重回增长，Q2平台客户资产突破3500亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525295",
+   "origin_url": "https://hbr.org/2026/11/robinhoods-ceo-on-refounding-the-business-post-ipo?giftToken=4309089161791913355139",
+   "important": true,
+   "published_at": "2026-10-17T07:25:40.000Z"
+  },
+  {
+   "title": "Telegram向美国执法部门提供特定用户数据，包括电话号码及最后登录IP地址",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525293",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T07:08:59.000Z"
+  },
+  {
+   "title": "Claude半小时破解NSA椭圆曲线25年谜题，大幅降低加密后门疑虑",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525291",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T06:53:48.000Z"
+  },
+  {
+   "title": "部分开发预算不再直接取决于ADA价格，Cardano财库已管理2.0167亿枚ADA、2610万枚USDCx与480万枚USDM",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525290",
+   "origin_url": "https://cryptoslate.com/cardano-shifts-26m-to-usdcx-as-bridge-controls-freeze-payouts/",
+   "important": false,
+   "published_at": "2026-10-17T06:53:00.000Z"
+  },
+  {
+   "title": "Vitalik：比特币挖矿成本由算力资本支出与电力成本大致平分，AI推理成本则主要来自算力投入",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525289",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T05:54:59.000Z"
+  },
+  {
+   "title": "Bitget\"同行计划”第六批奖励已发放，累计发奖超618万USDT",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525287",
+   "origin_url": "https://x.com/Bitget_zh/status/2111291118801588278?s=20",
+   "important": true,
+   "published_at": "2026-10-17T05:50:12.000Z"
+  },
+  {
+   "title": "Postbank计划2027年初在手机银行App推出股票、ETF及加密资产投资功能",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525286",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T05:42:54.000Z"
+  },
+  {
+   "title": "星球午讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525284",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T05:30:00.000Z"
+  },
+  {
+   "title": "BitBank推出双卡，旨在以其为入口构建全球支付通信生态，实现去中心化自治",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525133",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T05:00:00.000Z"
+  },
+  {
+   "title": "Jump Trading与DRW布局AI算力衍生品市场，拟为CME等交易所算力期货提供做市服务",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525283",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T04:23:29.000Z"
+  },
+  {
+   "title": "持仓价值5750万美元，巨鲸交易员20倍做多SOL浮盈1300万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525282",
+   "origin_url": "https://x.com/arkham/status/2111307927860789286",
+   "important": true,
+   "published_at": "2026-10-17T04:14:24.000Z"
+  },
+  {
+   "title": "以太坊现货ETF昨日总净流出6968.27万美元，持续3日净流出",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525280",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T04:03:25.000Z"
+  },
+  {
+   "title": "比特币现货ETF昨日总净流出8238.93万美元，富达FBTC净流出1060.90万美元居首",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525279",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T04:03:06.000Z"
+  },
+  {
+   "title": "比特币持仓维持为0，Bitdeer本周出售294.2枚BTC",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525278",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T03:52:37.000Z"
+  },
+  {
+   "title": "Anthropic游说美国国会推动AI安全法案，拟将政府叫停模型门槛设为超10亿美元损失或50人伤亡",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525277",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T03:43:18.000Z"
+  },
+  {
+   "title": "Strategy被MSCI剔除风险或已提前计价，净mNAV跌破1可能成为投资机会",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525276",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T03:43:04.000Z"
+  },
+  {
+   "title": "覆盖8200万台Galaxy设备，三星将于10月最后一周在三星Wallet支持USDC跨境转账",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525275",
+   "origin_url": "https://www.thestreet.com/crypto/innovation/genius-act-factored-into-samsung-stablecoin-move-solana-foundation-exec-says",
+   "important": false,
+   "published_at": "2026-10-17T03:25:50.000Z"
+  },
+  {
+   "title": "战略储备达7807枚比特币，萨尔瓦多再购入1枚比特币",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525274",
+   "origin_url": "https://www.chaincatcher.com/article/2296947",
+   "important": true,
+   "published_at": "2026-10-17T03:20:25.000Z"
+  },
+  {
+   "title": "未实现盈利超126万美元，某地址以2倍杠杆做多2050万枚AGT",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525273",
+   "origin_url": "https://x.com/lookonchain/status/2111294214189539502",
+   "important": false,
+   "published_at": "2026-10-17T03:12:50.000Z"
+  },
+  {
+   "title": "CZ回应批量删除旧推文：仅测试AI工具清理转发内容，未删除任何原创帖文",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525272",
+   "origin_url": "https://x.com/cz_binance/status/2111293743672217960",
+   "important": true,
+   "published_at": "2026-10-17T03:11:58.000Z"
+  },
+  {
+   "title": "持有921.8万美元三大山寨，某巨鲸新增245.5万枚ONDO",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525271",
+   "origin_url": "https://x.com/ai_9684xtpa/status/2111286849897693328",
+   "important": true,
+   "published_at": "2026-10-17T02:43:47.000Z"
+  },
+  {
+   "title": "Gemini 500万美元和解协议被拒撤销，已缴罚款及永久禁令维持",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525270",
+   "origin_url": "https://news.bitcoin.com/regulation-and-legal/judge-refuses-to-erase-geminis-5m-settlement-despite-cftc-reversal/",
+   "important": true,
+   "published_at": "2026-10-17T02:33:19.000Z"
+  },
+  {
+   "title": "Slush接入Halliday，支持从25条链及银行卡等渠道入金SUI或USDC",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525267",
+   "origin_url": "https://x.com/SuiNetwork/status/2111276632166273519",
+   "important": false,
+   "published_at": "2026-10-17T02:04:08.000Z"
+  },
+  {
+   "title": "31.4%资本利得税拟覆盖稳定币兑换，法国议会通过相关修正案",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525263",
+   "origin_url": "https://journalducoin.com/actualites/stablecoins-assemblee-adopte-taxation-conversions-crypto-des-1er-janvier-2027/",
+   "important": false,
+   "published_at": "2026-10-17T01:58:00.000Z"
+  },
+  {
+   "title": "白毛股神Serenity：存储芯片长期需求前景明确，但市场仍担忧AI投资可持续性及融资风险",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525262",
+   "origin_url": "https://x.com/aleabitoreddit/status/2111206827790885288",
+   "important": true,
+   "published_at": "2026-10-17T01:43:59.000Z"
+  },
+  {
+   "title": "星球早讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525254",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T01:30:00.000Z"
+  },
+  {
+   "title": "美国NEAR现货ETF单日净流入260.62万美元，ZEC现货ETF净流出121.97万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525259",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T01:27:56.000Z"
+  },
+  {
+   "title": "美国XRP现货ETF单日总净流出247.34万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525258",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T01:25:25.000Z"
+  },
+  {
+   "title": "AI业务部门正式设立，Mysten Labs CEO Evan Cheng转任CTO并负责相关业务",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525257",
+   "origin_url": "https://www.mystenlabs.com/blog/letters-from-the-ceo",
+   "important": false,
+   "published_at": "2026-10-17T01:25:24.000Z"
+  },
+  {
+   "title": "美国SOL现货ETF单日总净流出1266.80万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525256",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T01:25:14.000Z"
+  },
+  {
+   "title": "美股收盘AI概念股普跌，CoreWeave跌超11.91%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525253",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T01:00:08.000Z"
+  },
+  {
+   "title": "Solana Accelerate深圳活动延期，因报名人数超出当地活动人数限制",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525252",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-17T00:58:48.000Z"
+  },
+  {
+   "title": "Coinbase与Marqeta扩大合作，为企业提供稳定币支付卡服务",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525251",
+   "origin_url": "https://www.theblock.co/news/business/2026-10-16-coinbase-to-power-stablecoin-backed-cards-for-marqeta-customers-418833",
+   "important": false,
+   "published_at": "2026-10-17T00:46:10.000Z"
+  },
+  {
+   "title": "英伟达CEO：AI市场动荡终将过去，大规模硬件投资最终将产生回报",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525248",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T00:40:08.000Z"
+  },
+  {
+   "title": "Strive比特币持仓增至35,595枚，TD Cowen将其目标价上调至56美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525245",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T00:34:44.000Z"
+  },
+  {
+   "title": "加密行业政治行动委员会已投入超5200万美元，支持俄亥俄州共和党参议员候选人",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525244",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-17T00:29:36.000Z"
+  },
+  {
+   "title": "Deepsigma上线覆盖77个传统金融市场的DeFi永续合约平台",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525242",
+   "origin_url": "https://news.bitcoin.com/finance/wall-street-veterans-unveil-defi-platform-77-tradfi-markets/",
+   "important": false,
+   "published_at": "2026-10-16T23:33:22.000Z"
+  },
+  {
+   "title": "CryptoQuant创始人：即使ETF资金及财库公司持有的130万枚BTC全部离场，链上成本基础仍指向3万美元附近底部",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525238",
+   "origin_url": "https://x.com/ki_young_ju/status/2111203821242232951",
+   "important": true,
+   "published_at": "2026-10-16T21:13:52.000Z"
+  },
+  {
+   "title": "布伦特原油上涨突破112美元/桶，24小时上涨3.6%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525224",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T18:29:02.000Z"
+  },
+  {
+   "title": "过去4小时全网爆仓1.57亿美元，BTC爆仓4590万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525213",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T17:27:38.000Z"
+  },
+  {
+   "title": "ETH跌破2400 USDT，24H跌幅2.22%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525211",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T17:18:09.000Z"
+  },
+  {
+   "title": "BTC跌破81000 USDT，24H跌幅1.92%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525210",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T17:17:01.000Z"
+  },
+  {
+   "title": "Strategy股价跌幅扩大至9.70%，现报136.55美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525209",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T17:16:33.000Z"
+  },
+  {
+   "title": "订单响应中位速度提升60倍，Coinbase新匹配引擎尾部延迟改善480倍",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525208",
+   "origin_url": "https://x.com/brian_armstrong/status/2111143831957651543",
+   "important": false,
+   "published_at": "2026-10-16T17:15:31.000Z"
+  },
+  {
+   "title": "特朗普：油价很快就会下降，希望俄乌冲突结束",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525205",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T17:11:45.000Z"
+  },
+  {
+   "title": "总盈利超2000万美元地址开仓约1000万美元BRENTOIL多单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525202",
+   "origin_url": "https://hyperbot.network/trader/0xbf732ea04197942783e34730ed6e0f6099575d58",
+   "important": false,
+   "published_at": "2026-10-16T17:10:56.000Z"
+  },
+  {
+   "title": "总盈利超2000万美元地址平仓约1462万美元ETH多单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525201",
+   "origin_url": "https://hyperbot.network/trader/0xbf732ea04197942783e34730ed6e0f6099575d58",
+   "important": false,
+   "published_at": "2026-10-16T17:10:52.000Z"
+  },
+  {
+   "title": "总盈利超2000万美元地址平仓约1468万美元ZEC多单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525203",
+   "origin_url": "https://hyperbot.network/trader/0xbf732ea04197942783e34730ed6e0f6099575d58",
+   "important": false,
+   "published_at": "2026-10-16T17:10:49.000Z"
+  },
+  {
+   "title": "标普500指数跌幅扩大至1%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525204",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T17:10:39.000Z"
+  },
+  {
+   "title": "LayerZero推出后量子签名聚合系统Aerie，可在0.65秒内聚合超3.2万个签名",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525199",
+   "origin_url": "https://layerzero.network/blog/introducing-aerie",
+   "important": true,
+   "published_at": "2026-10-16T16:50:09.000Z"
+  },
+  {
+   "title": "NEAR Intents披露380万美元漏洞事件：攻击者利用存款通知缺陷生成虚假余额，资金已全部归还",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525198",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T16:46:33.000Z"
+  },
+  {
+   "title": "Coinbase：转账保护设置可为发送和提现增加额外安全层",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525197",
+   "origin_url": "https://x.com/coinbase/status/2111136031382614119",
+   "important": false,
+   "published_at": "2026-10-16T16:44:23.000Z"
+  },
+  {
+   "title": "布伦特原油上涨突破110美元/桶，24小时上涨1.4%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525194",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T16:20:00.000Z"
+  },
+  {
+   "title": "总盈利超2700万美元地址减仓约608万美元XYZ100空单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525191",
+   "origin_url": "https://hyperbot.network/trader/0xfc667adba8d4837586078f4fdcdc29804337ca06",
+   "important": true,
+   "published_at": "2026-10-16T16:19:47.000Z"
+  },
+  {
+   "title": "总盈利超2000万美元地址反手持有约387万美元SP500多单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525193",
+   "origin_url": "https://hyperbot.network/trader/0xfc667adba8d4837586078f4fdcdc29804337ca06",
+   "important": true,
+   "published_at": "2026-10-16T16:19:35.000Z"
+  },
+  {
+   "title": "比特币挖矿难度上调5.92%至140.58T",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525190",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T15:59:48.000Z"
+  },
+  {
+   "title": "前Mt. Gox CEO：Ledger早在2025年12月就收到硬件钱包遭篡改警告，未充分提醒用户",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525186",
+   "origin_url": "https://x.com/Cointelegraph/status/2111122559005544795?s=20",
+   "important": true,
+   "published_at": "2026-10-16T15:54:16.000Z"
+  },
+  {
+   "title": "Strategy股价跌幅扩大至6.4%，MSCI新规或引发指数被动资金抛售",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525184",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T15:47:25.000Z"
+  },
+  {
+   "title": "三方和解获美国法院正式批准，涉及Movement Labs、原创始人及基金会",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525182",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T15:45:16.000Z"
+  },
+  {
+   "title": "巴克莱：美联储或在12月和明年1月各加息25个基点",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525183",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T15:45:09.000Z"
+  },
+  {
+   "title": "美国CFTC主席重申对预测市场拥有专属管辖权",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525179",
+   "origin_url": "https://x.com/Lighter_xyz/status/2111110126807511058",
+   "important": true,
+   "published_at": "2026-10-16T15:03:57.000Z"
+  },
+  {
+   "title": "Lighter上线EVM开发网络，支持智能合约直接管理交易订单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525178",
+   "origin_url": "https://x.com/Lighter_xyz/status/2111110126807511058",
+   "important": true,
+   "published_at": "2026-10-16T15:03:17.000Z"
+  },
+  {
+   "title": "Strategy MSTR目标价上调至208美元，Cantor Fitzgerald预计上涨空间达45%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525177",
+   "origin_url": "https://x.com/BTCtreasuries/status/2111109154308079724",
+   "important": true,
+   "published_at": "2026-10-16T14:57:38.000Z"
+  },
+  {
+   "title": "总亏损约2624万美元地址BTC反手由301.8万美元空单转为55.8万美元多单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525176",
+   "origin_url": "https://hyperbot.network/trader/0x7b7f72a28fe109fa703eeed7984f2a8a68fedee2",
+   "important": true,
+   "published_at": "2026-10-16T14:55:58.000Z"
+  },
+  {
+   "title": "总盈利超2500万美元地址加仓约1102万美元XYZ100空单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525171",
+   "origin_url": "https://hyperbot.network/trader/0xfc667adba8d4837586078f4fdcdc29804337ca06",
+   "important": true,
+   "published_at": "2026-10-16T14:55:55.000Z"
+  },
+  {
+   "title": "法国拟对比特币兑换稳定币征收31.4%税，超80万欧元加密资产或面临离境税",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525174",
+   "origin_url": "https://x.com/BitcoinNewsCom/status/2111104260234444850",
+   "important": true,
+   "published_at": "2026-10-16T14:37:55.000Z"
+  },
+  {
+   "title": "由浮亏转为浮盈，某巨鲸1050万美元TSLA空单仍未平仓",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525173",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T14:35:00.000Z"
+  },
+  {
+   "title": "Lido介绍Lido Lend新机制：流动性不足时允许出借方提取借款人抵押品",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525172",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T14:30:20.000Z"
+  },
+  {
+   "title": "Cobo Wallet将于2026年12月1日关闭App服务，逾期未转出资产每月收取2%管理费",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525170",
+   "origin_url": "https://www.cobo.com/zh/post/Cobo-Wallet-2026-10-15-1406",
+   "important": true,
+   "published_at": "2026-10-16T14:16:00.000Z"
+  },
+  {
+   "title": "Sazmining推出Block旗下Proto比特币挖矿哈希板销售方案，单块算力约200 TH/s",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525169",
+   "origin_url": "https://news.bitcoin.com/mining/block-proto-bitcoin-mining-hardware-own-sazmining/",
+   "important": false,
+   "published_at": "2026-10-16T14:12:17.000Z"
+  },
+  {
+   "title": "Lighter预告即将推出期权产品，具体上线时间尚未公布",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525168",
+   "origin_url": "https://x.com/Lighter_xyz/status/2111070244433252856",
+   "important": true,
+   "published_at": "2026-10-16T14:06:27.000Z"
+  },
+  {
+   "title": "Ledger早期收到硬件钱包植入警告，前Mt. Gox CEO称响应不足",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525166",
+   "origin_url": "https://cointelegraph.com/news/ledger-early-implant-warnings-mark-karpeles/",
+   "important": false,
+   "published_at": "2026-10-16T14:02:09.000Z"
+  },
+  {
+   "title": "Gate Pre-IPOs SpaceX（SPCX）将于10月17日进行第四批7% 股票解锁",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525417",
+   "origin_url": "https://www.gate.com/announcements/article/102282",
+   "important": false,
+   "published_at": "2026-10-16T14:00:00.000Z"
+  },
+  {
+   "title": "Sentora：DeFi总锁仓量一周减少13.4亿美元，稳定币供应量同步下降",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525165",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T13:51:18.000Z"
+  },
+  {
+   "title": "长鑫科技预计前三季度净利润超1300亿元，同比扭亏为盈，并拟回购10亿至20亿元股份",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525164",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T13:46:56.000Z"
+  },
+  {
+   "title": "Strategy股价下跌4%，此前MSCI警告其可能被移出全球指数",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525163",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T13:43:26.000Z"
+  },
+  {
+   "title": "美股开盘AI概念股普跌，CoreWeave跌超7.3%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525162",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T13:31:07.000Z"
+  },
+  {
+   "title": "白银上涨0.7%，报57.436美元/盎司",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525161",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T13:31:03.000Z"
+  },
+  {
+   "title": "NEAR通过Sunrise接入Solana，价格24小时上涨14%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525160",
+   "origin_url": "https://news.bitcoin.com/market-updates/near-price-jumps-14-solana-access-opens-through-sunrise/",
+   "important": false,
+   "published_at": "2026-10-16T13:30:00.000Z"
+  },
+  {
+   "title": "新鲸鱼已实现市值占比升至33.06%，合计成本基础回升至约7.7万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525158",
+   "origin_url": "https://cryptoquant.com/insights/quicktake/6ad20a425212a611f4c59cfe-New-Whales-Now-Account-for-13-of-Bitcoins-Whale-Realized-Cap?utm_source=twitter&utm_medium=sns&utm_campaign=quicktake&utm_content=morenodv",
+   "important": true,
+   "published_at": "2026-10-16T13:00:26.000Z"
+  },
+  {
+   "title": "SpaceX将于10月20日美股盘后公布第三季度财务及运营业绩",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525157",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T12:44:06.000Z"
+  },
+  {
+   "title": "苹果美股盘前涨超2%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525155",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T12:34:45.000Z"
+  },
+  {
+   "title": "Circle：2026年上半年USDC收入约14亿美元，59%用于合作伙伴分成及交易成本",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525153",
+   "origin_url": "https://www.circle.com/blog/the-economics-of-usdc-and-why-our-partners-win",
+   "important": true,
+   "published_at": "2026-10-16T12:32:33.000Z"
+  },
+  {
+   "title": "Circle于Solana网络增发2.5亿枚USDC",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525151",
+   "origin_url": "https://x.com/whale_alert/status/2111070318081024007",
+   "important": false,
+   "published_at": "2026-10-16T12:25:55.000Z"
+  },
+  {
+   "title": "Polymarket“Papertrade FDV在推出后一天高于1亿美元” 概率升至80%，24小时上涨27%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525150",
+   "origin_url": "https://polymarket.com/zh/event/papertrade-fdv-above-one-day-after-launch/papertrade-fdv-above-100m-one-day-after-launch",
+   "important": false,
+   "published_at": "2026-10-16T12:25:07.000Z"
+  },
+  {
+   "title": "Strategy拟将STRC股息改为按日派发，11月年化股息率维持12%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525149",
+   "origin_url": "https://x.com/Strategy/status/2111065457092337734?s=20",
+   "important": true,
+   "published_at": "2026-10-16T12:05:49.000Z"
+  },
+  {
+   "title": "日本央行行长：随着潜在通胀接近2%，将继续提高利率",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525147",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T11:57:14.000Z"
+  },
+  {
+   "title": "卖方再次出现投降信号，Glassnode称BTC在8万美元上方抛售或标志阶段底部",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525145",
+   "origin_url": "https://x.com/glassnode/status/2111061955670888527",
+   "important": true,
+   "published_at": "2026-10-16T11:53:18.000Z"
+  },
+  {
+   "title": "日本三大银行完成日元稳定币联合试点，验证跨境支付全流程",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525144",
+   "origin_url": "https://x.com/TheBlockCo/status/2111059936541311213",
+   "important": true,
+   "published_at": "2026-10-16T11:45:05.000Z"
+  },
+  {
+   "title": "Strive将SATS永续优先股发行规模扩大至约6.3亿美元，或成第二大上市比特币储备公司",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525143",
+   "origin_url": "https://x.com/BitcoinNewsCom/status/2111060184210559445",
+   "important": true,
+   "published_at": "2026-10-16T11:43:18.000Z"
+  },
+  {
+   "title": "Vaneck撤回Lido质押以太坊ETF注册申请，产品尚未发行",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525142",
+   "origin_url": "https://news.bitcoin.com/finance/vaneck-withdraws-lido-staked-ether-etf/",
+   "important": false,
+   "published_at": "2026-10-16T11:42:13.000Z"
+  },
+  {
+   "title": "CryptoQuant创始人：MSCI相关风险已被市场消化，华尔街仍普遍看涨Strategy",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525141",
+   "origin_url": "https://x.com/ki_young_ju/status/2111059784598249475",
+   "important": true,
+   "published_at": "2026-10-16T11:41:34.000Z"
+  },
+  {
+   "title": "韩国基金经理辞职转向日内交易或加入限制更少的独立公司",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525139",
+   "origin_url": "https://x.com/EricBalchunas/status/2111059741870825729",
+   "important": false,
+   "published_at": "2026-10-16T11:41:17.000Z"
+  },
+  {
+   "title": "DNA突破0.23美元，日内涨幅超210%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525138",
+   "origin_url": "https://t.me/gmgnaibot?start=i_HiQUsVtn&utm_source=chatgpt.com",
+   "important": true,
+   "published_at": "2026-10-16T11:36:08.000Z"
+  },
+  {
+   "title": "Celestia推出Eden，高性能EVM链测试AI Agent自主交易与支付",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525137",
+   "origin_url": "https://x.com/celestia/status/2111054730038583485",
+   "important": false,
+   "published_at": "2026-10-16T11:30:26.000Z"
+  },
+  {
+   "title": "星球晚讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525130",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T11:30:00.000Z"
+  },
+  {
+   "title": "美国市场将推出二元期权，交易者可押注Coinbase、Robinhood、Marathon股价能否达到目标",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525135",
+   "origin_url": "https://www.coindesk.com/daybook-us/2026/10/16/traders-will-soon-be-able-to-bet-on-whether-coinbase-robinhood-and-marathon-will-hit-their-targets/",
+   "important": true,
+   "published_at": "2026-10-16T11:22:41.000Z"
+  },
+  {
+   "title": "TAC推出GAP框架，旨在实现代币化证券DeFi可组合性",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525134",
+   "origin_url": "https://x.com/TACoalition/status/2110795297261781286",
+   "important": false,
+   "published_at": "2026-10-16T11:13:22.000Z"
+  },
+  {
+   "title": "Bybit今日上线DRV永续合约",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525132",
+   "origin_url": "https://www.bybit.com/trade/usdt/DRVUSDT",
+   "important": true,
+   "published_at": "2026-10-16T11:07:48.000Z"
+  },
+  {
+   "title": "CryptoQuant：币安以太坊杠杆头寸已得到清理，但市场仍缺乏看涨催化剂",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525131",
+   "origin_url": "https://x.com/cryptoquant_com/status/2111050634833399936",
+   "important": true,
+   "published_at": "2026-10-16T11:05:45.000Z"
+  },
+  {
+   "title": "Circle计划拓展约50个新兴及发展中市场，USDC流通量约733亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525128",
+   "origin_url": "https://www.coindesk.com/business/2026/10/16/circle-targets-40-new-markets-as-stablecoin-demand-grows-globally/",
+   "important": true,
+   "published_at": "2026-10-16T10:59:01.000Z"
+  },
+  {
+   "title": "QCP：AI信用风险取代通胀成为市场主要担忧，CoreWeave暴跌15.5%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525127",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T10:51:48.000Z"
+  },
+  {
+   "title": "数周内推出首项数字资产服务，德意志银行先在德国上线加密托管",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525126",
+   "origin_url": "https://view.tree.news/stories/Imo6SvZcTHyxJ42XXS54KQ",
+   "important": false,
+   "published_at": "2026-10-16T10:50:31.000Z"
+  },
+  {
+   "title": "Vitalik为其AI Agent推出\"偏执模式”，整合zkAPI、Tor及本地大模型增强隐私保护",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525125",
+   "origin_url": "https://x.com/VitalikButerin/status/2111046730959433793",
+   "important": true,
+   "published_at": "2026-10-16T10:50:02.000Z"
+  },
+  {
+   "title": "总盈利超2170万美元地址平仓约1231万美元BTC多单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525123",
+   "origin_url": "https://hyperbot.network/trader/0xbf732ea04197942783e34730ed6e0f6099575d58",
+   "important": true,
+   "published_at": "2026-10-16T10:41:37.000Z"
+  },
+  {
+   "title": "代币化资产流动性面临挑战，稳定币市值达3060亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525122",
+   "origin_url": "https://cointelegraph.com/news/connect-recap-tokenizations-next-challenge-is-building-liquidity-gsr-executive-says/",
+   "important": true,
+   "published_at": "2026-10-16T10:39:07.000Z"
+  },
+  {
+   "title": "JPYC：Polygon网络日元稳定币发行延迟问题已解决，相关处理正逐步恢复",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525121",
+   "origin_url": "https://x.com/jpyc_official/status/2111037571610628488",
+   "important": true,
+   "published_at": "2026-10-16T10:34:13.000Z"
+  },
+  {
+   "title": "进入最后宽限期，Ronin Waypoint将于2026年10月31日彻底关停",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525120",
+   "origin_url": "https://x.com/Ronin_Network/status/2111041964963663891#",
+   "important": true,
+   "published_at": "2026-10-16T10:33:00.000Z"
+  },
+  {
+   "title": "B.AI发布国产模型品牌Token周榜，小米增势强劲、DeepSeek持续领跑",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525118",
+   "origin_url": "https://x.com/BAI_AGI/status/2111036679729696990?s=20",
+   "important": false,
+   "published_at": "2026-10-16T10:27:00.000Z"
+  },
+  {
+   "title": "美股盘前AI概念股普跌，MU下跌1.52%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525116",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T10:20:27.000Z"
+  },
+  {
+   "title": "Gate研究院：美联储重启加息，加密市场进入高利率下的结构分化阶段",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525113",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T09:57:17.000Z"
+  },
+  {
+   "title": "papertrade三位用户不到6天交易量超320亿美元，累计亏损269万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525112",
+   "origin_url": "https://x.com/EmberCN/status/2111031468780839265",
+   "important": true,
+   "published_at": "2026-10-16T09:49:22.000Z"
+  },
+  {
+   "title": "资产组合24小时增长超100万美元，Bonk Guy位列FOMO双榜第一",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525111",
+   "origin_url": "https://x.com/lookonchain/status/2111030451846672573",
+   "important": false,
+   "published_at": "2026-10-16T09:46:19.000Z"
+  },
+  {
+   "title": "Solana基金会主席回应上海活动延期：报名人数激增至原先4倍，超出申报人数上限",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525108",
+   "origin_url": "https://x.com/calilyliu/status/2111017294650552395",
+   "important": true,
+   "published_at": "2026-10-16T09:24:44.000Z"
+  },
+  {
+   "title": "未实现盈利约5800万美元，某巨鲸持有1120万美元HYPE多仓",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525107",
+   "origin_url": "https://x.com/hupzy_agent/status/2111016299157746022",
+   "important": true,
+   "published_at": "2026-10-16T08:52:02.000Z"
+  },
+  {
+   "title": "正式上线，李林旗下UMX打通加密资产与真实证券交易",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525105",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T08:42:04.000Z"
+  },
+  {
+   "title": "NeoSoul发布Believe计划，以百年愿景将公司、产品与团队利益与DNA绑定",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525102",
+   "origin_url": "https://x.com/NeoSoulAI/status/2111008064505856177",
+   "important": true,
+   "published_at": "2026-10-16T08:37:34.000Z"
+  },
+  {
+   "title": "完成日元稳定币共同发行与跨境支付实证，日本三大行联合推进",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525101",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T08:35:00.000Z"
+  },
+  {
+   "title": "AI交易要崩？美国中期选举或是下一只“黑天鹅”",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525099",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T08:20:11.000Z"
+  },
+  {
+   "title": "DNA上线币安Alpha，较开盘涨超230%，持币地址突破1.7万",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525096",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T08:08:28.000Z"
+  },
+  {
+   "title": "德国DAX 40上涨突破25600点，24小时上涨1.4%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525095",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T08:08:01.000Z"
+  },
+  {
+   "title": "币安Alpha已上线DNA",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525094",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T08:01:14.000Z"
+  },
+  {
+   "title": "AnyfloHQ推出企业支付方案，支持法币或稳定币即时结算并统一对账",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525093",
+   "origin_url": "https://x.com/SuiNetwork/status/2111001507516846442",
+   "important": false,
+   "published_at": "2026-10-16T07:49:45.000Z"
+  },
+  {
+   "title": "MANTRA交易警示期延长，Upbit决定进一步审查相关处理进展",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525092",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T07:43:50.000Z"
+  },
+  {
+   "title": "ZIL跌破0.0027 USDT，24H跌超20%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525091",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T07:40:15.000Z"
+  },
+  {
+   "title": "Upbit将于11月16日14:00下架Zilliqa代币ZIL",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525090",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T07:36:12.000Z"
+  },
+  {
+   "title": "NEAR Protocol上线保密账户SOL收益金库，Gauntlet部署于Kamino",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525089",
+   "origin_url": "https://x.com/NEARProtocol/status/2110750258959471074?s=20",
+   "important": false,
+   "published_at": "2026-10-16T07:35:00.000Z"
+  },
+  {
+   "title": "Metric上线面向代币化RWA的DEX，已支持Robinhood Chain、BNB Chain与以太坊",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525087",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T07:30:12.000Z"
+  },
+  {
+   "title": "受益于SpaceX等投资，哈佛大学基金规模增至680亿美元创五年最佳",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525086",
+   "origin_url": "https://www.thecrimson.com/article/2026/10/16/harvard-68-billion-endowment/",
+   "important": true,
+   "published_at": "2026-10-16T07:28:21.000Z"
+  },
+  {
+   "title": "Upbit将HBD及DNT列入交易警示币种，存取款服务暂停",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525085",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T07:11:57.000Z"
+  },
+  {
+   "title": "麻吉大哥在PaperTrade交易获得34.1万枚USDC奖励，净亏损降至约7.47万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525083",
+   "origin_url": "https://x.com/lookonchain/status/2110991486817120343",
+   "important": true,
+   "published_at": "2026-10-16T07:10:15.000Z"
+  },
+  {
+   "title": "Polymarket“ETH十月剩余时段触及2600美元” 概率升至54%，24小时上涨20%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525082",
+   "origin_url": "https://polymarket.com/zh/event/what-price-will-ethereum-hit-in-october-2026",
+   "important": false,
+   "published_at": "2026-10-16T07:08:39.000Z"
+  },
+  {
+   "title": "币安将支持VELODROME代币合并至Aerodrome及AERO合约置换",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525081",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T07:02:41.000Z"
+  },
+  {
+   "title": "慢雾：警惕利用Ledger供应链事件的虚假固件更新钓鱼活动",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525080",
+   "origin_url": "https://x.com/SlowMist_Team/status/2110988183039332417",
+   "important": true,
+   "published_at": "2026-10-16T06:58:28.000Z"
+  },
+  {
+   "title": "两周超150宗WhatsApp账户劫持案，香港虚拟货币兑换公司损失逾400万港元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525078",
+   "origin_url": "https://www.aastocks.com/tc/stocks/news/aafn-con/NOW.1549648/latest-news/AAFN",
+   "important": false,
+   "published_at": "2026-10-16T06:43:53.000Z"
+  },
+  {
+   "title": "Santiment ：持有10至1万枚比特币的钱包数达20,338个，创历史新高",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525077",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T06:39:31.000Z"
+  },
+  {
+   "title": "跑得比谁都快？CoreWeave三位创始人自IPO以来已套现33亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525076",
+   "origin_url": " https://www.bloomberg.com/news/articles/2026-10-15/coreweave-founders-shield-fortunes-with-3-3-billion-stock-sales",
+   "important": true,
+   "published_at": "2026-10-16T06:36:51.000Z"
+  },
+  {
+   "title": "韩国监管机构将加强对涉及韩国市场的离岸永续合约平台监管",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525075",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T06:30:10.000Z"
+  },
+  {
+   "title": "DWF Labs：AI与加密融合尚未被市场定价，DePIN等领域或迎机会",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525073",
+   "origin_url": "https://x.com/DWFLabs/status/2110975788292214913",
+   "important": true,
+   "published_at": "2026-10-16T06:25:59.000Z"
+  },
+  {
+   "title": "币安Alpha将上线NeoSoul (DNA) ，持有至少245个积分可申领DNA",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525072",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T06:12:52.000Z"
+  },
+  {
+   "title": "瑞典央行建议为数字克朗立法准备，警告外币稳定币或冲击本国货币使用",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525071",
+   "origin_url": "https://cointelegraph.com/news/sweden-riksbank-digital-krona-cbdc-legislation?utm_campaign=rss_partner_inbound&utm_medium=rss&utm_source=rss_feed",
+   "important": false,
+   "published_at": "2026-10-16T05:59:42.000Z"
+  },
+  {
+   "title": "上海：推进国家区块链网络（上海枢纽）建设，强化跨链服务等基础能力",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525070",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T05:54:50.000Z"
+  },
+  {
+   "title": "特朗普AI特别工作组首次会议：要求报告黑客攻击及“越狱”，暂未讨论新规",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525069",
+   "origin_url": "https://www.bloomberg.com/news/articles/2026-10-16/trump-s-ai-task-force-to-commission-report-on-technology-s-risks",
+   "important": true,
+   "published_at": "2026-10-16T05:51:47.000Z"
+  },
+  {
+   "title": "BTC、ETH震荡上行，Gate两大币种合约成交额均位列全球前三",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525068",
+   "origin_url": "https://www.coinglass.com/currencies/BTC/futures",
+   "important": false,
+   "published_at": "2026-10-16T05:41:22.000Z"
+  },
+  {
+   "title": "Filecoin推进奖励机制改革，FIL每日新增流通量预计下降75%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525067",
+   "origin_url": "https://mp.weixin.qq.com/s/3WVn_Re2XGL4Q2ib9wXKdQ",
+   "important": false,
+   "published_at": "2026-10-16T05:34:29.000Z"
+  },
+  {
+   "title": "星球午讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525058",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T05:30:00.000Z"
+  },
+  {
+   "title": "今日热议：特斯拉发布新一代Roadster，飞行能力仍待官方确认",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525064",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T05:22:58.000Z"
+  },
+  {
+   "title": "比特币生态拟支持USDT与BTC等资产共同管理，UniSat与Utexo推进集成",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525063",
+   "origin_url": "https://x.com/lorenzonical/status/2110911703890407743",
+   "important": false,
+   "published_at": "2026-10-16T05:07:31.000Z"
+  },
+  {
+   "title": "Robinhood生态HOOKR市值短时突破3200万美元，创历史新高",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525062",
+   "origin_url": "https://t.me/gmgnaibot?start=i_HiQUsVtn",
+   "important": true,
+   "published_at": "2026-10-16T04:57:52.000Z"
+  },
+  {
+   "title": "Predict the Worlds第1场战利品箱已发放，第2场将在数小时内发放",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525061",
+   "origin_url": "https://x.com/predictdotfun/status/2110957087937491257",
+   "important": false,
+   "published_at": "2026-10-16T04:53:27.000Z"
+  },
+  {
+   "title": "Polymarket“Strategy将于12月31日前被剔除出MSCI指数”概率升至90%，24小时上涨25%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525060",
+   "origin_url": "https://polymarket.com/event/will-microstrategy-be-delisted-from-the-msci-index-by-march-31/microstrategy-delisted-from-msci-index-by-december-31",
+   "important": false,
+   "published_at": "2026-10-16T04:50:54.000Z"
+  },
+  {
+   "title": "OKX美股产品过去30日成交额超518亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525059",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T04:50:14.000Z"
+  },
+  {
+   "title": "BTC资金费率转负，衍生品市场空头重新占据主导地位",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525056",
+   "origin_url": "https://x.com/Darkfost_Coc/status/2110826750376591451",
+   "important": false,
+   "published_at": "2026-10-16T04:39:46.000Z"
+  },
+  {
+   "title": "Nscale IPO前曝出多重风险：数据中心几乎没有运行，实际算力容量不足目标1%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525055",
+   "origin_url": "https://www.bloomberg.com/news/features/2026-10-15/nscale-s-35-billion-ipo-plans-muddied-by-ai-data-center-delays?srnd=phx-crypto",
+   "important": true,
+   "published_at": "2026-10-16T04:39:00.000Z"
+  },
+  {
+   "title": "Meme速递：BSC上特斯拉能飞市值短时突破108万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525053",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T04:26:55.000Z"
+  },
+  {
+   "title": "以太坊现货ETF昨日总净流出6022.22万美元，贝莱德ETHA净流出4438.61万美元居首",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525052",
+   "origin_url": " https://sosovalue.com/assets/etf/us-eth-spot",
+   "important": false,
+   "published_at": "2026-10-16T04:23:51.000Z"
+  },
+  {
+   "title": "比特币现货ETF昨日总净流入505.51万美元，贝莱德IBIT净流入1678.57万美元居首",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525051",
+   "origin_url": "https://sosovalue.com/zh/assets/etf/us-btc-spot",
+   "important": false,
+   "published_at": "2026-10-16T04:22:58.000Z"
+  },
+  {
+   "title": "总盈利超2356万美元地址减仓约394万美元SKHX空单",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525049",
+   "origin_url": "https://hyperbot.network/trader/0xfc667adba8d4837586078f4fdcdc29804337ca06",
+   "important": false,
+   "published_at": "2026-10-16T04:18:52.000Z"
+  },
+  {
+   "title": "美联储主席沃什：特别工作组将于11月举行听证会，重点研究AI经济影响",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525048",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T04:17:28.000Z"
+  },
+  {
+   "title": "Osmosis：bOSMO赎回合约存在漏洞，1037个账户将获赔约4.05万枚OSMO",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525047",
+   "origin_url": "https://forum.osmosis.zone/t/bosmo-redemption-issue/4161",
+   "important": true,
+   "published_at": "2026-10-16T03:56:04.000Z"
+  },
+  {
+   "title": "稳定币功能迈向商业化，Visa Direct接入Inyo Global服务",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525046",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T03:53:19.000Z"
+  },
+  {
+   "title": "TSLA永续合约近24小时成交额增至1.28亿美元，未平仓价值增加3563万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525045",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T03:49:56.000Z"
+  },
+  {
+   "title": "长鑫科技市值重回3万亿元，重返A股榜首",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525044",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T03:47:59.000Z"
+  },
+  {
+   "title": "新加坡海湾银行推出个人客户稳定币兑换服务，可在账户内兑换并持有USDT、USDC",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525043",
+   "origin_url": "https://www.sgb.com/",
+   "important": false,
+   "published_at": "2026-10-16T03:43:26.000Z"
+  },
+  {
+   "title": "沃什：9月FOMC会议以来全球形势基本符合预期",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525042",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T03:41:19.000Z"
+  },
+  {
+   "title": "分析师：BTC下跌期间长期持有者转入交易所规模维持低位，短期持有者抛压减弱",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525041",
+   "origin_url": "https://x.com/Murphychen888/status/2110934472258634178",
+   "important": true,
+   "published_at": "2026-10-16T03:29:41.000Z"
+  },
+  {
+   "title": "BTC质押量达735枚，Stacks Q3生态报告显示STX质押量增长超25%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525040",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T03:17:52.000Z"
+  },
+  {
+   "title": "美国SOL现货ETF单日总净流出981.79万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525039",
+   "origin_url": "https://sosovalue.com/etf/us-sol",
+   "important": false,
+   "published_at": "2026-10-16T02:55:54.000Z"
+  },
+  {
+   "title": "上半年净亏损约7790万美元，Capital B比特币储备增至3538枚",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525038",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T02:52:27.000Z"
+  },
+  {
+   "title": "X Layer联合TapeOut发起TapeOut开发者加速计划，推动链上应用创新与商业化",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525037",
+   "origin_url": "https://web3.okx.com/zh-hans/xlayer/build-x-series",
+   "important": false,
+   "published_at": "2026-10-16T02:49:49.000Z"
+  },
+  {
+   "title": "Gate创始人Dr. Han接受Bitcoin.com专访：金融的未来是让所有资产在一个账户里即时高效流动",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525036",
+   "origin_url": " https://x.com/BitcoinNews/status/2110324757262373047",
+   "important": false,
+   "published_at": "2026-10-16T02:47:10.000Z"
+  },
+  {
+   "title": "MSX完成5只美股代币股息派发",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525035",
+   "origin_url": "https://msx.com/zh-hans/notice-center-detail/1ec1cebbed1347ccbfea65941f0bd0d3",
+   "important": false,
+   "published_at": "2026-10-16T02:30:31.000Z"
+  },
+  {
+   "title": "Meme速递：BSC上特斯拉能飞市值短时突破90万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525033",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T02:21:22.000Z"
+  },
+  {
+   "title": "加密市场小幅反弹，AI板块上涨3.63%，仅Meme及CeFi板块下跌",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525031",
+   "origin_url": "https://sosovalue.com/assets/cryptoindex",
+   "important": false,
+   "published_at": "2026-10-16T02:14:41.000Z"
+  },
+  {
+   "title": "Solana上FTR市值短时触及586万美元，24H涨超650倍",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525030",
+   "origin_url": "https://t.me/gmgnaibot?start=i_HiQUsVtn",
+   "important": true,
+   "published_at": "2026-10-16T02:11:36.000Z"
+  },
+  {
+   "title": "持仓价值达7830万美元，Chainlink Reserve累计购入629万枚LINK",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525029",
+   "origin_url": "https://x.com/OnchainLens/status/2110915725712126454",
+   "important": true,
+   "published_at": "2026-10-16T02:08:54.000Z"
+  },
+  {
+   "title": "Strive宣布SATS IPO发行规模增至7亿美元，发行价为每股90美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525028",
+   "origin_url": "https://x.com/ColeMacro/status/2110915499446129018",
+   "important": true,
+   "published_at": "2026-10-16T02:08:18.000Z"
+  },
+  {
+   "title": "价值721万美元，某实体2个钱包9小时前向币安转入1448万枚WLD",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525026",
+   "origin_url": "https://x.com/EmberCN/status/2110914868446683495",
+   "important": false,
+   "published_at": "2026-10-16T02:05:22.000Z"
+  },
+  {
+   "title": "OpenAI内部GPT-5.6 Sol系列模型未经授权使用公开助记词地址测试币部署合约",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525024",
+   "origin_url": "https://alignment.openai.com/misalignment-reports/using-a-funded-test-cryptocurrency-wallet-without-authorization/",
+   "important": true,
+   "published_at": "2026-10-16T02:01:07.000Z"
+  },
+  {
+   "title": "Hyperliquid创始人：希望进军华尔街，但监管应约束金融机构而非区块链本身",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525023",
+   "origin_url": "https://www.bloomberg.com/news/articles/2026-10-15/jeff-yan-s-plan-to-bring-the-entire-financial-industry-onto-hyperliquid?srnd=phx-crypto",
+   "important": true,
+   "published_at": "2026-10-16T02:00:14.000Z"
+  },
+  {
+   "title": "浮盈88.7万美元，5个钱包以2倍杠杆做多5017万枚AGT",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525022",
+   "origin_url": "https://x.com/lookonchain/status/2110913097024364644",
+   "important": true,
+   "published_at": "2026-10-16T01:58:35.000Z"
+  },
+  {
+   "title": "Ramp完成18.5亿美元融资，估值达600亿美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525021",
+   "origin_url": "https://x.com/eglyman/status/2110717341445304759",
+   "important": true,
+   "published_at": "2026-10-16T01:53:50.000Z"
+  },
+  {
+   "title": "澳大利亚拟将OECD加密资产报告框架纳入法律体系，发布相关立法草案",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525020",
+   "origin_url": "https://cointelegraph.com/news/australia-releases-draft-bill-to-adopt-oecd-crypto-tax-reporting-framework",
+   "important": false,
+   "published_at": "2026-10-16T01:50:10.000Z"
+  },
+  {
+   "title": "Justin Sun：市场严重低估Q-Day对比特币价格的潜在冲击",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525019",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T01:49:55.000Z"
+  },
+  {
+   "title": "Privy被Stripe收购一周年，托管资产增长25倍，营收增长9倍",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525016",
+   "origin_url": "https://x.com/patrickc/status/2110755264484041076",
+   "important": true,
+   "published_at": "2026-10-16T01:48:01.000Z"
+  },
+  {
+   "title": "5天卖出1601.1枚BTC换1.32亿USDC，某巨鲸/机构累计买入5.31万枚ETH",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525015",
+   "origin_url": "https://x.com/EmberCN/status/2110909524882444692",
+   "important": false,
+   "published_at": "2026-10-16T01:44:20.000Z"
+  },
+  {
+   "title": "美国XRP、ZEC现货ETF单日合计净流出1486.78万美元，NEAR净流入112.60万美元",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525014",
+   "origin_url": "https://sosovalue.com/etf/us-xrp",
+   "important": false,
+   "published_at": "2026-10-16T01:43:55.000Z"
+  },
+  {
+   "title": "预计亏损1345万美元，本轮牛顶建仓ETH的某巨鲸已向交易所充值1.54万枚ETH",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525013",
+   "origin_url": "https://x.com/ai_9684xtpa/status/2110909105980477883",
+   "important": true,
+   "published_at": "2026-10-16T01:43:18.000Z"
+  },
+  {
+   "title": "Spout Finance完成200万美元战略轮融资，Draper Dragon等参投",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525012",
+   "origin_url": "https://x.com/SpoutFi/status/2110762677899526509",
+   "important": false,
+   "published_at": "2026-10-16T01:38:07.000Z"
+  },
+  {
+   "title": "星球早讯",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525001",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T01:29:00.000Z"
+  },
+  {
+   "title": "分析：Meme币平均17.2天达到历史高点，仅3%项目重返历史高点",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525011",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T01:28:46.000Z"
+  },
+  {
+   "title": "Lightning Labs推出比特币非托管扩容方案LayerTree，单个UTXO可供百万用户共享",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525010",
+   "origin_url": "https://x.com/lightning/status/2110812651882217677",
+   "important": false,
+   "published_at": "2026-10-16T01:27:58.000Z"
+  },
+  {
+   "title": "钓鱼攻击者将从Bofur Capital窃取的200万美元兑换成825.5枚ETH",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525009",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T01:20:09.000Z"
+  },
+  {
+   "title": "韩国KOSPI指数日内涨幅扩大至3.3%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525008",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T01:19:40.000Z"
+  },
+  {
+   "title": "SBI Holdings与Startale加入Open Standard，探索JPYSC与OUSD的全球互操作性",
+   "url": "https://www.odaily.news/zh-CN/newsflash/524451",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T01:15:00.000Z"
+  },
+  {
+   "title": "NBA前球员Malik Beasley涉操纵个人数据下注案，3名被告拟认罪",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525007",
+   "origin_url": "https://news.bitcoin.com/igaming/three-in-beasley-nba-betting-case-plead-guilty-prosecutor-says/",
+   "important": false,
+   "published_at": "2026-10-16T01:09:49.000Z"
+  },
+  {
+   "title": "Hut 8疑似出售BTC，关联钱包两日内向多家交易所转入1,589枚BTC",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525006",
+   "origin_url": "https://x.com/lookonchain/status/2110900734141346251",
+   "important": true,
+   "published_at": "2026-10-16T01:09:24.000Z"
+  },
+  {
+   "title": "美股收盘AI概念股普涨，SoundHound AI涨7.95%",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525005",
+   "origin_url": null,
+   "important": true,
+   "published_at": "2026-10-16T01:00:08.000Z"
+  },
+  {
+   "title": "黄金跌至4156美元，国际油价小幅下行",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525004",
+   "origin_url": null,
+   "important": false,
+   "published_at": "2026-10-16T01:00:03.000Z"
+  },
+  {
+   "title": "Ledger：犯罪团伙耗资数百万美元实施硬件植入攻击，属局部分销渠道攻击",
+   "url": "https://www.odaily.news/zh-CN/newsflash/525003",
+   "origin_url": "https://www.ledger.com/blog-response-hardware-implant-attack",
+   "important": true,
+   "published_at": "2026-10-16T00:58:45.000Z"
+  }
+ ],
+ "count": 300
+}

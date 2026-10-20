@@ -1,0 +1,709 @@
+# Daily Topics（WHI-1937，ADR 0004 §4、§5、§11、§12）：plan → ingest → generate → commit → deploy，三段 job 分权；notify / alert 推送到 Lark（WHI-1972）。
+#
+#   plan      contents: read；没有凭据。决定处理哪些日期、notify 要看哪些日期（含“这一天的最后一次运行”标志）
+#   ingest    contents: read, actions: read；BLOCKBEATS_API_KEY 只在 rh ingest 那一步。抓取，打包公开上下文
+#   generate  permissions: {}，不 checkout；LLM_BASE_URL / LLM_API_KEY 只在运行模型的那一步。先做隔离自检（假网关 + canary），
+#             再按日期运行 daily-topics skill（scripts/daily-generate.sh）
+#   commit    contents: write；没有 LLM 和 BlockBeats 凭据。候选当不可信输入：rh daily import → rh daily check --base --workflow →
+#             pnpm verify（含构建与泄漏检查）→ 只 git add 本次日期的 daily/YYYY/MM/DD/ → push；冲突就 rebase、重新验证，不自动解决
+#   deploy    调用 deploy.yml（workflow_call），显式传入刚推上去的提交 SHA（被调用时 github.sha 是调用方的提交）；冒烟测试通过后返回 deployed_sha
+#   notify    contents: read；LARK_WEBHOOK_URL / LARK_SIGNING_SECRET 只在发送那一步。按线上版本（/build.json）构建当天的卡片，
+#             哈希必须等于线上页面的 rh-daily-hash；发送台账在 Actions cache 里（确认发送后尽力去重，仍可能重复，失败可手动重发）
+#   alert     任何 job 失败时发一张提醒卡片（只有日期、失败的 job 和运行链接）；vars.LARK_ALERTS == 'false' 时关闭
+#
+# 默认关闭：定时与手动运行只在 main 上、并且 vars.DAILY_ENABLED == 'true' 时执行（README → Daily Topics 运行手册）。
+# 试验：push 到 daily-trial/** 分支会在那个分支上跑完整流程，commit job 推回那个分支，不部署（合并前证明机制用，见 README）。
+name: daily
+
+on:
+  schedule:
+    # T_last(D) = D 13:30 UTC（ADR 0004 §4）：13:30 那次（以及任何延迟到它之后的运行）是 D 的最后一次尝试；
+    # 每次运行处理今天，昨天不是终态时一并收尾
+    - cron: "30 4 * * *"
+    - cron: "15 8 * * *"
+    - cron: "30 13 * * *"
+  workflow_dispatch:
+    inputs:
+      date:
+        description: Daily 日期 D（YYYY-MM-DD，UTC）；留空 = 今天
+        type: string
+        default: ""
+      regenerate:
+        description: 重做一个已是终态的日期（用原来保存的条目，30 天内）；新结果通过检查才替换
+        type: boolean
+        default: false
+      seed_ledger:
+        description: 没有恢复到 BlockBeats 账本时从空账本开始（只在确定今天还没调用过 BlockBeats 时勾选）
+        type: boolean
+        default: false
+      notify_only:
+        description: 只把 date 那一天的线上版本推送到 Lark（不抓取、不生成、不提交）；已经发过的要同时勾选 force
+        type: boolean
+        default: false
+      force:
+        description: 和 notify_only 一起用：不看发送台账，重发一次（卡片标 “Resent”）
+        type: boolean
+        default: false
+  push:
+    branches: ["daily-trial/**"]
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  plan:
+    if: >-
+      (github.event_name != 'push' && github.ref == 'refs/heads/main' && vars.DAILY_ENABLED == 'true') ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/daily-trial/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      any: ${{ steps.plan.outputs.any }}
+      dates: ${{ steps.plan.outputs.dates }}
+      base: ${{ steps.plan.outputs.base }}
+      model: ${{ steps.plan.outputs.model }}
+      notify: ${{ steps.plan.outputs.notify }}
+      notify_only: ${{ steps.plan.outputs.notify_only }}
+      force: ${{ steps.plan.outputs.force }}
+    steps:
+      # 分支的当前提交，不是触发时的 github.sha：排队等 concurrency 的运行要看到前一次运行刚推上去的 daily/
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Plan (which dates this run processes and which dates notify looks at)
+        id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          DATE: ${{ inputs.date }}
+          REGENERATE: ${{ inputs.regenerate }}
+          NOTIFY_ONLY: ${{ inputs.notify_only }}
+          FORCE: ${{ inputs.force }}
+          MODEL: ${{ vars.DAILY_MODEL || 'claude-sonnet-5-5' }}
+        # Actions 的默认 shell 是 bash -e，没有 pipefail：不加的话 `node … | tee` 里 node 的失败会被吞掉（plan 失败却显示成功，也不会提醒）
+        run: |
+          set -o pipefail
+          args=(plan --event "$EVENT" --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --date "$DATE")
+          [ "$REGENERATE" = true ] && args+=(--regenerate)
+          [ "$NOTIFY_ONLY" = true ] && args+=(--notify-only)
+          [ "$FORCE" = true ] && args+=(--force)
+          node scripts/daily.ts "${args[@]}" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "base=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "model=$MODEL" >> "$GITHUB_OUTPUT"
+
+  ingest:
+    needs: plan
+    if: needs.plan.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: read # 找上一次运行的条目缓存 artifact；regenerate 时找原来那次运行的 items artifact
+    outputs:
+      any: ${{ needs.plan.outputs.any }}
+      dates: ${{ needs.plan.outputs.dates }}
+      base: ${{ needs.plan.outputs.base }}
+      generate: ${{ steps.pack.outputs.generate }}
+      model: ${{ needs.plan.outputs.model }}
+    env:
+      STATE: .rh/ingest # 工作区里（已 gitignore），hashFiles 才能看到
+      # 试验分支用自己的账本；它的调用不计入 main 的账本（README → 试验分支）
+      LEDGER_KEY: daily-ledger-${{ github.event_name == 'push' && 'trial-' || '' }}
+    steps:
+      - run: echo "ITEMS=$RUNNER_TEMP/daily-items" >> "$GITHUB_ENV" && echo "WORK=$RUNNER_TEMP/daily-work" >> "$GITHUB_ENV"
+      # plan 看到的那个提交（分支的当前提交）
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.plan.outputs.base }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # 只有不含内容的 BlockBeats 账本放在 Actions cache 里；按 run + attempt 建 key，恢复最新的一份
+      - name: Restore the BlockBeats ledger
+        id: ledger
+        if: needs.plan.outputs.any == 'true'
+        uses: actions/cache/restore@v6
+        with:
+          path: .rh/ingest/ledger.json
+          key: ${{ env.LEDGER_KEY }}${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: ${{ env.LEDGER_KEY }}
+
+      - name: Seed an empty ledger (deliberate only)
+        if: >-
+          needs.plan.outputs.any == 'true' && steps.ledger.outputs.cache-matched-key == '' &&
+          (inputs.seed_ledger || github.event_name == 'push')
+        run: |
+          mkdir -p "$STATE"
+          echo '{"schema":1,"days":{},"last_success_at":null}' > "$STATE/ledger.json"
+          echo "No BlockBeats ledger was restored; started an empty one (trial branch or seed_ledger)." | tee -a "$GITHUB_STEP_SUMMARY"
+
+      # cache.json（含摘录）不进 Actions cache，只在 30 天的 artifact 里：从这个分支上一次运行的 daily-cache artifact 恢复（没有就从空开始）
+      - name: Find the previous run's item cache
+        id: prev
+        if: needs.plan.outputs.any == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select((.name | startswith("daily-cache-")) and (.expired | not) and .workflow_run.head_branch == env.BRANCH) | [.created_at, .name, .workflow_run.id] | @tsv' \
+            | sort -r | head -1 | awk -F'\t' '{print "name=" $2; print "run=" $3}' >> "$GITHUB_OUTPUT"
+      - if: steps.prev.outputs.name != ''
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: ${{ steps.prev.outputs.name }}
+          run-id: ${{ steps.prev.outputs.run }}
+          github-token: ${{ github.token }}
+          path: .rh/ingest
+
+      # regenerate：不重新抓取，用原来那次运行保存的 ingest 输出（items artifact 保留 30 天）
+      - name: Find the stored items of the day to regenerate
+        id: stored
+        if: contains(needs.plan.outputs.dates, '"regenerate"')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DATES: ${{ needs.plan.outputs.dates }}
+        run: |
+          D=$(echo "$DATES" | jq -r '.[0].date')
+          name=$(jq -r '"daily-items-\(.run.id)-\(.run.attempt)"' "daily/${D//-//}/manifest.json")
+          row=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=$name" --jq '[.artifacts[] | select(.expired | not)] | first | select(.) | [.workflow_run.id, .expires_at] | @tsv')
+          if [ -z "$row" ]; then
+            echo "::error::$D: items artifact $name is gone (older than 30 days or not made by the workflow). Regenerate is not possible; see README → Daily Topics → 手动修正 (owner edits topics.yml in the content lane)."
+            exit 1
+          fi
+          run=${row%%$'\t'*} expires=${row#*$'\t'}
+          days=$(( ( $(date -d "$expires" +%s) - $(date +%s) ) / 86400 ))
+          echo "name=$name" >> "$GITHUB_OUTPUT"; echo "run=$run" >> "$GITHUB_OUTPUT"
+          # 再上传时不延长摘录的保留期
+          echo "retention=$(( days < 1 ? 1 : days ))" >> "$GITHUB_OUTPUT"
+      - if: steps.stored.outputs.name != ''
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ steps.stored.outputs.name }}
+          run-id: ${{ steps.stored.outputs.run }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/stored-items
+
+      - name: Ingest (BlockBeats key only in this step)
+        id: ingest
+        if: needs.plan.outputs.any == 'true'
+        env:
+          BLOCKBEATS_API_KEY: ${{ secrets.BLOCKBEATS_API_KEY }}
+          DATES: ${{ needs.plan.outputs.dates }}
+        run: |
+          set -o pipefail
+          mkdir -p "$STATE" "$ITEMS"
+          gen=()
+          # 今天在前、昨天在后，顺序执行，共用同一个状态目录（BlockBeats 账本按 UTC 日累计）
+          for row in $(echo "$DATES" | jq -r '.[] | "\(.date):\(.mode)"'); do
+            D=${row%%:*} mode=${row#*:}
+            mkdir -p "$ITEMS/$D"
+            out=$(mktemp)
+            if [ "$mode" = regenerate ]; then
+              cp "$RUNNER_TEMP/stored-items/$D/manifest.json" "$RUNNER_TEMP/stored-items/$D/items.jsonl" "$ITEMS/$D/"
+              GITHUB_OUTPUT=$out node scripts/daily.ts reuse --date "$D" --manifest "$ITEMS/$D/manifest.json" --input "$ITEMS/$D/items.jsonl"
+            else
+              GITHUB_OUTPUT=$out node cli/rh.ts ingest --date "$D" --out "$ITEMS/$D" --state "$STATE"
+            fi
+            g=false; grep -qx 'generate=true' "$out" && g=true && gen+=("$D")
+            echo "$D ($mode): generate=$g" >> "$GITHUB_STEP_SUMMARY"
+            jq -r '"  digest \(.digest.status); " + ([.sources[] | "\(.id) \(.status) items=\(.items) calls=\(.calls)"] | join("; "))' "$ITEMS/$D/manifest.json" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
+          echo "generate=$(printf '%s\n' "${gen[@]}" | jq -Rnc '[inputs | select(length > 0)]')" >> "$GITHUB_OUTPUT"
+
+      - name: Save the BlockBeats ledger
+        if: always() && needs.plan.outputs.any == 'true' && hashFiles('.rh/ingest/ledger.json') != ''
+        uses: actions/cache/save@v6
+        with:
+          path: .rh/ingest/ledger.json
+          key: ${{ env.LEDGER_KEY }}${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Pack the generate work folders (public context only) and fill manifest.generator
+        id: pack
+        if: needs.plan.outputs.any == 'true'
+        env:
+          GEN: ${{ steps.ingest.outputs.generate }}
+          MODEL: ${{ needs.plan.outputs.model }}
+        run: |
+          echo "generate=$GEN" >> "$GITHUB_OUTPUT"
+          [ "$GEN" = "[]" ] && exit 0
+          # skill/：daily-topics skill 副本；tools/：generate job 运行模型的脚本（不进模型的工作目录）
+          mkdir -p "$WORK/tools"
+          cp -R .claude/skills/daily-topics "$WORK/skill"
+          cp scripts/daily-generate.sh scripts/daily-isolation.ts "$WORK/tools/"
+          for D in $(echo "$GEN" | jq -r '.[]'); do
+            in="$WORK/dates/$D/input"; mkdir -p "$in"
+            node scripts/daily.ts context --manifest "$ITEMS/$D/manifest.json" --out "$in/context.json"
+            cp "$ITEMS/$D/items.jsonl" "$in/items.jsonl"
+            node scripts/daily.ts generator --manifest "$ITEMS/$D/manifest.json" --input "$in" --model "$MODEL"
+          done
+
+      # 摘录只在 30 天的 artifact 里（ADR 0004 §3、§6）：items artifact 也是 regenerate 的输入
+      - if: needs.plan.outputs.any == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: daily-items-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/daily-items/
+          retention-days: ${{ steps.stored.outputs.retention || 30 }}
+      - if: needs.plan.outputs.any == 'true' && hashFiles('.rh/ingest/cache.json') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: daily-cache-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .rh/ingest/cache.json
+          retention-days: 30
+      - if: steps.pack.outputs.generate != '[]' && steps.pack.outputs.generate != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: daily-work-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/daily-work/
+          retention-days: 1
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo "**Daily ingest failed** — nothing was generated or committed. Runbook: README → Daily Topics." >> "$GITHUB_STEP_SUMMARY"
+
+  # 这个 job 持有 LLM key，模型读的是不可信的来源文本：不 checkout，GITHUB_TOKEN 没有任何权限，也不交给任何步骤；
+  # 模型只拿到 ingest 打包的工作目录；失败的日期没有候选，commit job 记为 generator_failed（ADR 0004 §5）
+  generate:
+    needs: ingest
+    if: needs.ingest.outputs.generate != '[]' && needs.ingest.outputs.generate != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions: {}
+    env:
+      # 和 WHI-1933 的本地评估同一个版本（test/fixtures/daily/eval/README.md）
+      CLAUDE_CODE_VERSION: 2.1.287
+      MODEL: ${{ needs.ingest.outputs.model }}
+      GEN: ${{ needs.ingest.outputs.generate }}
+    steps:
+      - run: echo "W=$RUNNER_TEMP/daily-work" >> "$GITHUB_ENV" && echo "L=$RUNNER_TEMP/generate-log" >> "$GITHUB_ENV"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - uses: actions/download-artifact@v8
+        with:
+          name: daily-work-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/daily-work
+
+      - name: Install the pinned Claude Code CLI
+        run: |
+          npm install -g --no-fund --no-audit "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+          [ "$(claude --version)" = "${CLAUDE_CODE_VERSION} (Claude Code)" ] || { echo "::error::unexpected Claude Code version"; exit 1; }
+
+      - name: No repository credentials in this job (a push attempt must fail)
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+        run: |
+          {
+            echo "### Repository credentials in the generate job"
+            echo "- credential-like environment variable names: $(env | cut -d= -f1 | grep -E 'TOKEN|SECRET|PASSWORD|CREDENTIAL|_KEY$' | sort | tr '\n' ' ' || true)"
+            echo "- ~/.git-credentials: $([ -e ~/.git-credentials ] && echo present || echo absent); git credential config: $(git config --global --get-regexp '^(credential|http\..*extraheader)' | wc -l) entries"
+            echo "- checkout in workspace: $([ -e "$GITHUB_WORKSPACE/.git" ] && echo present || echo absent)"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          if env | cut -d= -f1 | grep -qxE 'GITHUB_TOKEN|GH_TOKEN|ACTIONS_ID_TOKEN_REQUEST_TOKEN' || [ -e ~/.git-credentials ] || [ -e "$GITHUB_WORKSPACE/.git" ]; then
+            echo "::error::the generate job must not hold repository credentials or a checkout"; exit 1
+          fi
+          p=$(mktemp -d) && git -C "$p" init -q && git -C "$p" -c user.name=x -c user.email=x@x commit -q --allow-empty -m probe
+          if git -C "$p" push -q "https://github.com/$GITHUB_REPOSITORY.git" HEAD:refs/heads/daily-generate-push-probe 2>"$p/err"; then
+            echo "::error::a push from the generate job succeeded"; exit 1
+          fi
+          echo "- push attempt: refused ($(head -1 "$p/err" | cut -c1-120))" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Work folders (listed before any model runs)
+        run: |
+          echo "### Work artifact" >> "$GITHUB_STEP_SUMMARY"
+          (cd "$W" && find . -printf '%y %5s %p\n' | LC_ALL=C sort -k3) | tee -a "$GITHUB_STEP_SUMMARY" | sed 's/^/  /'
+
+      - name: Isolation self-check (fake gateway and canary token; no LLM, no real key)
+        run: |
+          D=$(echo "$GEN" | jq -r '.[0]')
+          S="$RUNNER_TEMP/selfcheck"
+          mkdir -p "$S/work/out" "$S/home"
+          cp -R "$W/skill" "$S/work/skill" && cp -R "$W/dates/$D/input" "$S/work/input"
+          node "$W/tools/daily-isolation.ts" --runner "$W/tools/daily-generate.sh" \
+            --work "$S/work" --home "$S/home" --plant "$S/planted/PRIVATE-REPORT.md" --out "$L/selfcheck"
+
+      - name: Run the daily-topics skill (one isolated work folder per date)
+        env:
+          U: ${{ secrets.LLM_BASE_URL }}
+          K: ${{ secrets.LLM_API_KEY }}
+        run: |
+          set +e -uo pipefail   # 一个日期失败不影响下一个；失败的日期没有候选，commit job 记为 generator_failed
+          [ -n "$K" ] && [ -n "$U" ] || { echo "::error::LLM_BASE_URL / LLM_API_KEY are not configured"; exit 1; }
+          H=$(node -e 'console.log(new URL(process.env.U).host)')
+          export H HN=${H%%:*} KP=${K:0:12}
+          # GitHub 只遮盖 secret 原值；网关主机名和 key 前缀是派生值，自己遮盖
+          echo "::add-mask::$H"; echo "::add-mask::$HN"; echo "::add-mask::$KP"
+          G="$RUNNER_TEMP/gen" C="$RUNNER_TEMP/candidates"
+          mkdir -p "$G" "$C" "$L"
+          # Claude Code 在 5xx 错误信息里写出网关主机名（“check your inference gateway (<host>)”）：transcript 先替换再保存
+          redact() { perl -pi -e 's/\Q$ENV{K}\E/<redacted-key>/g; s/\Q$ENV{KP}\E/<redacted-key>/g; s/\Q$ENV{H}\E/<redacted-host>/g; s/\Q$ENV{HN}\E/<redacted-host>/g' "$@"; }
+          leaks() { grep -rlF -e "$K" -e "$KP" -e "$HN" "$@" 2>/dev/null; }
+          snap() { (cd "$1" && find skill input -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum); }
+          echo "| date | exit | seconds | turns | cost (USD) | tokens in / cache read / cache write / out | tool calls | tool errors | topics.yml |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| --- | --- | --- | --- | --- | --- | --- | --- | --- |" >> "$GITHUB_STEP_SUMMARY"
+          for D in $(echo "$GEN" | jq -r '.[]'); do
+            [[ $D =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || { echo "::error::unexpected date: $D"; exit 1; }
+            wd="$G/$D" home="$RUNNER_TEMP/home-$D"
+            mkdir -p "$wd/out" "$home"
+            cp -R "$W/skill" "$wd/skill" && cp -R "$W/dates/$D/input" "$wd/input"
+            # 工作目录只能是 skill/、input/{context.json,items.jsonl} 和空的 out/，不能有符号链接（references/input.md）
+            if [ -n "$(find "$wd" -type l)" ] || [ "$(ls -A "$wd/input" | tr '\n' ' ')" != "context.json items.jsonl " ] || [ "$(ls -A "$wd" | tr '\n' ' ')" != "input out skill " ]; then
+              echo "::error::$D: work folder layout is wrong; not running the model"; continue
+            fi
+            before=$(snap "$wd")
+            start=$(date +%s)
+            LLM_URL=$U LLM_TOKEN=$K TIMEOUT=1200 bash "$W/tools/daily-generate.sh" "$wd" "$home" "$L/$D.transcript.jsonl" "$L/$D.stderr"
+            code=$?
+            secs=$(( $(date +%s) - start ))
+            redact "$L/$D.transcript.jsonl" "$L/$D.stderr"
+            # 只有退出码 0 且 result 成功的运行才有候选；失败的运行即使留下了合法的 topics.yml 也丢弃（R1-F2）
+            why=$(bash "$W/tools/daily-generate.sh" promote "$code" "$L/$D.transcript.jsonl" "$wd/out") || echo "::warning::$D: generation failed ($why); out/ discarded, no candidate (generator_failed)"
+            # 候选只收 out/ 里的东西；出现 key 或网关地址就整个丢弃（失败即关闭）
+            if [ -n "$(leaks "$wd/out")" ]; then
+              echo "::error::$D: the model output contains secret material; discarding it"; rm -rf "$wd/out"; mkdir "$wd/out"
+            fi
+            if [ -n "$(ls -A "$wd/out")" ]; then mkdir -p "$C/$D" && cp -R "$wd/out/." "$C/$D/"; fi
+            stray=$(diff <(echo "$before") <(snap "$wd") | grep -c '^[<>]')
+            jq -s --arg d "$D" --argjson code "$code" --argjson secs "$secs" --argjson stray "$stray" --arg out "$(ls -A "$wd/out" | tr '\n' ' ')" '
+              (map(select(.type=="system" and .subtype=="init")) | first // {}) as $i
+              | (map(select(.type=="result")) | last // {}) as $r
+              | (map(select(.type=="assistant") | .message.content[]? | select(.type=="tool_use"))) as $calls
+              | (map(select(.type=="user") | .message.content[]? | select(.type=="tool_result")) | map({key:.tool_use_id, value:.}) | from_entries) as $res
+              | {date:$d, exit:$code, seconds:$secs, tools:$i.tools, mcp_servers:$i.mcp_servers, models:($r.modelUsage // {} | keys),
+                 is_error:$r.is_error, terminal_reason:$r.terminal_reason, api_error_status:$r.api_error_status, num_turns:$r.num_turns, total_cost_usd:$r.total_cost_usd,
+                 usage:{input:$r.usage.input_tokens, cache_read:$r.usage.cache_read_input_tokens, cache_write:$r.usage.cache_creation_input_tokens, output:$r.usage.output_tokens},
+                 permission_denials:($r.permission_denials // []),
+                 tool_calls:[$calls[] | {tool:.name, target:(.input.file_path // .input.path // null), pattern:(.input.pattern // null), is_error:($res[.id].is_error // false)}],
+                 changed_in_skill_or_input:$stray, out:$out}' "$L/$D.transcript.jsonl" > "$L/$D.summary.json" 2>/dev/null \
+              || jq -n --arg d "$D" --argjson code "$code" --argjson secs "$secs" '{date:$d, exit:$code, seconds:$secs, note:"no parsable transcript"}' > "$L/$D.summary.json"
+            redact "$L/$D.summary.json"
+            jq -r '"| \(.date) | \(.exit) | \(.seconds) | \(.num_turns // "-") | \(.total_cost_usd // "-") | \(.usage.input // "-") / \(.usage.cache_read // "-") / \(.usage.cache_write // "-") / \(.usage.output // "-") | \(.tool_calls // [] | length) | \(.tool_calls // [] | map(select(.is_error)) | length) | \(if (.out|tostring|test("topics.yml")) then "yes" else "no (generator_failed)" end) |"' "$L/$D.summary.json" >> "$GITHUB_STEP_SUMMARY"
+            jq -c 'del(.tool_calls)' "$L/$D.summary.json"
+          done
+          # 上传前再查一遍：日志和候选里都不能有 key、key 前缀或网关主机名
+          if [ -n "$(leaks "$L" "$C")" ]; then echo "::error::secret material left in the logs or candidates; nothing is uploaded"; rm -rf "$L" "$C"; exit 1; fi
+          echo "redaction check: no key, key prefix or gateway host in $(find "$L" "$C" -type f | wc -l) files" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: daily-candidates-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/candidates/
+          if-no-files-found: ignore
+          retention-days: 30
+      # transcript 里有条目摘录：和 items artifact 一样保留 30 天
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: daily-generate-log-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/generate-log/
+          if-no-files-found: ignore
+          retention-days: 30
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo "**Daily generate failed** — dates without a candidate are recorded as generator_failed by the commit job. Runbook: README → Daily Topics." >> "$GITHUB_STEP_SUMMARY"
+
+  commit:
+    needs: [ingest, generate]
+    # generate 失败或被跳过时照样运行：没有候选的日期记为 generator_failed（ADR 0004 §5）
+    if: ${{ !cancelled() && needs.ingest.result == 'success' && needs.ingest.outputs.any == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    outputs:
+      pushed: ${{ steps.push.outputs.pushed }}
+      sha: ${{ steps.push.outputs.sha }}
+    env:
+      BASE: ${{ needs.ingest.outputs.base }}
+      DATES: ${{ needs.ingest.outputs.dates }}
+      GEN: ${{ needs.ingest.outputs.generate }}
+      TARGET: ${{ github.ref_name }}
+    steps:
+      - run: echo "ITEMS=$RUNNER_TEMP/daily-items" >> "$GITHUB_ENV" && echo "CAND=$RUNNER_TEMP/daily-candidates" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.ingest.outputs.base }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v8
+        with:
+          name: daily-items-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/daily-items
+      - if: needs.ingest.outputs.generate != '[]'
+        uses: actions/download-artifact@v8
+        continue-on-error: true # 没有候选 artifact = 每个日期都生成失败
+        with:
+          name: daily-candidates-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/daily-candidates
+
+      - name: Import the candidates (untrusted input)
+        id: import
+        run: |
+          set -o pipefail
+          node scripts/daily.ts candidates "$CAND" --dates "$(echo "$GEN" | jq -r 'join(",")')"
+          kept=()
+          for row in $(echo "$DATES" | jq -r '.[] | "\(.date):\(.mode)"'); do
+            D=${row%%:*} mode=${row#*:}
+            args=(daily import "$D" --manifest "$ITEMS/$D/manifest.json" --items "$ITEMS/$D/items.jsonl")
+            if echo "$GEN" | jq -e --arg d "$D" 'index($d)' > /dev/null && [ -d "$CAND/$D" ]; then args+=(--candidate "$CAND/$D"); fi
+            [ "$mode" = regenerate ] && args+=(--regenerate)
+            set +e; node cli/rh.ts "${args[@]}" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"; code=${PIPESTATUS[0]}; set -e
+            if [ "$code" = 3 ]; then kept+=("$D"); elif [ "$code" != 0 ]; then exit "$code"; fi
+          done
+          node scripts/daily.ts settle --base "$BASE" --dates "$(echo "$DATES" | jq -r 'map(.date) | join(",")')" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "kept=${kept[*]}" >> "$GITHUB_OUTPUT"
+
+      - name: Check (rh daily check --base --workflow, then pnpm verify with build and leak check)
+        run: |
+          node cli/rh.ts daily check --base "$BASE" --workflow
+          pnpm verify
+
+      - name: Stage only daily/YYYY/MM/DD/ of this run's dates
+        id: stage
+        run: |
+          set -o pipefail
+          node scripts/daily.ts stage --dates "$(echo "$DATES" | jq -r 'map(.date) | join(",")')" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit and push (rebase and re-verify on conflict; never auto-resolve)
+        id: push
+        if: steps.stage.outputs.changed == 'true'
+        env:
+          PUSH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "research-hub-daily[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "daily: $(echo "$DATES" | jq -r 'map(.date) | join(", ")') (run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT})"
+          # 令牌只在这一步、只在 git 的命令行配置里，不写进 .git/config（verify 跑的是仓库代码）
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$PUSH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          g() { git -c http.https://github.com/.extraheader="$auth" "$@"; }
+          pushed=false
+          dates=$(echo "$DATES" | jq -r 'map(.date) | join(",")')
+          node scripts/daily.ts scope --base "$BASE" --dates "$dates"
+          for attempt in 1 2 3; do
+            if g push origin "HEAD:refs/heads/$TARGET"; then pushed=true; break; fi
+            g fetch -q origin "+refs/heads/$TARGET:refs/remotes/origin/$TARGET"
+            if ! git rebase "origin/$TARGET"; then
+              git rebase --abort
+              echo "::error::rebase onto origin/$TARGET conflicts; content conflicts are never resolved automatically" | tee -a "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+            echo "push attempt $attempt was rejected; rebased onto $(git rev-parse "origin/$TARGET") and re-verifying" | tee -a "$GITHUB_STEP_SUMMARY"
+            env -u PUSH_TOKEN node cli/rh.ts daily check --base "origin/$TARGET" --workflow
+            env -u PUSH_TOKEN node scripts/daily.ts scope --base "origin/$TARGET" --dates "$dates"
+            env -u PUSH_TOKEN pnpm verify
+          done
+          [ "$pushed" = true ] || { echo "::error::push to $TARGET failed 3 times"; exit 1; }
+          echo "pushed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "pushed $(git rev-parse HEAD) to $TARGET" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Regenerate kept the old result
+        if: steps.import.outputs.kept != ''
+        run: |
+          echo "::error::regenerate did not produce a usable candidate for ${{ steps.import.outputs.kept }}; the old result is kept (not committed)" | tee -a "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Failure summary
+        if: failure()
+        run: |
+          echo "**Daily commit job failed** — nothing was pushed unless the log says so. Runbook: README → Daily Topics." >> "$GITHUB_STEP_SUMMARY"
+
+  # 只部署 main；试验分支不部署。deploy.yml 里的 github.sha 是调用方的提交，所以显式传入新提交的 SHA
+  deploy:
+    needs: commit
+    if: needs.commit.outputs.pushed == 'true' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/deploy.yml
+    with:
+      sha: ${{ needs.commit.outputs.sha }}
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+  # Lark 推送（WHI-1972）：每个要看的日期一个矩阵实例。卡片只从线上版本（公开站点 /build.json 的提交）构建，
+  # 卡片输入的哈希必须等于线上页面的 rh-daily-hash；Lark 密钥只在发送那一步。没有 Lark 密钥 = “Lark disabled”，job 成功。
+  # 发送台账：Actions cache 的 key lark-daily-<date>-<卡片输入哈希>，确认发送后才保存。确认发送后尽力去重；仍可能重复；失败可以手动重发。
+  notify:
+    needs: [plan, ingest, generate, commit, deploy]
+    if: always() && needs.plan.result == 'success' && needs.plan.outputs.notify != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        day: ${{ fromJSON(needs.plan.outputs.notify || '[]') }}
+    env:
+      DATE: ${{ matrix.day.date }}
+      FINAL: ${{ matrix.day.final }}
+      REGENERATE: ${{ matrix.day.regenerate }}
+      NOTIFY_ONLY: ${{ needs.plan.outputs.notify_only }}
+      FORCE: ${{ needs.plan.outputs.force }}
+    steps:
+      # 工具（scripts/、cli/）来自这次运行的 workflow 提交；数据来自下面单独 checkout 的线上版本
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Decide from the upstream job results (send / skip / refuse)
+        id: decide
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: node scripts/daily-notify-plan.ts decide
+
+      - name: Find the live version (/build.json)
+        id: live
+        if: steps.decide.outputs.action == 'proceed'
+        env:
+          SOURCE: ${{ steps.decide.outputs.source }}
+          DEPLOYED_SHA: ${{ steps.decide.outputs.deployed_sha }}
+        run: node scripts/daily-notify-plan.ts live
+
+      # sparse-checkout 是 cone 模式（默认）：只 checkout daily/ 和根目录的文件（含 rh.config.json），不要报告
+      - name: Check out the live version (daily/ and the root files only)
+        if: steps.live.outputs.sha != ''
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.live.outputs.sha }}
+          path: live
+          persist-credentials: false
+          sparse-checkout: daily
+
+      - name: Check the card input against the live page; eligibility
+        id: verify
+        if: steps.live.outputs.sha != ''
+        run: node scripts/daily-notify-plan.ts verify --live live
+
+      - name: Look up the send ledger
+        id: ledger
+        if: steps.verify.outputs.action == 'send'
+        uses: actions/cache/restore@v6
+        with:
+          path: .rh/lark-ledger
+          key: ${{ steps.verify.outputs.key }}
+          restore-keys: ${{ steps.verify.outputs.prefix }}
+          lookup-only: true
+
+      - name: Ledger decision (skip a confirmed send; Updated / Resent)
+        id: plan-send
+        if: steps.verify.outputs.action == 'send'
+        env:
+          KEY: ${{ steps.verify.outputs.key }}
+          HIT: ${{ steps.ledger.outputs.cache-hit }}
+          MATCHED: ${{ steps.ledger.outputs.cache-matched-key }}
+        run: node scripts/daily-notify-plan.ts ledger
+
+      - name: Build the card from the live version (rh daily card)
+        if: steps.plan-send.outputs.send == 'true'
+        env:
+          RH_ROOT: ${{ github.workspace }}/live
+          VARIANT: ${{ steps.plan-send.outputs.variant }}
+        run: node cli/rh.ts daily card --date "$DATE" --variant "$VARIANT" --out "$RUNNER_TEMP/card.json"
+
+      # 前面的步骤都成功时总是运行：没有 Lark 密钥就写 “Lark disabled”（skip / refuse 时也写）；这次没有卡片（skip / refuse / 已发过）就什么都不发
+      - name: Send to Lark (Lark secrets only in this step)
+        id: send
+        env:
+          LARK_WEBHOOK_URL: ${{ secrets.LARK_WEBHOOK_URL }}
+          LARK_SIGNING_SECRET: ${{ secrets.LARK_SIGNING_SECRET }}
+        run: node scripts/lark-post.ts "$RUNNER_TEMP/card.json" --if-present
+
+      - name: Record the confirmed send
+        if: steps.send.outputs.sent == 'true'
+        env:
+          KEY: ${{ steps.verify.outputs.key }}
+        run: mkdir -p .rh/lark-ledger && echo "$KEY" > .rh/lark-ledger/sent
+      - if: steps.send.outputs.sent == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .rh/lark-ledger
+          key: ${{ steps.verify.outputs.key }}
+
+  # 运行失败的提醒（WHI-1972）：取消的运行不提醒；只用 plan 的输出（日期）、各 job 的结果和运行链接（plan 失败时 “date unknown”）。
+  # 不依赖第三方包（只装 node）；自己失败只在 Actions 里标红，不再提醒。关闭：gh variable set LARK_ALERTS --body false
+  alert:
+    needs: [plan, ingest, generate, commit, deploy, notify]
+    if: failure() && vars.LARK_ALERTS != 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            lib
+            scripts
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - name: Build the alert card
+        id: card
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node scripts/daily-notify-plan.ts alert --out "$RUNNER_TEMP/alert.json"
+      - name: Look up the send ledger
+        id: ledger
+        uses: actions/cache/restore@v6
+        with:
+          path: .rh/lark-ledger
+          key: ${{ steps.card.outputs.key }}
+          lookup-only: true
+      - name: Already sent (send ledger) — nothing to send
+        if: steps.ledger.outputs.cache-hit == 'true'
+        run: |
+          rm "$RUNNER_TEMP/alert.json"
+          echo "Lark alert: already sent (send ledger)" | tee -a "$GITHUB_STEP_SUMMARY"
+      # 总是运行：没有 Lark 密钥就写 “Lark disabled”；台账命中时已经没有卡片，什么都不发
+      - name: Send to Lark (Lark secrets only in this step)
+        id: send
+        env:
+          LARK_WEBHOOK_URL: ${{ secrets.LARK_WEBHOOK_URL }}
+          LARK_SIGNING_SECRET: ${{ secrets.LARK_SIGNING_SECRET }}
+        run: node scripts/lark-post.ts "$RUNNER_TEMP/alert.json" --if-present
+      - name: Record the confirmed send
+        if: steps.send.outputs.sent == 'true'
+        env:
+          KEY: ${{ steps.card.outputs.key }}
+        run: mkdir -p .rh/lark-ledger && echo "$KEY" > .rh/lark-ledger/sent
+      - if: steps.send.outputs.sent == 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: .rh/lark-ledger
+          key: ${{ steps.card.outputs.key }}

@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "date": "2026-10-19",
+  "status": "pending",
+  "reasons": [
+    "digest_not_posted"
+  ],
+  "window": {
+    "from": "2026-10-18T00:00:00.000Z",
+    "to": "2026-10-19T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "not_posted",
+    "url": null,
+    "posted_at": null
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "failed",
+      "items": 17,
+      "calls": 19,
+      "covered": null,
+      "error": null
+    },
+    {
+      "id": "blockbeats",
+      "status": "skipped",
+      "items": 0,
+      "calls": 0,
+      "covered": null,
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 1,
+    "cited_items": 0,
+    "topics": 0,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": null,
+  "run": {
+    "id": "18700000019",
+    "attempt": 1,
+    "at": "2026-10-19T04:31:00.000Z"
+  },
+  "generated_at": null,
+  "updated_at": "2026-10-19T04:31:00.000Z"
+}

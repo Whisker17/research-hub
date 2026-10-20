@@ -1,0 +1,504 @@
+{
+ "issue": "WHI-1925",
+ "runner_run_id": "39128600115",
+ "runner_fetched_at": "2026-10-18T12:45:21.148Z",
+ "via": "https://api.fxtwitter.com/2 (FxTwitter v2, keyless)",
+ "raw_text_fetched_at": "2026-10-18T12:33:41Z (residential IP, same status id)",
+ "input": {
+  "id": "2111652016124784867",
+  "url": "https://x.com/Ethtao_Ethtao/status/2111652016124784867",
+  "created_at": "Sun Oct 18 02:54:07 +0000 2026",
+  "created_timestamp": 1792292047,
+  "is_note_tweet": true,
+  "text": "🗓️以太坊日报 2026-10-18\n\n【区块链技术讨论】\n1⃣@ralexstokes 宣布以太坊Hoodi测试网升级定于10月26日进行，主网日期将随后确定，\"Glamsterdam\"升级持续推进 [原文] (https://x.com/nero_eth/status/2111528856737702274)\n\n2⃣@barnabemonnot 透露以太坊L1即将进行重大升级，若10天后测试网分叉顺利，未来几个月L1容量将提升近3.5倍，blob空间也将显著增加 [原文] (https://x.com/barnabemonnot/status/2111527644223127741)\n\n3⃣@barnabemonnot 阐述以太坊L1应成为资产发行与部署的最佳场所，利用L1与L2之间的特权连接实现高安全性桥接，并强调ETH作为原生核心资产的地位 [原文] (https://x.com/barnabemonnot/status/2111568540985647419)\n\n4⃣@nero_eth 与@dapplion 及@OisinKyne 讨论以太坊共识细节，指出提议者与证明者在slot内对最新头部区块执行/验证的确定性需求，以及证明截止时间与slot末尾投票的区别 [原文] (https://x.com/nero_eth/status/2111437146758291705)\n\n5⃣@asanso 指出secp256k1曲线因采用CM方法构建而天然具备GLV优化特性，回应该曲线参数起源的讨论 [原文] (https://x.com/asanso/status/2111414176597913753)\n@leolarav 回应形式化验证讨论，提出等价类划分分析可作为辅助手段，帮助\"调试\"对规范的理解并与形式化验证声明匹配 [原文] (https://x.com/leolarav/status/2111600681471877409)\n\n6⃣@barnabemonnot 提及Core与Lighter EVM的联合结算及其互操作性 [原文] (https://x.com/barnabemonnot/status/2111344180467298570)\n\n【行业观点碰撞】\n1⃣@tayvano_ 回应@devanshmehta 与@joonian，指出中国矿工对以太坊在2015-2016年熊市中生存至关重要，Devcon II在上海举办是其中一部分，并纠正中国ICO禁令时间线认知 [原文] (https://x.com/tayvano_/status/2111508711047086577)\n\n2⃣@ilblackdragon 称格密码学正成为互联网标准，区块链领域重新发明新加密原语是在做无用功 [原文] (https://x.com/evan_van_ness/status/2111556470726701157)\n\n3⃣@chainlink 介绍Fulcrum产品，主张将传统证券抵押融资能力带入代币化资产，使机构能够跨区块链24/7获取融资并管理抵押品 [原文] (https://x.com/chainlink/status/2111440953944994000)\n\n4⃣@barnabemonnot 回应@0x1_0NE，强调ETH不仅是价值存储，更是以太坊生态中最容易从任何地方兑换的硬资产 [原文] (https://x.com/barnabemonnot/status/2111365818575622307)\n\n5⃣@clix81ne 警告人们正用AI重复Web2错误，在不知情的情况下将数据交给ChatGPT和Claude [原文] (https://x.com/austingriffith/status/2111569118734516668)\n\n【开发者生态】\n1⃣@gakonst 强调应用应集成passkeys/P256-backed signers以改善加密用户体验 [原文] (https://x.com/austingriffith/status/2111570808124694680)\n\n2⃣@jaosef 称P256 passkeys已被Claude证明安全，从此不再需要助记词 [原文] (https://x.com/austingriffith/status/2111282792441188668)\n\n3⃣@UmbraCash 在OctantApp隐私轮次中构建隐私保护工具 [原文] (https://x.com/BenDiFrancesco/status/2111486157297181069)\n\n4⃣@austingriffith 展示Wedgie外壳设计，提及由@clawdbotatg 构建，并分享相关探索与案例链接 [原文] (https://x.com/austingriffith/status/2111552534192288009)\n\n其他有趣内容：\n1⃣@barnabemonnot 提及@yannvon 拥有\"Ethereum博士学位\"（PhD in Ethereum） [原文] (https://x.com/barnabemonnot/status/2111421408752398484)"
+ },
+ "expected": {
+  "digest_date": "2026-10-18",
+  "status_id": "2111652016124784867",
+  "url": "https://x.com/Ethtao_Ethtao/status/2111652016124784867",
+  "posted_at": "2026-10-18T02:54:07.000Z",
+  "first_line": "🗓️以太坊日报 2026-10-18",
+  "format": "bracket-ref",
+  "sections": [
+   {
+    "name": "区块链技术讨论",
+    "items": [
+     {
+      "text": "@ralexstokes 宣布以太坊Hoodi测试网升级定于10月26日进行，主网日期将随后确定，\"Glamsterdam\"升级持续推进",
+      "mention": "ralexstokes",
+      "refs": [
+       {
+        "handle": "nero_eth",
+        "id": "2111528856737702274",
+        "url": "https://x.com/nero_eth/status/2111528856737702274",
+        "hop": {
+         "ref": "https://x.com/nero_eth/status/2111528856737702274",
+         "status": 200,
+         "code": 200,
+         "ms": 128,
+         "resolved_id": "2111165223780454451",
+         "resolved_url": "https://x.com/ralexstokes/status/2111165223780454451",
+         "author": "ralexstokes",
+         "reposted_by": "nero_eth",
+         "created_at": "2026-10-16T18:39:47.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Glamsterdam charges ahead!\n\nThe Hoodi testnet upgrade is scheduled for the 26th of October while the mainnet date will be announced separately. Activation table, client releases, and info on the bug bounty program can be found here: https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+         "external_url": "https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement"
+        }
+       }
+      ]
+     },
+     {
+      "text": "@barnabemonnot 透露以太坊L1即将进行重大升级，若10天后测试网分叉顺利，未来几个月L1容量将提升近3.5倍，blob空间也将显著增加",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2111527644223127741",
+        "url": "https://x.com/barnabemonnot/status/2111527644223127741",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2111527644223127741",
+         "status": 200,
+         "code": 200,
+         "ms": 127,
+         "resolved_id": "2111527644223127741",
+         "resolved_url": "https://x.com/barnabemonnot/status/2111527644223127741",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-17T18:39:55.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Huge upgrade coming! Close to 3.5x more capacity coming on L1 in the next few months, if this last testnet fork goes well in ten days\n\nQuite a bit more room for blobs too.. Stay tuned for more user research on this very soon\n\nhttps://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement",
+         "external_url": "https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement"
+        }
+       }
+      ]
+     },
+     {
+      "text": "@barnabemonnot 阐述以太坊L1应成为资产发行与部署的最佳场所，利用L1与L2之间的特权连接实现高安全性桥接，并强调ETH作为原生核心资产的地位",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2111568540985647419",
+        "url": "https://x.com/barnabemonnot/status/2111568540985647419",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2111568540985647419",
+         "status": 200,
+         "code": 200,
+         "ms": 143,
+         "resolved_id": "2111568540985647419",
+         "resolved_url": "https://x.com/barnabemonnot/status/2111568540985647419",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-17T21:22:25.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "This is how Ethereum exports its assets faster, with high security guarantees for the bridge operator.\n\nThe L1 is already the most secure place to hold assets on, it should also be the best place to issue and deploy them from, leveraging the privileged connections between L1, L2s and others.\n\nAnd guess which asset is at the centre of the L1? Yep, ethereum:native everywhere.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@nero_eth 与@dapplion 及@OisinKyne 讨论以太坊共识细节，指出提议者与证明者在slot内对最新头部区块执行/验证的确定性需求，以及证明截止时间与slot末尾投票的区别",
+      "mention": "nero_eth",
+      "refs": [
+       {
+        "handle": "nero_eth",
+        "id": "2111437146758291705",
+        "url": "https://x.com/nero_eth/status/2111437146758291705",
+        "hop": {
+         "ref": "https://x.com/nero_eth/status/2111437146758291705",
+         "status": 200,
+         "code": 200,
+         "ms": 108,
+         "resolved_id": "2111437146758291705",
+         "resolved_url": "https://x.com/nero_eth/status/2111437146758291705",
+         "author": "nero_eth",
+         "reposted_by": null,
+         "created_at": "2026-10-17T12:40:19.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "You propose rarely but you still need certainty in every slot that as the proposer you could have fully executed/validated the most recent head to do proposer fork choice. While most of the network won't be proposer and only need it a few s later, we cannot assume that as proposer and attesters are all from the same set of validators.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@asanso 指出secp256k1曲线因采用CM方法构建而天然具备GLV优化特性，回应该曲线参数起源的讨论",
+      "mention": "asanso",
+      "refs": [
+       {
+        "handle": "asanso",
+        "id": "2111414176597913753",
+        "url": "https://x.com/asanso/status/2111414176597913753",
+        "hop": {
+         "ref": "https://x.com/asanso/status/2111414176597913753",
+         "status": 200,
+         "code": 200,
+         "ms": 137,
+         "resolved_id": "2111414176597913753",
+         "resolved_url": "https://x.com/asanso/status/2111414176597913753",
+         "author": "asanso",
+         "reposted_by": null,
+         "created_at": "2026-10-17T11:09:02.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Guys, guys , let’s not forget that the secp256k1 curve “gave us” GLV optimization (because it was built using CM method)",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@leolarav 回应形式化验证讨论，提出等价类划分分析可作为辅助手段，帮助\"调试\"对规范的理解并与形式化验证声明匹配",
+      "mention": "leolarav",
+      "refs": [
+       {
+        "handle": "leolarav",
+        "id": "2111600681471877409",
+        "url": "https://x.com/leolarav/status/2111600681471877409",
+        "hop": {
+         "ref": "https://x.com/leolarav/status/2111600681471877409",
+         "status": 200,
+         "code": 200,
+         "ms": 103,
+         "resolved_id": "2111600681471877409",
+         "resolved_url": "https://x.com/leolarav/status/2111600681471877409",
+         "author": "leolarav",
+         "reposted_by": null,
+         "created_at": "2026-10-17T23:30:08.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Something that helps tremendously for this is Equivalence Partition analysis. Not applicable everywhere, for cryptographic primitives would not work. Where it works, it gives you another version of what the specs are actually saying, so you can \"debug\" your understanding and match it with the FV claims. https://steel.ethereum.foundation/blog/2026-06-11_specs-as-models/",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@barnabemonnot 提及Core与Lighter EVM的联合结算及其互操作性",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2111344180467298570",
+        "url": "https://x.com/barnabemonnot/status/2111344180467298570",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2111344180467298570",
+         "status": 200,
+         "code": 200,
+         "ms": 138,
+         "resolved_id": "2111344180467298570",
+         "resolved_url": "https://x.com/barnabemonnot/status/2111344180467298570",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-17T06:30:54.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Very interesting to see the joint settlement of Core with Lighter EVM, and the interoperability it offers between the two",
+         "external_url": null
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "行业观点碰撞",
+    "items": [
+     {
+      "text": "@tayvano_ 回应@devanshmehta 与@joonian，指出中国矿工对以太坊在2015-2016年熊市中生存至关重要，Devcon II在上海举办是其中一部分，并纠正中国ICO禁令时间线认知",
+      "mention": "tayvano_",
+      "refs": [
+       {
+        "handle": "tayvano_",
+        "id": "2111508711047086577",
+        "url": "https://x.com/tayvano_/status/2111508711047086577",
+        "hop": {
+         "ref": "https://x.com/tayvano_/status/2111508711047086577",
+         "status": 200,
+         "code": 200,
+         "ms": 111,
+         "resolved_id": "2111508711047086577",
+         "resolved_url": "https://x.com/tayvano_/status/2111508711047086577",
+         "author": "tayvano_",
+         "reposted_by": null,
+         "created_at": "2026-10-17T17:24:41.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "They were basically responsible for Ethereum surviving 2015-2016 bear market. Devcon II being in Shanghai was part of this.\n\nAlso shit wasn’t banned until later. ICOs (but not mining or trading) was banned in mid 2017. They weren’t loudly doing bribes and disappearing crypto people until later (star in 2020 etc)",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@ilblackdragon 称格密码学正成为互联网标准，区块链领域重新发明新加密原语是在做无用功",
+      "mention": "ilblackdragon",
+      "refs": [
+       {
+        "handle": "evan_van_ness",
+        "id": "2111556470726701157",
+        "url": "https://x.com/evan_van_ness/status/2111556470726701157",
+        "hop": {
+         "ref": "https://x.com/evan_van_ness/status/2111556470726701157",
+         "status": 200,
+         "code": 200,
+         "ms": 142,
+         "resolved_id": "2111554632036348043",
+         "resolved_url": "https://x.com/ilblackdragon/status/2111554632036348043",
+         "author": "ilblackdragon",
+         "reposted_by": "evan_van_ness",
+         "created_at": "2026-10-17T20:27:09.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Lattice cryptography is becoming standard on the Internet. Blockchain space reinventing new crypto primitives plainly won’t get as much GPU hours of defense on them.\n\nUse lattice cryptography to secure your NEAR accounts today.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@chainlink 介绍Fulcrum产品，主张将传统证券抵押融资能力带入代币化资产，使机构能够跨区块链24/7获取融资并管理抵押品",
+      "mention": "chainlink",
+      "refs": [
+       {
+        "handle": "chainlink",
+        "id": "2111440953944994000",
+        "url": "https://x.com/chainlink/status/2111440953944994000",
+        "hop": {
+         "ref": "https://x.com/chainlink/status/2111440953944994000",
+         "status": 200,
+         "code": 200,
+         "ms": 108,
+         "resolved_id": "2111440953944994000",
+         "resolved_url": "https://x.com/chainlink/status/2111440953944994000",
+         "author": "chainlink",
+         "reposted_by": null,
+         "created_at": "2026-10-17T12:55:26.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Financial institutions borrow against securities to fund their operations.\n\nChainlink Fulcrum brings that capability to tokenized assets, enabling institutions to access financing and manage collateral 24/7 across blockchains.\n\nChainlink Labs’ Ryan Lovell shows it end to end ↓",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@barnabemonnot 回应@0x1_0NE，强调ETH不仅是价值存储，更是以太坊生态中最容易从任何地方兑换的硬资产",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2111365818575622307",
+        "url": "https://x.com/barnabemonnot/status/2111365818575622307",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2111365818575622307",
+         "status": 200,
+         "code": 200,
+         "ms": 101,
+         "resolved_id": "2111365818575622307",
+         "resolved_url": "https://x.com/barnabemonnot/status/2111365818575622307",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-17T07:56:53.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "@0x1_0NE ETH is a store of value, and the easiest hard asset to swap into from anywhere on Ethereum",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@clix81ne 警告人们正用AI重复Web2错误，在不知情的情况下将数据交给ChatGPT和Claude",
+      "mention": "clix81ne",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2111569118734516668",
+        "url": "https://x.com/austingriffith/status/2111569118734516668",
+        "hop": {
+         "ref": "https://x.com/austingriffith/status/2111569118734516668",
+         "status": 200,
+         "code": 200,
+         "ms": 116,
+         "resolved_id": "2111567236922024321",
+         "resolved_url": "https://x.com/clix81ne/status/2111567236922024321",
+         "author": "clix81ne",
+         "reposted_by": "austingriffith",
+         "created_at": "2026-10-17T21:17:14.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Chaskin warns we're repeating the same mistakes of Web2 with AI, handing over our data to ChatGPT and Claude without knowing what they'll do with it.\n\n“What scares me is that we're repeating kind of the same mistakes from Web two.”\n\n“I think we're kind of repeating this”\n“And like, what scares me is what they're going to do with that. That scares me a lot.”",
+         "external_url": null
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "开发者生态",
+    "items": [
+     {
+      "text": "@gakonst 强调应用应集成passkeys/P256-backed signers以改善加密用户体验",
+      "mention": "gakonst",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2111570808124694680",
+        "url": "https://x.com/austingriffith/status/2111570808124694680",
+        "hop": {
+         "ref": "https://x.com/austingriffith/status/2111570808124694680",
+         "status": 200,
+         "code": 200,
+         "ms": 132,
+         "resolved_id": "2111530145601462417",
+         "resolved_url": "https://x.com/gakonst/status/2111530145601462417",
+         "author": "gakonst",
+         "reposted_by": "austingriffith",
+         "created_at": "2026-10-17T18:49:51.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "no excuse to not have passkeys / p256-backed signers in your apps to improve crypto UX - we've been saying it for a couple years now but hopefully the last skeptics can rest",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@jaosef 称P256 passkeys已被Claude证明安全，从此不再需要助记词",
+      "mention": "jaosef",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2111282792441188668",
+        "url": "https://x.com/austingriffith/status/2111282792441188668",
+        "hop": {
+         "ref": "https://x.com/austingriffith/status/2111282792441188668",
+         "status": 200,
+         "code": 200,
+         "ms": 115,
+         "resolved_id": "2111215671476379891",
+         "resolved_url": "https://x.com/jaosef/status/2111215671476379891",
+         "author": "jaosef",
+         "reposted_by": "austingriffith",
+         "created_at": "2026-10-16T22:00:15.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "P256 passkeys just got proved secure by Claude. \n\nThere is now no reason to have a seed phrase ever.",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@UmbraCash 在OctantApp隐私轮次中构建隐私保护工具",
+      "mention": "UmbraCash",
+      "refs": [
+       {
+        "handle": "BenDiFrancesco",
+        "id": "2111486157297181069",
+        "url": "https://x.com/BenDiFrancesco/status/2111486157297181069",
+        "hop": {
+         "ref": "https://x.com/BenDiFrancesco/status/2111486157297181069",
+         "status": 200,
+         "code": 200,
+         "ms": 135,
+         "resolved_id": "2111442102940729670",
+         "resolved_url": "https://x.com/UmbraCash/status/2111442102940729670",
+         "author": "UmbraCash",
+         "reposted_by": "BenDiFrancesco",
+         "created_at": "2026-10-17T13:00:00.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "Good neighbors respect your privacy.\n\nGreat ones build tools to protect it.\n\nIn @OctantApp’s Privacy Round, we’re lucky to be part of this excellent neighborhood.\n\nBack Umbra and the 12 other Epoch 13 builders before Wednesday, Oct 21 👇",
+         "external_url": null
+        }
+       }
+      ]
+     },
+     {
+      "text": "@austingriffith 展示Wedgie外壳设计，提及由@clawdbotatg 构建，并分享相关探索与案例链接",
+      "mention": "austingriffith",
+      "refs": [
+       {
+        "handle": "austingriffith",
+        "id": "2111552534192288009",
+        "url": "https://x.com/austingriffith/status/2111552534192288009",
+        "hop": {
+         "ref": "https://x.com/austingriffith/status/2111552534192288009",
+         "status": 200,
+         "code": 200,
+         "ms": 112,
+         "resolved_id": "2111552534192288009",
+         "resolved_url": "https://x.com/austingriffith/status/2111552534192288009",
+         "author": "austingriffith",
+         "reposted_by": null,
+         "created_at": "2026-10-17T20:18:49.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "@gregthegreek @safe wait, it looks right to me \n\nbuilt buy @clawdbotatg ofc\n\nhttps://github.com/clawdbotatg/wedgie-dev.  .",
+         "external_url": "https://github.com/clawdbotatg/wedgie-dev"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "其他有趣内容",
+    "items": [
+     {
+      "text": "@barnabemonnot 提及@yannvon 拥有\"Ethereum博士学位\"（PhD in Ethereum）",
+      "mention": "barnabemonnot",
+      "refs": [
+       {
+        "handle": "barnabemonnot",
+        "id": "2111421408752398484",
+        "url": "https://x.com/barnabemonnot/status/2111421408752398484",
+        "hop": {
+         "ref": "https://x.com/barnabemonnot/status/2111421408752398484",
+         "status": 200,
+         "code": 200,
+         "ms": 114,
+         "resolved_id": "2111421408752398484",
+         "resolved_url": "https://x.com/barnabemonnot/status/2111421408752398484",
+         "author": "barnabemonnot",
+         "reposted_by": null,
+         "created_at": "2026-10-17T11:37:46.000Z",
+         "lang": "en",
+         "is_article": false,
+         "article_title": null,
+         "excerpt": "TIL @yannvon has a PhD in Ethereum",
+         "external_url": null
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

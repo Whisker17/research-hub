@@ -1,100 +1,168 @@
 ---
-import type { CardData } from "../../lib/site-data.ts";
+/**
+ * 报告列表（WHI-1930）：服务端渲染全部行，客户端筛选（ADR 0003 §7）。
+ *
+ * 带 filters 时（首页、私有索引）：
+ *  - 左栏：领域与标签及篇数（来自本站投影 siteView）；窄屏收成一个 <details>，放在列表上方，列表先出现；
+ *  - 筛选框（关键词，中英文标题 / 摘要 / 标签都能搜）、排序（最近更新 / 最新创建）、时间范围（本周 / 本月 / 全部）；
+ *  - 状态写在 URL 参数里：q、domain、tag、sort（默认 updated，不写）、range（默认 all，不写）。
+ * 排序与时间范围的定义见 lib/site-data.ts 的 arrangeCards；它在浏览器里按浏览者本地时间计算。
+ * 没有脚本时这些控件都不显示，列表是全部报告、最近更新在前。
+ */
+import { arrangeCards, type CardData } from "../../lib/site-data.ts";
+import { t, type I18nKey } from "../i18n.ts";
 import ReportCard from "./ReportCard.astro";
+import T from "./T.astro";
 
 interface Props {
   cards: CardData[];
-  /** 显示搜索框与 domain / 标签筛选 */
+  /** 显示左栏、筛选框、排序与时间范围 */
   filters?: boolean;
-  domains?: { key: string; label: string }[];
-  tags?: { key: string; label: string; count: number }[];
-  linkTags: boolean;
+  domains?: { key: string; label: string; count: number }[];
+  tags?: { key: string; label: string; label_en?: string; count: number }[];
+  /** 标签链接的前缀（见 ReportCard）；不给时标签只是文字 */
+  tagBase?: string;
   showVisibility?: boolean;
-  emptyText?: string;
+  /** 没有报告时的提示（src/i18n.ts 的键） */
+  emptyKey?: I18nKey;
 }
-const { cards, filters = false, domains = [], tags = [], linkTags, showVisibility = false, emptyText = "还没有报告。" } = Astro.props;
+const { filters = false, domains = [], tags = [], tagBase, showVisibility = false, emptyKey = "emptyList" } = Astro.props;
+// 服务端顺序 = 默认的“最近更新 + 全部”，与脚本排出来的一致
+const cards = arrangeCards(Astro.props.cards, "updated", "all", new Date());
+const rail = filters && cards.length > 0;
+const sorts: { v: string; k: I18nKey }[] = [
+  { v: "updated", k: "sortUpdated" },
+  { v: "created", k: "sortCreated" },
+];
+const ranges: { v: string; k: I18nKey }[] = [
+  { v: "week", k: "rangeWeek" },
+  { v: "month", k: "rangeMonth" },
+  { v: "all", k: "rangeAll" },
+];
 ---
-<section data-rh-list>
+<section data-rh-list class:list={["report-list", rail && "has-rail"]}>
   {
-    filters && cards.length > 0 && (
-      <div class="filters">
-        <input class="search" type="search" placeholder="按标题、摘要或标签筛选" aria-label="筛选报告" data-q />
-        {domains.length > 1 && (
-          <div class="chip-row" role="group" aria-label="领域">
-            <button class="chip" type="button" data-filter="domain" data-value="" aria-pressed="true">全部</button>
-            {domains.map((d) => (
-              <button class="chip" type="button" data-filter="domain" data-value={d.key} aria-pressed="false">{d.label}</button>
+    rail && (
+      <>
+        <input class="search needs-js" type="search" placeholder={t("zh", "searchPlaceholder")} aria-label={t("zh", "searchLabel")} data-i18n-attr="placeholder:searchPlaceholder aria-label:searchLabel" data-q />
+        <div class="toolbar needs-js">
+          <div class="tabs" role="group" aria-label={t("zh", "sortLabel")} data-i18n-attr="aria-label:sortLabel">
+            {sorts.map((s) => (
+              <button class="tab" type="button" data-filter="sort" data-value={s.v} aria-pressed={s.v === "updated" ? "true" : "false"}><T k={s.k} /></button>
             ))}
           </div>
-        )}
-        {tags.length > 0 && (
-          <div class="chip-row" role="group" aria-label="标签">
-            {tags.map((t) => (
-              <button class="chip" type="button" data-filter="tag" data-value={t.key} aria-pressed="false">
-                {t.label}<span class="n">{t.count}</span>
-              </button>
+          <div class="seg" role="group" aria-label={t("zh", "rangeLabel")} data-i18n-attr="aria-label:rangeLabel">
+            {ranges.map((r) => (
+              <button class="seg-btn" type="button" data-filter="range" data-value={r.v} aria-pressed={r.v === "all" ? "true" : "false"}><T k={r.k} /></button>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+        {(domains.length > 1 || tags.length > 0) && <details class="rail needs-js" data-rail>
+          <summary class="rail-toggle"><T k="railToggle" /><span class="rail-active" data-active></span></summary>
+          {domains.length > 1 && (
+            <div class="rail-group" role="group" aria-label={t("zh", "domainGroup")} data-i18n-attr="aria-label:domainGroup">
+              <h2 class="rail-h"><T k="domainGroup" /></h2>
+              <button class="rail-item" type="button" data-filter="domain" data-value="" aria-pressed="true"><span><T k="all" /></span><span class="n">{cards.length}</span></button>
+              {domains.map((d) => (
+                <button class="rail-item" type="button" data-filter="domain" data-value={d.key} data-label={d.label} aria-pressed="false"><span>{d.label}</span><span class="n">{d.count}</span></button>
+              ))}
+            </div>
+          )}
+          {tags.length > 0 && (
+            <div class="rail-group" role="group" aria-label={t("zh", "tagGroup")} data-i18n-attr="aria-label:tagGroup">
+              <h2 class="rail-h"><T k="tagGroup" /></h2>
+              {tags.map((t) => (
+                <button class="rail-item" type="button" data-filter="tag" data-value={t.key} data-label={t.label} data-label-en={t.label_en} aria-pressed="false"><span data-en={t.label_en}>{t.label}</span><span class="n">{t.count}</span></button>
+              ))}
+            </div>
+          )}
+        </details>}
+      </>
     )
   }
-  {cards.length > 0 && <p class="result-count" data-count data-total={cards.length}>{cards.length} 篇报告</p>}
-  {
-    cards.length > 0 ? (
-      <div class="cards">
-        {cards.map((card) => <ReportCard card={card} linkTags={linkTags} showVisibility={showVisibility} />)}
-        <p class="empty" data-empty hidden>没有符合条件的报告。</p>
-      </div>
-    ) : (
-      <p class="empty">{emptyText}</p>
-    )
-  }
+  <div class="list">
+    {cards.length > 0 && <p class="result-count" data-count><T k="nReports" vars={{ n: cards.length }} /></p>}
+    {
+      cards.length > 0 ? (
+        <div class="rows" data-rows>
+          {cards.map((card) => <ReportCard card={card} tagBase={tagBase} showVisibility={showVisibility} />)}
+          <p class="empty" data-empty hidden><T k="emptyFilter" /></p>
+        </div>
+      ) : (
+        <p class="empty"><T k={emptyKey} /></p>
+      )
+    }
+  </div>
 </section>
+{rail && <script is:inline set:html={`window.rhArrange = ${arrangeCards.toString()};`} />}
 {
-  filters && cards.length > 0 && (
+  rail && (
     <script is:inline>
       (() => {
         const root = document.querySelector("[data-rh-list]");
         if (!root) return;
-        const cards = Array.from(root.querySelectorAll("[data-card]"));
+        const list = root.querySelector("[data-rows]");
+        const rows = Array.from(root.querySelectorAll("[data-card]")).map((el) => ({ el, slug: el.dataset.slug, created: el.dataset.created, updated: el.dataset.updated }));
         const q = root.querySelector("[data-q]");
         const count = root.querySelector("[data-count]");
         const empty = root.querySelector("[data-empty]");
+        const rail = root.querySelector("[data-rail]");
+        const active = root.querySelector("[data-active]");
+        // 宽屏左栏常开；窄屏默认收起，列表先出现
+        const wide = matchMedia("(min-width: 1080px)");
+        const syncRail = () => { if (rail) rail.open = wide.matches; };
+        wide.addEventListener("change", syncRail);
+        syncRail();
         const params = new URLSearchParams(location.search);
-        const state = { q: params.get("q") || "", domain: params.get("domain") || "", tag: params.get("tag") || "" };
+        const pick = (v, ok, dflt) => (ok.includes(v) ? v : dflt);
+        const state = {
+          q: params.get("q") || "",
+          domain: params.get("domain") || "",
+          tag: params.get("tag") || "",
+          sort: pick(params.get("sort"), ["updated", "created"], "updated"),
+          range: pick(params.get("range"), ["week", "month", "all"], "all"),
+        };
+        const DEFAULTS = { sort: "updated", range: "all" };
         const sync = () => {
+          const labels = [];
           for (const b of root.querySelectorAll("[data-filter]")) {
-            b.setAttribute("aria-pressed", String(state[b.dataset.filter] === b.dataset.value));
+            const on = state[b.dataset.filter] === b.dataset.value;
+            b.setAttribute("aria-pressed", String(on));
+            if (on && b.dataset.label) labels.push((window.rhI18n.lang === "en" && b.dataset.labelEn) || b.dataset.label);
           }
-          if (q && q.value !== state.q) q.value = state.q;
+          if (active) active.textContent = labels.length ? ` · ${labels.join(" · ")}` : "";
+          // 只在值实际不同（URL 参数、清空）时回写；比较时去掉首尾空白，否则输入的空格会被立刻吞掉
+          if (q && q.value.trim() !== state.q) q.value = state.q;
         };
         const apply = () => {
           const words = state.q.toLowerCase().split(/\s+/).filter(Boolean);
+          const now = new Date();
+          const inRange = new Set(window.rhArrange(rows, state.sort, state.range, now));
           let n = 0;
-          for (const c of cards) {
+          for (const r of window.rhArrange(rows, state.sort, "all", now)) {
+            const c = r.el;
+            list.insertBefore(c, empty);
             const show =
+              inRange.has(r) &&
               (!state.domain || c.dataset.domain === state.domain) &&
               (!state.tag || c.dataset.tags.split(" ").includes(state.tag)) &&
               words.every((w) => c.dataset.search.includes(w));
             c.hidden = !show;
             if (show) n++;
           }
-          const isEn = (localStorage.getItem("rh_lang") || "zh") === "en";
-          if (count) {
-            count.textContent = isEn
-              ? (n === cards.length ? `${n} ${n === 1 ? "report" : "reports"}` : `${n} / ${cards.length} reports`)
-              : (n === cards.length ? `${n} 篇报告` : `${n} / ${cards.length} 篇报告`);
+          // 计数随语言切换由 Base 的 rhI18n 重新渲染（data-i18n），这里只换键和数字
+          const label = count?.firstElementChild;
+          if (label) {
+            label.dataset.i18n = n === rows.length ? "nReports" : "nOfReports";
+            label.dataset.i18nVars = JSON.stringify({ n, total: rows.length });
+            label.textContent = window.rhI18n.t(label.dataset.i18n, { n, total: rows.length });
           }
           if (empty) empty.hidden = n !== 0;
           const p = new URLSearchParams();
-          for (const k of ["q", "domain", "tag"]) if (state[k]) p.set(k, state[k]);
+          for (const k of ["q", "domain", "tag", "sort", "range"]) if (state[k] && state[k] !== DEFAULTS[k]) p.set(k, state[k]);
           history.replaceState(null, "", `${location.pathname}${p.toString() ? `?${p}` : ""}`);
           sync();
         };
-        window.addEventListener("rh:langchange", () => {
-          apply();
-        });
         root.addEventListener("click", (e) => {
           const b = e.target.closest("[data-filter]");
           if (!b) return;
@@ -103,6 +171,8 @@ const { cards, filters = false, domains = [], tags = [], linkTags, showVisibilit
           state[key] = key === "tag" && state.tag === b.dataset.value ? "" : b.dataset.value;
           apply();
         });
+        // 已选标签的名字跟着语言切换（英文名缺失时回退中文）
+        window.addEventListener("rh:langchange", sync);
         q?.addEventListener("input", () => {
           state.q = q.value.trim();
           apply();

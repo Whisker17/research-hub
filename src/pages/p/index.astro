@@ -2,27 +2,33 @@
 /**
  * 私有索引：列出全部已发布报告（含私有）。rh build 会把 /p/ 移到私有站点，
  * 公开站点的产物里不存在本页。公开报告链接回公开站点。
+ * Daily 选题入口（WHI-1936）：链接到公开站点的 /daily/（publicUrl 绝对地址，ADR 0003 §2）和 rh topic 命令的说明；
+ * 不显示 daily/state.yml（人工状态用 rh topic 与 git 查看）。
  */
 import Base from "../../layouts/Base.astro";
 import ReportList from "../../components/ReportList.astro";
-import SiteHead from "../../components/SiteHead.astro";
+import T from "../../components/T.astro";
+import { t } from "../../i18n.ts";
 import { loadConfig } from "../../../lib/config.ts";
-import { siteData, toCard, usedDomains, usedTags } from "../../../lib/site-data.ts";
+import { siteView } from "../../../lib/site-data.ts";
 
-const { allPublished, tags } = siteData();
-const { publicUrl } = loadConfig();
-const cards = allPublished.map((r) => toCard(r, tags, publicUrl));
+const { cards, domains, usedTags } = siteView("private");
 ---
-<Base title="私有索引">
-  <SiteHead home="/p/" tagline="全部已发布报告（含私有）" private />
-  <ReportList
-    cards={cards}
-    filters
-    domains={usedDomains(allPublished)}
-    tags={usedTags(allPublished, tags)}
-    linkTags={false}
-    showVisibility
-    emptyText="还没有已发布的报告。"
-  />
-  <footer class="site-foot"><a href={`${publicUrl}/`}>公开站点</a></footer>
+<Base title={t("zh", "privateIndex")} titleEn={t("en", "privateIndex")} nav="private">
+  <h1 class="page-title"><T k="privateIndex" /></h1>
+  <p class="page-sub"><T k="taglinePrivate" /></p>
+  <details class="daily-entry">
+    <summary><T k="pDailyTitle" /></summary>
+    <p><a href={`${loadConfig().publicUrl}/daily/`}><T k="pDailyOpen" /> ↗</a></p>
+    <p><T k="pDailyHelp" /></p>
+    <dl class="cmds">
+      <dt><code>rh topic select &lt;id&gt;</code></dt>
+      <dd><T k="pDailySelect" /></dd>
+      <dt><code>rh topic dismiss &lt;id&gt; --reason &lt;text&gt;</code></dt>
+      <dd><T k="pDailyDismiss" /></dd>
+      <dt><code>rh topic link &lt;id&gt; &lt;slug&gt;</code></dt>
+      <dd><T k="pDailyLink" /></dd>
+    </dl>
+  </details>
+  <ReportList cards={cards} filters domains={domains} tags={usedTags} tagBase="/p/tags/" showVisibility emptyKey="emptyPublished" />
 </Base>
