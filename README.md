@@ -68,7 +68,7 @@ Chrome 无头模式，390×844 手机视口：
 
 ## 部署
 
-push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型检查、测试、`rh check --no-shot`、`rh build` → 部署 `research-hub-private` 与 `research-hub` → `scripts/smoke.sh` 冒烟测试（公开站点是刚部署的版本；私有站点对匿名请求只返回 Access 重定向或 403 / 503）。
+push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型检查、测试、`rh check --no-shot`、`rh build` → 部署 `research-hub-private` 与 `research-hub` → `scripts/smoke.sh` 冒烟测试（公开站点的 `/build.json` 与首页是刚部署的版本，各轮询约 2 分钟；私有站点对匿名请求只返回 Access 重定向或 403 / 503）。
 
 本机也可以直接部署：`pnpm deploy:manual`（需要 `wrangler login`）。
 
