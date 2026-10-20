@@ -776,6 +776,27 @@ test("BlockBeats 预算跨运行：失败、手动重跑、补跑、预算用完
   assert.deepEqual([...perDay.keys()], ["2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]);
 });
 
+test("BlockBeats 第 2 页的 create_time 不能用（不满一页 / 满一页）→ format 错误，只保留第 1 页证明的覆盖，下一次运行接着补（WHI-2078 PR-F1）", async () => {
+  const W = dailyWindow("2026-10-21");
+  const rec = (id: number, create_time: string) => ({ id, title: `快讯 ${id}`, content: "<p>x</p>", link: `https://www.theblockbeats.info/flash/${id}`, url: "", create_time });
+  for (const [label, page2] of [
+    ["不满一页", [rec(800000, "invalid")]],
+    ["满一页", Array.from({ length: 50 }, (_, k) => rec(800000 + k, "invalid"))],
+  ] as const) {
+    const { root, state } = makeRoot(realBB());
+    // 第 1 页：50 条都在 10-20 20:00Z（UTC+8 10-21 04:00），没翻到时间窗起点；第 2 页的时间都不能用
+    reset((u: URL) => ({ status: 0, data: { data: u.searchParams.get("page") === "1" ? Array.from({ length: 50 }, (_, k) => rec(900000 + k, "2026-10-21 04:00:00")) : page2 } }));
+    const bb = src((await ingest(root, "2026-10-21", "2026-10-21T04:30:00.000Z")).manifest, "blockbeats");
+    assert.deepEqual([bb.status, bb.calls, bb.covered], ["partial", 2, { from: "2026-10-20T20:00:00.000Z", to: W.to }], label);
+    assert.match(bb.error!, /^format: /, label);
+    assert.deepEqual(loadCache(state).cache.sources.blockbeats.spans, [{ from: "2026-10-20T20:00:00.000Z", to: "2026-10-21T04:30:00.000Z" }], label);
+    // 下一次运行：时间窗没有被当成已覆盖，接着翻页补齐
+    reset(bbStream(24, () => Date.parse("2026-10-21T08:15:00.000Z")));
+    const next = src((await ingest(root, "2026-10-21", "2026-10-21T08:15:00.000Z")).manifest, "blockbeats");
+    assert.deepEqual([next.status, next.calls, next.covered], ["ok", 2, W], label);
+  }
+});
+
 test("账本丢失或损坏 → 当天不调用（失败即关闭），第二天恢复", async () => {
   const { root, state } = makeRoot(bbOnly(), null);
   reset();

@@ -47,7 +47,7 @@ const blockbeats = z
     max_calls_per_day: z.number().int().min(0),
     /** 所有者给的绝对上限（WHI-1925：6 次/天）；max_calls_per_day 不能超过它 */
     hard_cap_per_day: z.number().int().min(0),
-    /** 上次成功调用不到这么多小时就不再调用（一次调用约覆盖 24 小时） */
+    /** 上次成功调用不到这么多小时就不再调用；0 = 只看缓存覆盖（WHI-2078：工作日一页只覆盖约 9 小时，不是 24 小时） */
     min_interval_hours: z.number().min(0),
     /** 时间窗的结束时刻早于“现在”这么多小时，一次调用就够不到了，不再为它花预算 */
     reach_hours: z.number().min(1),

@@ -126,11 +126,13 @@ export async function runBlockBeats(o: {
         const t = utc8(x.create_time);
         return t ? [Date.parse(t)] : [];
       });
-      // 列表不满一页说明到头了，覆盖到最早
+      // 有条目的时间不能用：不知道这一页覆盖到哪里，停下，只保留之前几页证明的覆盖（PR-F1）
+      if (times.length < list.length) throw new SourceError("format", `${list.length - times.length} 条 create_time 不能用`);
+      // 列表不满一页（含空页）说明到头了，覆盖到最早
       const prev = oldest[i];
-      oldest[i] = list.length < cfg.size ? 0 : times.length ? Math.min(...times) : Date.parse(at);
-      // 接上了、整页都没有可用的时间、或者这一页没有更早（接口不认 page）就换下一个 endpoint，否则翻下一页
-      if (oldest[i] <= target || !times.length || oldest[i] >= prev) [i, page] = [i + 1, 1];
+      oldest[i] = list.length < cfg.size ? 0 : Math.min(...times);
+      // 接上了、或者这一页没有更早（接口不认 page）就换下一个 endpoint，否则翻下一页
+      if (oldest[i] <= target || oldest[i] >= prev) [i, page] = [i + 1, 1];
       else page++;
     } catch (e) {
       error = errorText(e, o.key ? [o.key] : []);
