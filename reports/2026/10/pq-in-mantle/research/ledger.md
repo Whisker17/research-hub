@@ -55,3 +55,7 @@
 | 48 | 由于快速傅里叶采样算法实现的复杂度，主流硬件安全模块（HSM）对 Falcon（FIPS 206）的原生支持将比 ML-DSA 滞后 2-3 年 | Hardware Security Module Vendor PQC Roadmaps & Cryptographic Engineering (speculative) | speculative | C, G |
 | 49 | 仅当 Mantle 上 PQ 交易量占单日区块 Gas 比例超过 5% 时，为 SP1 专门开发硬件约束电路级 PQ 预编译才具有成本正收益 | ZK Rollup Prover Economics & Circuit Amortization Estimation (speculative) | speculative | F |
 | 50 | 未来以太坊或 Mantle 可能会在协议层推出不可逆注销 EOA ECDSA 权限的硬分叉机制，使原地址完全升级为不可旁路的合约账户 | Protocol-level EOA Deprecation & Immutable Delegation Proposals (speculative) | speculative | H |
+| 51 | EIP-8355 的消息是末尾变长字节、按 FIPS 204 验原始消息，并非 32 B 摘要；8355 在 EIP-8081 中为 Declined for Inclusion | 第三篇 pq-signature-selection 台账 E36、E37、E44（EIP-8355 原文；EIP-8081 @6e69e49，2026-10-19） | observed | G |
+| 52 | `0x0100–0x01ff` 由 EIP-7587（Final）保留给 RIP 流程，P256 位于 `0x100`；`0x0101` 不是专有命名空间 | 第三篇台账 E39、E45（EIP-7587、EIP-8052 原文） | observed | G |
+| 53 | EIP-8141 是 Hegotá 的 SFI，ethereum.org 预计 Hegotá 于 2027 Q2 上主网，台账 #47 的“2028–29 年前难以定稿”已过时 | 第三篇台账 E40、E41、E46 | inferred | G |
+| 54 | 预编译应定位为近期容灾工具；适配器应抽象“验证后端”并支持多把不同算法公钥 | 第三篇台账 E47、E48、S7 | inferred | G |

@@ -90,6 +90,19 @@ Mantle 推荐工程路线 | 兼顾 EVM 兼容与证明等价
 ```
 
 ## G 如何阅读 {depth=1}
+```callout info 系列导航：Mantle 后量子专题共三篇
+- 第一篇 [《后量子从入门到路线》](/p/post-quantum-mantle/)：哪些密码学组件会被量子攻破，各项目怎么做，Mantle 哪些部分要自己迁。
+- 第二篇 [《后量子在 Mantle 的工程落地》](/p/pq-in-mantle/)：合约级 PQ 账户 + 验签预编译，为什么 7702 不能当容灾。
+- 第三篇 [《后量子签名选型》](/p/pq-signature-selection/)：哈希路线 vs 格路线、EIP-8288，以及对前两篇的修订（第三篇面板 R）。
+```
+
+```callout warn 2026-10-20 修订（详见第三篇面板 R）
+- EIP-8355 的消息不是 32 B 摘要，而是末尾变长字节，按 FIPS 204 验原始消息；8355 已在 EIP-8081 中列为 Declined（台账 51）。
+- `0x0100–0x01ff` 是 EIP-7587 保留给 RIP 流程的共享区间，不是 Mantle 专有空间；选地址前先查 RIP 注册表或走 RIP 流程（台账 52）。
+- Native AA 的时间线已变：EIP-8141 排进 Hegotá，ethereum.org 预计 2027 Q2 上主网；台账 #47 已过时（台账 53）。
+- 预编译定位为近期容灾工具；适配器应抽象“验证后端”，并允许一个账户登记多把不同算法的公钥（台账 54）。
+```
+
 ```callout info 默认背景知识（本文不再赘述）
 - 了解前篇《后量子从入门到路线》（`post-quantum-mantle`）建立的密码学清单与 Shor 威胁模型
 - 熟悉 EVM 交易执行模型、预编译合约（Precompile）调用机制与 `STATICCALL`

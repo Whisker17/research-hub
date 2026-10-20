@@ -91,6 +91,19 @@ State Transition Prover (OP Succinct) | Dual-client equivalence & proof generati
 ```
 
 ## G How to Read This Report {depth=1}
+```callout info Series map: Mantle post-quantum series, three parts
+- Part 1, [Post-Quantum from First Principles to Roadmap](/p/post-quantum-mantle/en/): which components quantum computers break, what each project does, and what Mantle must migrate itself.
+- Part 2, [Post-Quantum Engineering on Mantle](/p/pq-in-mantle/en/): contract-level PQ accounts + a verification precompile, and why EIP-7702 is not disaster recovery.
+- Part 3, [Choosing Post-Quantum Signatures](/p/pq-signature-selection/en/): hash vs lattice, EIP-8288, and revisions to parts 1 and 2 (part 3, panel R).
+```
+
+```callout warn Revisions of 2026-10-20 (see part 3, panel R)
+- EIP-8355 does not take a 32 B digest; it takes a variable-length message at the end and verifies the raw message per FIPS 204. EIP-8081 now lists 8355 as Declined (ledger 51).
+- `0x0100–0x01ff` is the shared range that EIP-7587 reserves for the RIP process, not a private Mantle space; check the RIP registry or use the RIP process first (ledger 52).
+- The native AA timeline changed: Hegotá includes EIP-8141, and ethereum.org expects it on mainnet in 2027 Q2; ledger row #47 no longer holds (ledger 53).
+- Treat the precompile as a near-term disaster-recovery tool; the adapter should abstract a "verification backend" and let one account register keys of several algorithms (ledger 54).
+```
+
 ```callout info Assumed Background Knowledge
 - Part 1 of this series ("Post-Quantum from First Principles to Roadmap", `post-quantum-mantle`)
 - EVM execution semantics, precompiled contract invocations via `STATICCALL`
