@@ -5,19 +5,33 @@ cd "$(dirname "$0")/.."
 PUBLIC_URL=$(node -p 'require("./rh.config.json").publicUrl')
 PRIVATE_URL=$(node -p 'require("./rh.config.json").privateUrl')
 
-# 1. 公开首页与部署产物逐字节一致（新部署可能需要几秒才生效，轮询）
+# 新部署要几秒到一两分钟才在边缘生效：下面两项都轮询（默认 24 × 5 秒 ≈ 2 分钟；SMOKE_INTERVAL 只给测试用）
+INTERVAL=${SMOKE_INTERVAL:-5}
+
+# 1. /build.json（构建的提交 SHA）与部署产物一致：这是主要的版本检查。Daily 提交只改 /daily/…、不改首页，
+#    旧部署的首页同样能通过首页检查；Daily 的 Lark 推送也靠 /build.json 找到线上版本
 for attempt in $(seq 1 24); do
-  if curl -sf --max-time 15 "${PUBLIC_URL}/" | cmp -s - dist/public/index.html; then
-    echo "✓ 公开站点返回刚部署的版本：${PUBLIC_URL}/"
+  if curl -sf --max-time 15 "${PUBLIC_URL}/build.json" | cmp -s - dist/public/build.json; then
+    echo "✓ 公开站点 /build.json：$(cat dist/public/build.json)"
     break
   fi
-  [ "$attempt" = 24 ] && { echo "::error::公开站点 2 分钟内没有返回刚部署的版本"; exit 1; }
-  sleep 5
+  if [ "$attempt" = 24 ]; then
+    SERVED=$(curl -s --max-time 15 -w ' (HTTP %{http_code})' "${PUBLIC_URL}/build.json" | tail -c 300 || true)
+    echo "::error::公开站点 /build.json 轮询 24 次（每 ${INTERVAL} 秒）后仍没有切到刚部署的版本：期望 $(cat dist/public/build.json)，线上 ${SERVED}"
+    exit 1
+  fi
+  sleep "$INTERVAL"
 done
 
-# 1b. /build.json（构建的提交 SHA，Daily 的 Lark 推送用它找到线上版本）与部署产物一致
-curl -sf --max-time 15 "${PUBLIC_URL}/build.json" | cmp -s - dist/public/build.json || { echo "::error::公开站点 /build.json 不是刚部署的版本"; exit 1; }
-echo "✓ 公开站点 /build.json：$(cat dist/public/build.json)"
+# 1b. 公开首页与部署产物逐字节一致
+for attempt in $(seq 1 24); do
+  if curl -sf --max-time 15 "${PUBLIC_URL}/" | cmp -s - dist/public/index.html; then
+    echo "✓ 公开站点返回刚部署的首页：${PUBLIC_URL}/"
+    break
+  fi
+  [ "$attempt" = 24 ] && { echo "::error::公开站点首页轮询 24 次（每 ${INTERVAL} 秒）后仍没有与部署产物一致"; exit 1; }
+  sleep "$INTERVAL"
+done
 
 # 2. 公开站点上不存在 /p/
 CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "${PUBLIC_URL}/p/")
