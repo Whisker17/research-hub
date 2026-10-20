@@ -4,8 +4,10 @@
 # 每个源的 max_calls_per_run：一次运行里最多发几个请求（翻页、重试、二跳都算）。
 # BlockBeats 的预算按 UTC 日跨运行累计（账本在 rh ingest --state 目录的 ledger.json）：
 #   - 所有者决定（2026-10-18）：配额不公开，每天 4 次，硬上限 6 次；重试、补跑、regenerate 都算。
-#   - 每次运行最多 1 次、运行内不重试；先记账再调用；账本丢失时当天不调用（失败即关闭）。
-#   - 定时运行 04:30 / 08:15 / 13:30 UTC 正常一天只调用 2 次（上次成功不到 6 小时就跳过）。
+#   - 每一页都算一次；运行内不重试；先记账再调用；账本丢失时当天不调用（失败即关闭）。
+#   - 按缓存的覆盖调用（WHI-2078）：时间窗没被覆盖才调用，往回翻页直到接上缓存。一页 50 条工作日只覆盖约 9 小时
+#     （run 39413681633 实测 8.7 小时），所以定时运行 04:30 / 08:15 / 13:30 UTC 里只有 04:30 调用，翻 3 页补齐前一天；
+#     08:15 和 13:30 时间窗已覆盖，不调用。一页不到 6 小时（一天超过 200 条重要快讯）时 4 页翻不完，记为 partial。
 schema: 1
 user_agent: research-hub-ingest/0.1.0 (+https://github.com/Whisker17/research-hub; Daily Topics)
 timeout_ms: 20000
@@ -23,7 +25,7 @@ sources:
     max_items: 60
 
   # BlockBeats 重要快讯（带 key；只用 newsflash/important 与 article/important，size ≤ 50）。
-  # 每个 endpoint 每次运行算一次调用；第一批只开 newsflash/important（一次覆盖约 24 小时）。
+  # 每一页算一次调用；第一批只开 newsflash/important（工作日一页约 9 小时；WHI-1925 在周末测到的约 24 小时不能当常数）。
   blockbeats:
     type: blockbeats
     base_url: https://api-pro.theblockbeats.info
@@ -31,11 +33,11 @@ sources:
     endpoints: [newsflash/important]
     size: 50
     lang: cn
-    max_calls_per_run: 1
+    max_calls_per_run: 4 # 一次运行最多翻 4 页：没有 cache 时要补 28.5 小时（04:30 往回到前一天 00:00）
     max_calls_per_day: 4
     hard_cap_per_day: 6
-    min_interval_hours: 6
-    reach_hours: 24
+    min_interval_hours: 0 # 不按间隔跳过：是否调用只看缓存覆盖
+    reach_hours: 24 # 时间窗结束早于现在 24 小时以上（昨天、补跑）就不为它翻页：翻一天要花一天的预算
 
   # Odaily 快讯（keyless，可翻页）。API 不理会 isImportant 参数，在客户端过滤。
   odaily:

@@ -875,6 +875,32 @@ test("跨 UTC 午夜：请求记到发出请求的那一天，并受那一天的
   assert.equal(r3.calls, 0);
   assert.match(r3.skipped!, /已停止调用/);
   assert.equal(requests, 0);
+
+  // 翻页跨过午夜：每一页记到它发出的那一天，新的一天用完了就不再翻（WHI-2078）
+  const clock = ["2026-10-18T23:59:58.000Z", "2026-10-19T00:00:01.000Z"];
+  const pages: string[] = [];
+  const fullPages: HttpCtx = {
+    ...ctx,
+    fetch: async (u) => {
+      pages.push(new URL(u).searchParams.get("page")!);
+      const data = Array.from({ length: cfg.size }, (_, k) => ({ id: k, title: "t", link: `https://www.theblockbeats.info/flash/${k}`, url: "", create_time: "2026-10-19 07:00:00" }));
+      return new Response(JSON.stringify({ status: 0, data: { data } }));
+    },
+  };
+  const paged = (ledger: Ledger) => {
+    let n = 0;
+    const many = { ...cfg, max_calls_per_run: 4 };
+    return runBlockBeats({ id: "blockbeats", cfg: many, ctx: fullPages, key: KEY, ledger, persist: () => {}, at, w: dailyWindow("2026-10-19"), cached: null, now: () => clock[Math.min(n++, 1)] });
+  };
+  const split: Ledger = { schema: 1, days: { "2026-10-18": { calls: 3 } }, last_success_at: null };
+  const r4 = await paged(split);
+  assert.deepEqual(split.days, { "2026-10-18": { calls: 4 }, "2026-10-19": { calls: 3 } }, "第 1 页记到 10-18，之后的页记到 10-19");
+  assert.deepEqual([r4.calls, pages], [4, ["1", "2", "3", "4"]]);
+  pages.length = 0;
+  const late: Ledger = { schema: 1, days: { "2026-10-18": { calls: 0 }, "2026-10-19": { calls: 3 } }, last_success_at: null };
+  const r5 = await paged(late);
+  assert.deepEqual(late.days, { "2026-10-18": { calls: 1 }, "2026-10-19": { calls: 4 } });
+  assert.deepEqual([r5.calls, pages], [2, ["1", "2"]], "10-19 只剩 1 次：第 3 页不发");
 });
 
 test("sources.yml：max_calls_per_day 不能超过硬上限，endpoint 只能是两个 important 接口，源必须已登记", () => {
@@ -886,10 +912,10 @@ test("sources.yml：max_calls_per_day 不能超过硬上限，endpoint 只能是
   assert.ok(bad({ blockbeats: { ...bbCfg, endpoints: ["newsflash/important", "article/important"] } })); // 2 个 endpoint 需要每次运行 2 次
   assert.ok(bad({ coindesk: { type: "rss", url: "https://www.coindesk.com/rss", max_calls_per_run: 1 } }));
   assert.ok(!bad({}));
-  // 仓库里的 sources.yml 本身合法，且 BlockBeats 是所有者定的 4 / 6
+  // 仓库里的 sources.yml 本身合法，且 BlockBeats 是所有者定的 4 / 6；一次运行最多翻 4 页，是否调用只看缓存覆盖（WHI-2078）
   const real = sourcesFileSchema.parse(parseYaml(readFileSync(join(REPO, "sources.yml"), "utf8")));
   const rb = real.sources.blockbeats as BlockBeatsConfig;
-  assert.deepEqual([rb.max_calls_per_day, rb.hard_cap_per_day, rb.max_calls_per_run, rb.endpoints], [4, 6, 1, ["newsflash/important"]]);
+  assert.deepEqual([rb.max_calls_per_day, rb.hard_cap_per_day, rb.max_calls_per_run, rb.min_interval_hours, rb.endpoints], [4, 6, 4, 0, ["newsflash/important"]]);
 });
 
 // ───────────────────────── 凭据 ─────────────────────────

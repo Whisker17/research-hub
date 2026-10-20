@@ -264,3 +264,4 @@ topics:
   - `dropped[] {topic, reason}`：被丢弃的候选 topic 的下标和原因代码（决定 7 说的“内部原因”）。
 - **可见性变化失败即拒绝**：某篇报告变成 private 或 draft、或者某个标签不再被任何 public + published 报告用到之后，引用它的旧日期在 `rh daily check`（也就是 `pnpm verify`）里报错。报错会写明日期文件、topic id 和 slug 或标签，并说明怎么修：在主克隆里修改那一天的 `topics.yml`（内容通道），或者用 `workflow_dispatch` regenerate 那一天。这样做是故意的：可见性变化必须引起注意，公开页面不能指向非公开报告。
 - **手动修正的例外（所有者决定，2026-10-18；WHI-1937 记录）**：上面这种报错，30 天内（items artifact 还在）先用 `workflow_dispatch`（date、regenerate）重做；超过 30 天，只有所有者可以在主克隆里删除或改正那一天 `topics.yml` 里出问题的 topic，作为只改 `daily/` 的内容通道提交，agent 不主动做；这是“`daily/YYYY/MM/DD/` 只由 commit job 写”的唯一例外（runbook：README → Daily Topics 运行手册）。
+- **BlockBeats 按覆盖调用（WHI-2078，hotfix 0.1.0.1）**：一页 50 条在工作日只覆盖约 9 小时（run 39413681633 实测 8.7 小时），决定 4 里“一次调用约 24 小时”“上次成功不到 6 小时就跳过、一天调用 2 次”不再成立。改为：时间窗没被缓存覆盖才调用，往回翻页直到接上缓存，每一页都计入同一个每天 4 次（硬上限 6 次）的预算；正常的一天只在 04:30 翻 3 页。
