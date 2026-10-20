@@ -1,0 +1,27 @@
+title: 后量子签名选型：哈希路线 vs 格路线，以及 EIP-8288 想做的“第三条路”
+summary: 这场争论其实是三个选择：签名算法、聚合证明、协议接口。Ethereum 在协议层押哈希，a16z 押格，两边的聚合方案都还不能上生产；EIP-8288 想让协议不再为任何算法加预编译，但当前草案只支持一种哈希签名。第二篇的近期方案仍成立，但要改定位、地址区间和时间线
+created: 2026-10-20
+updated: 2026-10-20
+domain: crypto
+tags:
+  - post-quantum
+  - eip
+  - security
+  - starknet
+  - mantle
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/pq-signature-selection.md
+am_version: 0.5.2-research.1
+series: post-quantum
+related:
+  - post-quantum-mantle
+  - pq-in-mantle
+changelog:
+  - date: 2026-10-20
+    note: 创建（brief 快照）
+  - date: 2026-10-20
+    note: 首次发布：哈希 vs 格签名选型、XMSS+leanVM 与 Falcon+Aerie、EIP-8288 解析、对前两篇的修订（中英双语，sol review PASS，推特卡片 astra PASS）
+title_en: 'Choosing Post-Quantum Signatures: Hash-Based vs Lattice-Based, and the "Third Path" of EIP-8288'
+summary_en: "The debate is really three choices: the signature scheme, the aggregation proof, and the protocol interface. Ethereum bets on hashes at the protocol layer and a16z bets on lattices; neither aggregation stack is production-ready. EIP-8288 wants the protocol to stop adding a precompile per algorithm, but the current draft supports only one hash-based signature. Part 2's near-term plan still holds, with a new positioning, address range and timeline."

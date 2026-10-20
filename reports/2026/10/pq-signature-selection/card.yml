@@ -1,0 +1,40 @@
+# Tweet card (English only): pnpm rh card pq-signature-selection -> card.png
+# Neutral researcher tone; avoids cardAvoidTerms.
+# Ledger basis: title/figure S1, E5, E29, H50; background S12; context L19, L26, H37, H38;
+# findings L26 (29x same-machine all-core throughput); E5, E8, E31 (only leanSPHINCS, leanSTARK reserved);
+# takeaway H19, L35, E48; tweet also uses S1, H50, H53, L21, L32, E13, E14, L35, H19, H23.
+quote: https://x.com/a16zcrypto/status/2111233645948342778
+title: "Hash vs lattice PQ signatures: three choices, not one"
+background: "No known post-quantum signature adds up like BLS. Aggregation means proving a whole batch valid."
+context: "a16z's Aerie proves 32,768 Falcon signatures in 0.65 s on a laptop. Ethereum's base layer favors hashes."
+figure:
+  caption: "Each layer can be chosen on its own"
+  excalidraw:
+    defaults: { fontSize: 20 }
+    nodes:
+      - { id: s, label: "Signature\nhash or lattice", x: 0, y: 36, w: 180, h: 84, color: blue }
+      - { id: a, label: "Aggregation\nSTARK / lattice", x: 195, y: 36, w: 180, h: 84, color: blue }
+      - { id: i, label: "Interface\nprecompile, 8288", x: 390, y: 36, w: 180, h: 84, color: green }
+    texts:
+      - { x: 4, y: 0, text: "Who signed", fontSize: 21, color: blue }
+      - { x: 199, y: 0, text: "Prove the batch", fontSize: 21, color: blue }
+      - { x: 394, y: 0, text: "How it gets on-chain", fontSize: 21, color: green }
+findings:
+  - stat: "29×"
+    text: "Aerie vs leanVM: same-machine, all-core proving throughput (paper bench)."
+  - stat: "0x10"
+    text: "Draft EIP-8288: leanSPHINCS scheme ID; leanSTARK (0x11) is still reserved."
+takeaway: "Neither aggregation stack is production-ready. Keep accounts algorithm-agile; avoid lock-in."
+tweet: |-
+  "Hash vs lattice" is three choices: signatures, aggregation proofs, and protocol interfaces. Starknet shows the mix: hash-based STARK proofs and published Falcon-512 account code, including OpenZeppelin's experimental, unaudited implementation.
+
+  How to read the figure:
+  • Signature: hash-based (leanXMSS, leanSPHINCS) or lattice (Falcon, ML-DSA).
+  • Aggregation: a hash-based STARK with recursion (leanVM) or a lattice SNARK without recursion (Aerie).
+  • Interface: one precompile per scheme, or EIP-8288 dependency frames with one recursive STARK per block.
+
+  Two details:
+  • Aerie's default aggregate for 32,768 signatures is 1,346 KiB, since each keeps a 40 B salt. The estimated 66 KiB needs a common salt and an extra assumption.
+  • EIP-8288 charges about 33,000 gas per leanSPHINCS dependency. Its generic STARK route is still reserved.
+
+  Caveat: Aerie is a research release; leanVM is not production-ready. leanVM changed signature schemes on Oct 17.
