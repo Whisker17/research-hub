@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "date": "2026-10-20",
+  "status": "degraded",
+  "reasons": [
+    "few_topics"
+  ],
+  "window": {
+    "from": "2026-10-19T00:00:00.000Z",
+    "to": "2026-10-20T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2112377886653251749",
+    "posted_at": "2026-10-20T02:58:28.000Z"
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "ok",
+      "items": 14,
+      "calls": 15,
+      "covered": null,
+      "error": null
+    },
+    {
+      "id": "blockbeats",
+      "status": "partial",
+      "items": 0,
+      "calls": 1,
+      "covered": null,
+      "error": null
+    },
+    {
+      "id": "odaily",
+      "status": "ok",
+      "items": 59,
+      "calls": 3,
+      "covered": {
+        "from": "2026-10-19T00:00:00.000Z",
+        "to": "2026-10-20T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "ethresearch",
+      "status": "ok",
+      "items": 1,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-19T00:00:00.000Z",
+        "to": "2026-10-20T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "magicians",
+      "status": "ok",
+      "items": 3,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-19T00:00:00.000Z",
+        "to": "2026-10-20T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "theblock",
+      "status": "ok",
+      "items": 12,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-19T00:00:00.000Z",
+        "to": "2026-10-20T00:00:00.000Z"
+      },
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 89,
+    "cited_items": 10,
+    "topics": 4,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": {
+    "skill_version": "daily-topics/1.0.0+e67bab7de412",
+    "model": "claude-sonnet-5-5",
+    "inputs_sha256": "ff30dedc41a9244b0834643ac527b6e57b9012621dbf2aa4b4d55eb196627d9b"
+  },
+  "run": {
+    "id": "39413681633",
+    "attempt": 1,
+    "at": "2026-10-20T11:16:51.967Z"
+  },
+  "generated_at": "2026-10-20T11:16:51.967Z",
+  "updated_at": "2026-10-20T11:16:51.967Z"
+}

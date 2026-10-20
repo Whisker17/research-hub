@@ -1,0 +1,213 @@
+schema: 1
+date: 2026-10-20
+note: 当天条目以行情、链上持仓监测和活动公告为主，满足证据要求的研究题目只有 4 个。
+topics:
+  - id: 2026-10-20-742944
+    title: Glamsterdam 升级：区块级访问列表与 gas 上限抬升的相互关系
+    title_en: "Glamsterdam: Block-level Access Lists and the Path to a Higher Gas Limit"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - glamsterdam
+    why_now: 据 nero_eth 10 月 18 日的说法，Hoodi 是 Glamsterdam 上主网前的最后一个测试网，升级定于 10 月 26 日，主网日期尚待公布，随后 gas 上限预计从 60M 提到 200M。10 月 19 日他又介绍了 EIP-7928（区块级访问列表）：离线节点可直接应用状态差异来追赶链头，而不必重放交易；Nethermind 的早期测试显示同步 2000 个区块从 76 分钟降到 40 秒。
+    questions:
+      - EIP-7928 的访问列表具体如何让节点跳过执行？它对验证者和 RPC 节点的带宽、存储与信任假设有什么改变？
+      - 把 gas 上限提高到 200M 之前，各客户端在状态增长、证明者负担和最坏情况区块上分别做了哪些评估？
+    angle: 对照 EIP-7928 规范、Nethermind 的实现与测试数据，以及 Hoodi 公告里的升级内容；再比较此前历次 gas 上限调整时的客户端指标，判断 BAL 同步加速与上限提升之间有没有直接依赖。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2111717098271732040
+        type: secondary
+      - item_id: ethtao:2112066478912499916
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: high
+  - id: 2026-10-20-305ab7
+    title: 摩根大通 JPMD 存款代币登陆以太坊主网：许可制银行货币的链上结算设计
+    title_en: "JPMD Deposit Token on Ethereum Mainnet: Design of a Permissioned Bank Money on a Public Chain"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - tokenized-deposits
+    why_now: 10 月 19 日多个来源报道，摩根大通的美元存款代币 JPMD 在 Base 之外也开放到以太坊主网；据报道，它目前经 Kinexys 向机构客户提供，不公开交易，也不面向零售客户。ETHTAO 收录的帖子还提到 MONY 与 JLTXX 同样部署在主网。
+    questions:
+      - JPMD 的许可与白名单机制在合约层面如何实现？持有者之间的转账受哪些限制？
+      - 存款代币与稳定币在发行方负债性质、赎回路径和与 DeFi 组合的可能性上有哪些具体差别？
+    angle: 阅读合约与发行方披露，比较 JPMD 与现有稳定币、其他银行存款代币的权限模型；观察主网与 Base 两处部署的流通量和转账对手方。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2112085370884001849
+        type: secondary
+      - item_id: odaily:525614
+        type: secondary
+      - item_id: theblock:418874
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: medium
+  - id: 2026-10-20-670d5d
+    title: 基于 SHA256 的抗量子隐私池：聚合证明与证明时间
+    title_en: "Quantum-safe Privacy Pools on SHA256: Aggregatable Proofs and Proving Time"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - post-quantum
+      - privacy
+    why_now: ethresear.ch 在 10 月 19 日出现了一篇讨论更快、可聚合且抗量子的隐私池方案的帖子。同日 flock 团队的成员称，已基于 SHA256 做出抗量子的 Tornado Cash 式证明，证明时间约 30 毫秒。
+    questions:
+      - 该方案的抗量子假设是什么？哈希承诺加上聚合证明的安全性依赖哪些参数？
+      - 30 毫秒的证明时间在什么硬件、电路规模和证明系统下测得？链上验证成本如何？
+    angle: 对照论坛帖中的构造与 flock 的实现，比较此前基于椭圆曲线的隐私池方案在证明大小、验证 gas 与合规相关设计（如成员集合证明）上的差异。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethresearch:26163
+        type: primary
+      - item_id: ethtao:2112138715384389632
+        type: discussion
+        note: 转述同一篇论坛帖的团队成员发言，仅作补充；其中的性能数字出自该成员自述
+    evidence:
+      independent_sources: 1
+    confidence: medium
+  - id: 2026-10-20-5cfcf3
+    title: 节点与验证者运营者的隐私和法律暴露面
+    title_en: Privacy and Legal Exposure of Node and Validator Operators
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - node-privacy
+    why_now: 10 月 19 日社区同时讨论了几件相关的事：有人质疑美国纽约南区法院仅因某地有节点副本就主张对加密案件被告的管辖权；有人讨论一名联邦人员如何掌握以太坊节点运营者的 IP，后续说法是对方可能把以太坊地址误称为 Etherscan 账户，数据或来自网络服务商；另有质押者再次呼吁支持让验证者通过 Tor 运行，并承认这会带来更高的 p2p 延迟与抖动。
+    questions:
+      - 运营者的 IP 与地址在 p2p 层、RPC 与区块浏览器通知中分别会暴露到什么程度？
+      - 以节点所在地确立管辖权的论点在已有判例中有无依据？Tor 或其他隐藏网络位置的方案对出块和证明时效的影响有多大？
+    angle: 梳理 p2p 暴露面（节点发现、gossip 元数据）和链下服务的数据留存，再对照共识层对延迟的容忍度，评估运行在匿名网络后的可行性。法律部分仅整理公开的案情说法，需待核对原始文件。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2112170321042411961
+        type: secondary
+      - item_id: ethtao:2112234730955608526
+        type: secondary
+      - item_id: ethtao:2112092482305413201
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: low
+items:
+  ethresearch:26163:
+    source: ethresearch
+    url: https://ethresear.ch/t/faster-aggregatable-and-quantum-safe-privacy-pools/26163
+    origin_url: null
+    title: Faster, Aggregatable and Quantum Safe Privacy Pools
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-19T10:59:11.818Z
+    fetched_at: 2026-10-20T11:17:02.859Z
+    incomplete: false
+  ethtao:2111717098271732040:
+    source: ethtao
+    url: https://x.com/nero_eth/status/2111717098271732040
+    origin_url: https://blog.ethereum.org/2026/10/16/glamsterdam-hoodi-announcement
+    title: null
+    author: nero_eth
+    reposted_by: nixorokish
+    via: https://x.com/Ethtao_Ethtao/status/2112377886653251749
+    published_at: 2026-10-18T07:12:44.000Z
+    fetched_at: 2026-10-20T11:16:53.862Z
+    incomplete: false
+  ethtao:2112066478912499916:
+    source: ethtao
+    url: https://x.com/nero_eth/status/2112066478912499916
+    origin_url: https://github.com/NethermindEth/nethermind/pull/14157
+    title: null
+    author: nero_eth
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112377886653251749
+    published_at: 2026-10-19T06:21:03.000Z
+    fetched_at: 2026-10-20T11:16:53.700Z
+    incomplete: false
+  ethtao:2112085370884001849:
+    source: ethtao
+    url: https://x.com/davwals/status/2112085370884001849
+    origin_url: https://x.com/ethereuminsti/status/2112081440418447833
+    title: null
+    author: davwals
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112377886653251749
+    published_at: 2026-10-19T07:36:07.000Z
+    fetched_at: 2026-10-20T11:16:54.638Z
+    incomplete: false
+  ethtao:2112092482305413201:
+    source: ethtao
+    url: https://x.com/polymutex/status/2112092482305413201
+    origin_url: null
+    title: null
+    author: polymutex
+    reposted_by: jchaskin22
+    via: https://x.com/Ethtao_Ethtao/status/2112377886653251749
+    published_at: 2026-10-19T08:04:23.000Z
+    fetched_at: 2026-10-20T11:16:55.783Z
+    incomplete: false
+  ethtao:2112138715384389632:
+    source: ethtao
+    url: https://x.com/xyz_pierre/status/2112138715384389632
+    origin_url: https://ethresear.ch/t/faster-aggregatable-and-quantum-safe-privacy-pools/26163
+    title: null
+    author: xyz_pierre
+    reposted_by: jchaskin22
+    via: https://x.com/Ethtao_Ethtao/status/2112377886653251749
+    published_at: 2026-10-19T11:08:06.000Z
+    fetched_at: 2026-10-20T11:16:54.120Z
+    incomplete: false
+  ethtao:2112170321042411961:
+    source: ethtao
+    url: https://x.com/intangiblecoins/status/2112170321042411961
+    origin_url: https://x.com/gofordylan/status/2111789787942146373
+    title: null
+    author: intangiblecoins
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112377886653251749
+    published_at: 2026-10-19T13:13:41.000Z
+    fetched_at: 2026-10-20T11:16:54.424Z
+    incomplete: false
+  ethtao:2112234730955608526:
+    source: ethtao
+    url: https://x.com/nixorokish/status/2112234730955608526
+    origin_url: https://x.com/mtbitcoin/status/2112208459047530838
+    title: null
+    author: nixorokish
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112377886653251749
+    published_at: 2026-10-19T17:29:37.000Z
+    fetched_at: 2026-10-20T11:16:54.262Z
+    incomplete: false
+  odaily:525614:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/525614
+    origin_url: https://x.com/cryptounfolded/status/2112079541950709980
+    title: 摩根大通将JPM Coin扩展至以太坊网络，面向机构客户开放
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-19T07:21:43.000Z
+    fetched_at: 2026-10-20T11:17:00.838Z
+    incomplete: false
+  theblock:418874:
+    source: theblock
+    url: https://www.theblock.co/news/business/2026-10-19-jpmorgan-jpm-coin-deposit-token-ethereum-418874
+    origin_url: null
+    title: JPMorgan expands ‘JPM Coin’ deposit token to Ethereum for institutional clients
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-19T08:31:31.000Z
+    fetched_at: 2026-10-20T11:17:03.703Z
+    incomplete: false
