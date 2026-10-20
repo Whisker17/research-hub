@@ -3,47 +3,70 @@
 tags:
   account-abstraction:
     label: 账户抽象
+    label_en: Account abstraction
   ai-agent:
     label: AI Agent
+    label_en: AI agents
   bsc:
     label: BSC / BNB Chain
+    label_en: BSC / BNB Chain
   dex:
     label: DEX
+    label_en: DEX
   eip:
     label: EIP
+    label_en: EIP
   hyperliquid:
     label: Hyperliquid
+    label_en: Hyperliquid
   interop:
     label: 跨链互操作
+    label_en: Cross-chain interoperability
   mantle:
     label: Mantle
+    label_en: Mantle
   meme:
     label: Meme
+    label_en: Meme
   mev:
     label: MEV 与交易排序
+    label_en: MEV & transaction ordering
   near:
     label: NEAR
+    label_en: NEAR
   options:
     label: 期权
+    label_en: Options
   paper:
     label: 论文导读
+    label_en: Paper walkthroughs
   payment:
     label: 支付
+    label_en: Payments
   perps:
     label: 永续合约
+    label_en: Perpetual futures
   post-quantum:
     label: 后量子密码
+    label_en: Post-quantum cryptography
   privacy:
     label: 隐私
+    label_en: Privacy
   propamm:
     label: PropAMM
+    label_en: PropAMM
   routing:
     label: 路由算法
+    label_en: Routing algorithms
   rwa:
     label: RWA
+    label_en: RWA
   security:
     label: 安全
+    label_en: Security
   starknet:
     label: Starknet
+    label_en: Starknet
   uniswap:
     label: Uniswap
+    label_en: Uniswap
