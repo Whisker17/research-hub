@@ -879,11 +879,15 @@ test("跨 UTC 午夜：请求记到发出请求的那一天，并受那一天的
   // 翻页跨过午夜：每一页记到它发出的那一天，新的一天用完了就不再翻（WHI-2078）
   const clock = ["2026-10-18T23:59:58.000Z", "2026-10-19T00:00:01.000Z"];
   const pages: string[] = [];
+  let ignorePage = false;
   const fullPages: HttpCtx = {
     ...ctx,
     fetch: async (u) => {
-      pages.push(new URL(u).searchParams.get("page")!);
-      const data = Array.from({ length: cfg.size }, (_, k) => ({ id: k, title: "t", link: `https://www.theblockbeats.info/flash/${k}`, url: "", create_time: "2026-10-19 07:00:00" }));
+      const page = new URL(u).searchParams.get("page")!;
+      pages.push(page);
+      // 第 p 页的条目在 UTC+8 10-19 (8−p):00（都晚于 W 的起点），ignorePage 时每次都返回第 1 页
+      const hour = 8 - (ignorePage ? 1 : Number(page));
+      const data = Array.from({ length: cfg.size }, (_, k) => ({ id: `${page}${k}`, title: "t", link: `https://www.theblockbeats.info/flash/${page}${k}`, url: "", create_time: `2026-10-19 0${hour}:00:00` }));
       return new Response(JSON.stringify({ status: 0, data: { data } }));
     },
   };
@@ -901,6 +905,11 @@ test("跨 UTC 午夜：请求记到发出请求的那一天，并受那一天的
   const r5 = await paged(late);
   assert.deepEqual(late.days, { "2026-10-18": { calls: 1 }, "2026-10-19": { calls: 4 } });
   assert.deepEqual([r5.calls, pages], [2, ["1", "2"]], "10-19 只剩 1 次：第 3 页不发");
+  // 接口不认 page（第 2 页没有更早的条目）：不再往下翻，不白花预算
+  pages.length = 0;
+  ignorePage = true;
+  const r6 = await paged({ schema: 1, days: {}, last_success_at: null });
+  assert.deepEqual([r6.calls, pages], [2, ["1", "2"]]);
 });
 
 test("sources.yml：max_calls_per_day 不能超过硬上限，endpoint 只能是两个 important 接口，源必须已登记", () => {

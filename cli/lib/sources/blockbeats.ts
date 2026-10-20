@@ -127,9 +127,10 @@ export async function runBlockBeats(o: {
         return t ? [Date.parse(t)] : [];
       });
       // 列表不满一页说明到头了，覆盖到最早
+      const prev = oldest[i];
       oldest[i] = list.length < cfg.size ? 0 : times.length ? Math.min(...times) : Date.parse(at);
-      // 接上了（或整页都没有可用的时间）就换下一个 endpoint，否则翻下一页
-      if (oldest[i] <= target || !times.length) [i, page] = [i + 1, 1];
+      // 接上了、整页都没有可用的时间、或者这一页没有更早（接口不认 page）就换下一个 endpoint，否则翻下一页
+      if (oldest[i] <= target || !times.length || oldest[i] >= prev) [i, page] = [i + 1, 1];
       else page++;
     } catch (e) {
       error = errorText(e, o.key ? [o.key] : []);
