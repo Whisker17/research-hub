@@ -82,6 +82,17 @@ AI 密码分析 | 作用于所有算法
 ```
 
 ## G 如何阅读 {depth=1}
+```callout info 系列导航：Mantle 后量子专题共三篇
+- 第一篇 [《后量子从入门到路线》](/p/post-quantum-mantle/)：哪些密码学组件会被量子攻破，各项目怎么做，Mantle 哪些部分要自己迁。
+- 第二篇 [《后量子在 Mantle 的工程落地》](/p/pq-in-mantle/)：合约级 PQ 账户 + 验签预编译，为什么 7702 不能当容灾。
+- 第三篇 [《后量子签名选型》](/p/pq-signature-selection/)：哈希路线 vs 格路线、EIP-8288，以及对前两篇的修订（第三篇面板 R）。
+```
+
+```callout warn 2026-10-20 补充（详见第三篇面板 R）
+- 面板 Q 所说“L1 侧聚合（如 EIP-8288）”要加限定：8288 当前只聚合 leanSPHINCS 签名，leanSTARK 尚未定义，不能直接聚合 SP1 证明（台账 X20）。
+- Starknet 的 Falcon-512 账户已有 S2morrow 与 OpenZeppelin 两家实现，StarkWare 路线图还提到 Falcon-512 共识签名（台账 X21）。
+```
+
 ```callout info 默认你已知道（本文不解释）
 - 钱包有私钥和公钥；私钥签名，别人用公钥验证
 - EOA 交易用 secp256k1 签名，EVM 用 `ecrecover` 恢复地址

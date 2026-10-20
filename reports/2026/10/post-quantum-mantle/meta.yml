@@ -1,7 +1,7 @@
 title: 后量子（PQ）从入门到路线：Ethereum、Starknet、Aztec 怎么做，Mantle 能主动做什么
 summary: 量子计算机威胁的是签名和证明，不是哈希。Ethereum 的 2029 目标只覆盖 L1 协议；Mantle 的状态安全落在一个 BN254 PLONK 验证和一组无时间锁的 ECDSA 多签上，这两处都要自己迁移。清单、权限收紧、PQ 账户原型和与 Succinct 的证明路径设计，现在就能开始
 created: 2026-10-16
-updated: 2026-10-16
+updated: 2026-10-20
 domain: crypto
 tags:
   - post-quantum
@@ -13,9 +13,11 @@ status: published
 visibility: private
 kind: native
 brief_source: Research Briefs/Post-Quantum Mantle.md
+am_version: 0.5.2-research.1
+series: post-quantum
 related:
   - pq-in-mantle
-am_version: 0.5.2-research.1
+  - pq-signature-selection
 changelog:
   - date: 2026-10-16
     note: 创建（brief 快照）
@@ -25,5 +27,11 @@ changelog:
     note: 推特卡片（中英文，Excalidraw 配图 + 推文文案）
   - date: 2026-10-16
     note: 推特卡片改为英文版：日期 + @whisker17 水印、新版式、会员长文推文
+  - date: 2026-10-20
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-20
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-20
+    note: 系列导航（三篇互链）+ 第三篇补充：8288 不能直接聚合 SP1 证明、Starknet Falcon 账户进展
 title_en: "Post-Quantum from First Principles to Roadmap: What Ethereum, Starknet and Aztec Are Doing, and What Mantle Can Do Now"
 summary_en: Quantum computers threaten signatures and proofs, not hashes. Ethereum's 2029 target covers only the L1 protocol. Mantle's state security rests on one BN254 PLONK verification and a set of ECDSA multisigs with no timelock, and Mantle must migrate both itself. The inventory, permission hardening, PQ account prototypes and proof-path design with Succinct can start now.

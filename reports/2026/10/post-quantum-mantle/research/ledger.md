@@ -373,3 +373,6 @@
 | X18 | 量子之外，AI 带来的近期风险主要在实现与集成层，Mantle 的 PQ 迁移计划应当同时包含 AI 辅助审计与形式化验证要求 | 由 T57、T58、T63、T66 推出 | inferred | F7、Q |
 | X19 | Mantle 的 L1 多签不必等 Ethereum 的 AA：可以把 Safe 签名人逐步换成在合约里验证 PQ 签名的 EIP-1271 owner；按约 120 万 gas / 次 ML-DSA-44 计，6 人签名约 700 万 gas，对低频的管理操作可以接受；前提是这些 owner 合约本身没有 ECDSA 后门 | 由 K21、P31、K10 推出；未做原型，gas 为合约实现的上界估计 | inferred | F15、Q |
 
+
+| X20 | EIP-8288 当前只聚合 leanSPHINCS 签名，leanSTARK（0x11）尚未定义，不能直接聚合 Mantle 的 SP1 证明；面板 Q 的“L1 侧聚合”需加此限定 | 第三篇 pq-signature-selection 台账 E5、E31、E49（EIP-8288 @72ca2dd） | inferred | G |
+| X21 | Starknet 已有 S2morrow 与 OpenZeppelin 两家 Falcon-512 账户实现，StarkWare 路线图提到 Falcon-512 链上共识签名 | 第三篇台账 H50、H51（StarkWare 博客两篇） | observed | G |

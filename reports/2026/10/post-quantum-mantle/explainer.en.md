@@ -83,6 +83,17 @@ AI cryptanalysis | applies to every scheme
 ```
 
 ## G How to read this {depth=1}
+```callout info Series map: Mantle post-quantum series, three parts
+- Part 1, [Post-Quantum from First Principles to Roadmap](/p/post-quantum-mantle/en/): which components quantum computers break, what each project does, and what Mantle must migrate itself.
+- Part 2, [Post-Quantum Engineering on Mantle](/p/pq-in-mantle/en/): contract-level PQ accounts + a verification precompile, and why EIP-7702 is not disaster recovery.
+- Part 3, [Choosing Post-Quantum Signatures](/p/pq-signature-selection/en/): hash vs lattice, EIP-8288, and revisions to parts 1 and 2 (part 3, panel R).
+```
+
+```callout warn Additions of 2026-10-20 (see part 3, panel R)
+- Panel Q's "L1-side aggregation (e.g. EIP-8288)" needs a qualifier. 8288 aggregates only leanSPHINCS signatures today, leanSTARK has no definition yet, and it cannot directly aggregate SP1 proofs (ledger X20).
+- Starknet's Falcon-512 accounts now have two implementations, from S2morrow and OpenZeppelin, and StarkWare's roadmap mentions Falcon-512 consensus signatures (ledger X21).
+```
+
 ```callout info You already know (not explained here)
 - A wallet has a private key and a public key; the private key signs, and anyone can verify with the public key
 - EOAs sign transactions with secp256k1, and the EVM recovers the address with `ecrecover`
