@@ -1,0 +1,24 @@
+title: Agentic Wallet：产品形态、技术原理与 agent 的活动空间
+summary: 拆解 MetaMask、Coinbase、Binance、OKX 等 agent 钱包：主流是“独立预算钱包 + 厂商链下策略”，链上限权只在智能账户路线；逐条检验五个判断，并给出需求证据与 Mantle 启示
+created: 2026-10-21
+updated: 2026-10-21
+domain: crypto
+tags:
+  - ai-agent
+  - account-abstraction
+  - payment
+  - security
+  - mantle
+  - wallet
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/Agentic Wallet Deep Dive.md
+am_version: 0.5.2-research.1
+changelog:
+  - date: 2026-10-21
+    note: 创建（brief 快照）
+  - date: 2026-10-21
+    note: 发布：中英文双语版（sol 审查通过）+ 推特卡片（astra-6 审查通过）
+title_en: "Agentic Wallets: Product Design, Technical Principles & Where Agents Can Act"
+summary_en: "A teardown of MetaMask, Coinbase, Binance, OKX and other agent wallets: most are a separate budget wallet with off-chain vendor policy, and on-chain limits exist only on the smart-account path. It tests five assumptions and adds demand data and Mantle implications."

@@ -1,0 +1,48 @@
+# Tweet card (English only): node cli/rh.ts card agentic-wallet -> card.png
+# Rules: .claude/skills/research-hub/references/tweet-card.md. Neutral researcher voice; field-level facts only; no speculative claims.
+# Ledger:
+#   title / takeaway (scoped to the big four): N3 (big four enforce limits off-chain or undisclosed), N5 (bounded signing power), N6 (limit != loss cap)
+#   background: B-0/B-2 framing; N2 (key custody types)
+#   context: A3 inferred (post text unreadable; hedged with "appears to"), A33/B34/B1 (Coinbase/OKX/Binance 2026 launches)
+#   figure: left A17/A19/B16/B38/C5/C8 (skill/tool-layer confirmation); middle A10/B5/B37 (vendor-side policy), C4/C33/C35 (TEE policy engines);
+#           right B27/B28/C10/C30/A31 (on-chain session, allowance, caveat; out-of-bounds reverts)
+#   findings: S32 (x402 24h $44.2K, -45.88% 30d, Artemis Oct 19); A15 (Permit2 signatures not counted in MetaMask outflow limit)
+#   tweet also uses: A6/N2 (MetaMask BYOK local keys), C11 (Crossmint rejects out-of-scope txs), A9 (MetaMask server 2FA conditions), B15 (Binance risk score >=4 to app), N4, S23/S24 (prompt injection),
+#           S30/S31 (EIP-3009 authorization survives a pause), S33 (Artemis tracks gamed volume), B28 (Altana no calls list = unrestricted)
+quote: https://x.com/MetaMask/status/2110426474071097697
+title: "Big-four agent wallets: limits off-chain or undisclosed"
+background: An agent wallet lets an AI sign and pay within limits. Which layer enforces a limit decides if it holds.
+context: "MetaMask appears to bring Agent Wallet to a bot; Coinbase, OKX and Binance launched theirs in 2026."
+figure:
+  caption: Where surveyed agent wallets enforce limits
+  excalidraw:
+    defaults: { fontSize: 20 }
+    nodes:
+      - { id: skill, label: "Skill rule:\nconfirm first", x: 0, y: 36, w: 170, h: 84, color: red }
+      - { id: vendor, label: "Server / TEE:\ncaps, allowlists", x: 195, y: 36, w: 180, h: 84, color: blue }
+      - { id: chain, label: "Contract:\nscoped access", x: 400, y: 36, w: 170, h: 84, color: green }
+    texts:
+      - { x: 4, y: 0, text: "Skill / tool layer", fontSize: 21, color: red }
+      - { x: 199, y: 0, text: "Vendor enforces", fontSize: 21, color: blue }
+      - { x: 404, y: 0, text: "On-chain examples", fontSize: 21, color: green }
+findings:
+  - stat: "$44K"
+    text: "x402 moved ~$44K in 24h (Artemis, Oct 19); 30-day transactions fell 46%."
+  - stat: "Permit2"
+    text: "MetaMask's agent outflow limit does not count signed approvals like Permit2."
+takeaway: Judge an agent wallet by where its policy runs and what its limit skips, not by key custody.
+tweet: |-
+  Across MetaMask, Coinbase, Binance and OKX, key custody ranges from TEE and MPC to local keys. The harder question is where limits run: for these four, policy is vendor-side or undisclosed.
+
+  "Confirm every transfer" is often only a skill rule. An injected agent can skip it.
+
+  How to read the figure:
+  • Left: skills or tool flags that ask for confirmation.
+  • Middle: vendor-side caps and allowlists (MetaMask Guard, Binance API, OKX portal). MetaMask and Binance also check risky actions on the server or in the app.
+  • Right, examples: on-chain sessions and allowances (Altana, Crossmint, Safe). Altana and Crossmint reject out-of-scope calls on chain.
+
+  Two details:
+  • A limit is not a loss cap. MetaMask's limit skips Permit2 signatures, and pausing an agent does not void a signed EIP-3009 authorization.
+  • x402 moved ~$44K in 24h, ~$0.40 per payment (Artemis, Oct 19).
+
+  Caveat: an Altana session with no calls list can call any contract within its cap. Scope: surveyed wallets, Oct 2026.

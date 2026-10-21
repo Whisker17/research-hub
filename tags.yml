@@ -70,3 +70,6 @@ tags:
   uniswap:
     label: Uniswap
     label_en: Uniswap
+  wallet:
+    label: 钱包
+    label_en: Wallets
