@@ -1,0 +1,395 @@
+schema: 1
+date: 2026-10-21
+topics:
+  - id: 2026-10-21-c97bf2
+    title: Papertrade 的 PAPER 不可转让决定：盘前永续合约与协议资金池的操纵风险
+    title_en: "Papertrade's non-transferable PAPER: pre-market perpetuals and manipulation risk to a protocol's liquidity pool"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - perpetuals
+      - tokenomics
+    why_now: 10 月 20 日，Papertrade 表示暂不开放 PAPER 转让，并调整代币铸造规则。HIP-3 市场部署者 Paragon 随即暂停 PAPER 盘前永续合约，以停牌前一小时的预言机时间加权均价 0.026296 美元统一结算；Aster 也把同类合约改为只能减仓并下架。据创始人 Jez 称，团队原以为大型永续市场约需半年才会出现，实际来得更早，而协议尚未解决相关的攻击风险。
+    questions:
+      - 外部永续合约如何让协议资金池的偿付能力变成可被做空的对象？这种操纵路径需要满足哪些条件？
+      - 盘前永续合约在没有现货价格可以收敛时，结算价应如何确定？Paragon 采用的一小时均价与 HyperCore 的下架做法有何异同？
+      - 按亏损比例铸造代币的新规则，对早期持有者的稀释幅度和激励结构有什么影响？
+    angle: 对照 Paragon 的结算说明、Papertrade 公告和创始人的解释，梳理时间线与机制；再用公开的持仓量、交易量和奖励数据，看规则调整前后协议指标的变化。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: blockbeats:372648
+        type: secondary
+      - item_id: odaily:525810
+        type: secondary
+      - item_id: blockbeats:372646
+        type: secondary
+      - item_id: blockbeats:372706
+        type: secondary
+    evidence:
+      independent_sources: 4
+    confidence: medium
+  - id: 2026-10-21-ce15af
+    title: Drift 攻击者资金流向：时隔两个月经 Tornado Cash 转移 ETH
+    title_en: "Drift exploiter fund flows: ETH moved through Tornado Cash after two months of inactivity"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - security-incident
+      - fund-tracing
+    why_now: 10 月 20 日，链上监测方报告 Drift Protocol 攻击者在沉寂约两个月后再次动用资金。据 Onchain Lens 称，至少 1.34 万枚 ETH 被送入 Tornado Cash；稍后另一位分析师称，3 小时内累计转入 25710 枚。按该分析师的说法，攻击发生在 4 月初，被盗资产当时换成了 131564 枚 ETH，7 月曾有 24400 枚走同一路径。两处给出的剩余持仓数字不同，应是转移进度不同所致。
+    questions:
+      - 7 月与 10 月两批转入 Tornado Cash 的时间、规模与被盗资产兑换时点之间有什么规律？
+      - 混币后的资金出口目前能追踪到什么程度？哪些环节（兑换、跨链、交易所入金）最有可能留下线索？
+    angle: 整理攻击后的完整资金流向图，对照已公开的监测数据核对各次转移的金额，并比较同类大额攻击中攻击者的混币节奏。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: blockbeats:372737
+        type: secondary
+      - item_id: odaily:525962
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: medium
+  - id: 2026-10-21-743aac
+    title: 以太坊质押量创新高而收益率下降：验证者集合的进出与合并
+    title_en: "Record Ethereum staking with falling yields: validator entries, exits and consolidation"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - staking
+      - validators
+    why_now: 10 月 20 日多家来源提到，质押的 ETH 升至 4380 万枚，约占总供应量的 35.9%，同时收益率与验证者数量下降；The Block 引述 Bitwise 的季度数据，称第三季度收益率为 2.63%。同日 barnabemonnot 发布验证者进出与合并的数据视图，反驳「大规模外流」的说法，认为这是正常的合并。
+    questions:
+      - 质押量上升而验证者数量下降，有多少来自 EIP-7251 之后的账户合并？退出队列中的主体构成是什么？
+      - 收益率降到 2.6% 左右时，质押规模对收益变化的弹性有多大？
+      - 质押占比继续升高，对共识层的去中心化与流动性质押集中度意味着什么？
+    angle: 用 beaconcha.in 的进出队列和实体分布数据，拆分新增、退出与合并三类变动，并与 Bitwise 季度报告的数字交叉核对。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: theblock:421414
+        type: secondary
+      - item_id: blockbeats:372822
+        type: secondary
+      - item_id: ethtao:2112499082673754119
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: medium
+  - id: 2026-10-21-5fcc23
+    title: SEC《加密资产监管条例》意见征集：空投是否构成投资合约
+    title_en: "SEC's proposed Regulation Crypto Assets: whether airdrops are investment contracts"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - sec-rulemaking
+      - airdrops
+    why_now: SEC 对拟议《加密资产监管条例》的公开征求意见于 10 月 20 日截止，已收到上百份意见。提案含两类豁免：规模不超过 500 万美元的初创企业发行，以及一年内不超过 7500 万美元的融资发行。Hyperliquid Policy Center 同日提交意见，要求把 SEC 今年 3 月的立场写进规则，即免费空投不属于「金钱投资」，并让规则覆盖定期分发和过往空投。华尔街机构也提出了各自的修改主张。
+    questions:
+      - 「有形且可识别的对价」应如何界定？连接钱包、签名、支付 Gas、完成 KYC 是否构成对价？
+      - 按使用或贡献发放、且不用于融资的空投，与带有融资性质的代币分发在规则中应如何区分？
+      - 规则追溯适用于已发生的空投，会带来哪些法律与实务问题？
+    angle: 对照条例原文、SEC 今年 3 月的表述和 Hyperliquid Policy Center 的意见信，再对比 SIFMA、AIMA 等机构的意见，整理各方在豁免范围与定义上的分歧。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: blockbeats:372673
+        type: secondary
+      - item_id: odaily:525835
+        type: secondary
+      - item_id: theblock:421444
+        type: secondary
+      - item_id: blockbeats:372838
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: medium
+  - id: 2026-10-21-90d84c
+    title: Privacy Pools v2 上线：以太坊上带成员集合证明的合规隐私层
+    title_en: "Privacy Pools v2 goes live: a compliance-oriented privacy layer on Ethereum"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - privacy-pools
+      - privacy
+    why_now: 10 月 20 日，Privacy Pools 官方账号宣布 v2 已上线，称这是以太坊的一个新隐私层，转发者 jchaskin22 也确认了这一点。帖子本身没有给出合约、审计或参数细节，具体改动需要对照官方资料核实。
+    questions:
+      - v2 相比上一版在证明系统、成员集合构造和提款流程上有哪些具体变化？
+      - 「合规」设计在实践中如何运作？谁来维护成员集合，被排除的存款方有什么申诉路径？
+    angle: 阅读 v2 的合约与文档，对比 v1 的证明大小、验证 gas 与匿名集规模，并和其他隐私协议的合规方案作比较。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2112595479670194405
+        type: primary
+        note: Privacy Pools 官方账号对自家 v2 上线的陈述
+    evidence:
+      independent_sources: 1
+    confidence: low
+  - id: 2026-10-21-b98739
+    title: 面向 ERC-8004 智能体的信用体系：信用记录、授信额度与违约登记的 ERC 草案
+    title_en: "Credit for ERC-8004 agents: draft ERCs for credit history, credit lines and default registries"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - agent-credit
+      - erc-drafts
+    why_now: 10 月 20 日 UTC 15:22 至 15:26，Ethereum Magicians 上几分钟内连续出现四个 ERC 草案帖，主题分别是 ERC-8004 智能体的信用记录、智能体授信额度、「先还款」的收款方，以及智能体违约登记。帖子摘录为空，只能从标题判断它们属于同一套智能体信用设计，细节需要读原文。
+    questions:
+      - 这几份草案如何分工？信用记录、授信与违约登记之间的数据流和权限边界是什么？
+      - 违约登记由谁写入、如何防止被滥用或被女巫攻击绕过？
+      - 链上智能体信用与现有的链上信用评分、抵押借贷方案相比有什么取舍？
+    angle: 通读四份草案的接口与状态定义，核对它们对 ERC-8004 的依赖，并与已有的链上信用协议和身份注册方案做对照。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: magicians:30022
+        type: primary
+      - item_id: magicians:30023
+        type: primary
+      - item_id: magicians:30025
+        type: primary
+      - item_id: magicians:30026
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: low
+  - id: 2026-10-21-ace0dc
+    title: EIP-8449：Engine API 的提案前瞻
+    title_en: "EIP-8449: proposal lookahead in the Engine API"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - engine-api
+    why_now: 10 月 20 日，Ethereum Magicians 出现 EIP-8449 的讨论帖，标题指向 Engine API 中的提案前瞻。帖子摘录为空，机制细节输入里没有，需要以规范文本为准。
+    questions:
+      - 该提案要让共识层与执行层之间多提前提供哪些信息？它解决的是什么具体问题？
+      - 这一改动对执行客户端的构建、MEV 中继与 builder 流程会带来哪些兼容性或时序上的影响？
+    angle: 阅读规范与讨论串，梳理它与现有 Engine API 方法的关系，并查看各客户端团队的反馈和实现状态。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: magicians:30016
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: low
+items:
+  blockbeats:372646:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/372646
+    origin_url: https://x.com/Aster_DEX/status/2112357881064636834
+    title: Aster宣布下架PAPER盘前永续合约，已调整为仅减仓模式
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T01:42:05.000Z
+    fetched_at: 2026-10-21T09:29:25.385Z
+    incomplete: false
+  blockbeats:372648:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/372648
+    origin_url: https://x.com/tradeparagon/status/2112311821411721596
+    title: Paragon暂停PAPER交易并完成结算，结算价为0.026296美元
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T01:49:38.000Z
+    fetched_at: 2026-10-21T09:29:25.385Z
+    incomplete: false
+  blockbeats:372673:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/372673
+    origin_url: https://x.com/HyperliquidPC/status/2112153398850072736
+    title: Hyperliquid政策中心发文呼吁SEC将空投排除在证券定义之外
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T03:32:26.000Z
+    fetched_at: 2026-10-20T11:16:57.579Z
+    incomplete: false
+  blockbeats:372706:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/372706
+    origin_url: https://x.com/degentradingLSD/status/2112423972138836159
+    title: 观点：PAPER新代币铸造机制削弱早期挖矿者优势，利好协议长期发展
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T06:13:40.000Z
+    fetched_at: 2026-10-20T11:16:57.579Z
+    incomplete: false
+  blockbeats:372737:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/372737
+    origin_url: https://x.com/OnchainLens/status/2112461627039912380
+    title: Drift攻击者时隔2个月向Tornado Cash转移1.34万枚ETH
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T08:35:00.000Z
+    fetched_at: 2026-10-20T11:16:57.579Z
+    incomplete: false
+  blockbeats:372822:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/372822
+    origin_url: https://x.com/Cointelegraph/status/2112567294874288131
+    title: 以太坊质押量升至4380万枚创历史新高，占总供应量35.9%
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T15:50:05.000Z
+    fetched_at: 2026-10-21T09:29:24.367Z
+    incomplete: false
+  blockbeats:372838:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/372838
+    origin_url: https://www.theblock.co/news/regulation/2026-10-20-sec-regulation-crypto-assets-comment-period-hyperliquid-sifma-aima-421444
+    title: 华尔街机构敦促美SEC修改《加密资产监管条例》，公众意见征集即将结束
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T23:05:54.000Z
+    fetched_at: 2026-10-21T09:29:24.367Z
+    incomplete: false
+  ethtao:2112499082673754119:
+    source: ethtao
+    url: https://x.com/barnabemonnot/status/2112499082673754119
+    origin_url: https://x.com/barnabemonnot/status/2111918631453884582
+    title: null
+    author: barnabemonnot
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2112743098053017982
+    published_at: 2026-10-20T11:00:04.000Z
+    fetched_at: 2026-10-21T09:29:19.807Z
+    incomplete: false
+  ethtao:2112595479670194405:
+    source: ethtao
+    url: https://x.com/0xprivacypools/status/2112595479670194405
+    origin_url: null
+    title: null
+    author: 0xprivacypools
+    reposted_by: jchaskin22
+    via: https://x.com/Ethtao_Ethtao/status/2112743098053017982
+    published_at: 2026-10-20T17:23:07.000Z
+    fetched_at: 2026-10-21T09:29:19.580Z
+    incomplete: false
+  magicians:30016:
+    source: magicians
+    url: https://ethereum-magicians.org/t/eip-8449-engine-api-proposal-lookahead/30016
+    origin_url: null
+    title: "EIP-8449: Engine API proposal lookahead"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T06:11:47.065Z
+    fetched_at: 2026-10-20T11:17:03.583Z
+    incomplete: false
+  magicians:30022:
+    source: magicians
+    url: https://ethereum-magicians.org/t/erc-tba-credit-history-for-erc-8004-agents/30022
+    origin_url: null
+    title: "ERC-TBA: Credit history for ERC-8004 agents"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T15:22:18.124Z
+    fetched_at: 2026-10-21T09:29:30.541Z
+    incomplete: false
+  magicians:30023:
+    source: magicians
+    url: https://ethereum-magicians.org/t/erc-tba-agent-credit-lines/30023
+    origin_url: null
+    title: "ERC-TBA: Agent Credit Lines"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T15:22:51.054Z
+    fetched_at: 2026-10-21T09:29:30.541Z
+    incomplete: false
+  magicians:30025:
+    source: magicians
+    url: https://ethereum-magicians.org/t/erc-tba-agent-repay-first-payees/30025
+    origin_url: null
+    title: "ERC-TBA: Agent Repay-First Payees"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T15:24:23.261Z
+    fetched_at: 2026-10-21T09:29:30.541Z
+    incomplete: false
+  magicians:30026:
+    source: magicians
+    url: https://ethereum-magicians.org/t/erc-tba-agent-default-registry/30026
+    origin_url: null
+    title: "ERC-TBA: Agent Default Registry"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T15:26:01.922Z
+    fetched_at: 2026-10-21T09:29:30.541Z
+    incomplete: false
+  odaily:525810:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/525810
+    origin_url: https://x.com/izebel_eth/status/2112323648883417553?s=20
+    title: Papertrade创始人回应PAPER禁止转账争议：永续合约市场提前上线，协议尚未解决潜在攻击风险
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T01:44:15.000Z
+    fetched_at: 2026-10-20T11:16:59.620Z
+    incomplete: false
+  odaily:525835:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/525835
+    origin_url: https://x.com/HyperliquidNews/status/2112260925139083646
+    title: Hyperliquid政策中心发文呼吁SEC将空投排除在证券定义之外
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T03:30:26.000Z
+    fetched_at: 2026-10-20T11:16:59.620Z
+    incomplete: false
+  odaily:525962:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/525962
+    origin_url: https://x.com/EmberCN/status/2112523543892074964
+    title: Drift Protocol黑客通过Tornado转移25710枚ETH，当前仍持有81454枚ETH
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T12:38:56.000Z
+    fetched_at: 2026-10-20T13:33:01.416Z
+    incomplete: false
+  theblock:421414:
+    source: theblock
+    url: https://www.theblock.co/news/ecosystems/2026-10-20-ethereum-solana-staking-record-yields-fall-bitwise-q3-421414
+    origin_url: null
+    title: "Ethereum staking hits record as yields fall and Solana activity grows: Bitwise"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T16:31:24.000Z
+    fetched_at: 2026-10-21T09:29:30.591Z
+    incomplete: false
+  theblock:421444:
+    source: theblock
+    url: https://www.theblock.co/news/regulation/2026-10-20-sec-regulation-crypto-assets-comment-period-hyperliquid-sifma-aima-421444
+    origin_url: null
+    title: Crypto firms, Wall Street push SEC to revise Regulation Crypto Assets as comments close
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-20T19:19:54.000Z
+    fetched_at: 2026-10-21T09:29:30.591Z
+    incomplete: false

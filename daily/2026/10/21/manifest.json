@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "complete",
+  "reasons": [],
+  "window": {
+    "from": "2026-10-20T00:00:00.000Z",
+    "to": "2026-10-21T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2112743098053017982",
+    "posted_at": "2026-10-21T03:09:42.000Z"
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "ok",
+      "items": 13,
+      "calls": 14,
+      "covered": null,
+      "error": null
+    },
+    {
+      "id": "blockbeats",
+      "status": "ok",
+      "items": 111,
+      "calls": 4,
+      "covered": {
+        "from": "2026-10-20T00:00:00.000Z",
+        "to": "2026-10-21T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "odaily",
+      "status": "ok",
+      "items": 85,
+      "calls": 4,
+      "covered": {
+        "from": "2026-10-20T00:00:00.000Z",
+        "to": "2026-10-21T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "ethresearch",
+      "status": "ok",
+      "items": 0,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-20T00:00:00.000Z",
+        "to": "2026-10-21T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "magicians",
+      "status": "ok",
+      "items": 10,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-20T00:00:00.000Z",
+        "to": "2026-10-21T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "theblock",
+      "status": "ok",
+      "items": 13,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-20T00:00:00.000Z",
+        "to": "2026-10-21T00:00:00.000Z"
+      },
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 232,
+    "cited_items": 19,
+    "topics": 7,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": {
+    "skill_version": "daily-topics/1.0.0+e67bab7de412",
+    "model": "claude-sonnet-5-5",
+    "inputs_sha256": "ee426d9af8abec135ab9ebd23aaecd4a69868df94c6f7108f6b6c5822fb7ce04"
+  },
+  "run": {
+    "id": "39577212256",
+    "attempt": 1,
+    "at": "2026-10-21T09:29:17.582Z"
+  },
+  "generated_at": "2026-10-21T09:29:17.582Z",
+  "updated_at": "2026-10-21T09:29:17.582Z"
+}
