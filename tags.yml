@@ -73,3 +73,6 @@ tags:
   wallet:
     label: 钱包
     label_en: Wallets
+  zk:
+    label: 零知识证明
+    label_en: Zero-knowledge proofs

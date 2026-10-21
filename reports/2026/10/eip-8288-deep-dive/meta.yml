@@ -1,0 +1,27 @@
+title: EIP-8288 深度解析：递归 STARK mempool、AggLayer 对照与递归证明安全之争
+summary: EIP-8288 把验签变成由 mempool 每秒递归聚合的区块“依赖”，当前草案只接受 leanSPHINCS；AggLayer 只共享“证明里验证证明”这一原语，逐链结算且非 PQ；a16z（Justin Thaler）指出的递归安全缺口真实且双方都承认，但已知攻击需自选电路，未见对 8288 的可利用漏洞
+created: 2026-10-21
+updated: 2026-10-21
+domain: crypto
+tags:
+  - eip
+  - post-quantum
+  - zk
+  - security
+  - interop
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/EIP-8288 Deep Dive.md
+am_version: 0.5.2-research.1
+series: post-quantum
+related:
+  - pq-signature-selection
+  - native-aa-eip-8130-8141
+changelog:
+  - date: 2026-10-21
+    note: 创建（brief 快照）
+  - date: 2026-10-21
+    note: 发布：中英文双语版（sol 审查通过）+ 推特卡片（astra-6 审查通过）
+title_en: "EIP-8288 Deep Dive: Recursive STARK Mempools, an AggLayer Comparison, and the Recursion Security Debate"
+summary_en: EIP-8288 turns signature checks into block-level dependencies that the mempool aggregates recursively every second; the current draft accepts only leanSPHINCS. AggLayer shares only the proof-verifies-a-proof primitive, settles per chain and is not PQ. The recursion security gap that a16z's Justin Thaler points to is real and both sides admit it, but known attacks need a chosen circuit and we found no exploitable flaw in 8288.
