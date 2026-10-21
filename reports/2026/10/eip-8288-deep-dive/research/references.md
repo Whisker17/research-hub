@@ -8,3 +8,14 @@
 - `references/decentrek_status_2098392867773509799.md`：https://x.com/decentrek/status/2098392867773509799（Fri Sep 11 12:47:00 +0000 2026，访问于 2026-10-21，fxtwitter API 抓取原文）
 - `references/decentrek_status_2112535053188145367.md`：https://x.com/decentrek/status/2112535053188145367（Tue Oct 20 13:23:00 +0000 2026，访问于 2026-10-21，fxtwitter API 抓取原文）
 - 前文：`reports/2026/10/pq-signature-selection/research/notes-eip.md`、`notes-lattice.md`、`notes-hash.md`（本仓库上一篇的调研，可作线索，需对照最新版本复核）
+- 论文全文（2026-10-21 复核用；eprint.iacr.org 对本机代理出口 IP 永久封禁、直连有 Cloudflare 验证，所以取 Internet Archive 对同一 ePrint 地址的快照；全文只留在本机 /tmp，不提交）：
+  - CGH 1998/011 — https://web.archive.org/web/20260907055556id_/https://eprint.iacr.org/1998/011.pdf
+  - BCCT 2012/095 — https://web.archive.org/web/20260430081709id_/https://eprint.iacr.org/2012/095.pdf
+  - Chiesa–Guan–Samocha–Yogev 2023/1646 — https://web.archive.org/web/20260303031113id_/https://eprint.iacr.org/2023/1646.pdf
+  - Barbara–Chiesa–Guan 2024/728（2025-09-23 修订版）— https://web.archive.org/web/20260928065224id_/https://eprint.iacr.org/2024/728.pdf
+  - KRS 2025/118（2025-12-11 版）— https://web.archive.org/web/20260420163538id_/https://eprint.iacr.org/2025/118.pdf
+  - Maller–Mohnblatt–Zapico 2025/1663 — https://web.archive.org/web/20260111235406id_/https://eprint.iacr.org/2025/1663.pdf
+  - Fenzi 2026/1838（2026-08-30 版）— https://web.archive.org/web/20260907011339id_/https://eprint.iacr.org/2026/1838.pdf
+  - WARP 2025/753 — https://web.archive.org/web/20260608192816id_/https://eprint.iacr.org/2025/753.pdf
+  - Aerie 2026/2501 — https://assets.layerzero.network/pdf/aerie.pdf
+  - 未取得全文：Brzuska–Hubáček–Kalsta（PKC 2026，Aalto/Springer 均有 Cloudflare，无存档）、Arc 2024/1731（无存档）——只核对到摘要/检索摘录

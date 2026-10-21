@@ -23,5 +23,13 @@ changelog:
     note: 创建（brief 快照）
   - date: 2026-10-21
     note: 发布：中英文双语版（sol 审查通过）+ 推特卡片（astra-6 审查通过）
+  - date: 2026-10-21
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-21
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-21
+    note: 重新渲染（answer-me-with-html 0.5.2-research.1）
+  - date: 2026-10-21
+    note: 论文全文复核（9 篇经 Internet Archive 快照）：修订递归安全论断、新增 R49–R67；英文版 sol 与 astra-6 审查通过；推特卡片 astra-6 复审通过
 title_en: "EIP-8288 Deep Dive: Recursive STARK Mempools, an AggLayer Comparison, and the Recursion Security Debate"
 summary_en: EIP-8288 turns signature checks into block-level dependencies that the mempool aggregates recursively every second; the current draft accepts only leanSPHINCS. AggLayer shares only the proof-verifies-a-proof primitive, settles per chain and is not PQ. The recursion security gap that a16z's Justin Thaler points to is real and both sides admit it, but known attacks need a chosen circuit and we found no exploitable flaw in 8288.

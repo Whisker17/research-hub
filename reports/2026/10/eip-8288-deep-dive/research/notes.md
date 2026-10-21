@@ -8,6 +8,7 @@
 | `notes-eip.md`（E） | Q2 愿景 vs 规范 | 机制骨架已写进规范；“任意签名/隐私证明 client-side STARK 化、私有 AA、ISA、不再加预编译、I-star”仍是愿景。tick 500 ms vs 1,000 ms、SPHINCS- vs leanSPHINCS 与规范不一致。 |
 | `notes-eip.md`（E） | Q2' 支持者论点前提 | “证明带宽恒定”只对证明部分成立；“节点越多容量越大”没有分工与激励机制支撑；mode 1 wrapper 的 16 条上限与“一个 wrapper 覆盖全部活跃交易”字面冲突；“验证者只验一个证明”成立。 |
 | `notes-agglayer.md`（G） | Q3 AggLayer | 部分成立：pessimistic proof 程序在 SP1 里 `verify_sp1_proof` 验证 aggchain proof（证明里验证证明）；但是固定一层、逐链逐证书结算、由 trusted aggregator 提交，PLONK/BN254 上链，非 PQ；没有跨主体聚合。 |
+| `notes-papers.md`（R，R49 起） | Q4 论文全文复核 | 8 篇论文全文核对：17 行确认、12 行改写、新增 R49–R66。要改的主要是：Fenzi 的攻击对象包含 Aurora/STIR 型哈希 IOP，“攻击都不针对 FRI 型 STARK”不成立；应说“未见针对固定电路 STARK 递归的攻击”。Aerie 只有经典 ROM 证明，提取损失也未计入参数。ROM 中已有可证明安全的哈希型累积方案（Arc、WARP），但到 IVC/PCD 这一步仍需启发式。 |
 | `notes-recursion.md`（R） | Q4 递归安全 | (a) 理论缺口真实且双方承认：普通 ROM 中递归没有安全证明，相对化路线已被证否，标准提取只撑常数深度，leanVM 形式化把 T6 递归提取列为开放问题；(b) 有对 Fiat–Shamir 的具体攻击（GKR/R1CS 类，需攻击者自选电路），没有对递归本身的已知攻击；(c) 没找到 EIP-8288 的可利用漏洞。 |
 
 ## 资料中被修正的地方（外部调研）

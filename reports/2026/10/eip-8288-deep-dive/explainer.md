@@ -6,15 +6,15 @@ cols: 4
 type: 技术调研 · 机制解析 · 争论梳理 · PQ 专题延伸篇
 audience: 开发者与研究者：懂 EVM，知道 ZK 证明是什么，没跟过 EIP-8288、AggLayer 和递归证明安全性的讨论
 scope: EIP-8288 的设计与草案现状；支持者论点的前提；AggLayer 的证明组合与对比；Justin Thaler（a16z）对递归证明的批评与反方证据
-evidence: 148 条论断台账（三路调研 + 主会话）；EIP 原文 @5a4387b 与提交历史、agglayer 源码 @9f8e6c4、leanVM @3a37fb6、Aerie @49b6c21、SP1 文档、ePrint 论文摘要、四条推文原文；访问于 2026-10-21
+evidence: 166 条论断台账（三路调研 + 论文全文复核 + 主会话）；EIP 原文 @5a4387b 与提交历史、agglayer 源码 @9f8e6c4、leanVM @3a37fb6、Aerie @49b6c21、SP1 文档、9 篇论文全文（ePrint 经 Internet Archive 快照）、四条推文原文；访问于 2026-10-21
 date: 2026-10-21 · v1
 ---
 结论先行，分四点：
 
 1. **EIP-8288 不是新的签名算法。** 它给帧交易加一种“只声明、不执行”的[[依赖帧]]。签名留在链下，mempool 节点每秒把它们递归聚合，区块只带一个 STARK（[F1](#F1)）。当前草案只接受 leanSPHINCS 一种签名（[F4](#F4)）。
 2. **支持者说“节点越多，容量越大”。** 规范里没有分工和激励机制。mode 1 wrapper 还写着最多 16 个签名的上限，和“一个 wrapper 覆盖全部交易”字面冲突（[F6](#F6)）。
-3. **AggLayer 只在一点上相似：** 它在 SP1 里“用证明验证证明”。但它是固定一层、逐链结算，上链用 PLONK/BN254，不是多方递归（[F9](#F9)、[F10](#F10)）。
-4. **Thaler 对递归的批评有文献支持。** 普通随机预言机模型里，递归目前没有已知的安全证明；8288 自己也把它列为信任假设（[F11](#F11)）。但本次核对的实用 Fiat–Shamir 攻击都要求攻击者自选电路或程序，当前草案不允许这样做。本次调研没有找到可利用漏洞（[F12](#F12)、[F13](#F13)）。
+3. **AggLayer 只在一点上相似：** 它在 SP1 里“用证明验证证明”。但它在应用层只有一层直接组合（不算 SP1 内部递归）。它逐链、逐证书结算，上链用 PLONK/BN254，不是多方递归（[F9](#F9)、[F10](#F10)）。
+4. **Thaler 对递归的批评有文献支持。** 8288 设想的是实用、简洁的哈希型递归。这类系统在普通随机预言机模型里目前没有已知安全证明；8288 自己也把它列为信任假设（[F11](#F11)）。但本次核对的 KRS/Fenzi 型攻击，都需要攻击者决定被证明的计算（自造电路，或提交程序）。当前交易规则只接受 leanSPHINCS，用户提交程序的证明不是已启用的功能；聚合伪代码里的 leanSTARK 分支还要等最终电路确认。本次调研没有找到可利用漏洞（[F12](#F12)、[F13](#F13)）。
 
 ## A 三个问题，三个答案 {sheet meta="研究问题"}
 ```tree list
@@ -22,10 +22,10 @@ EIP-8288 是什么 | 给 8141 加依赖帧，区块带一个递归 STARK
   已写进规范 | 依赖帧、wrapper、每秒递归、区块头证明
   还是愿景 | 任意签名 STARK 化、隐私降本、私有 AA、ISA
 AggLayer 像不像 | 只像“证明里验证证明”
-  不同之处 | 固定一层、逐链结算、非 PQ
+  不同之处 | 应用层一层组合、逐链结算、非 PQ
 递归安全吗 | 有理论缺口，没有已知攻击
-  理论 | 普通 ROM 中尚无已知证明；标准提取只撑常数深度
-  攻击 | FS 攻击要自选电路；未见针对 STARK 递归的同类攻击
+  理论 | 实用的简洁递归在普通 ROM 中尚无已知证明；标准提取只撑常数深度
+  攻击 | 所核对的 FS 攻击要攻击者决定被证明的计算；未见这类攻击针对固定电路 STARK 递归
   对 8288 | 未见可利用漏洞；开放 leanSTARK 后要重看
 ```
 
@@ -66,16 +66,16 @@ AggLayer 像不像 | 只像“证明里验证证明”
 ## E 递归之争：三层判断 {sheet span=2 meta="证据强度"}
 | 层次 | 判断 | 主要依据 |
 |---|---|---|
-| 理论模型 | warn 有缺口：普通 ROM 中递归无安全证明 | ePrint 2024/728、BCCT13；8288 与 leanerVM 自己也承认 |
-| 已知攻击 | warn 本次核对的 Fiat–Shamir 攻击都要攻击者自选电路，目标是 GKR 类 | ePrint 2025/118、2026/1838 |
-| 8288 可利用漏洞 | ok 未发现 | 当前递归树里只有协议固定电路 |
+| 理论模型 | warn 有缺口：实用的简洁递归在普通 ROM 中尚无已知安全证明 | ePrint 2024/728、BCCT13；8288 与 leanerVM 自己也承认 |
+| 已知攻击 | warn 所核对的 KRS/Fenzi 型攻击都要攻击者决定被证明的计算；目标是 GKR 类与针对“由程序生成的实例”的 IOP（含 Aurora/STIR 型哈希 IOP）；未见这类攻击针对固定电路 STARK 递归 | ePrint 2025/118、2026/1838 |
+| 8288 可利用漏洞 | ok 未发现 | 交易规则只接受 leanSPHINCS；聚合伪代码的 leanSTARK 分支待最终电路确认 |
 | 工程实现 | warn 其他 zkVM 的递归聚合出过实现 bug | ZisK、SP1 安全公告 |
 
 ## F 时间线 {sheet span=2 meta="2013–2026"}
 ```timeline
 2013 | BCCT13 | 递归提取只撑常数深度
 2024-05 | ePrint 2024/728 | 普通 ROM 中不存在相对化的简洁论证
-2025 | ePrint 2025/118（KRS） | 对 GKR 类 Fiat–Shamir 的具体攻击
+2025 | ePrint 2025/118（KRS，CRYPTO 2025） | 对 GKR 类 Fiat–Shamir 的具体攻击
 2025-02-03 | AggLayer pessimistic proof 上主网 | 证明里验证证明
 2026-09-09 | EIP-8288 合入；Vitalik 发推 | “recursive STARK mempools”
 2026-10-07 至 10-15 | 规范连续修订 | mode 4、gas 改由交易付、并集检查、零 data_hash
@@ -90,7 +90,7 @@ AggLayer 像不像 | 只像“证明里验证证明”
 - 现状：只接受 leanSPHINCS；`AGGREGATED_VK`、`DEPS_HASH`、参考实现都是 TBD；不在 Hegotá（F3、F4）。
 - 支持者论点：“验证者只验一个证明”成立；“证明带宽恒定”只对证明部分成立；“节点越多容量越大”缺少分工、激励和吞吐数据（F5、F6、F7）。
 - AggLayer：只共享“在 SP1 里验证另一份证明”这一原语；逐链结算、trusted aggregator 提交、非 PQ（F9、F10）。
-- 递归之争：理论缺口真实，且双方文本都承认；已知攻击要自选电路；没有找到对 8288 的可利用漏洞；Aerie 同样依赖随机预言机模型（F11–F14）。
+- 递归之争：理论缺口真实，且双方文本都承认；所核对的攻击要攻击者决定被证明的计算；没有找到对 8288 的可利用漏洞；Aerie 同样依赖随机预言机模型（F11–F14）。
 - 从哪里读：机制看 K–M，AggLayer 看 N，递归之争看 O，评估清单看 P。
 ```
 
@@ -191,7 +191,7 @@ deeper: [14] leanVM README “recursion”一节
 what: 交互式证明里，验证者要发随机挑战。Fiat–Shamir 把挑战换成“对到目前为止的记录求哈希”，证明就能离线发送。分析它的安全性时，通常把哈希当成理想的随机黑盒，这就是随机预言机模型（ROM）。
 why: leanVM 声称 ROM / QROM 下的可靠性，Aerie 在经典 ROM 中证明了知识可靠性 [14][17]（R9、R10）。ROM 里各方只能“查询”哈希预言机；普通电路里没有它的具体实现可以计算。递归电路偏偏要计算内层哈希，这是 Thaler 批评的起点 [10]。
 example: 挑战 $c = H(\text{statement}, \text{transcript})$。ROM 假设 $H$ 的输出完全随机；真实系统用 BLAKE2s 或 Poseidon2。
-misconception: 误解：ROM 证明等于真实世界的证明。事实：已有人为构造的方案在 ROM 中安全、换成任何具体哈希都不安全 [24]（R16）。
+misconception: 误解：ROM 证明等于真实世界的证明。事实：CGH 构造出了在 ROM 中安全、换成任何具体哈希都不安全的签名与加密方案 [24]（R16）。2025 年起，针对自然、已部署协议（GKR 类）的同类攻击也出现了 [28]（R17）。
 deeper: [27] ePrint 2024/728 §1
 ```
 
@@ -199,9 +199,9 @@ deeper: [27] ePrint 2024/728 §1
 # 知识可靠性（knowledge soundness）与提取器
 what: 可靠性只要求“假命题过不了验证”。知识可靠性要求更多：证明者只要能让验证者接受，就存在一个“提取器”。提取器能从证明者那里取出见证，例如签名本身。
 why: 签名聚合必须用知识可靠性。“某公钥对某消息存在有效签名”经常本来就是真命题，关键是证明者真的拿到了签名 [17]。递归时，提取器要一层层往下取，开销会叠加 [25]（R28）。
-example: 标准提取器把证明者“倒带”重跑，从不同的挑战里拼出见证。每多一层递归，就要对内层再倒带一次。
+example: 标准模型下，提取器由知识假设保证存在，每层规模多项式膨胀，d 层后约为 $n^{c^d}$ [26]（R29）。straightline 提取器只读证明者的哈希查询记录，不重跑证明者，所以没有这种膨胀。
 misconception: 误解：“提取开销大”等于“有攻击”。事实：它是证明技术的损失，不是攻击成功率（R29）。
-deeper: [26] ePrint 2023/1646 摘要
+deeper: [26] ePrint 2023/1646 §1、§2.1
 ```
 
 ```prereq B-5 l2 3min
@@ -214,7 +214,7 @@ deeper: [26] ePrint 2023/1646
 ## K EIP-8288 怎样工作 {depth=2}
 **它是什么。** EIP-8288 标题是“In-mempool signature and proof aggregation”，作者是 Vitalik Buterin 与 Thomas Coratger，状态 Draft [1]（E1）。2026-09-09 首次合入，到 10-15 共有 10 次提交 [2]（E2）。
 
-图 1 对比“在 EVM 里逐笔验签”和 8288 的做法。
+图 2 对比“在 EVM 里逐笔验签”和 8288 的做法。
 
 ```excalidraw q="8288 把验签的成本从哪里挪到了哪里？" read="上排是今天的直观做法：签名进区块，每个节点在 EVM 里逐笔验。下排是 8288：交易只带 96 B 声明，签名在 mempool 里被递归聚合。红色是被挪走的成本，绿色是全网最终要做的事。" takeaway="8288 没有取消验证，而是让 mempool 节点和 builder 先做重活；全网节点只验一个区块证明。" kind=前后对比
 {"grid": {"w": 270, "h": 120}, "defaults": {"w": 220, "h": 66, "fontSize": 16},
@@ -243,9 +243,9 @@ deeper: [26] ePrint 2023/1646
 
 `data_hash` 写成全零，表示“本交易的签名哈希”。交易不能在帧里写自己的签名哈希，因为这个哈希覆盖了帧数据本身。提取依赖、生成证明时，零字节被替换成签名哈希；帧数据本身不变，`FRAMEDATACOPY` 读出的仍是零。所以 VERIFY 帧检查的是零字节。这条规则是 10-15 才加进规范的 [1][12]（E8、E9）。
 
-图 2 是这笔交易从钱包到区块的完整路径。
+图 3 是这笔交易从钱包到区块的完整路径。
 
-```uml q="Alice 的交易怎样从钱包走到区块？谁在什么时候验证了什么？" read="依据规范的 mempool、FOCIL 与区块有效性章节整理，简化为两跳 mempool。Charlie 的交易没被打包，所以 builder 把它的依赖丢弃。" takeaway="原始签名只在第一跳出现。之后传播的是递归 STARK。验证节点看不到 Alice 的签名，只验一个区块证明，再照常执行账户逻辑。"
+```uml q="Alice 的交易怎样从钱包走到区块？谁在什么时候验证了什么？" read="依据规范的 mempool、FOCIL 与区块有效性章节整理，简化为两跳 mempool。例子里节点收到签名后改用 mode 1 转发，builder 已经有交易正文；规范也允许节点用 mode 0 直接拼接签名转发。Charlie 的交易没被打包，所以 builder 把它的依赖丢弃。" takeaway="在这个例子里，原始签名只在第一跳出现，之后传播的是递归 STARK。验证节点看不到 Alice 的签名，只验一个区块证明，再照常执行账户逻辑。"
 sequenceDiagram
   autonumber
   participant W as Alice 钱包
@@ -311,7 +311,7 @@ implication: 今天能被 8288 原生聚合的只有一种哈希签名。“任�
 3. 其他节点的聚合（按新增交易数）；
 4. 用户交易（按小费）。
 
-图 3 用 Alice、Bob、Charlie 的例子画出一棵聚合树。
+图 4 用 Alice、Bob、Charlie 的例子画出一棵聚合树。
 
 ```excalidraw q="三笔交易的签名，怎样在 mempool 里变成一个区块证明？" read="最上排是原始签名（mode 0）。中排是两个节点各自的递归证明（mode 1）。最下面是 builder 的区块证明。黄色是被丢弃的依赖。" takeaway="区块证明只覆盖被打包的交易。被丢弃的 Charlie 不会让区块无效，因为最终摘要要和区块里的交易对得上。" kind=聚合树
 {"grid": {"w": 250, "h": 125}, "defaults": {"w": 200, "h": 62, "fontSize": 16},
@@ -348,7 +348,7 @@ implication: 讨论带宽时要分开算：证明是常数，交易和依赖列�
 
 ```finding F6 high
 # “节点越多容量越大”缺少分工、激励和吞吐依据；mode 1 上限还与之冲突
-claim: 规范让每个节点都聚合整个活跃池，没有把工作分给不同节点，全文也没有证明激励。规范同时把 mode 1 wrapper 限制在 ≤ 16 个 leanSPHINCS、≤ 1 个 leanSTARK，又要求每轮“exactly one wrapper containing all currently active transactions”，两句字面冲突。EIP-8292 实测的共识层聚合（1,000 个签名）在 2 / 8 / 16 核上分别约 11 / 3.7 / 2.6 s，都超过 1,000 ms 的间隔。
+claim: 规范让每个节点都聚合整个活跃池，没有把工作分给不同节点，全文也没有证明激励。规范同时把 mode 1 wrapper 限制在 ≤ 16 个 leanSPHINCS、≤ 1 个 leanSTARK，又要求每轮“exactly one wrapper containing all currently active transactions”，两句字面冲突。EIP-8292 实测的共识层聚合（1,000 个签名）在 2 / 8 / 16 核上分别约 11 / 3.7 / 2.6 s，都超过 1,000 ms 的间隔；这是 XMSS、单消息的共识层数据，不是 8288 leanSPHINCS mempool 循环的基准，只说明硬件约束。
 evidence: [observed] 规范 L251、L259、L263 与全文 [1]（E18、E19）；EIP-8292 基准 [4]（E42）。[inferred] 冲突与缺少机制（E20、E41）。[speculative] “每秒数万笔 PQ / 隐私交易”没有一手依据（E43）。
 implication: 16 条上限可能是笔误，也可能另有本意；规范和讨论帖都没澄清。在它澄清之前，不能用 8288 草案论证“mempool 扩容”。
 ```
@@ -388,9 +388,9 @@ implication: Vitalik 说的“never need to add more precompiles again”是方�
 ## N AggLayer：相似在哪，不同在哪 {depth=2}
 **AggLayer 是什么。** AggLayer 连接多条链，共用一个统一桥。它的核心组件是 [[pessimistic proof]]。它假设每条接入链都可能出错。所以每次跨链状态更新，都要单独证明“这条链提走的资产没有超过它在桥里的余额”[20]（G13、G14）。PP 自 2025-02-03 起在主网运行 [21]（G36）。
 
-图 4 是一份证书从链到 L1 的路径。
+图 5 是一份证书从链到 L1 的路径。
 
-```uml q="AggLayer 的一份证书怎样变成 L1 上的结算？证明在哪里验证另一份证明？" read="依据 agglayer @9f8e6c4 源码与 Polygon 文档整理。中间的子图是 SP1 程序内部发生的事。" takeaway="“证明里验证证明”只发生在一处：PP 程序验证链方的 aggchain proof。之后每份证书单独上 L1，没有跨链合并。"
+```uml q="AggLayer 的一份证书怎样变成 L1 上的结算？证明在哪里验证另一份证明？" read="依据 agglayer @9f8e6c4 源码与 Polygon 文档整理。中间的子图是 SP1 程序内部发生的事。" takeaway="在所查的 PP 应用层，“证明里验证证明”只发生在一处：PP 程序验证链方的 aggchain proof（不算 SP1 内部的递归）。之后每份证书单独上 L1，没有跨链合并。"
 flowchart TB
   chain["接入链（AggSender）<br/>提交证书：出入桥记录 + 认证"] --> node["AggLayer 节点<br/>先用原生 Rust 执行一遍"]
   node --> sp1
@@ -444,16 +444,16 @@ implication: AggLayer 证明的是跨链账本约束，不是交易签名聚合�
 
 他的核心句子是：“hash-only is not really hash-only: it rests on hashes plus the soundness of deep SNARK recursion”[10]（C4）。同一篇里他也说，区块级聚合“is a powerful design independent of the hash-only vs. lattice debate”，他并不反对 [10]（C5）。
 
-图 5 把递归安全的讨论拆成“模型 → 结论”。
+图 6 把递归安全的讨论拆成“模型 → 结论”。
 
-```excalidraw q="递归证明的安全性，在不同的分析模型下分别知道什么？" read="上排是两种被证明的对象。下排是三种分析方式及其结论。红色表示没有证明或有攻击，蓝色表示有条件的正面结果。" takeaway="单层 Fiat–Shamir 证明在 ROM 中有证明。递归一旦要在电路里算哈希，普通 ROM 就不适用；理想化模型给出正面结果；具体哈希上有攻击，但都要攻击者自选电路。" kind=模型与结论
+```excalidraw q="递归证明的安全性，在不同的分析模型下分别知道什么？" read="上排是两种被证明的对象。下排是三种分析方式及其结论。红色表示没有证明或有攻击，蓝色表示有条件的正面结果。" takeaway="单层 Fiat–Shamir 证明在 ROM 中有证明。递归一旦要在电路里算哈希，普通 ROM 就不适用；理想化模型给出正面结果；具体哈希上有攻击，但所核对的攻击都要攻击者决定被证明的计算。" kind=模型与结论
 {"grid": {"w": 300, "h": 135}, "defaults": {"w": 250, "h": 70, "fontSize": 16},
  "nodes": [
    {"id": "s1", "label": "单层 STARK\nROM 中有安全证明", "col": 0, "row": 0, "dx": 150, "color": "green"},
    {"id": "s2", "label": "递归：电路内\n重算内层 FS 哈希", "col": 1, "row": 0, "dx": 150, "color": "yellow"},
-   {"id": "m1", "label": "普通 ROM：尚无证明\n相对化路线被证否", "col": 0, "row": 1, "color": "red"},
+   {"id": "m1", "label": "简洁递归、普通 ROM：\n尚无已知证明", "col": 0, "row": 1, "color": "red"},
    {"id": "m2", "label": "理想化预言机模型\n几乎无损（启发式）", "col": 1, "row": 1, "color": "blue"},
-   {"id": "m3", "label": "具体哈希：有 FS 攻击\n需攻击者自选电路", "col": 2, "row": 1, "color": "red"}
+   {"id": "m3", "label": "具体哈希：有 FS 攻击\n攻击者需选定计算", "col": 2, "row": 1, "color": "red"}
  ],
  "edges": [
    {"from": "s1", "to": "s2"},
@@ -461,21 +461,21 @@ implication: AggLayer 证明的是跨链账本约束，不是交易签名聚合�
  ]}
 ```
 
-**逐条检验。** 下表把 Thaler 的论点和最强的反驳放在一起（R3–R47）。
+**逐条检验。** 下表把 Thaler 的论点和最强的反驳放在一起（R3–R66）。
 
 | 论点 | 证据 | 最强反驳 | 强度 |
 |---|---|---|---|
 | A：hash-only 还依赖递归可靠性 | 8288 把它列为第 3 条信任假设 | 递归 STARK 已在链上长期运行 | ok 强 |
 | A'：Aerie 单机不递归覆盖一个 slot | 作者自测 645 ms / 32,768 签名 | 只计证明时间，不计签名收集 | warn 中 |
-| B：递归在 ROM 中无法建立安全 | 2024/728：相对化的简洁论证在 ROM 中不存在 | 该文自己写明：非相对化 IVC/PCD 仍是开放问题 | warn 中强，措辞过头 |
-| B'：存在实用的 Fiat–Shamir 攻击 | KRS 2025/118、Fenzi 2026/1838 | 攻击要自选依赖哈希的电路；目标是 GKR / R1CS 类 | ok 强，但未见针对 STARK 递归的同类攻击 |
-| C：提取器随深度膨胀；8288 允许无限深度 | BCCT13；8288 原文 | 膨胀是证明的损失，不是攻击 | ok 强 |
-| D：理想化证明只说明攻击要用具体哈希 | 2023/1646 自称“启发式、部分证据” | 这些证据支持现行参数选择 | warn 中（解读） |
+| B：递归在 ROM 中无法建立安全 | 2024/728：相对化的简洁论证在 ROM 中不存在 | 该文自己写明：非相对化 IVC/PCD 仍是开放问题 | warn 中强，措辞偏强（不可能性未被证明） |
+| B'：存在实用的 Fiat–Shamir 攻击 | KRS 2025/118、Fenzi 2026/1838 | 所核对的攻击要攻击者决定被证明的计算；目标是 GKR 类与针对程序生成实例的 IOP | ok 强，但未见这类攻击针对固定电路 STARK 递归 |
+| C：提取器随深度膨胀；8288 允许无限深度 | BCCT13；2023/1646 §1：损失“exponential in the recursion depth”；8288 原文 | 膨胀是证明的损失，不是攻击 | ok 强 |
+| D：理想化证明只说明攻击要用具体哈希 | 2023/1646 §2.3：要么归约到理想化模型，要么利用具体哈希，后者是开放问题 | 作者称这是现行参数的“partial evidence” | ok 与原文一致 |
 | E：没有已知递归攻击；AI 会加速分析 | Thaler 原话 | — | 前半强，后半推测 |
 | F：leanVM 不是通用 VM；二进制域 SNARK 证明格运算慢 | README 自述“minimal” | leanVM 计划迁到 RISC-V | 前半强；后半是 Thaler 的论断，没有可比基准，推测 |
 | G：隐私链需要公钥加密；Thaler 称仅靠哈希无法以黑盒方式构造它 | Thaler 原话 | 格可以放在应用层的 STARK 里 | 技术前提本次未核实（推测）；系统层结论是价值判断 |
 
-顺带一提：KRS 攻击论文的三位作者中，两位署名 Ethereum Foundation，一位署名 Succinct [28]（R20）。把这场争论说成“Ethereum 忽视问题、a16z 揭露问题”，与研究的实际脉络不符。
+顺带一提：KRS 攻击论文的三位作者中，两位署名 Ethereum Foundation，一位署名 Succinct [28]（R20）。2023/1646 有一位 StarkWare 合著者，它 §2.4 分析的正是用户提交任意程序、深度不受限的递归 STARK [26]（R50）。2025/1663 有两位 EF 作者 [29]（R33）。把这场争论说成“Ethereum 忽视问题、a16z 揭露问题”，与研究的实际脉络不符。
 
 ```finding F11 high
 # 理论缺口真实存在，而且 Ethereum 一方的文本也承认
@@ -485,24 +485,24 @@ implication: “只依赖哈希”的说法确实漏掉了一条假设：递归 
 ```
 
 ```finding F12 high
-# Thaler 的措辞比定理更强：“无法建立”应读作“目前没有证明，最自然的路线已被排除”
-claim: 2024/728 的作者写明，在 ROM 中排除标准（非相对化）IVC 与 PCD 仍是开放问题。另一方面，2023/1646 证明：底层 SNARK 若有 straightline 知识可靠性，PCD 的安全性与底层基本相同；但这只在理想化预言机模型中成立，作者自称是对递归 STARK 参数的“启发式、部分”证据。2025/1663 在 osROM 中证明了多项式深度下的安全，但分析对象是 HyperNova（基于椭圆曲线）。
-evidence: [observed] 2024/728 §1 [27]（R26）；2023/1646 摘要 [26]（R30、R31）；2025/1663 摘要 [29]（R32、R33）。[inferred] Thaler 的说法比定理更强（R27）。
-implication: 支持递归的一方有理论回应，但都需要比 ROM 更强的理想化。“安全归约松”不等于“攻击容易”；“没发现攻击”也不能代替安全归约。
+# Thaler 的说法基本有据，但“无法建立”不等于“已证明不可能”
+claim: 2024/728 的作者写明，在 ROM 中排除标准（非相对化）IVC 与 PCD 仍是开放问题。另一方面，2023/1646 证明：底层 SNARK 若有 straightline 知识可靠性，PCD 的安全性与底层基本相同；但严格证明的对象，是把哈希查询和应答直接附在证明里的非简洁版本；套到真实递归 STARK 上是启发式推断，作者自称“partial evidence”。2025/1663 在 osROM 中证明了多项式深度下的安全，但分析对象是 HyperNova（基于椭圆曲线）。Arc、WARP 在 ROM 中证明了哈希型累积方案的安全，但从累积到 PCD 仍要在电路里计算预言机，需要启发式实例化。
+evidence: [observed] 2024/728 §1 [27]（R26）；2023/1646 Thm 1、§2.3 [26]（R30、R31、R49）；2025/1663 摘要与 §1 [29]（R32、R33）；WARP Thm 1 与 p.63 [38]（R65）。[inferred] Thaler 的说法偏强（R27）；累积到 PCD 仍需启发式（R66）。
+implication: 这些正面结果适用范围不同：2023/1646 在 ROM 中证明的是非简洁递归构造；osROM 结果用的是更强的预言机模型。套到实用的简洁哈希型递归上，仍需额外的启发式一步。“安全归约松”不等于“攻击容易”；“没发现攻击”也不能代替安全归约。
 ```
 
 ```finding F13 high
-# 已知攻击都要攻击者自选电路；当前草案里攻击者做不到，但开放 leanSTARK 后要重看
-claim: KRS 针对一种实用的 GKR 类论证，在任意具体哈希下构造出证明假命题的电路。攻击的关键是电路在内部算出自己的 Fiat–Shamir 挑战。Fenzi 把攻击扩展到 Spartan、Aurora 变体，并给出缓解。这些攻击都不针对 FRI 型 STARK 或递归本身。当前递归树里只有协议固定电路；规范预留了用户自带 VK 的入口，并承认其递归深度可能不受限。
-evidence: [observed] ePrint 2025/118 [28]（R17、R19、R20）；2026/1838 [30]（R18、R21、R22）；EIP-8288 [1]（R7、E14）；Thaler“we don't know of any outright attacks on SNARK recursion”[10]（R38）。[inferred] 攻击需自选电路；当前草案攻击者不能自选程序；未见可利用漏洞（R8、R24、R39）。
-implication: 一旦 `LEANSTARK_SCHEME` 开放，就要回答一个具体问题：攻击者能否提交在内部计算 leanVM Fiat–Shamir 哈希的“自指”程序？我们没有找到回答这个问题的公开分析。
+# 本次核对的 KRS/Fenzi 型攻击需要攻击者选择计算；8288 限制了交易依赖，但树内限制仍待确认
+claim: KRS 针对“GKR 加任意多线性多项式承诺”的论证，在任意具体哈希下构造出证明假命题的电路。关键是电路在内部算出自己的 Fiat–Shamir 挑战。Fenzi 把攻击扩展到针对程序生成实例的 IOP，包括 Aurora/STIR 型哈希 IOP（Merkle 承诺、RS 编码），前提是 Fiat–Shamir 只哈希了程序。我们没有找到这类攻击针对固定电路的 STARK 或递归验证电路的已发表案例。8288 当前交易规则只接受 leanSPHINCS，用户提交程序证明还不是已启用功能；但聚合伪代码仍保留 leanSTARK 分支（VK 由见证提供）和 discards，递归树内部是否也排除任意程序，要等最终电路确认（R67）。规范还承认用户 VK 的递归深度可能不受限。
+evidence: [observed] ePrint 2025/118 Thm 1、2、9 与 §5 [28]（R17、R19、R20、R51–R54）；2026/1838 Thm 2、§7 [30]（R18、R21、R22、R55）；EIP-8288 [1]（R7、E14）；Thaler“we don't know of any outright attacks on SNARK recursion”[10]（R38）。[inferred] 攻击需决定被证明的计算；交易层当前不允许；聚合电路的 leanSTARK 分支待确认；未见可利用漏洞（R8、R24、R39、R67）。
+implication: 开放 `LEANSTARK_SCHEME` 会引入攻击者选择的程序。Fenzi 的攻击是否适用，取决于证明系统怎样生成并绑定被证明的关系（R56）。在该论文分析的“生成关系”设定下，把生成后语句也哈希进首个挑战，就能归约回底层协议可靠性；leanVM 是否这样做，是一个具体的审计项，我们没有找到公开分析。
 ```
 
 ```finding F14 medium
 # Aerie 同样依赖随机预言机模型；两条路线的真正差别是“要不要在电路里证明哈希”
-claim: Aerie 的知识可靠性在经典 ROM 中证明，它也用 Fiat–Shamir。它的 HashToPoint 由验证者在证明之外计算，被证明的计算不包含这一步，也不递归。共用 salt 模式需要一个没有已知标准格假设归约的额外假设。Aerie 是研究发布，两套参数都没通过它自己的生产准入标准。leanVM 同样自述“not (yet) production ready”。
-evidence: [observed] Aerie 论文摘要与 README [17]（R10、R11、R14、R15）；leanVM README [14]（R9）。[inferred] 差别在电路内是否证明 FS 哈希（R12、C9）。
-implication: Thaler 的论点 B 前半句（“所有 PQ SNARK 都靠 ROM”）同样覆盖 Aerie。争论的焦点是“递归”这一条假设，不是“哈希 vs 格”谁更安全。
+claim: Aerie 的知识可靠性在经典 ROM 中证明，它也用 Fiat–Shamir。它的 HashToPoint 由验证者在证明之外计算，被证明的计算不包含这一步，也不递归。共用 salt 模式假设“fixed-target signer”不可伪造（Assumption C.8），作者说不知道有攻击。论文只在经典 ROM 中陈述定理，正文没有 QROM 分析；它自己的提取损失也没计入 Akita 的格参数估计。Aerie 是研究发布；leanVM 同样自述“not (yet) production ready”。
+evidence: [observed] Aerie 论文 Def 5.6、Thm 5.9、§3.2、§6.3 与 README [17]（R10、R11、R14、R15、R57、R58、R60）；leanVM README [14]（R9）。[inferred] 差别在电路内是否证明 FS 哈希（R12、C9）。
+implication: Thaler 的论点 B 前半句（“所有 PQ SNARK 都靠 ROM”）同样覆盖 Aerie。Aerie 目前不能合并彼此独立生成的聚合结果。要支持 leanVM 式分布式聚合，作者给出两个可能扩展：合并 Aerie 证明的方法，或者为它写递归验证器；后者会“reintroduces the heuristic step”。在单个证明者那里收集原始签名，本身不需要递归。争论的焦点是“递归”这一条假设，不是“哈希 vs 格”谁更安全。
 ```
 
 ```finding F15 medium
@@ -512,18 +512,19 @@ evidence: [observed] ZisK 发布说明 GHSA-3j5v-j2rm-9c5f [32]（R40）；SP1 [
 implication: 递归的风险不只在理论。递归电路、空子证明处理、挑战绑定，都是审计重点。
 ```
 
-**还没回答的问题。** Matthew Green 在解读 KRS 时提出一种可能：在多程序递归树里，一个恶意程序的“bugdoor”可能跨程序边界破坏整棵树 [35]。这只是风险类别，没有已知构造（R47，推测）。截至 10-21，我们没有找到 EF、StarkWare 或 leanEthereum 研究者对 Thaler 这篇推文的实质性公开回应（C10，推测）。
+**还没回答的问题。** Matthew Green 在解读 KRS 时提出一种可能：在多程序递归树里，一个恶意程序的“bugdoor”可能跨程序边界破坏整棵树 [35]。对 GKR 类协议，KRS 的 Theorem 2 已经给出单个电路的构造：功能不变，却能证明任意输出（R52）。跨程序破坏整棵递归树，仍没有已知构造（R47，推测）。截至 10-21，我们没有找到 EF、StarkWare 或 leanEthereum 研究者对 Thaler 这篇推文的实质性公开回应（C10，推测）。
 
 ## P 怎样评估这类方案 {depth=2}
 以下是从调研推出的评估清单，不是对任何项目的建议。
 
-```callout info 评估“递归聚合”方案时，问这六个问题
+```callout info 评估“递归聚合”方案时，问这七个问题
 1. **递归深度有没有上界？** 8288 没有；leanVM 没有递减的深度度量（R6、R35）。
-2. **攻击者能不能把自选程序放进递归树？** 8288 当前不能；开放 leanSTARK 后能（R8、F13）。
+2. **攻击者能不能把自选程序放进递归树？** 8288 的交易规则当前不允许；聚合电路是否在树内也排除，要等最终电路确认；开放 leanSTARK 后能（R8、R67、F13）。
 3. **安全位数是在哪个模型下算的？** ROM 还是 QROM，单层还是含递归（E44、E45、R9）。
 4. **最终验收路径是否全程抗量子？** 内层 STARK 加外层 BN254 包装就不是（G26）。
 5. **谁出算力，谁能审查？** 8288 没有证明激励；AggLayer 由 trusted aggregator 提交（E41、G19）。
 6. **证明了“已纳入的都有效”，还是也证明了“该纳入的都纳入”？**（E37）
+7. **如果系统使用程序生成的关系，Fiat–Shamir 首个挑战是否哈希了生成后语句？** 这是 Fenzi 给出的可证明缓解（R22、R56）。
 ```
 
 **对两种立场的判断（推论）。**
@@ -533,7 +534,8 @@ implication: 递归的风险不只在理论。递归电路、空子证明处理�
 
 ## Q 局限与开放问题 {depth=2}
 - **没有复现**：所有基准都是作者自报，本次没有运行。
-- **论文只核对到摘要**：ePrint 对本机全文抓取返回 403。论文论断只核对到摘要和少量 PDF 片段；主定理的编号和适用条件没有逐条读原文。
+- **论文的核对深度**：ePrint 对本机直接抓取返回 403，全文改从 Internet Archive 对同一地址的快照取得。核对了主定理、引言与作者讨论，长证明附录没有逐行读。Brzuska–Hubáček–Kalsta（PKC 2026）与 Arc 只核对到摘要。
+- **leanVM 的 Fiat–Shamir 绑定**：首个挑战是否哈希了生成后的语句，没有读源码核实（R56）。
 - **mode 1 的 16 条上限**是笔误还是本意？规范和讨论帖都没澄清（E19、E20）。
 - **单节点吞吐**：普通硬件每 1,000 ms 能证明多少 leanSPHINCS，builder 合并 N 个子证明的成本曲线，都没有数据。
 - **安全位数口径冲突**：leanVM README 写 128 / 64 位，EIP-8292 写约 124 / 62 位（E45）。
@@ -547,17 +549,17 @@ implication: 递归的风险不只在理论。递归电路、空子证明处理�
 - EIP 原文、提交历史与 Ethereum Magicians、ethresear.ch 讨论；
 - agglayer 源码与 L1 合约、Polygon 与 SP1 文档；
 - leanVM、Aerie 仓库与 leanerVM 形式化文档；
-- ePrint 论文摘要与 PDF 片段；
+- 9 篇论文全文（ePrint 经 Internet Archive 快照；Aerie 用 LayerZero 托管的 PDF），另有 2 篇只核对到摘要；
 - 四条推文原文（经 fxtwitter API 取得原文与 UTC 时间）。
 
-台账 148 行（observed 111 / inferred 27 / speculative 10），分册见 `research/notes-*.md`。递归分路首次运行因连接错误失败，重新派发后完成。
+台账 166 行（observed 127 / inferred 29 / speculative 10），分册见 `research/notes-*.md`；论文全文复核见 `notes-papers.md`。递归分路首次运行因连接错误失败，重新派发后完成。
 
 **固定版本。**
 - ethereum/EIPs @`5a4387b`（eip-8288.md 最后修改 `72ca2dd`，2026-10-15）。
 - agglayer/agglayer @`9f8e6c4`（2026-10-19）；AgglayerManager.sol @`1c00e15`。
 - leanEthereum/leanVM @`3a37fb6`；a16z/aerie @`49b6c21`；leanerVM docs @`28bbeb9`。
 
-**主会话抽查。** E19、G1、G17、G23、G25、G28、G29、R26、R34、R35 与来源原文一致。
+**主会话抽查。** E19、G1、G17、G23、G25、G28、G29、R26、R34、R35 与来源原文一致。论文相关的 R 行（R16–R33、R49–R66）在 2026-10-21 按全文复核过一轮，定理与页码见 `notes-papers.md`。
 
 **对外部调研（GPT）的修正。**
 - 推文原文已取得；外部调研称未能读取。
@@ -658,3 +660,4 @@ PLONK 包装 | STARK→SNARK wrap | 把 STARK 再证明成 BN254 上的小 SNARK
 35. [Matthew Green：How to prove false statements? (Part 1)](https://blog.cryptographyengineering.com/2025/02/04/how-to-prove-false-statements-part-1) — 对 KRS 的解读。
 36. 上一篇：[《后量子签名选型》](/p/pq-signature-selection/) — 哈希与格签名原理、基准口径。
 37. ChatGPT Deep Research 结果（`research/eip-8288-deep-dive.md`）— 只作线索。
+38. [Bünz, Chiesa, Fenzi, Wang, ePrint 2025/753（WARP）](https://eprint.iacr.org/2025/753) 与 [Arc, ePrint 2024/1731](https://eprint.iacr.org/2024/1731) — ROM 中可证明安全的哈希型累积方案。**PRIMARY**

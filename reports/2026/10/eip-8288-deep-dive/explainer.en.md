@@ -7,15 +7,15 @@ cols: 4
 type: Technical research · Mechanism · Debate review · PQ series follow-up
 audience: Developers and researchers who know the EVM and what a ZK proof is, but have not followed EIP-8288, AggLayer or the debate on recursive proof security
 scope: EIP-8288 design and draft status; the premises behind supporters' claims; AggLayer's proof composition and a comparison; Justin Thaler's (a16z) critique of recursion and the evidence on each side
-evidence: 148-row claim ledger (three research lanes plus the main session); EIP text @5a4387b and commit history, agglayer source @9f8e6c4, leanVM @3a37fb6, Aerie @49b6c21, SP1 docs, ePrint abstracts, original text of four posts on X; accessed 2026-10-21
+evidence: 166-row claim ledger (three research lanes, a full-text paper review, and the main session); EIP text @5a4387b and commit history, agglayer source @9f8e6c4, leanVM @3a37fb6, Aerie @49b6c21, SP1 docs, full text of 9 papers (ePrint via Internet Archive snapshots), original text of four posts on X; accessed 2026-10-21
 date: 2026-10-21 · v1
 ---
 The conclusions first, in four points:
 
 1. **EIP-8288 is not a new signature scheme.** It adds a [[dependency frame]] to frame transactions. The frame declares claims and runs no code. Signatures stay off-chain, mempool nodes aggregate them recursively every second, and the block carries one STARK ([F1](#F1)). The current draft accepts only one scheme, leanSPHINCS ([F4](#F4)).
 2. **Supporters say "more nodes means more capacity".** The spec has no work split and no incentives. It also caps a mode 1 wrapper at 16 signatures, which conflicts with "one wrapper covers every active transaction" ([F6](#F6)).
-3. **AggLayer is similar in one way only:** it verifies one SP1 proof inside another. But it is a single fixed layer, it settles chain by chain, and it posts PLONK/BN254 proofs to L1. It is not multi-party recursion ([F9](#F9), [F10](#F10)).
-4. **The literature supports Thaler's critique of recursion.** Recursion has no known security proof in the plain random oracle model. 8288 itself lists it as a trust assumption ([F11](#F11)). But the practical Fiat–Shamir attacks reviewed here need a circuit or program the attacker chooses. The current draft does not allow that. We found no exploitable flaw ([F12](#F12), [F13](#F13)).
+3. **AggLayer is similar in one way only:** it verifies one SP1 proof inside another. But it has one direct composition layer at the application level (not counting SP1's internal recursion). It settles per certificate and posts PLONK/BN254 proofs to L1. It is not multi-party recursion ([F9](#F9), [F10](#F10)).
+4. **The literature supports Thaler's critique of recursion.** No one has a plain random-oracle security proof for practical succinct hash-based recursion like 8288's. 8288 itself lists it as a trust assumption ([F11](#F11)). But the KRS/Fenzi-style attacks reviewed here need the attacker to choose the proved computation (a circuit or a program). Today's transaction rules accept only leanSPHINCS, so user-program proofs are not an enabled feature; a leanSTARK branch in the aggregation pseudocode still needs confirmation in the final circuit. We found no exploitable flaw ([F12](#F12), [F13](#F13)).
 
 ## A Three questions, three answers {sheet meta="Research questions"}
 ```tree list
@@ -23,10 +23,10 @@ What is EIP-8288 | Dependency frames on 8141; the block carries one recursive ST
   In the spec | dependency frames, wrappers, 1 s recursion, header proof
   Still a vision | wrap any scheme in a STARK, cheap privacy, private AA, ISA
 Is AggLayer similar | Only in "a proof verifies a proof"
-  Differences | one fixed layer, per-chain settlement, not PQ
+  Differences | one application-level layer, per-certificate settlement, not PQ
 Is recursion safe | Theory gap, no known attack
-  Theory | no known proof in the plain ROM; standard extraction covers constant depth only
-  Attacks | FS attacks need a chosen circuit; none found against STARK recursion
+  Theory | no known plain-ROM proof for practical succinct recursion; standard extraction covers constant depth only
+  Attacks | the FS attacks reviewed need the attacker to choose the proved computation; none of this kind found against fixed-circuit STARK recursion
   For 8288 | no exploitable flaw found; revisit once leanSTARK opens
 ```
 
@@ -67,16 +67,16 @@ Is recursion safe | Theory gap, no known attack
 ## E Recursion debate: three layers {sheet span=2 meta="Strength of evidence"}
 | Layer | Finding | Main evidence |
 |---|---|---|
-| Theory | warn gap: no known recursion security proof in the plain ROM | ePrint 2024/728, BCCT13; 8288 and leanerVM admit it too |
-| Known attacks | warn the Fiat–Shamir attacks reviewed here need a chosen circuit and target GKR-style protocols | ePrint 2025/118, 2026/1838 |
-| Exploitable flaw in 8288 | ok none found | today the recursion tree holds only the protocol's fixed circuit |
+| Theory | warn gap: no known plain-ROM security proof for practical succinct recursion | ePrint 2024/728, BCCT13; 8288 and leanerVM admit it too |
+| Known attacks | warn the KRS/Fenzi-style attacks reviewed need the attacker to choose the proved computation; targets are GKR-style protocols and IOPs for program-generated instances (incl. Aurora/STIR-type hash IOPs); none of this kind found against fixed-circuit STARK recursion | ePrint 2025/118, 2026/1838 |
+| Exploitable flaw in 8288 | ok none found | tx rules accept only leanSPHINCS; the pseudocode's leanSTARK branch awaits the final circuit |
 | Implementation | warn other zkVMs shipped recursive-aggregation bugs | ZisK, SP1 advisories |
 
 ## F Timeline {sheet span=2 meta="2013–2026"}
 ```timeline
 2013 | BCCT13 | recursive extraction covers constant depth only
 2024-05 | ePrint 2024/728 | relativized succinct arguments do not exist in the plain ROM
-2025 | ePrint 2025/118 (KRS) | concrete attack on Fiat–Shamir for GKR-style protocols
+2025 | ePrint 2025/118 (KRS, CRYPTO 2025) | concrete attack on Fiat–Shamir for GKR-style protocols
 2025-02-03 | AggLayer pessimistic proofs on mainnet | a proof verifies a proof
 2026-09-09 | EIP-8288 merged; Vitalik posts | "recursive STARK mempools"
 2026-10-07 to 10-15 | spec revisions | mode 4, gas paid by the tx, union check, zero data_hash
@@ -91,7 +91,7 @@ Is recursion safe | Theory gap, no known attack
 - Status: leanSPHINCS only; `AGGREGATED_VK`, `DEPS_HASH` and the reference implementation are TBD; not in Hegotá (F3, F4).
 - Supporters' claims: "validators verify one proof" holds; "constant proof bandwidth" holds for the proof part only; "more nodes, more capacity" lacks a work split, incentives and throughput data (F5, F6, F7).
 - AggLayer: shares only the primitive of verifying an SP1 proof inside another; settles chain by chain, submitted by a trusted aggregator, not PQ (F9, F10).
-- Recursion: the theory gap is real and both sides' texts admit it; known attacks need a chosen circuit; no exploitable flaw in 8288 found; Aerie also relies on the random oracle model (F11–F14).
+- Recursion: the theory gap is real and both sides' texts admit it; the attacks reviewed need the attacker to choose the proved computation; no exploitable flaw in 8288 found; Aerie also relies on the random oracle model (F11–F14).
 - Where to read: mechanism in K–M, AggLayer in N, the recursion debate in O, the checklist in P.
 ```
 
@@ -192,7 +192,7 @@ deeper: [14] leanVM README, "recursion" section
 what: In an interactive proof, the verifier sends random challenges. Fiat–Shamir replaces each challenge with a hash of the transcript so far, so the prover can send the proof offline. Security proofs usually treat that hash as an ideal random black box. This is the random oracle model (ROM).
 why: leanVM claims ROM/QROM soundness; Aerie proves knowledge soundness in the classical ROM [14][17] (R9, R10). In the ROM, parties can query the hash oracle, but an ordinary circuit has no concrete implementation of it to evaluate. A recursive circuit must compute the inner hash, and Thaler's critique starts here [10].
 example: The challenge is $c = H(\text{statement}, \text{transcript})$. The ROM assumes the output of $H$ is fully random; real systems use BLAKE2s or Poseidon2.
-misconception: Myth: a ROM proof is a real-world proof. Fact: researchers built contrived schemes that are secure in the ROM and insecure with any concrete hash [24] (R16).
+misconception: Myth: a ROM proof is a real-world proof. Fact: CGH built signature and encryption schemes that are secure in the ROM and insecure with any concrete hash [24] (R16). Since 2025, similar attacks also hit natural, deployed protocols of the GKR type [28] (R17).
 deeper: [27] ePrint 2024/728 §1
 ```
 
@@ -200,9 +200,9 @@ deeper: [27] ePrint 2024/728 §1
 # Knowledge soundness and extractors
 what: Soundness only says a false statement cannot pass. Knowledge soundness asks for more: if a prover can make the verifier accept, an "extractor" exists. The extractor can pull the witness, such as the signature itself, out of that prover.
 why: Signature aggregation needs knowledge soundness. "A valid signature exists for this key and message" is often simply true; what matters is that the prover has the signature [17]. Under recursion, the extractor must dig down layer by layer, and the cost adds up [25] (R28).
-example: A standard extractor rewinds the prover and reruns it, then combines answers to different challenges into a witness. Each extra recursion layer means rewinding the inner layer again.
+example: In the standard model, a knowledge assumption gives the extractor, and its size grows polynomially per layer: about $n^{c^d}$ after d layers [26] (R29). A straightline extractor reads the prover's hash queries without rerunning it, so it avoids this blowup.
 misconception: Myth: a costly extractor means an attack. Fact: it is a loss in the proof technique, not an attack success rate (R29).
-deeper: [26] ePrint 2023/1646 abstract
+deeper: [26] ePrint 2023/1646 §1, §2.1
 ```
 
 ```prereq B-5 l2 3min
@@ -215,7 +215,7 @@ deeper: [26] ePrint 2023/1646
 ## K How EIP-8288 works {depth=2}
 **What it is.** The title of EIP-8288 is "In-mempool signature and proof aggregation". Its authors are Vitalik Buterin and Thomas Coratger, and its status is Draft [1] (E1). It was first merged on 2026-09-09 and had 10 commits by 10-15 [2] (E2).
 
-Fig 1 compares "verify each signature in the EVM" with the 8288 approach.
+Fig 2 compares "verify each signature in the EVM" with the 8288 approach.
 
 ```excalidraw q="Where does 8288 move the cost of signature verification?" read="The top row is today's direct approach: signatures go into the block and every node verifies each one in the EVM. The bottom row is 8288: txs carry only 96 B claims, and the mempool aggregates the signatures recursively. Red is the cost that moves; green is what the whole network still does." takeaway="8288 does not remove verification. Mempool nodes and the builder do the heavy work first; every node then verifies one block proof." kind="Before and after"
 {"grid": {"w": 270, "h": 120}, "defaults": {"w": 220, "h": 66, "fontSize": 16},
@@ -244,9 +244,9 @@ frame 2  SENDER: send 1 ETH to Bob
 
 An all-zero `data_hash` means "this tx's signature hash". A tx cannot write its own signature hash into a frame, because that hash covers the frame data. Dependency extraction swaps in the signature hash for proving. The frame bytes do not change, and `FRAMEDATACOPY` still returns zeros, so the VERIFY frame checks for zero bytes. The spec added this rule on 10-15 [1][12] (E8, E9).
 
-Fig 2 shows the full path of this tx from wallet to block.
+Fig 3 shows the full path of this tx from wallet to block.
 
-```uml q="How does Alice's tx get from her wallet into a block, and who verifies what, when?" read="Built from the spec's mempool, FOCIL and block validity sections, simplified to two mempool nodes. Charlie's tx is not included, so the builder discards its dependency." takeaway="Raw signatures appear only on the first hop. After that, recursive STARKs travel. Validating nodes never see Alice's signature: they verify one block proof, then run the account logic as usual."
+```uml q="How does Alice's tx get from her wallet into a block, and who verifies what, when?" read="Built from the spec's mempool, FOCIL and block validity sections, simplified to two mempool nodes. In this example, nodes switch to mode 1 after receiving the signatures, and the builder already has the tx bodies; the spec also permits mode 0 rebroadcasts. Charlie's tx is not included, so the builder discards its dependency." takeaway="In this example, raw signatures appear only on the first hop; after that, recursive STARKs travel. Validating nodes never see Alice's signature: they verify one block proof, then run the account logic as usual."
 sequenceDiagram
   autonumber
   participant W as Alice wallet
@@ -312,7 +312,7 @@ implication: Today 8288 can natively aggregate only one hash-based signature sch
 3. other nodes' aggregates (by the number of new txs they add);
 4. user txs (by priority fee).
 
-Fig 3 draws one aggregation tree for Alice, Bob and Charlie.
+Fig 4 draws one aggregation tree for Alice, Bob and Charlie.
 
 ```excalidraw q="How do three txs' signatures become one block proof in the mempool?" read="The top row is raw signatures (mode 0). The middle row is each node's recursive proof (mode 1). The bottom is the builder's block proof. Yellow is the discarded dependency." takeaway="The block proof covers only the included txs. Discarding Charlie does not make the block invalid, because the final digest must match the txs in the block." kind="Aggregation tree"
 {"grid": {"w": 250, "h": 125}, "defaults": {"w": 200, "h": 62, "fontSize": 16},
@@ -349,7 +349,7 @@ implication: Count bandwidth in two parts: the proof is constant; txs and depend
 
 ```finding F6 high
 # "More nodes, more capacity" lacks a work split, incentives and throughput data, and the mode 1 cap conflicts with it
-claim: The spec has every node aggregate the whole active pool, with no split of work across nodes and no proving incentive anywhere. It caps a mode 1 wrapper at ≤ 16 leanSPHINCS and ≤ 1 leanSTARK dependencies. It also requires "exactly one wrapper containing all currently active transactions" per round. Read literally, the two rules conflict. EIP-8292's consensus-layer benchmark aggregates 1,000 signatures in about 11 / 3.7 / 2.6 s on 2 / 8 / 16 cores. All three exceed the 1,000 ms interval.
+claim: The spec has every node aggregate the whole active pool, with no split of work across nodes and no proving incentive anywhere. It caps a mode 1 wrapper at ≤ 16 leanSPHINCS and ≤ 1 leanSTARK dependencies. It also requires "exactly one wrapper containing all currently active transactions" per round. Read literally, the two rules conflict. EIP-8292's consensus-layer benchmark aggregates 1,000 signatures in about 11 / 3.7 / 2.6 s on 2 / 8 / 16 cores. All three exceed the 1,000 ms interval. These are single-message XMSS consensus-layer numbers, not a benchmark of 8288's leanSPHINCS mempool loop; they only show a hardware constraint.
 evidence: [observed] spec L251, L259, L263 and full text [1] (E18, E19); EIP-8292 benchmark [4] (E42). [inferred] the conflict and the missing mechanism (E20, E41). [speculative] "tens of thousands of PQ and private txs per second" has no primary source (E43).
 implication: The 16 cap may be a typo or may mean something else; neither the spec nor the forum thread says. Until the authors clarify it, the 8288 draft cannot support a "mempool scaling" argument.
 ```
@@ -389,9 +389,9 @@ implication: Vitalik's "never need to add more precompiles again" is a direction
 ## N AggLayer: what is similar, what is not {depth=2}
 **What AggLayer is.** AggLayer connects many chains through one unified bridge. Its core component is the [[pessimistic proof]]. It assumes any connected chain can fail. So for each cross-chain state update, it proves that the chain took out no more than its balance in the bridge [20] (G13, G14). Pessimistic proofs have run on mainnet since 2025-02-03 [21] (G36).
 
-Fig 4 shows how one certificate gets from a chain to L1.
+Fig 5 shows how one certificate gets from a chain to L1.
 
-```uml q="How does an AggLayer certificate become an L1 settlement, and where does one proof verify another?" read="Built from agglayer @9f8e6c4 source and Polygon docs. The middle subgraph is what happens inside the SP1 program." takeaway="A proof verifies another proof in one place only: the PP program verifies the chain's aggchain proof. Each certificate then goes to L1 on its own, with no cross-chain merge."
+```uml q="How does an AggLayer certificate become an L1 settlement, and where does one proof verify another?" read="Built from agglayer @9f8e6c4 source and Polygon docs. The middle subgraph is what happens inside the SP1 program." takeaway="In the inspected PP application, a proof verifies another proof in one place only: the PP program verifies the chain's aggchain proof (SP1's internal recursion not counted). Each certificate then goes to L1 on its own, with no cross-chain merge."
 flowchart TB
   chain["Connected chain (AggSender)<br/>submits certificate: bridge exits + auth"] --> node["AggLayer node<br/>runs it in native Rust first"]
   node --> sp1
@@ -445,16 +445,16 @@ Among the systems we compared, none writes recursive aggregation into L1 block v
 
 His core sentence: "hash-only is not really hash-only: it rests on hashes plus the soundness of deep SNARK recursion" [10] (C4). In the same post he calls block-level aggregation "a powerful design independent of the hash-only vs. lattice debate". He does not oppose it [10] (C5).
 
-Fig 5 splits the recursion debate into "model → result".
+Fig 6 splits the recursion debate into "model → result".
 
-```excalidraw q="What do we know about recursive proof security under each analysis model?" read="The top row is the two things being proven. The bottom row is three kinds of analysis and their results. Red means no proof or a known attack; blue means a conditional positive result." takeaway="A single-layer Fiat–Shamir proof has a ROM security proof. Once recursion must compute the hash inside a circuit, the plain ROM no longer applies. Idealized models give positive results; concrete hashes have attacks, but all need a chosen circuit." kind="Model and result"
+```excalidraw q="What do we know about recursive proof security under each analysis model?" read="The top row is the two things being proven. The bottom row is three kinds of analysis and their results. Red means no proof or a known attack; blue means a conditional positive result." takeaway="A single-layer Fiat–Shamir proof has a ROM security proof. Once recursion must compute the hash inside a circuit, the plain ROM no longer applies. Idealized models give positive results; concrete hashes have attacks, but the ones reviewed need the attacker to choose the proved computation." kind="Model and result"
 {"grid": {"w": 300, "h": 135}, "defaults": {"w": 250, "h": 70, "fontSize": 16},
  "nodes": [
    {"id": "s1", "label": "Single-layer STARK\nhas a ROM proof", "col": 0, "row": 0, "dx": 150, "color": "green"},
    {"id": "s2", "label": "Recursion: circuit\nrecomputes inner FS hash", "col": 1, "row": 0, "dx": 150, "color": "yellow"},
-   {"id": "m1", "label": "Plain ROM: no known proof;\nrelativized route out", "col": 0, "row": 1, "color": "red"},
+   {"id": "m1", "label": "Succinct, plain ROM:\nno known proof", "col": 0, "row": 1, "color": "red"},
    {"id": "m2", "label": "Idealized models:\nnear-zero loss (heuristic)", "col": 1, "row": 1, "color": "blue"},
-   {"id": "m3", "label": "Concrete hash: attacks\nneed a chosen circuit", "col": 2, "row": 1, "color": "red"}
+   {"id": "m3", "label": "Concrete hash: attacks\npick the computation", "col": 2, "row": 1, "color": "red"}
  ],
  "edges": [
    {"from": "s1", "to": "s2"},
@@ -462,21 +462,21 @@ Fig 5 splits the recursion debate into "model → result".
  ]}
 ```
 
-**Point by point.** The table puts Thaler's points next to the strongest rebuttal (R3–R47).
+**Point by point.** The table puts Thaler's points next to the strongest rebuttal (R3–R66).
 
 | Point | Evidence | Strongest rebuttal | Strength |
 |---|---|---|---|
 | A: hash-only also rests on recursion soundness | 8288 lists it as trust assumption 3 | recursive STARKs have run on-chain for years | ok strong |
 | A': Aerie covers a slot on one machine, no recursion | author benchmark: 645 ms for 32,768 signatures | counts proving time only, not signature collection | warn medium |
-| B: recursion security cannot be established in the ROM | 2024/728: relativized succinct arguments do not exist in the ROM | the same paper says non-relativized IVC/PCD is still open | warn medium-strong, overstated |
-| B': practical Fiat–Shamir attacks exist | KRS 2025/118, Fenzi 2026/1838 | they need a chosen hash-dependent circuit and target GKR / R1CS-style protocols | ok strong, but none found against STARK recursion |
-| C: extractor cost grows with depth; 8288 allows unlimited depth | BCCT13; 8288 text | the blowup is a proof loss, not an attack | ok strong |
-| D: idealized proofs only say an attack must use the concrete hash | 2023/1646 calls itself "heuristic, partial evidence" | that evidence supports current parameter choices | warn medium (reading) |
+| B: recursion security cannot be established in the ROM | 2024/728: relativized succinct arguments do not exist in the ROM | the same paper says non-relativized IVC/PCD is still open | warn medium-strong, worded too strongly (impossibility not proven) |
+| B': practical Fiat–Shamir attacks exist | KRS 2025/118, Fenzi 2026/1838 | the attacks reviewed need the attacker to choose the proved computation; targets are GKR-style protocols and IOPs for program-generated instances | ok strong, but none of this kind found against fixed-circuit STARK recursion |
+| C: extractor cost grows with depth; 8288 allows unlimited depth | BCCT13; 2023/1646 §1: loss "exponential in the recursion depth"; 8288 text | the blowup is a proof loss, not an attack | ok strong |
+| D: idealized proofs only say an attack must use the concrete hash | 2023/1646 §2.3: an attack either reduces to the idealized model or exploits the concrete hash, and the latter is open | the authors call this "partial evidence" for current parameters | ok matches the source |
 | E: no known attack on recursion; AI will speed up cryptanalysis | Thaler's own words | — | first half strong, second speculative |
 | F: leanVM is not general purpose; binary-field SNARKs are slow at proving lattice arithmetic | README says "minimal" | leanVM plans to move to RISC-V | first half strong; second is Thaler's claim with no comparable benchmark checked (speculative) |
 | G: privacy chains need PKE; Thaler says hashes alone cannot provide it black-box | Thaler's own words | lattices can live inside an app-level STARK | technical premise not checked here (speculative); the system-level conclusion is a judgment |
 
-Of the three authors of the KRS attack paper, two list Ethereum Foundation and one lists Succinct [28] (R20). Framing the debate as "Ethereum ignores the problem and a16z exposes it" does not match who did the research.
+Of the three authors of the KRS attack paper, two list Ethereum Foundation and one lists Succinct [28] (R20). 2023/1646 has a StarkWare co-author, and its §2.4 analyzes exactly the recursive STARK where users submit any program with unbounded depth [26] (R50). 2025/1663 has two EF authors [29] (R33). Framing the debate as "Ethereum ignores the problem and a16z exposes it" does not match who did the research.
 
 ```finding F11 high
 # The theory gap is real, and texts on the Ethereum side admit it
@@ -486,24 +486,24 @@ implication: "Hash-only" does leave out one assumption: the soundness of recursi
 ```
 
 ```finding F12 high
-# Thaler's wording is stronger than the theorem: "cannot be established" should read "no proof today, and the most natural route is ruled out"
-claim: The authors of 2024/728 write that ruling out standard (non-relativized) IVC and PCD in the ROM remains open. On the other side, 2023/1646 proves that if the base SNARK has straightline knowledge soundness, PCD is about as secure as the base. That holds only in an idealized oracle model, and the authors call it "heuristic, partial" evidence for recursive STARK parameters. 2025/1663 proves security at polynomial depth in the osROM, but it analyzes HyperNova, which uses elliptic curves.
-evidence: [observed] 2024/728 §1 [27] (R26); 2023/1646 abstract [26] (R30, R31); 2025/1663 abstract [29] (R32, R33). [inferred] Thaler's claim is stronger than the theorem (R27).
-implication: The recursion side has theoretical answers, but all of them need idealization beyond the ROM. A loose reduction does not mean an easy attack, and "no attack found" does not replace a reduction.
+# Thaler's claim is broadly supported, but "cannot be established" is not the same as "proven impossible"
+claim: The authors of 2024/728 write that ruling out standard (non-relativized) IVC and PCD in the ROM remains open. On the other side, 2023/1646 proves that if the base SNARK has straightline knowledge soundness, PCD is about as secure as the base. But the object it proves rigorously is a non-succinct version that attaches the hash queries and answers to the proof. Applying it to real recursive STARKs is a heuristic step; the authors call it "partial evidence". 2025/1663 proves security at polynomial depth in the osROM, but it analyzes HyperNova, which uses elliptic curves. Arc and WARP prove hash-based accumulation schemes secure in the ROM. But the step to PCD still evaluates the oracle inside a circuit, which needs a heuristic.
+evidence: [observed] 2024/728 §1 [27] (R26); 2023/1646 Thm 1, §2.3 [26] (R30, R31, R49); 2025/1663 abstract and §1 [29] (R32, R33); WARP Thm 1 and p.63 [38] (R65). [inferred] Thaler's wording is too strong (R27); accumulation-to-PCD still needs a heuristic (R66).
+implication: The positive results have different scopes: 2023/1646 proves a non-succinct recursive construction secure in the ROM, while osROM results use a stronger oracle model. Applying them to practical succinct hash-based recursion still needs an extra heuristic. A loose reduction does not mean an easy attack, and "no attack found" does not replace a reduction.
 ```
 
 ```finding F13 high
-# Known attacks need the attacker to choose the circuit; the current draft does not allow that, but opening leanSTARK changes this
-claim: KRS builds, for a practical GKR-style argument and any concrete hash, a circuit that proves a false statement. The key is that the circuit computes its own Fiat–Shamir challenge. Fenzi extends the attack to Spartan and Aurora variants and gives a mitigation. None of these attacks targets FRI-style STARKs or recursion itself. Today the recursion tree holds only the protocol's fixed circuit. The spec reserves an entry for user-supplied VKs and admits they may recurse without a depth bound.
-evidence: [observed] ePrint 2025/118 [28] (R17, R19, R20); 2026/1838 [30] (R18, R21, R22); EIP-8288 [1] (R7, E14); Thaler: "we don't know of any outright attacks on SNARK recursion" [10] (R38). [inferred] the attacks need a chosen circuit; attackers cannot choose programs in the current draft; no exploitable flaw found (R8, R24, R39).
-implication: Once `LEANSTARK_SCHEME` opens, one concrete question needs an answer: can an attacker submit a self-referential program that computes leanVM's Fiat–Shamir hash inside itself? We found no public analysis that answers this question.
+# The reviewed KRS/Fenzi-style attacks require attacker-chosen computation; 8288 restricts transaction dependencies, but the tree-wide restriction remains unresolved
+claim: For GKR with any multilinear polynomial commitment scheme and any concrete hash, KRS builds a circuit that proves a false statement. The key is that the circuit computes its own Fiat–Shamir challenge. Fenzi extends the attack to IOPs for program-generated instances, including Aurora/STIR-type hash IOPs. The condition: Fiat–Shamir hashes only the program. We found no published attack of this kind against a fixed-circuit STARK or a recursive verifier. Today's 8288 transaction rules accept only leanSPHINCS, so user-program proofs are not an enabled feature. But the aggregation pseudocode keeps a leanSTARK branch (VK from the witness) and discards. Whether the tree also excludes arbitrary programs awaits the final circuit (R67). The spec also admits user VKs may recurse without a depth bound.
+evidence: [observed] ePrint 2025/118 Thm 1, 2, 9 and §5 [28] (R17, R19, R20, R51–R54); 2026/1838 Thm 2, §7 [30] (R18, R21, R22, R55); EIP-8288 [1] (R7, E14); Thaler: "we don't know of any outright attacks on SNARK recursion" [10] (R38). [inferred] the attacks need the attacker to choose the proved computation; tx rules do not allow that today; the circuit's leanSTARK branch awaits confirmation; no exploitable flaw found (R8, R24, R39, R67).
+implication: Opening `LEANSTARK_SCHEME` would introduce attacker-chosen programs. Whether Fenzi's attack applies depends on how the proof system generates and binds the proved relation (R56). In the generated-relation setting that paper analyzes, hashing the generated statement into the first challenge reduces soundness to that of the underlying protocol. Whether leanVM does this is a concrete audit item; we found no public analysis of it.
 ```
 
 ```finding F14 medium
 # Aerie also relies on the random oracle model; the real difference is whether the circuit must prove a hash
-claim: Aerie proves knowledge soundness in the classical ROM and also uses Fiat–Shamir. The verifier computes HashToPoint outside the proof, so the proved computation does not evaluate HashToPoint and does not recurse. The common-salt mode needs an extra assumption with no known reduction to a standard lattice assumption. Aerie is a research release, and neither parameter set passes its own production criteria. leanVM also says it is "not (yet) production ready".
-evidence: [observed] Aerie paper abstract and README [17] (R10, R11, R14, R15); leanVM README [14] (R9). [inferred] the difference is whether the circuit proves the FS hash (R12, C9).
-implication: The first half of Thaler's point B ("all PQ SNARKs rely on the ROM") also covers Aerie. The debate centers on one assumption, recursion, not on whether hashes or lattices are safer.
+claim: Aerie proves knowledge soundness in the classical ROM and also uses Fiat–Shamir. The verifier computes HashToPoint outside the proof, so the proved computation does not evaluate HashToPoint and does not recurse. The common-salt mode assumes a "fixed-target signer" is unforgeable (Assumption C.8); the authors know of no attack. The theorem holds in the classical ROM; the main text has no QROM analysis. Akita's parameter estimates leave out the paper's own extraction loss. Aerie is a research release; leanVM also says it is "not (yet) production ready".
+evidence: [observed] Aerie paper Def 5.6, Thm 5.9, §3.2, §6.3 and README [17] (R10, R11, R14, R15, R57, R58, R60); leanVM README [14] (R9). [inferred] the difference is whether the circuit proves the FS hash (R12, C9).
+implication: The first half of Thaler's point B ("all PQ SNARKs rely on the ROM") also covers Aerie. Aerie currently cannot merge independently produced aggregates. For a leanVM-style distributed design, its authors name two possible extensions: a way to merge Aerie proofs, or a recursive verifier for them; the second "reintroduces the heuristic step". Collecting raw signatures at one prover does not itself need recursion. The debate centers on one assumption, recursion, not on whether hashes or lattices are safer.
 ```
 
 ```finding F15 medium
@@ -513,18 +513,19 @@ evidence: [observed] ZisK release notes GHSA-3j5v-j2rm-9c5f [32] (R40); SP1 [GHS
 implication: Recursion risk is not only theoretical. Recursive circuits, empty child proofs and challenge binding are all audit priorities.
 ```
 
-**Open points.** Matthew Green raises a possibility in his post on KRS [35]. In a multi-program recursion tree, one malicious program's "bugdoor" might cross program boundaries and break the whole tree. This is a risk category with no known construction (R47, speculative). As of 10-21, we found no substantive public response to Thaler's post from EF, StarkWare or leanEthereum researchers (C10, speculative).
+**Open points.** Matthew Green raises a possibility in his post on KRS [35]. In a multi-program recursion tree, one malicious program's "bugdoor" might cross program boundaries and break the whole tree. For GKR-style protocols, KRS Theorem 2 already builds a single circuit that keeps its function yet proves any output (R52). Breaking a whole multi-program tree still has no known construction (R47, speculative). As of 10-21, we found no substantive public response to Thaler's post from EF, StarkWare or leanEthereum researchers (C10, speculative).
 
 ## P How to evaluate designs like this {depth=2}
 This checklist follows from the research. It is not advice to any project.
 
-```callout info Six questions for any recursive-aggregation design
+```callout info Seven questions for any recursive-aggregation design
 1. **Is recursion depth bounded?** 8288: no. leanVM has no decreasing depth measure (R6, R35).
-2. **Can an attacker put a chosen program into the recursion tree?** 8288 today: no. After leanSTARK opens: yes (R8, F13).
+2. **Can an attacker put a chosen program into the recursion tree?** 8288's tx rules do not allow it today; whether the circuit also excludes it awaits the final circuit; after leanSTARK opens: yes (R8, R67, F13).
 3. **Under which model are the security bits computed?** ROM or QROM, one layer or with recursion (E44, E45, R9).
 4. **Is the final verification path quantum-resistant end to end?** An inner STARK with an outer BN254 wrap is not (G26).
 5. **Who pays for proving, and who can censor?** 8288 has no proving incentive; in AggLayer, a trusted aggregator submits settlements (E41, G19).
 6. **Does it prove "everything included is valid", or also "nothing valid was left out"?** (E37)
+7. **If the system uses a program-generated relation, does the first Fiat–Shamir challenge hash the generated statement?** This is Fenzi's provable mitigation (R22, R56).
 ```
 
 **On the two positions (inferred).**
@@ -534,7 +535,8 @@ This checklist follows from the research. It is not advice to any project.
 
 ## Q Limits and open questions {depth=2}
 - **No reproduction**: all benchmarks are self-reported by their authors; we ran none.
-- **Papers checked at abstract level**: ePrint returned 403 for full-text fetches from our machine. We checked paper claims against abstracts and short PDF excerpts only, not theorem by theorem.
+- **Depth of the paper check**: ePrint returned 403 to our machine, so we took the full text from Internet Archive snapshots of the same URLs. We checked main theorems, introductions and the authors' discussion, not every line of the long proof appendices. We checked Brzuska–Hubáček–Kalsta (PKC 2026) and Arc at abstract level only.
+- **leanVM's Fiat–Shamir binding**: we did not read the source to see whether the first challenge hashes the generated statement (R56).
 - **The mode 1 cap of 16**: a typo or intended? Neither the spec nor the forum thread says (E19, E20).
 - **Per-node throughput**: we found no data on how many leanSPHINCS signatures normal hardware proves per 1,000 ms. We also found no cost curve for a builder that merges N child proofs.
 - **Conflicting security numbers**: the leanVM README says 128 / 64 bits; EIP-8292 says about 124 / 62 bits (E45).
@@ -548,17 +550,17 @@ This checklist follows from the research. It is not advice to any project.
 - EIP text, commit history, and the Ethereum Magicians and ethresear.ch threads;
 - agglayer source and L1 contract, Polygon and SP1 docs;
 - leanVM and Aerie repos and the leanerVM formal-verification docs;
-- ePrint abstracts and PDF excerpts;
+- the full text of 9 papers (ePrint via Internet Archive snapshots; Aerie from the LayerZero-hosted PDF), plus 2 papers at abstract level;
 - the original text of four posts on X (fetched with UTC times through the fxtwitter API).
 
-The ledger has 148 rows (observed 111 / inferred 27 / speculative 10); lane notes are in `research/notes-*.md`. The recursion lane failed once on a connection error and finished after a relaunch.
+The ledger has 166 rows (observed 127 / inferred 29 / speculative 10); lane notes are in `research/notes-*.md`, and the full-text paper review is in `notes-papers.md`. The recursion lane failed once on a connection error and finished after a relaunch.
 
 **Pinned versions.**
 - ethereum/EIPs @`5a4387b` (eip-8288.md last changed in `72ca2dd`, 2026-10-15).
 - agglayer/agglayer @`9f8e6c4` (2026-10-19); AgglayerManager.sol @`1c00e15`.
 - leanEthereum/leanVM @`3a37fb6`; a16z/aerie @`49b6c21`; leanerVM docs @`28bbeb9`.
 
-**Main-session spot checks.** E19, G1, G17, G23, G25, G28, G29, R26, R34 and R35 match their sources.
+**Main-session spot checks.** E19, G1, G17, G23, G25, G28, G29, R26, R34 and R35 match their sources. On 2026-10-21 we rechecked the paper-based R rows (R16–R33, R49–R66) against full text; theorems and pages are in `notes-papers.md`.
 
 **Corrections to the external research (GPT).**
 - We have the posts' original text; the external research said it could not read them.
@@ -659,3 +661,4 @@ PLONK wrap | STARK→SNARK wrap | Re-proves a STARK as a small SNARK over BN254 
 35. [Matthew Green: How to prove false statements? (Part 1)](https://blog.cryptographyengineering.com/2025/02/04/how-to-prove-false-statements-part-1) — a reading of KRS.
 36. Previous page: [Choosing Post-Quantum Signatures](/p/pq-signature-selection/en/) — how hash and lattice signatures work, how to read the benchmarks.
 37. ChatGPT Deep Research output (`research/eip-8288-deep-dive.md`) — leads only.
+38. [Bünz, Chiesa, Fenzi, Wang, ePrint 2025/753 (WARP)](https://eprint.iacr.org/2025/753) and [Arc, ePrint 2024/1731](https://eprint.iacr.org/2024/1731) — hash-based accumulation schemes proven secure in the ROM. **PRIMARY**

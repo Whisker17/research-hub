@@ -1,7 +1,7 @@
 # Tweet card (English only): pnpm rh card eip-8288-deep-dive -> card.png
 # Neutral researcher tone; avoids cardAvoidTerms.
 # Ledger basis: title R37, R38, R39; background E3, E11, E13, E18; context C4;
-# figure R25, R28, R37 (theory), R17, R24 (attacks), R7, R8, R39 (draft today);
+# figure R25, R28, R37 (theory), R17, R21, R24 (attacks), R7, R8, R39 (draft today);
 # findings E19, E20 (mode 1 cap of 16 vs one wrapper); E6, E33 (leanSTARK reserved);
 # takeaway R3, R37, R39; tweet also uses E4, E24, R34, R20, R12, G1, G15, G21, G26.
 quote: https://x.com/SuccinctJT/status/2112706944548880442
@@ -14,7 +14,7 @@ figure:
     defaults: { fontSize: 20 }
     nodes:
       - { id: t, label: "No proof known\nin the plain ROM", x: 0, y: 36, w: 180, h: 84, color: red }
-      - { id: a, label: "Attacker picks\nthe circuit", x: 195, y: 36, w: 180, h: 84, color: yellow }
+      - { id: a, label: "Attacker picks\nwhat is proved", x: 195, y: 36, w: 180, h: 84, color: yellow }
       - { id: d, label: "Fixed circuit,\nno flaw found", x: 390, y: 36, w: 180, h: 84, color: green }
     texts:
       - { x: 4, y: 0, text: "Theory", fontSize: 21, color: red }
@@ -31,9 +31,9 @@ tweet: |-
 
   How to read the figure:
   • Theory: ePrint 2024/728 rules out relativized succinct arguments in the ROM; leanVM's formal-verification project (leanerVM) leaves recursive extraction open.
-  • Known attacks (KRS, 2025/118) target GKR-style protocols and require attacker-chosen circuits; no matching attack on FRI-style STARK recursion was found.
+  • Known attacks (KRS 2025/118, Fenzi 2026/1838) need the attacker to choose what is proved, a circuit or a program. We found none against fixed-circuit STARK recursion.
   • Draft today: leanSPHINCS only, so the recursion tree holds only the protocol's fixed circuit.
 
   Two details: the draft caps a mode 1 wrapper at 16 signatures, yet one wrapper must cover all active txs. And the draft's client-side wrapper route needs leanSTARK (0x11), still reserved.
 
-  Caveat: lattice SNARKs like Aerie also rely on the ROM.
+  Caveat: lattice SNARKs like Aerie also rely on the (classical) ROM.
