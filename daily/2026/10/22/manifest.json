@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "date": "2026-10-22",
+  "status": "complete",
+  "reasons": [],
+  "window": {
+    "from": "2026-10-21T00:00:00.000Z",
+    "to": "2026-10-22T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2113095236327236061",
+    "posted_at": "2026-10-22T02:28:58.000Z"
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "ok",
+      "items": 18,
+      "calls": 19,
+      "covered": null,
+      "error": null
+    },
+    {
+      "id": "blockbeats",
+      "status": "failed",
+      "items": 53,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-21T00:00:00.000Z",
+        "to": "2026-10-21T09:29:20.677Z"
+      },
+      "error": "http: HTTP 500"
+    },
+    {
+      "id": "odaily",
+      "status": "ok",
+      "items": 111,
+      "calls": 4,
+      "covered": {
+        "from": "2026-10-21T00:00:00.000Z",
+        "to": "2026-10-22T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "ethresearch",
+      "status": "ok",
+      "items": 1,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-21T00:00:00.000Z",
+        "to": "2026-10-22T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "magicians",
+      "status": "ok",
+      "items": 5,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-21T00:00:00.000Z",
+        "to": "2026-10-22T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "theblock",
+      "status": "ok",
+      "items": 11,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-21T00:00:00.000Z",
+        "to": "2026-10-22T00:00:00.000Z"
+      },
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 199,
+    "cited_items": 15,
+    "topics": 6,
+    "dropped": 1,
+    "warnings": 0
+  },
+  "dropped": [
+    {
+      "topic": 3,
+      "reason": "verbatim"
+    }
+  ],
+  "generator": {
+    "skill_version": "daily-topics/1.0.0+e67bab7de412",
+    "model": "claude-sonnet-5-5",
+    "inputs_sha256": "9b3e0b5cfb2abe166b2042d27b3eb53b4dbd7a1dd15f39b0f18e3d34acb8a235"
+  },
+  "run": {
+    "id": "39756088680",
+    "attempt": 1,
+    "at": "2026-10-22T09:32:18.520Z"
+  },
+  "generated_at": "2026-10-22T09:32:18.520Z",
+  "updated_at": "2026-10-22T09:32:18.520Z"
+}

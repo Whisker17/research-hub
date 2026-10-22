@@ -1,0 +1,326 @@
+schema: 1
+date: 2026-10-22
+topics:
+  - id: 2026-10-22-f65773
+    title: Solana Alpenglow 主网上线：Votor 投票与证书机制如何改变最终性与验证者成本
+    title_en: "Solana Alpenglow on mainnet: how Votor voting and certificates change finality and validator costs"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - solana
+      - consensus
+    why_now: 10 月 21 日，多家媒体报道 Solana 的 Alpenglow 升级在约 13:54 UTC 切换到主网，取代 TowerBFT。第一阶段的 Votor 以验证者直接投票加证书的方式确认交易，后续阶段的 Rotor 计划取代 Turbine 的区块数据分发。报道还称，逐笔链上投票费改为每个 epoch 固定收取 0.8 SOL 的准入费用，并提到此前经历过多次测试网重启和一次迁移回滚。各来源对升级前最终性时间的数字不一致（6.6 秒与 12.8 秒），目标值均为约 150 毫秒。
+    questions:
+      - Votor 的一轮与两轮确认路径在什么条件下分别触发？对网络分区和拜占庭验证者比例的容忍度与 TowerBFT 相比有何差别？
+      - 投票移出链上、改为固定准入费后，验证者的实际成本与小型验证者的参与门槛发生了什么变化？
+      - 上线后一段时间内，实测的最终性时间和出块表现与 150 毫秒的目标差距有多大？
+    angle: 对照 Alpenglow 的公开规范和 Agave 客户端实现，梳理 Votor、Rotor 各阶段的协议行为；再用主网上线后的最终性与投票数据核对报道中的数字，并与以太坊的单时隙最终性路线做对比。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: odaily:526352
+        type: secondary
+      - item_id: theblock:421508
+        type: secondary
+      - item_id: odaily:526218
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: high
+  - id: 2026-10-22-fb5454
+    title: EIP-8037 与 EIP-8038 的 gas 重新定价：对已部署合约与隐私应用的影响
+    title_en: "Gas repricing in EIP-8037 and EIP-8038: effects on deployed contracts and privacy applications"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - gas-repricing
+      - privacy
+    why_now: 10 月 21 日，pcaversaccio 在 X 上提出，这两份 EIP 即使不改合约字节码，也可能让依赖原有 gas 成本的合约行为改变，迫使其升级，并认为对 Tornado Cash、Railgun 这类隐私应用的成本影响没有被充分分析。lightclients 回应称，核心开发者已判断隐私流量受到的负面影响不是优先事项，但 gas 上限提到 2 亿后费用可能与今天持平。nero_eth 则指出 gas 用量只反映一半情况，基础费率反映的是需求与容量之比，供给扩大约 3.5 倍后绝对成本可能下降。以上均为个人陈述，需要用数据核对。
+    questions:
+      - 这两份 EIP 具体改动了哪些操作码或状态写入的 gas 成本？哪些已部署合约的行为会因此改变？
+      - 隐私协议每次使用要写入的状态（承诺、nullifier）在新定价下成本变化多少？在 gas 上限抬升后，净成本是上升还是下降？
+      - 硬分叉强制合约升级的风险，在以往的 gas 重新定价（如 EIP-1884、EIP-2929）中有哪些先例？
+    angle: 阅读两份 EIP 的规范与讨论串，按隐私协议的典型交易路径估算 gas 变化；对照 chain_security 相关文章、ACD 会议记录，以及基础费率随容量变化的历史数据。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2112884438065725451
+        type: secondary
+      - item_id: ethtao:2112896376782963023
+        type: secondary
+      - item_id: ethtao:2112905153808417235
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: medium
+  - id: 2026-10-22-cd6edb
+    title: 代币化股票的链上交易与抵押化：Base 的 24/7 交易、币安保证金接入与 DEX 成交量
+    title_en: "Tokenized equities on-chain: 24/7 trading on Base, exchange collateral adoption and DEX volume"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - tokenized-assets
+      - rwa
+    why_now: 10 月 21 日，Base 官方账号称 Tesla 与 Meta 的代币化股票在财报公布后继续在 Base 上全天候交易。同日币安公告，将 5 种 bStocks 代币加入全仓杠杆、组合保证金的合格抵押资产，并开放对应的杠杆交易对。ARK Invest 的第三季度 DeFi 报告称，代币化股票现货 DEX 成交量约 500 亿美元，约为上一季度的 9 倍，占现货 DEX 成交量的约 9%。三处材料各自说明代币化股票在交易时段、抵押用途和成交规模上的变化。
+    questions:
+      - 代币化股票在休市时段的价格由什么形成？与标的股票的价差和收敛机制在财报等事件前后表现如何？
+      - 作为保证金抵押品时，托管、赎回与发行方信用风险如何传导？币安对这类资产设定了哪些折算率和限制？
+      - ARK 报告中的成交量增长有多少来自真实的现货换手，有多少来自永续合约或激励带来的交易？
+    angle: 对比发行方的托管与赎回条款、币安公告中的抵押规则，以及 ARK 报告的统计口径；再用链上数据核对 Base 上相关代币的流动性与休市期间的价差。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2113009938658361446
+        type: primary
+        note: Base 官方账号对链上代币化股票交易情况的陈述
+      - item_id: odaily:526188
+        type: secondary
+      - item_id: odaily:526347
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: medium
+  - id: 2026-10-22-c782a7
+    title: 美国受监管的加密永续合约：Webull 经 Kalshi 上线与 Lighter 的 DCM、DCO 申请
+    title_en: "Regulated crypto perpetuals in the US: Webull via Kalshi and Lighter's DCM and DCO applications"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - perpetuals
+      - cftc
+    why_now: 据华尔街日报报道，Webull 计划 11 月起向符合条件的美国客户提供加密永续合约，先从比特币开始，合约在受 CFTC 监管的 Kalshi 挂牌并由其清算机构清算。10 月 21 日，Lighter 的创始人在投资者会议上表示，计划 11 月向 CFTC 申请指定合约市场和衍生品清算组织牌照，监管审查期最长 280 天。另有 Mizuho 对 600 多名 Robinhood 用户的调查，称 94% 愿意交易个股永续合约，多数为新增资金。以上说法多来自单一来源，需要用一手文件核对。
+    questions:
+      - 永续合约在 CFTC 的框架下以什么法律形式存在？它的资金费率、清算与保证金规则与离岸交易所有何不同？
+      - 链上撮合与清算的平台要满足 DCM、DCO 的哪些要求？Lighter 披露的前期沟通涉及哪些具体问题？
+      - 受监管的永续合约对美国用户的杠杆倍数、可交易标的和强平机制有哪些限制？
+    angle: 对照 CFTC 对 DCM、DCO 的申请要求与现有产品的备案文件，比较 Kalshi 清算机构的保证金模型与主流离岸永续的做法，再看后续实际上线的合约规格。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: odaily:526111
+        type: secondary
+      - item_id: odaily:526454
+        type: discussion
+        note: 未注明外部来源的快讯，仅用于补充 Lighter 的申请计划
+      - item_id: theblock:421639
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: low
+  - id: 2026-10-22-796504
+    title: 加密 ETF 的实物申购扩展：灰度 10 只产品的 in-kind 机制与质押型 ETF 的运作
+    title_en: "In-kind subscriptions expand across crypto ETFs: Grayscale's ten products and how staking ETFs operate"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - etf
+      - custody
+    why_now: 10 月 21 日，灰度宣布实物申购覆盖 10 只产品，包括比特币迷你信托、以太坊质押迷你 ETF，以及 Avalanche、Chainlink、Dogecoin、Hyperliquid、Solana、Sui、XRP、Zcash 相关产品。投资者可以直接交付符合条件的代币来换取份额，而无需先卖出换成现金。灰度称这能减少自行托管负担、降低潜在的执行成本，The Block 也报道了这一扩展。
+    questions:
+      - 实物申购在流程上如何完成？授权参与者、托管方和发行方之间的代币转移与记账是怎样安排的？
+      - 对质押型产品，投入的代币在质押期、退出队列和赎回之间如何衔接？
+      - 实物申购对份额溢价折价与套利效率的影响，在已开放的产品中有无可观测的数据？
+    angle: 阅读灰度各产品的招募文件与申购赎回条款，对比已采用实物机制的其他 ETF 的运作和溢价数据，再整理其对质押和托管流程的约束。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: odaily:526334
+        type: secondary
+      - item_id: theblock:421559
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: low
+  - id: 2026-10-22-64e1b8
+    title: SEACAST：以太坊广播层的可执行规范与形式化模型
+    title_en: "SEACAST: a broadcast design for Ethereum with an executable specification and a formal model"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - p2p-networking
+      - formal-verification
+    why_now: 10 月 21 日 UTC 15:48，ethresear.ch 出现一篇题为 SEACAST 的帖子，标题称它是面向以太坊的快速精简广播方案，并附带可执行规范和形式化模型。帖子摘录为空，具体机制、性能数据与对比对象输入里都没有，需要以原文为准。
+    questions:
+      - 该方案要解决现有 gossip 或区块、blob 传播中的什么具体瓶颈？
+      - 可执行规范与形式化模型各自验证了哪些性质？在多大规模的网络下做过评估？
+    angle: 通读帖子和附带的规范，对照当前 libp2p gossipsub 以及以太坊 DAS 相关的传播方案，核对带宽、延迟与安全假设，并查看社区反馈。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethresearch:26167
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: low
+items:
+  ethresearch:26167:
+    source: ethresearch
+    url: https://ethresear.ch/t/seacast-fast-lean-broadcast-for-ethereum-with-an-executable-spec-and-a-formal-model/26167
+    origin_url: null
+    title: "SEACAST: fast, lean broadcast for Ethereum, with an executable spec and a formal model"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T15:48:38.293Z
+    fetched_at: 2026-10-22T09:32:28.153Z
+    incomplete: false
+  ethtao:2112884438065725451:
+    source: ethtao
+    url: https://x.com/pcaversaccio/status/2112884438065725451
+    origin_url: null
+    title: null
+    author: pcaversaccio
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2113095236327236061
+    published_at: 2026-10-21T12:31:20.000Z
+    fetched_at: 2026-10-22T09:32:21.617Z
+    incomplete: false
+  ethtao:2112896376782963023:
+    source: ethtao
+    url: https://x.com/lightclients/status/2112896376782963023
+    origin_url: null
+    title: null
+    author: lightclients
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2113095236327236061
+    published_at: 2026-10-21T13:18:46.000Z
+    fetched_at: 2026-10-22T09:32:21.775Z
+    incomplete: false
+  ethtao:2112905153808417235:
+    source: ethtao
+    url: https://x.com/nero_eth/status/2112905153808417235
+    origin_url: null
+    title: null
+    author: nero_eth
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2113095236327236061
+    published_at: 2026-10-21T13:53:39.000Z
+    fetched_at: 2026-10-22T09:32:22.108Z
+    incomplete: false
+  ethtao:2113009938658361446:
+    source: ethtao
+    url: https://x.com/base/status/2113009938658361446
+    origin_url: null
+    title: null
+    author: base
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2113095236327236061
+    published_at: 2026-10-21T20:50:01.000Z
+    fetched_at: 2026-10-22T09:32:23.641Z
+    incomplete: false
+  odaily:526111:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/526111
+    origin_url: https://www.wsj.com/finance/commodities-futures/webull-to-offer-perpetual-futures-starting-next-month-32a82d44
+    title: Webull拟11月向美国客户开放加密永续合约，首批覆盖比特币
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T00:22:22.000Z
+    fetched_at: 2026-10-21T09:29:27.918Z
+    incomplete: false
+  odaily:526188:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/526188
+    origin_url: https://www.binance.com/zh-CN/support/announcement/3afa938f499d403382d01d0c0644507e
+    title: 币安将于10月21日新增5种bStocks代币作为保证金抵押资产
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T03:31:42.000Z
+    fetched_at: 2026-10-21T09:29:27.704Z
+    incomplete: false
+  odaily:526218:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/526218
+    origin_url: https://www.coindesk.com/tech/2026/10/21/solana-s-alpenglow-its-biggest-network-overhaul-since-2020-goes-live-wednesday
+    title: Solana即将启动Alpenglow升级，交易最终确认时间目标缩短至150毫秒
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T05:15:10.000Z
+    fetched_at: 2026-10-21T09:29:27.704Z
+    incomplete: false
+  odaily:526334:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/526334
+    origin_url: https://x.com/Grayscale/status/2112892428554490173
+    title: 灰度旗下10只加密资产产品支持实物申购，涵盖BTC、ETH、SOL等
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T13:12:16.000Z
+    fetched_at: 2026-10-22T09:32:26.648Z
+    incomplete: false
+  odaily:526347:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/526347
+    origin_url: https://www.ark-invest.com/crypto-reports/defi-quarterly-q3-2026
+    title: ARK Invest三季度DeFi报告：股票代币化交易升温，永续合约DEX未平仓量增76%
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T13:45:31.000Z
+    fetched_at: 2026-10-22T09:32:26.648Z
+    incomplete: false
+  odaily:526352:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/526352
+    origin_url: https://cointelegraph.com/news/solanas-alpenglow-launches-mainnet-99-faster-finality/
+    title: Solana Alpenglow上线主网，目标将交易最终性时间缩短99%
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T14:03:51.000Z
+    fetched_at: 2026-10-22T09:32:26.648Z
+    incomplete: false
+  odaily:526454:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/526454
+    origin_url: null
+    title: Lighter计划下月申请美国衍生品交易及清算牌照，LIT 24小时涨幅一度达15%
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T23:55:59.000Z
+    fetched_at: 2026-10-22T09:32:26.648Z
+    incomplete: false
+  theblock:421508:
+    source: theblock
+    url: https://www.theblock.co/news/ecosystems/2026-10-21-anzas-alpenglow-goes-live-on-solana-cutting-finality-to-150-milliseconds-421508
+    origin_url: null
+    title: Anza’s Alpenglow goes live on Solana, cutting finality to 150 milliseconds
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T14:24:39.000Z
+    fetched_at: 2026-10-22T09:32:29.037Z
+    incomplete: false
+  theblock:421559:
+    source: theblock
+    url: https://www.theblock.co/news/markets/2026-10-21-grayscale-expands-in-kind-subscriptions-10-crypto-etfs-421559
+    origin_url: null
+    title: Grayscale expands in-kind subscriptions to 10 crypto ETFs and trusts
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T15:12:00.000Z
+    fetched_at: 2026-10-22T09:32:29.037Z
+    incomplete: false
+  theblock:421639:
+    source: theblock
+    url: https://www.theblock.co/news/business/2026-10-21-robinhood-single-stock-perpetual-futures-mizuho-survey-421639
+    origin_url: null
+    title: Robinhood single-stock perps could be a ‘strong positive’ for HOOD shares, Mizuho says
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-21T18:54:36.000Z
+    fetched_at: 2026-10-22T09:32:29.037Z
+    incomplete: false
