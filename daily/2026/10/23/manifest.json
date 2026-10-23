@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "date": "2026-10-23",
+  "status": "pending",
+  "reasons": [
+    "digest_fetch_failed"
+  ],
+  "window": {
+    "from": "2026-10-22T00:00:00.000Z",
+    "to": "2026-10-23T00:00:00.000Z"
+  },
+  "digest": {
+    "status": "fetch_failed",
+    "url": null,
+    "posted_at": null
+  },
+  "sources": [
+    {
+      "id": "ethtao",
+      "status": "failed",
+      "items": 0,
+      "calls": 3,
+      "covered": null,
+      "error": "Ethtao_Ethtao: http: HTTP 404"
+    },
+    {
+      "id": "blockbeats",
+      "status": "ok",
+      "items": 123,
+      "calls": 4,
+      "covered": {
+        "from": "2026-10-22T00:00:00.000Z",
+        "to": "2026-10-23T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "odaily",
+      "status": "ok",
+      "items": 89,
+      "calls": 3,
+      "covered": {
+        "from": "2026-10-22T00:00:00.000Z",
+        "to": "2026-10-23T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "ethresearch",
+      "status": "ok",
+      "items": 2,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-22T00:00:00.000Z",
+        "to": "2026-10-23T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "magicians",
+      "status": "ok",
+      "items": 5,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-22T00:00:00.000Z",
+        "to": "2026-10-23T00:00:00.000Z"
+      },
+      "error": null
+    },
+    {
+      "id": "theblock",
+      "status": "ok",
+      "items": 12,
+      "calls": 1,
+      "covered": {
+        "from": "2026-10-22T00:00:00.000Z",
+        "to": "2026-10-23T00:00:00.000Z"
+      },
+      "error": null
+    }
+  ],
+  "counts": {
+    "items": 231,
+    "cited_items": 0,
+    "topics": 0,
+    "dropped": 0,
+    "warnings": 0
+  },
+  "dropped": [],
+  "generator": null,
+  "run": {
+    "id": "39931958416",
+    "attempt": 1,
+    "at": "2026-10-23T09:28:00.754Z"
+  },
+  "generated_at": null,
+  "updated_at": "2026-10-23T09:28:00.754Z"
+}
