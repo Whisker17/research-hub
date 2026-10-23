@@ -1,0 +1,386 @@
+schema: 1
+date: 2026-10-23
+topics:
+  - id: 2026-10-23-b66b26
+    title: Hoodi 上 Glamsterdam 分叉推迟：EIP-8037 与 EIP-8038 的 gas 重新定价存在哪些规范缺陷
+    title_en: "Glamsterdam delayed on Hoodi: what specification flaws surfaced in the EIP-8037 and EIP-8038 gas repricing"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - glamsterdam
+      - gas-repricing
+    why_now: 10 月 22 日的 ACDE 通话上，核心开发者决定推迟 Hoodi 测试网的 Glamsterdam 硬分叉，原因是 EIP-8037 与 EIP-8038 的 gas 重新定价在规范上有漏洞，需要进一步调查。据帖子称，这可能把主网的 Glamsterdam 推到 2027 年。此前（10 月 20 日）的说法是 Hoodi 分叉定在 10 月 26 日，10 月 21 日社区也在讨论这两份 EIP 对已部署合约和隐私应用的影响，新进展是官方宣布延期并指向规范问题。
+    questions:
+      - 公告所说的规范漏洞具体出在哪些操作码或状态写入的定价上？各客户端是如何发现的？
+      - 延期后 gas 上限提升、区块级访问列表等其他升级内容的排期会受到什么影响？
+    angle: 对照以太坊基金会的延期公告、两份 EIP 的规范文本与 ACD 会议记录，还原问题的时间线，并比较以往 gas 重新定价（如 EIP-2929）遇到的测试网问题。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethtao:2113327089306988960
+        type: primary
+        note: 作者发帖陈述当天 ACDE 通话上的决定，并附以太坊基金会博客的延期公告
+    evidence:
+      independent_sources: 1
+    confidence: medium
+  - id: 2026-10-23-a7f7b6
+    title: Starknet 研究转为独立抗量子 L1：投票结果与以太坊时间表的约束
+    title_en: "Starknet researching an independent post-quantum L1: the vote and its dependence on Ethereum's timeline"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - starknet
+      - post-quantum
+    why_now: Starknet 社区的非约束性 Snapshot 投票于 10 月 15 日至 22 日进行，面向 STRK 质押者与委托人，共 3236 票，赞成票权占 93.52%。StarkWare 与 Starknet 基金会据此成立工作组研究，并强调投票只授权研究，正式方案还要再走治理。基金会称，STARK 证明依赖哈希、原生账户抽象允许更换签名方案，但作为 L2，桥和数据可用性仍受以太坊时间表制约，其引述以太坊的目标约为 2029 年 12 月。白皮书时间两处说法不一：StarkWare 称数周内，The Block 称 11 月。
+    questions:
+      - 作为 L2，Starknet 在桥、数据可用性与证明验证上有哪些环节依赖椭圆曲线？脱离以太坊结算之后这些环节如何替代？
+      - 独立 L1 在安全预算、验证者集合和与以太坊的互操作上要付出什么代价？
+    angle: 等白皮书发布后，对照其安全模型与以太坊自身的后量子路线（验证者签名、账户迁移），并核对基金会引述的 2029 年时间表的出处。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: blockbeats:373215
+        type: secondary
+      - item_id: blockbeats:373227
+        type: secondary
+      - item_id: theblock:421885
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: medium
+  - id: 2026-10-23-f0dd1d
+    title: Railway 凭据泄露事件：部署平台被入侵如何传导到链上项目的密钥安全
+    title_en: "Railway credential exposure: how a deployment-platform breach propagates to onchain projects' key security"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - security-incident
+      - key-management
+    why_now: Railway 在 10 月 21 日发现存放客户环境变量的系统有异常，称未授权方可能读取了部分变量的解密内容，涉及 API 密钥、数据库与镜像仓库凭据，平台暂停了所有部署并建议用户轮换凭据。10 月 22 日，Zipcoin 团队称收到 Railway 的通知，项目整个代码库及密钥、私钥被入侵，在无法安全运营后决定关闭项目。Onchain Lens 另称，一个疑似攻击者的钱包向 HitBTC 等地址转出至少 36.93 万美元，但是否与此事件有关未获确认。
+    questions:
+      - 托管在第三方平台上的私钥与环境变量，在这次事件里实际暴露到了什么程度？受影响的链上项目有哪些共同的架构特征？
+      - 疑似攻击者钱包的资金来源和去向，能否与 Railway 事件建立可靠关联？
+    angle: 整理 Railway 的事件披露时间线与受影响项目的公开说明，区分平台公告与项目自述；再用链上数据核对资金流向，并总结把签名密钥放在部署平台上的替代方案（多签、硬件隔离、时间锁）。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: odaily:526464
+        type: secondary
+      - item_id: blockbeats:373238
+        type: secondary
+      - item_id: blockbeats:373111
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: medium
+  - id: 2026-10-23-b002d1
+    title: CoinDCX 约 1600 万美元转移之争：旧热钱包归属与交易所的资产披露
+    title_en: "The CoinDCX transfer dispute of about $16M: legacy hot-wallet attribution and exchange disclosure"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - fund-tracing
+      - exchange-custody
+    why_now: 10 月 22 日，Salus 的 Darcy 称监测到 CoinDCX 热钱包与多个充值地址在 10 月 21 日 23:35 前后向一个 TRON 地址转入约 1599 万枚 USDT，随后资金拆分流向多家交易所。CoinDCX 回应称相关地址是 2025 年 1 月创建、同年 7 月被入侵后弃用的旧地址，与现行运营无关。ZachXBT 则称，其中一个存款地址在 7 月事件后仍被某流动性提供方使用约 10 个月，资金最晚在 2026 年 4 月和 5 月仍流向 CoinDCX 当前热钱包，并质疑约 1580 万美元用户存款去向。双方说法分歧明显，尚无独立核实。
+    questions:
+      - 有哪些链上证据可以判断这些地址在 2025 年 7 月之后是否仍由交易所控制或收款？
+      - 交易所发生安全事件后，旧充值地址的回收、停用和对用户披露，行业通行做法是什么，这一案例偏离了哪些环节？
+    angle: 按地址复原 2025 年 7 月至今的资金往来图，把各方说法逐条对照链上记录；比较同类交易所事件的披露节奏。结论只写能被链上数据验证的部分。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: blockbeats:373141
+        type: secondary
+      - item_id: blockbeats:373185
+        type: secondary
+      - item_id: blockbeats:373186
+        type: secondary
+    evidence:
+      independent_sources: 3
+    confidence: low
+  - id: 2026-10-23-030296
+    title: Uniswap v4 Aggregator Hooks：把外部流动性包装成 v4 池的路由与费用机制
+    title_en: "Uniswap v4 Aggregator Hooks: routing and fee mechanics when external liquidity is wrapped as v4 pools"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - uniswap
+      - dex-aggregation
+    why_now: 10 月 22 日，Uniswap Labs 宣布 Aggregator Hooks 上线，通过 Hook 把外部流动性来源包装成 v4 池，路由器可以把它们当作 Uniswap 池使用。目前覆盖以太坊主网、Base 与 Robinhood Chain，首日接入七个外部来源，包括 Curve、Fluid 和 PancakeSwap。据其说明，每个区块会拉取外部报价，在一笔交易内完成结算且无需新增授权；经此路径的兑换会缴纳协议费并计入 UNI 销毁。The Block 也报道了上线。
+    questions:
+      - 外部报价按区块更新、成交时再校验，期间价格偏离带来的套利与 MEV 风险由谁承担？
+      - 对外部来源征收协议费，会怎样影响这些来源与原有聚合器的竞争，以及流动性的去留？
+    angle: 阅读 Hook 合约与路由逻辑，用链上成交记录比较经 Aggregator Hooks 与直接走外部来源的价格与 gas，并核对协议费的流向。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: blockbeats:373249
+        type: secondary
+      - item_id: theblock:421932
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: medium
+  - id: 2026-10-23-406a06
+    title: SoFi 的计息代币化存款 SOFIE：存款保险、稳定币兑换与监管边界
+    title_en: "SoFi's interest-bearing tokenized deposit SOFIE: deposit insurance, stablecoin conversion and regulatory boundaries"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - tokenized-deposits
+      - stablecoins
+    why_now: 10 月 22 日，SoFi 推出 SOFIE，每枚对应 SoFi Bank 的 1 美元存款，年化收益率 4.4%，在适用限额内享有 FDIC 保险。会员可通过 SoFi Crypto 按 1:1 兑换为稳定币 SoFiUSD，兑换后的稳定币不在存款保险范围内；全面上线预计在 11 月。SoFi 称这是美国国民银行首次直接向个人客户提供代币化存款。10 月 20 日 JPMD 登陆主网的题目讲的是机构侧的许可制存款代币，这次的新增点是零售、计息与保险。
+    questions:
+      - 代币化存款与稳定币之间的 1:1 兑换，在法律上如何划分负债性质、保险覆盖和赎回路径？
+      - 计息存款代币与禁止付息的稳定币规则并存，对用户资金在两类产品之间的流动有什么影响？
+    angle: 阅读 SoFi 的产品条款与 FDIC 对代币化存款的说明，对比 JPMD 等其他银行存款代币和主流稳定币的权限、利息与转移限制。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: blockbeats:373226
+        type: secondary
+      - item_id: theblock:421916
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: medium
+  - id: 2026-10-23-ce734a
+    title: 加密内存池中的揭示期权：发送者免费期权的大小与后量子消除方案
+    title_en: "Reveal optionality in encrypted mempools: the size of the sender's free option and a post-quantum remedy"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - encrypted-mempool
+      - mev
+    why_now: 10 月 22 日 05:07 UTC，ethresear.ch 出现一篇讨论加密内存池里发送者是否可以选择性揭示交易、这一期权价值多大，并提出后量子方式加以消除的帖子。帖子摘录为空，输入里只有标题，机制与量化结果需要以原文为准。
+    questions:
+      - 发送者不揭示或延迟揭示交易所获得的期权，按帖子的模型估算价值是多少，取决于哪些参数？
+      - 提出的后量子方案如何强制揭示，代价是延迟、体积还是额外的信任假设？
+    angle: 通读帖子的模型与证明，对照已有的加密内存池和阈值加密提案对揭示问题的处理，并检查数值估计所依据的市场数据。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: ethresearch:26169
+        type: primary
+    evidence:
+      independent_sources: 1
+    confidence: low
+  - id: 2026-10-23-f6faab
+    title: 美国数字资产税收原则：挖矿与质押奖励的计税时点及洗售规则
+    title_en: "US digital asset tax principles: when staking and mining rewards are taxed, and wash sale rules"
+    domain: crypto
+    tags: []
+    proposed_tags:
+      - crypto-tax
+      - staking
+    why_now: 10 月 22 日，美国区块链协会致信国会两院领导层，敦促推进两党数字资产税收立法，并列出原则：设置有实质意义的小额豁免；挖矿与质押奖励视为新创造财产，在处置时才征税；申报要保护纳税人隐私；税收看经济实质而非技术形式；洗售规则要防滥用但不惩罚日常行为。协会称众议院相关委员会已推进过相关法案，参议员 Daines 也提出了参议院版本。The Block 称更广泛的市场结构法案陷入停滞，国会在 11 月 3 日选举前休会。这是行业协会的主张，不是已通过的规则。
+    questions:
+      - 「处置时才征税」与现行对质押、挖矿奖励在取得时即确认收入的做法，在税基和时点上差多少？
+      - 把洗售规则引入加密资产，会对链上做市、借贷循环和税损收割策略产生什么实际影响？
+    angle: 对照现行税务指引、已提交的众议院与参议院法案文本，以及协会的原则清单，逐项比较在质押奖励、空投和 DeFi 借贷场景下的计税差异。
+    novelty:
+      kind: new
+      related: []
+    references:
+      - item_id: blockbeats:373251
+        type: secondary
+      - item_id: theblock:423475
+        type: secondary
+    evidence:
+      independent_sources: 2
+    confidence: low
+items:
+  blockbeats:373111:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373111
+    origin_url: https://x.com/OnchainLens/status/2113115277298946048
+    title: Railway安全事件后疑似攻击者转移至少36.93万美元
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T03:50:15.000Z
+    fetched_at: 2026-10-23T09:28:13.171Z
+    incomplete: false
+  blockbeats:373141:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373141
+    origin_url: https://x.com/DarcyAri/status/2113140857717301483
+    title: Salus CMO：CoinDCX疑似被盗约1599万USDT及部分TRX
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T05:45:50.000Z
+    fetched_at: 2026-10-23T09:28:12.249Z
+    incomplete: false
+  blockbeats:373185:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373185
+    origin_url: https://x.com/CoinDCX/status/2113182200648864243
+    title: CoinDCX回应：用户资金安全，近期争议交易涉及已弃用的旧钱包地址
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T08:59:11.000Z
+    fetched_at: 2026-10-23T09:28:12.249Z
+    incomplete: false
+  blockbeats:373186:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373186
+    origin_url: https://x.com/zachxbt/status/2113191832561778974
+    title: ZachXBT质疑CoinDCX：1580万美元用户存款去向不明
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T09:02:18.000Z
+    fetched_at: 2026-10-23T09:28:12.249Z
+    incomplete: false
+  blockbeats:373215:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373215
+    origin_url: https://community.starknet.io/t/starknet-l1-poll-ends-what-it-means-and-what-happens-next/116431
+    title: Starknet社区投票通过启动独立后量子L1研究
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T11:06:35.000Z
+    fetched_at: 2026-10-23T09:28:12.249Z
+    incomplete: false
+  blockbeats:373226:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373226
+    origin_url: https://x.com/TheBlockCo/status/2113239001633108432#
+    title: SoFi推出计息代币化存款SoFi Earn
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T12:02:43.000Z
+    fetched_at: 2026-10-23T09:28:11.377Z
+    incomplete: false
+  blockbeats:373227:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373227
+    origin_url: https://x.com/StarkWareLtd/status/2113239007156912627#
+    title: StarkWare：Starknet后量子L1研究白皮书将于数周内发布
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T12:03:37.000Z
+    fetched_at: 2026-10-23T09:28:11.377Z
+    incomplete: false
+  blockbeats:373238:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373238
+    origin_url: https://x.com/zipcoincash/status/2113219642575421909
+    title: Vitalik小说叙事Meme币项目Zipcoin宣布关闭
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T12:53:56.000Z
+    fetched_at: 2026-10-23T09:28:11.377Z
+    incomplete: false
+  blockbeats:373249:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373249
+    origin_url: https://blog.uniswap.org/aggregator-hooks-are-now-live
+    title: Uniswap v4 Aggregator Hooks上线，可将外部流动性包装为v4池
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T13:55:58.000Z
+    fetched_at: 2026-10-23T09:28:11.377Z
+    incomplete: false
+  blockbeats:373251:
+    source: blockbeats
+    url: https://m.theblockbeats.info/flash/373251
+    origin_url: https://x.com/BlockchainAssn/status/2113246493075210603
+    title: 美国区块链协会致信国会，敦促推进两党数字资产税收立法
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T14:06:04.000Z
+    fetched_at: 2026-10-23T09:28:11.377Z
+    incomplete: false
+  ethresearch:26169:
+    source: ethresearch
+    url: https://ethresear.ch/t/reveal-optionality-in-encrypted-mempools-how-big-is-the-sender-s-free-option-and-a-post-quantum-way-to-remove-it/26169
+    origin_url: null
+    title: "Reveal optionality in encrypted mempools: how big is the sender’s free option, and a post-quantum way to remove it"
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T05:07:16.494Z
+    fetched_at: 2026-10-22T09:32:28.153Z
+    incomplete: false
+  ethtao:2113327089306988960:
+    source: ethtao
+    url: https://x.com/ralexstokes/status/2113327089306988960
+    origin_url: https://blog.ethereum.org/2026/10/22/glamsterdam-hoodi-delay
+    title: null
+    author: ralexstokes
+    reposted_by: null
+    via: https://x.com/Ethtao_Ethtao/status/2113462939256782948
+    published_at: 2026-10-22T17:50:16.000Z
+    fetched_at: 2026-10-23T13:21:57.568Z
+    incomplete: false
+  odaily:526464:
+    source: odaily
+    url: https://www.odaily.news/zh-CN/newsflash/526464
+    origin_url: https://blog.railway.com/p/security-disclosure-wednesday-october-21st
+    title: Railway披露安全事件，部分用户环境变量及API密钥可能遭泄露，已暂停所有部署
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T00:17:44.000Z
+    fetched_at: 2026-10-22T09:32:26.373Z
+    incomplete: false
+  theblock:421885:
+    source: theblock
+    url: https://www.theblock.co/news/ecosystems/2026-10-22-starknet-community-backs-independent-post-quantum-layer-1-421885
+    origin_url: null
+    title: Starknet community overwhelmingly backs research into becoming an independent post-quantum Layer 1
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T09:32:00.000Z
+    fetched_at: 2026-10-22T09:32:29.037Z
+    incomplete: false
+  theblock:421916:
+    source: theblock
+    url: https://www.theblock.co/news/business/2026-10-22-sofi-fdic-insured-tokenized-deposit-421916
+    origin_url: null
+    title: SoFi launches interest-bearing, FDIC-insured tokenized deposit for crypto users
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T12:00:00.000Z
+    fetched_at: 2026-10-23T09:28:18.536Z
+    incomplete: false
+  theblock:421932:
+    source: theblock
+    url: https://www.theblock.co/news/defi/2026-10-22-uniswaps-aggregator-hooks-go-live-ethereum-base-robinhood-chain-421932
+    origin_url: null
+    title: Uniswap’s aggregator hooks go live on Ethereum, Base and Robinhood Chain
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T13:55:03.000Z
+    fetched_at: 2026-10-23T09:28:18.536Z
+    incomplete: false
+  theblock:423475:
+    source: theblock
+    url: https://www.theblock.co/news/regulation/2026-10-22-blockchain-association-pushes-crypto-tax-clarity-broader-bill-stalls-423475
+    origin_url: null
+    title: Blockchain Association pushes for crypto tax clarity as broader bill stalls
+    author: null
+    reposted_by: null
+    via: null
+    published_at: 2026-10-22T18:59:25.000Z
+    fetched_at: 2026-10-23T09:28:18.536Z
+    incomplete: false

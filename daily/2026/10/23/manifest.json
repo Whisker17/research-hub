@@ -1,49 +1,47 @@
 {
   "schema": 1,
   "date": "2026-10-23",
-  "status": "pending",
-  "reasons": [
-    "digest_fetch_failed"
-  ],
+  "status": "complete",
+  "reasons": [],
   "window": {
     "from": "2026-10-22T00:00:00.000Z",
     "to": "2026-10-23T00:00:00.000Z"
   },
   "digest": {
-    "status": "fetch_failed",
-    "url": null,
-    "posted_at": null
+    "status": "found",
+    "url": "https://x.com/Ethtao_Ethtao/status/2113462939256782948",
+    "posted_at": "2026-10-23T02:50:05.000Z"
   },
   "sources": [
     {
       "id": "ethtao",
-      "status": "failed",
-      "items": 0,
-      "calls": 3,
+      "status": "ok",
+      "items": 17,
+      "calls": 18,
       "covered": null,
-      "error": "Ethtao_Ethtao: http: HTTP 404"
+      "error": null
     },
     {
       "id": "blockbeats",
-      "status": "ok",
+      "status": "skipped",
       "items": 123,
-      "calls": 4,
+      "calls": 0,
       "covered": {
         "from": "2026-10-22T00:00:00.000Z",
         "to": "2026-10-23T00:00:00.000Z"
       },
-      "error": null
+      "error": "skipped: 今天的预算 4 次已用完"
     },
     {
       "id": "odaily",
-      "status": "ok",
+      "status": "failed",
       "items": 89,
-      "calls": 3,
+      "calls": 2,
       "covered": {
         "from": "2026-10-22T00:00:00.000Z",
         "to": "2026-10-23T00:00:00.000Z"
       },
-      "error": null
+      "error": "http: HTTP 504"
     },
     {
       "id": "ethresearch",
@@ -80,19 +78,32 @@
     }
   ],
   "counts": {
-    "items": 231,
-    "cited_items": 0,
-    "topics": 0,
-    "dropped": 0,
+    "items": 248,
+    "cited_items": 17,
+    "topics": 8,
+    "dropped": 2,
     "warnings": 0
   },
-  "dropped": [],
-  "generator": null,
-  "run": {
-    "id": "39931958416",
-    "attempt": 1,
-    "at": "2026-10-23T09:28:00.754Z"
+  "dropped": [
+    {
+      "topic": 0,
+      "reason": "verbatim"
+    },
+    {
+      "topic": 2,
+      "reason": "verbatim"
+    }
+  ],
+  "generator": {
+    "skill_version": "daily-topics/1.0.0+e67bab7de412",
+    "model": "claude-sonnet-5-5",
+    "inputs_sha256": "0293d21603d8abbfbae38694240ff0c461b08c7c6838f10c89f7e34de6a6eadc"
   },
-  "generated_at": null,
-  "updated_at": "2026-10-23T09:28:00.754Z"
+  "run": {
+    "id": "39960460583",
+    "attempt": 1,
+    "at": "2026-10-23T13:21:56.067Z"
+  },
+  "generated_at": "2026-10-23T13:21:56.067Z",
+  "updated_at": "2026-10-23T13:21:56.067Z"
 }
