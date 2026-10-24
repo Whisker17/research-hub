@@ -84,6 +84,8 @@ push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型�
 
 ## Daily Topics 运行手册（`.github/workflows/daily.yml`）
 
+> **已暂停（2026-10-24）：所有者改用外部工具。** 下面描述的是启用时的行为；现在不会运行，重新启用见“启用 / 关闭”。`/daily/` 历史页面作为存档保留在线上。
+
 每天 04:30 / 08:15 / 13:30 UTC 运行（[ADR 0004](docs/decisions/0004-public-daily-topics.md) §4、§11）：处理今天（UTC）；昨天还不是终态时一并收尾。已是终态的日期什么都不做，所以重复运行、补跑都是安全的。三段 job 分权，结果推送到 Lark：
 
 | Job | 权限 | 凭据 | 做什么 |
@@ -100,10 +102,11 @@ push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型�
 
 ### 启用 / 关闭
 
-- 启用（合并到 `main` 之后，由所有者执行）：`gh variable set DAILY_ENABLED --body true`。默认关闭：变量不是 `true` 时定时和手动运行都直接跳过。
-- 关闭：`gh variable set DAILY_ENABLED --body false`。不影响站点和报告。
+- 当前状态：**已暂停（2026-10-24）：所有者改用外部工具**。workflow 已禁用，`DAILY_ENABLED=false`；代码、workflow 文件、`daily/` 数据和 `/daily/` 页面都保留。核对：`gh workflow list --all`（daily 为 `disabled_manually`）、`gh variable list`（`DAILY_ENABLED false`）。
+- 暂停（两条都要执行）：`gh workflow disable daily.yml` + `gh variable set DAILY_ENABLED --body false`。只设变量时定时任务仍会每天跑三次空运行，而且 push 到 `daily-trial/**` 不看 `DAILY_ENABLED`；暂停期间不要 push `daily-trial/**`。不影响站点和报告。
+- 重新启用（由所有者执行）：`gh workflow enable daily.yml` + `gh variable set DAILY_ENABLED --body true`。默认关闭：变量不是 `true` 时定时和手动运行都直接跳过。暂停期间 BlockBeats 账本的 Actions cache 可能已过期，见下面第一次运行的 `seed_ledger` 说明。
 - 模型：默认 `claude-sonnet-5-5`；`gh variable set DAILY_MODEL --body <model>` 改，删掉变量恢复默认。
-- 第一次在 `main` 上运行时 Actions cache 里还没有 BlockBeats 账本，按 WHI-1931 的规则当天不调用 BlockBeats（失败即关闭）。确定当天还没调用过时，可以手动运行一次并勾选 `seed_ledger`，从空账本开始。
+- 第一次在 `main` 上运行（包括暂停后重新启用、账本 cache 已过期）时 Actions cache 里还没有 BlockBeats 账本，按 WHI-1931 的规则当天不调用 BlockBeats（失败即关闭）。确定当天还没调用过时，可以手动运行一次并勾选 `seed_ledger`，从空账本开始。
 
 ### 手动运行、补跑与 regenerate
 
