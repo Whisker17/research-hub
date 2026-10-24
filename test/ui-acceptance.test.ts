@@ -44,12 +44,14 @@ function* walk(dir: string): Generator<string> {
 const MIME: Record<string, string> = { ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml", ".woff2": "font/woff2", ".png": "image/png", ".txt": "text/plain" };
 /**
  * 一个站点一个源；root 在构建之后才知道（publicUrl 要先有端口），所以按调用时的值取。
- * 私有站点和线上的 Worker 一样把 / 重定向到 /p/（worker/private.ts）。
+ * 私有站点和线上的 Worker 一样把 / 重定向到 /p/（worker/private.ts），并有一个没有评论的 /api/comments（评论层的流程在
+ * comments-layer.test.ts 里对着完整的假 API 测）。
  */
 function serve(root: () => string, privateSite = false): Promise<{ server: Server; origin: string }> {
   const server = createServer((req, res) => {
     let p = decodeURIComponent(new URL(req.url ?? "/", "http://x").pathname);
     if (privateSite && p === "/") return res.writeHead(302, { location: "/p/" }).end();
+    if (privateSite && p === "/api/comments") return res.writeHead(200, { "content-type": "application/json" }).end('{"threads":[],"next":null}');
     if (p.endsWith("/")) p += "index.html";
     const base = root();
     const f = join(base, p);
@@ -67,7 +69,9 @@ function stripShell(deployed: string, source: string): string {
     .replace(/<nav data-rh-back[\s\S]*?<\/nav>/, "")
     .replace(/<section data-rh-card [\s\S]*?<\/section>/, "")
     .replace(/<span data-rh-lang [^>]*>(?:<(?:span|a)\b[^>]*>[^<]*<\/(?:span|a)>){2}<\/span>/g, "")
-    .replace(/<button class="am-btn" type="button" data-rh-card-btn [^>]*>[^<]*<\/button>/, "");
+    .replace(/<button class="am-btn" type="button" data-rh-card-btn [^>]*>[^<]*<\/button>/, "")
+    .replace(/<script data-rh-comments [\s\S]*?<\/script>/, "")
+    .replace(/<button type="button" data-rh-comments-btn [^>]*>[\s\S]*?<\/button>/g, "");
   if (!/<meta[^>]+name=["']robots["']/i.test(source)) out = out.replace(/(<head\b[^>]*>)<meta name="robots" content="noindex, nofollow">/i, "$1");
   return out;
 }
@@ -155,12 +159,12 @@ after(() => {
 
 // ── 报告 HTML 只多了外壳 ────────────────────────────────────────────────────────
 
-test("报告 HTML：去掉注入的 data-rh-* 外壳后与源文件逐字相同（夹具的构建产物，以及仓库里每篇真实报告的部署版）", () => {
+test("报告 HTML：去掉注入的 data-rh-* 外壳后与源文件逐字相同（夹具的构建产物含私有站点上的镜像，以及仓库里每篇真实报告的部署版）", () => {
   const { reports } = loadReports(tmp);
   let n = 0;
   for (const r of reports.filter(isPublished)) {
-    const site = r.meta.visibility === "public" ? join(tmp, "dist", "public", "r", r.slug) : join(tmp, "dist", "private", "p", r.slug);
-    for (const [built, src] of [[join(site, "index.html"), join(r.dir, REPORT_FILES.html)], [join(site, "en", "index.html"), join(r.dir, REPORT_FILES.htmlEn)]]) {
+    const sites = [join(tmp, "dist", "private", "p", r.slug), ...(r.meta.visibility === "public" ? [join(tmp, "dist", "public", "r", r.slug)] : [])];
+    for (const [built, src] of sites.flatMap((site) => [[join(site, "index.html"), join(r.dir, REPORT_FILES.html)], [join(site, "en", "index.html"), join(r.dir, REPORT_FILES.htmlEn)]])) {
       if (!existsSync(src)) continue;
       const source = readFileSync(src, "utf8");
       const deployed = readFileSync(built, "utf8");
@@ -169,7 +173,7 @@ test("报告 HTML：去掉注入的 data-rh-* 外壳后与源文件逐字相同�
       n++;
     }
   }
-  assert.equal(n, 9);
+  assert.equal(n, 15, "9 个报告页 + 6 个公开报告页的镜像");
   // 真实报告（content lane，只读）：部署版去掉外壳 = 源文件
   const real = loadReports(REPO).reports.filter(isPublished);
   for (const r of real) {
@@ -177,7 +181,7 @@ test("报告 HTML：去掉注入的 data-rh-* 外壳后与源文件逐字相同�
       const src = join(r.dir, lang === "zh" ? REPORT_FILES.html : REPORT_FILES.htmlEn);
       if (!existsSync(src)) continue;
       const source = readFileSync(src, "utf8");
-      assert.equal(stripShell(deployedReportHtml(r, lang), source), source, `${r.relDir} ${lang}`);
+      for (const site of ["public", "private"] as const) assert.equal(stripShell(deployedReportHtml(r, lang, site), source), source, `${r.relDir} ${lang} ${site}`);
     }
   }
 });
@@ -260,6 +264,7 @@ const shell = (p: Page) =>
       brandFont: a ? getComputedStyle(a.lastElementChild!).fontFamily : null,
       langs: [...document.querySelectorAll("[data-rh-lang]")].filter(seen).length,
       cardBtns: [...document.querySelectorAll("[data-rh-card-btn]")].filter(seen).length,
+      cmtBtns: [...document.querySelectorAll("[data-rh-comments-btn]")].filter(seen).length,
       style: Boolean(document.querySelector("style[data-rh-style]")),
     };
   });
@@ -269,8 +274,8 @@ interface Route {
   url: () => string;
   /** 页面语言跟着 localStorage（索引页）还是由地址决定（报告） */
   langFromPath?: "zh" | "en";
-  /** 报告外壳的期望 */
-  report?: { back: string; lang: boolean; card: boolean; style: boolean };
+  /** 报告外壳的期望（comments：私有站点的评论层按钮） */
+  report?: { back: string; lang: boolean; card: boolean; style: boolean; comments?: boolean };
   /** 页面上应当显示的空状态文字（i18n 键） */
   empty?: "emptyFilter" | "emptyPublic" | "dailyEmpty";
 }
@@ -306,9 +311,12 @@ const routes = (): Route[] => {
     rep("r-plain-zh", `${P}/r/pub-plain/`, "zh", { back: "/", lang: true, card: true, style: true }),
     rep("r-plain-en", `${P}/r/pub-plain/en/`, "en", { back: "/", lang: true, card: true, style: true }),
     rep("r-zh-only", `${P}/r/pub-zh-only/`, "zh", { back: "/", lang: false, card: false, style: true }),
-    rep("p-am-zh", `${Q}/p/secret-report/`, "zh", { back: "/p/", lang: true, card: true, style: true }),
-    rep("p-am-en", `${Q}/p/secret-report/en/`, "en", { back: "/p/", lang: true, card: true, style: true }),
-    rep("p-plain-bare", `${Q}/p/priv-plain/`, "zh", { back: "/p/", lang: false, card: false, style: false }),
+    rep("p-am-zh", `${Q}/p/secret-report/`, "zh", { back: "/p/", lang: true, card: true, style: true, comments: true }),
+    rep("p-am-en", `${Q}/p/secret-report/en/`, "en", { back: "/p/", lang: true, card: true, style: true, comments: true }),
+    rep("p-plain-bare", `${Q}/p/priv-plain/`, "zh", { back: "/p/", lang: false, card: false, style: true, comments: true }),
+    // public 报告在私有站点上的镜像（ADR 0005 §1）
+    rep("p-mirror-am-zh", `${Q}/p/pub-am/`, "zh", { back: "/p/", lang: true, card: true, style: true, comments: true }),
+    rep("p-mirror-plain-en", `${Q}/p/pub-plain/en/`, "en", { back: "/p/", lang: true, card: true, style: true, comments: true }),
   ];
 };
 
@@ -339,6 +347,7 @@ test("浏览器：每个路由 × 390 / 1440 × 明暗 × 中英文：没有脚�
               assert.ok(s.backTop !== null && s.backTop >= 0 && s.backTop < 140, `${where}：返回链接不在页面顶部（${s.backTop}）`);
               assert.equal(s.langs, r.report.lang ? 1 : 0, `${where}：看得见的语言切换`);
               assert.equal(s.cardBtns, r.report.card ? 1 : 0, `${where}：看得见的卡片按钮`);
+              assert.equal(s.cmtBtns, r.report.comments ? 1 : 0, `${where}：看得见的评论按钮`);
               assert.equal(s.style, r.report.style, `${where}：样式块`);
               assert.match(s.brandFont ?? "", /^"?rh-newsreader"?, Georgia/, where);
               // 有样式块时外壳字体（共享的 /fonts/）真的下载并加载了；没有样式块的普通页面不下载任何字体
@@ -364,7 +373,7 @@ test("浏览器：每个路由 × 390 / 1440 × 明暗 × 中英文：没有脚�
   } finally {
     await browser.close();
   }
-  assert.equal(checked, 8 * 20 + 4 * 8);
+  assert.equal(checked, 8 * 20 + 4 * 10);
 });
 
 test("浏览器：语言切换保留锚点并写入索引页也在读的 rh_lang；锚点；卡片模式；返回链接；复制卡片图片", { skip: noChrome }, async () => {
@@ -440,10 +449,13 @@ test("浏览器：语言切换保留锚点并写入索引页也在读的 rh_lang
         await p.screenshot({ path: join(SHOTS, `card-plain-${width}.png`), fullPage: true });
       }
 
-      // 返回链接：私有报告 → /p/；公开英文报告 → /
+      // 返回链接：私有报告与公开报告的镜像 → /p/；公开英文报告 → /
       await goto(o, `${Q}/p/secret-report/en/`);
       await Promise.all([p.waitForNavigation({ waitUntil: "networkidle0" }), p.click("[data-rh-back] a")]);
       assert.equal(p.url(), `${Q}/p/`, where("私有报告的返回链接"));
+      await goto(o, `${Q}/p/pub-am/en/`);
+      await Promise.all([p.waitForNavigation({ waitUntil: "networkidle0" }), p.click("[data-rh-back] a")]);
+      assert.equal(p.url(), `${Q}/p/`, where("公开报告镜像的返回链接"));
       await goto(o, `${P}/r/pub-am/en/`);
       await Promise.all([p.waitForNavigation({ waitUntil: "networkidle0" }), p.click("[data-rh-back] a")]);
       assert.equal(p.url(), `${P}/`, where("公开报告的返回链接"));
@@ -594,6 +606,7 @@ test("真实报告（RH_UI_REAL=1，先 node cli/rh.ts build）：dist/private �
           assert.notEqual(s.position, "fixed", where);
           assert.equal(s.langs, existsSync(join(root, "p", slug, "en", "index.html")) ? 1 : 0, `${where}：语言切换`);
           assert.equal(s.cardBtns, existsSync(join(root, "p", slug, "card.png")) ? 1 : 0, `${where}：卡片按钮`);
+          assert.equal(s.cmtBtns, 1, `${where}：评论按钮`);
           assert.ok(m.fonts.includes("rh-newsreader"), `${where}：外壳字体`);
           if (shots) await o.page.screenshot({ path: join(shots, `${path.replace(/^\/p\/|\/$/g, "").replace(/\//g, "-")}-${width}-${dark ? "dark" : "light"}.png`) });
         }

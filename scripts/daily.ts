@@ -89,7 +89,7 @@ export function buildContext(root: string, manifest: Manifest): Record<string, u
   const tagLoad = loadTags(root);
   const bad = [...issues, ...tagLoad.issues];
   if (bad.length) throw new DailyError(`报告数据不合法，不打包 context（先运行 rh check）：\n${bad.map((i) => `  ${i.where}: ${i.message}`).join("\n")}`);
-  const view = projectSite("public", reports, tagLoad.tags, cfg.publicUrl);
+  const view = projectSite("public", reports, tagLoad.tags);
   const publicReports = reports
     .filter(isPublicPublished)
     .sort((a, b) => a.slug.localeCompare(b.slug))
