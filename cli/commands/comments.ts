@@ -5,6 +5,7 @@
  * 列表与线程都跟着 next 游标取到底，不静默截断。
  */
 import { existsSync, readFileSync } from "node:fs";
+import { setGlobalProxyFromEnv } from "node:http";
 import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
 import type { HubConfig } from "../../lib/config.ts";
@@ -186,6 +187,8 @@ export async function cmdComments(cfg: HubConfig, argv: string[]): Promise<void>
     },
   });
   if (values.help) return info(COMMENTS_HELP);
+  // Node 的 fetch 默认不看 HTTPS_PROXY / NO_PROXY；没设代理时这是空操作（WHI-2161）
+  setGlobalProxyFromEnv();
   const [sub, arg, ...extra] = positionals;
   const usage = (u: string) => new CliError(`用法：${u}`, 2);
 
