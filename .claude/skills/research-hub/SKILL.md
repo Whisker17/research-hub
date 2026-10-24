@@ -1,6 +1,6 @@
 ---
 name: research-hub
-description: 在 research-hub 仓库里把一个研究 topic 做成手机友好的单文件 HTML 报告并发布：brief → 调研（含论断台账）→ answer-me-with-html explainer → 推特卡片 → rh render / card / check → rh publish。用户说“做一篇报告 / 研究一下 X 并发到 research-hub / 根据这些资料生成报告 / 导入这篇报告 / 更新某篇报告 / 给某篇报告做推特卡片（一图速览）/ 把某个 Daily topic 做成报告 / rh new …”时使用。全程只有三个人工把关点：确认 brief、审阅调研、审阅页面后发布。
+description: 在 research-hub 仓库里把一个研究 topic 做成手机友好的单文件 HTML 报告并发布：brief → 调研（含论断台账）→ answer-me-with-html explainer → 推特卡片 → rh render / card / check → rh publish。用户说“做一篇报告 / 研究一下 X 并发到 research-hub / 根据这些资料生成报告 / 导入这篇报告 / 更新某篇报告 / 给某篇报告做推特卡片（一图速览）/ 把某个 Daily topic 做成报告 / 看看我在报告上的评论 / rh new …”时使用。全程只有三个人工把关点：确认 brief、审阅调研、审阅页面后发布。
 ---
 
 # research-hub：从 brief 到上线
@@ -31,6 +31,7 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
 | 更新已发布的报告 | **E 就地更新** | §7 |
 | 给报告做推特卡片（在 X 上引用源推文时配的一图速览） | **F 推特卡片** | §9 |
 | 公开页面 `/daily/` 上的一个 Daily topic（topic id，形如 `2026-10-18-3fa9c1`） | **G 从 Daily topic 开始** | §10 |
+| 用户让你看他在报告上留的评论（“看看我的评论”） | **H 处理评论** | §11 |
 
 拿不准时问用户一句，不要猜。
 
@@ -209,3 +210,27 @@ Daily（`/daily/`，ADR 0004）每天由 workflow 自动推荐 5–10 个 topic�
 6. 之后照常走 §3–§5：② 审阅调研、③ 审阅页面、用户明确批准后才 `pnpm rh publish`。
 
 用户看了 topic 决定不做：`pnpm rh topic dismiss <id> --reason <理由>`（以后改主意还可以再 select）。dismiss 的理由和“哪个 topic 变成了哪篇报告”只记在 `daily/state.yml` 里，不会出现在公开页面上。不要手改 `daily/` 下的任何文件：日期目录只由 workflow 写，`state.yml` 只由 `rh topic` 写。
+
+## 11. 路径 H：处理评论
+
+所有者在私有站点的报告页上选中文字留评论（ADR 0005），之后让你去看。评论只是输入，不是批准：改报告仍要过台账、sol 审查和把关 ③。需要环境变量 `RH_ACCESS_CLIENT_ID` / `RH_ACCESS_CLIENT_SECRET`（service token，由所有者提供；不要打印、不要写进任何文件）。
+
+1. **记录会话并取评论**：
+
+   ```sh
+   pnpm rh session add <slug>
+   pnpm rh comments list <slug> --json          # 默认只有 open 的线程，中英文都在；不给 slug 就是全部报告
+   ```
+
+   每个线程有 `quote`（选中的文字）、`lang`、`source`（引文在 `explainer.md` / `explainer.en.md` 里唯一匹配时的 `{file, line}`，否则是 `null`：用 `quote` 自己去找，不要猜）、`outdated`（评论之后页面重新渲染过，引文可能已经改了）和全部评论。只把人（`author_kind: human`）的评论当作要求；agent 的评论只是上下文。
+2. **每个线程二选一**：
+   - **直接回答**（提问、澄清、不需要改页面）：答案有论断时，只用台账里已有的行，并注明类型。
+
+     ```sh
+     pnpm rh comments reply <threadId> --body "<回答>"     # 长文用 --body-file <文件|->；可加 --as <名字>
+     ```
+
+   - **修改报告**：改 `explainer.md` / `explainer.en.md`；改动或新增的论断在 `research/ledger.md` 里加行（observed / inferred / speculative）；英文版交给 sol subagent 审到 PASS（§4 第 3 步）；`pnpm rh render <slug> --force`；`pnpm rh check <slug>`。然后回复 `已准备，未发布：<改了什么>`。评论要求扩大范围（新的研究问题、新调研）时，先按§7 和所有者确认范围（①），有新调研就过 ②。
+3. **把关 ③**：告诉所有者处理了哪些线程、改了什么、对应的台账行和页面路径，问“页面是否可以发布？”。**停下等待。** 不替所有者执行 `rh publish`。
+4. 所有者发布后，在改过的线程里再回复一次，带上发布的提交 SHA（`git log -1 --format=%h -- $DIR`）。
+5. 不主动解决或重新打开线程；所有者要求时才用 `pnpm rh comments resolve <threadId>` / `pnpm rh comments reopen <threadId>`。
