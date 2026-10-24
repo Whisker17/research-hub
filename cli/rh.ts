@@ -75,14 +75,22 @@ async function main(argv: string[]): Promise<number> {
   return 0;
 }
 
+// process.exit() 会丢掉还排在 stdout / stderr 里的输出（管道的读端慢时写是异步的）：先等两者写完再退出
+function exit(code: number): void {
+  let pending = 2;
+  const done = () => --pending || process.exit(code);
+  process.stdout.write("", done);
+  process.stderr.write("", done);
+}
+
 main(process.argv.slice(2)).then(
-  (code) => process.exit(code),
+  exit,
   (e: unknown) => {
     if (e instanceof CliError) {
       fail(e.message);
-      process.exit(e.exitCode);
+      return exit(e.exitCode);
     }
     console.error(e);
-    process.exit(1);
+    exit(1);
   },
 );

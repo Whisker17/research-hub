@@ -15,6 +15,7 @@ import { after, before, test } from "node:test";
 import { exportJWK, generateKeyPair, SignJWT } from "jose";
 import { stringify } from "yaml";
 import { findSourceLine } from "../cli/commands/comments.ts";
+import { reportRev } from "../cli/lib/build.ts";
 import type { D1Database, D1Statement } from "../worker/comments.ts";
 import worker from "../worker/private.ts";
 
@@ -143,12 +144,16 @@ after(() => {
 });
 
 const outputs: string[] = [];
-function rh(args: string[], o: { env?: Record<string, string>; input?: string; creds?: boolean } = {}): Promise<{ code: number | null; out: string }> {
+// slowReader：stdout 经过一个先睡 1 秒才读的真管道（agent 常把 --json 管道给别的程序）；rh 退出前必须等输出写完
+function rh(args: string[], o: { env?: Record<string, string>; input?: string; creds?: boolean; slowReader?: boolean } = {}): Promise<{ code: number | null; out: string }> {
   const e: NodeJS.ProcessEnv = { ...process.env, RH_ROOT: root, RH_PRIVATE_URL: base, NO_COLOR: "1" };
   for (const k of ["PI_SESSION_ID", "CLAUDE_CODE_SESSION_ID", "RH_ACCESS_CLIENT_ID", "RH_ACCESS_CLIENT_SECRET"]) delete e[k];
   if (o.creds !== false) Object.assign(e, { RH_ACCESS_CLIENT_ID: CLIENT_ID, RH_ACCESS_CLIENT_SECRET: SECRET });
   return new Promise((done) => {
-    const p = spawn(process.execPath, [join(REPO, "cli", "rh.ts"), "comments", ...args], { cwd: root, env: { ...e, ...o.env } });
+    const argv = [process.execPath, join(REPO, "cli", "rh.ts"), "comments", ...args];
+    const p = o.slowReader
+      ? spawn("bash", ["-c", 'set -o pipefail; "$@" | (sleep 1; cat)', "rh", ...argv], { cwd: root, env: { ...e, ...o.env } })
+      : spawn(argv[0], argv.slice(1), { cwd: root, env: { ...e, ...o.env } });
     let out = "";
     p.stdout.on("data", (d) => (out += d));
     p.stderr.on("data", (d) => (out += d));
@@ -193,6 +198,8 @@ test("list --json：rh.comments/v1 快照（url、source、outdated、agent 会�
   assert.equal(by["t-ambiguous"].source, null);
   assert.equal(by["t-missing"].source, null);
   assert.equal(by["t-missing"].outdated, true);
+  // outdated:false 的线程的 rev 就是 rh build 给这份页面算的 rev
+  assert.equal(reportRev(readFileSync(join(root, "reports/2026/10/alpha-report/index.en.html"))), REV);
   // 列表只带最近 20 条（more）→ 用线程接口取全，并跟着游标翻页
   assert.equal(by["t-unique"].comments.length, 131);
   assert.equal(by["t-unique"].comments.at(-1).id, "c-many-129");
@@ -219,6 +226,16 @@ test("list：跟着 next 翻页取全（105 个线程 > 每页 100）；本地�
   const text = await rh(["list", "zh-only"]);
   assert.equal(text.code, 0, text.out);
   assert.match(text.out, /^t-zh-only-104 {2}zh-only\/zh {2}open$/m);
+});
+
+test("输出给慢读者的管道时不丢（process.exit 前等 stdout 写完）", async () => {
+  const text = await rh(["list", "--status", "all"], { slowReader: true });
+  assert.equal(text.code, 0, text.out.slice(-500));
+  assert.match(text.out, /^t-zh-only-104 {2}zh-only\/zh {2}open$/m);
+  const big = await rh(["list", "--status", "all", "--json"], { slowReader: true });
+  assert.equal(big.code, 0, big.out.slice(-500));
+  assert.equal(JSON.parse(big.out).threads.length, 111);
+  assert.ok(big.out.length > 65_536, `要大过管道缓冲（64 KiB）才测得出截断：${big.out.length}`);
 });
 
 test("show：线程接口翻页取全；文本输出带全部正文与恢复命令", async () => {

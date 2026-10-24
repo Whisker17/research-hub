@@ -4,7 +4,6 @@
  * 环境变量 RH_ACCESS_CLIENT_ID / RH_ACCESS_CLIENT_SECRET，只放进请求头，从不打印。
  * 列表与线程都跟着 next 游标取到底，不静默截断。
  */
-import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { parseArgs } from "node:util";
@@ -12,6 +11,7 @@ import type { HubConfig } from "../../lib/config.ts";
 import { loadReports, REPORT_FILES, type Report } from "../../lib/reports.ts";
 import type { SessionRuntime } from "../../lib/schema.ts";
 import { detectSession, resumeCommand } from "../../lib/session.ts";
+import { reportRev } from "../lib/build.ts";
 import { CliError, info, ok } from "../lib/util.ts";
 
 export const COMMENTS_HELP = `rh comments list [<slug>] [--status open|resolved|all] [--lang zh|en] [--json]
@@ -135,7 +135,7 @@ function localView(cfg: HubConfig) {
     const r = reports.get(t.slug);
     if (!r) return { outdated: null, source: null };
     const html = read(join(r.dir, t.lang === "en" ? REPORT_FILES.htmlEn : REPORT_FILES.html));
-    const rev = html && createHash("sha256").update(html).digest("hex").slice(0, 12);
+    const rev = html && reportRev(html); // 与 rh build 注入页面的 rev 同一算法
     // 导入报告可能只有原稿 source.md
     const file = [t.lang === "en" ? REPORT_FILES.explainerEn : REPORT_FILES.explainer, REPORT_FILES.source].map((f) => join(r.dir, f)).find(existsSync);
     const line = file ? findSourceLine(readFileSync(file, "utf8"), t) : null;
