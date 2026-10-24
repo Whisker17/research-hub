@@ -1,4 +1,4 @@
-# 校验 → 构建（含泄漏检查）→ 部署公开 / 私有两个 Worker → 线上冒烟测试。
+# 校验 → 构建（含泄漏检查）→ D1 迁移 → 部署私有 / 公开两个 Worker → 线上冒烟测试。
 # 部署的是 verify 任务验证过的同一份 dist/（artifact），不重新构建。
 # 手机检查（截图）只在本地 rh check / rh publish 时运行（规格 §6.2），CI 用 --no-shot。
 # Daily workflow 用 workflow_call 调用它，并显式传入刚推上去的提交 SHA：用 GITHUB_TOKEN 的推送不会触发 push，
@@ -103,6 +103,8 @@ jobs:
         with:
           name: dist-${{ inputs.sha || github.sha }}
           path: dist/
+      - name: Apply D1 migrations (before the private Worker; a failure stops the deploy)
+        run: pnpm exec wrangler d1 migrations apply research-hub-comments --remote -c wrangler.private.jsonc
       - name: Deploy private site (Access + JWT gate)
         run: pnpm exec wrangler deploy -c wrangler.private.jsonc --message "main@${SHA}"
       - name: Deploy public site (static assets only)
