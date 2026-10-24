@@ -1,0 +1,28 @@
+title: BNB New L1 全面解构：Native AA、异步执行、20ms 子区块、隐私池与 LtHash
+summary: New L1 是 BSC 的互补链而非替代，目前只有内部 devnet；核心改动是“投票只签顺序、执行晚 D 块写回”，并行 EVM 仍在设计；0x76 AA 与 Tempo 几乎逐项相同；隐私池能匿名调用公开 DeFi 但未审计、只支持 BNB；“格”只用在 LtHash 状态承诺上，全栈没有 PQ 签名，且同参数已有约 2^81 的碰撞攻击
+created: 2026-10-24
+updated: 2026-10-24
+domain: crypto
+tags:
+  - bsc
+  - account-abstraction
+  - privacy
+  - post-quantum
+  - mev
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/BNB New L1 Deep Dive.md
+am_version: 0.5.2-research.1
+related:
+  - bsc-recent-development
+  - native-aa-eip-8130-8141
+  - application-specific-sequencing
+  - pq-signature-selection
+changelog:
+  - date: 2026-10-24
+    note: 创建（brief 快照）
+  - date: 2026-10-24
+    note: 首次发布：中英文双语版（sol 审查通过）+ 推特卡片（astra-6 审查通过）
+title_en: "BNB New L1 Deep Dive: Native AA, Async Execution, 20 ms Sub-blocks, a Shielded Pool and LtHash"
+summary_en: New L1 complements BSC rather than replacing it and runs only as an internal devnet. Its core change is that votes sign only the order while execution lands D blocks later; the parallel EVM is still in design. Its 0x76 AA matches Tempo almost item by item. The shielded pool can call public DeFi anonymously but is unaudited and BNB-only. Lattice appears only in the LtHash state commitment; no part of the stack uses PQ signatures, and a ~2^81 collision attack exists on the same parameters.

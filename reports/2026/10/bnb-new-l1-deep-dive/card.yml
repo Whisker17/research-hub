@@ -1,0 +1,44 @@
+# Tweet card (English only): pnpm rh card bnb-new-l1-deep-dive -> card.png
+# Neutral researcher tone; avoids cardAvoidTerms. All facts come from public docs and papers.
+# Ledger basis: title C33, X4, X6; background M12; context C4, C6, C14, C11, M13;
+# figure C33, C34, X4, X6, C29; findings A34–A37 (0x76 = Tempo), P33, P35 (LtHash attack);
+# takeaway X2, P7, P43, C13; tweet also uses X12–X14, C20, C21, C23, A39, P32, P34, C1.
+quote: https://x.com/BNBCHAIN/status/2074826228046213442
+title: "BNB New L1: votes sign the order, execution comes later"
+background: "Conventional chains execute a block before validators vote, so execution sits on the critical path."
+context: "BNB Chain published its New L1 docs on Oct 22: 200 ms blocks, ~20 ms preconf target, devnet only."
+figure:
+  caption: "New L1 block pipeline, Oct 22 docs (targets)"
+  excalidraw:
+    defaults: { fontSize: 20 }
+    nodes:
+      - { id: o, label: "Block N\norder only", x: 0, y: 36, w: 170, h: 84, color: blue }
+      - { id: v, label: "BLS votes sign\norder, ~0.5 s", x: 200, y: 36, w: 170, h: 84, color: green }
+      - { id: e, label: "Result lands\nin block N+D", x: 400, y: 36, w: 170, h: 84, color: violet }
+    edges:
+      - { from: o, to: v }
+      - { from: v, to: e }
+    texts:
+      - { x: 4, y: 0, text: "Consensus", fontSize: 21, color: blue }
+      - { x: 404, y: 0, text: "Async execution", fontSize: 21, color: violet }
+findings:
+  - stat: "0x76"
+    text: "Its 0x76 AA shares Tempo's type byte, 12 fields and AccountKeychain name"
+  - stat: "~2^81"
+    text: "LtHash root: same params as Solana; a 2026 paper finds ~2^81 queries."
+takeaway: "The real change is timing. The parallel EVM is still in design; privacy and PQ are early."
+tweet: |-
+  "Faster, parallel BSC" misses the key point of BNB Chain's New L1 docs: validators vote only on transaction order, and execution results land D blocks later. The parallel EVM gets one sentence: "Detailed design is in progress."
+
+  How to read the figure:
+  • Left: block N carries only the order, no state root.
+  • Middle: BLS votes finalize the order in ~2 blocks (a target; devnet only).
+  • Right: block N+D carries the execution commitment; validators abstain if their own run disagrees.
+
+  The price: admission uses state D blocks old, so fees cover the full declared gas limit, with no refund.
+
+  Two details:
+  • The 0x76 AA tx shares its type byte, 12 field names, precompile name and gas constants with Tempo's (addresses differ).
+  • The "lattice" part is LtHash, a state commitment, not a PQ signature. A Sept 2026 paper puts collisions on these parameters at ~2^81 hash queries.
+
+  Caveat: the ~20 ms preconfirmation target is a revocable producer promise, not a consensus guarantee.
