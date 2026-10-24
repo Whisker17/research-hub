@@ -68,19 +68,27 @@ Chrome 无头模式，390×844 手机视口：
 
 ## 部署
 
-push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型检查、测试、`rh check --no-shot`、`rh build` → 部署 `research-hub-private` 与 `research-hub` → `scripts/smoke.sh` 冒烟测试（公开站点的 `/build.json` 与首页是刚部署的版本，各轮询约 2 分钟；私有站点对匿名请求只返回 Access 重定向或 403 / 503）。
+push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型检查、测试、`rh check --no-shot`、`rh build` → D1 迁移（`wrangler d1 migrations apply research-hub-comments --remote`，失败就不部署）→ 部署 `research-hub-private` 与 `research-hub` → `scripts/smoke.sh` 冒烟测试（公开站点的 `/build.json` 与首页是刚部署的版本，各轮询约 2 分钟；私有站点对匿名请求只返回 Access 重定向或 403 / 503）。
 
-本机也可以直接部署：`pnpm deploy:manual`（需要 `wrangler login`）。
+本机也可以直接部署：`pnpm deploy:manual`（需要 `wrangler login`；同样先跑迁移）。评论存在 D1 `research-hub-comments`（binding `COMMENTS`），迁移在 `worker/migrations/`，只做加法（[ADR 0005](docs/decisions/0005-inline-comments.md) §2）。
 
-### 一次性配置（均已完成，记录供重建时参考）
+### 一次性配置（1、2 已完成，记录供重建时参考）
 
 1. **Cloudflare Access（私有站点）**：控制台 → Workers & Pages → `research-hub-private` → **Access** 标签 → Protect this Worker behind Access，策略 Include：Emails = demiwhisker@gmail.com，再加一条 Include：Emails ending in = @mantle.xyz（两条 Include 是“或”的关系；不要放进 Require）；Preview URL 保持关闭；不要在控制台手动填 `ACCESS_AUD`（每次部署会被 `wrangler.private.jsonc` 覆盖）。然后运行 `pnpm access:setup`：它从 Access 重定向里读出 AUD，写入 `wrangler.private.jsonc` 并重新部署。提交这个文件。在这之前，私有站点对所有请求返回 503（失败即拒绝）。
-2. **CI 部署凭据**：Cloudflare 创建 API Token（权限：Account → Workers Scripts → Edit），然后：
+2. **CI 部署凭据**：Cloudflare 创建 API Token（权限：Account → Workers Scripts → Edit，**Account → D1 → Edit**：部署前要执行 D1 迁移），然后：
    ```sh
    gh secret set CLOUDFLARE_API_TOKEN      # 粘贴 token
    gh variable set DEPLOY_ENABLED --body true
    ```
    `CLOUDFLARE_ACCOUNT_ID` 已配置。`DEPLOY_ENABLED` 不是 `true` 时，CI 只校验与构建，不部署。
+3. **评论 API（[ADR 0005](docs/decisions/0005-inline-comments.md) §2、§8；0.1.1 起）**：
+   1. D1 `research-hub-comments` 已创建（id 在 `wrangler.private.jsonc`）；重建时用 `wrangler d1 create research-hub-comments`，把新 id 写进 `wrangler.private.jsonc`。
+   2. 给第 2 步的 API Token 加上 Account → D1 → Edit（控制台 → My Profile → API Tokens → 编辑这个 token）。缺这个权限时，CI 的迁移步骤失败，不会部署。
+   3. Zero Trust 控制台 → Access → Service credentials → Service Tokens → Create Service Token（名字如 `research-hub-agent`）。记下 Client ID（形如 `<hex>.access`）和 Client Secret（只显示一次）。
+   4. Zero Trust → Access → Applications → `research-hub-private` 的 Access 应用 → Policies → Add a policy：Action = **Service Auth**，Include：Service Token = 第 3 步的 token。原来的邮箱 Allow 策略不动。
+   5. 把 Client ID 写进 `wrangler.private.jsonc` 的 `AGENT_CLIENT_IDS`（逗号分隔，不是秘密），提交并部署。为空时 Worker 不接受任何 agent。
+   6. Client ID / Secret 只放在本机 shell 环境：`export RH_ACCESS_CLIENT_ID=… RH_ACCESS_CLIENT_SECRET=…`。agent 请求带 `CF-Access-Client-Id` / `CF-Access-Client-Secret` 两个请求头。
+   撤销 agent：从 `AGENT_CLIENT_IDS` 删掉 client id 后部署，或在 Access 里吊销 token。
 
 ## Daily Topics 运行手册（`.github/workflows/daily.yml`）
 

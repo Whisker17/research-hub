@@ -3,7 +3,8 @@
  *
  * Cloudflare Access 挡在私有站点（research-hub-private 的 workers.dev 域名）前面，
  * 放行的请求会带上签名的 `Cf-Access-Jwt-Assertion`。Worker 再校验一次这个 JWT
- * （团队 JWKS 签名、issuer、audience、有效期，可选邮箱白名单）。
+ * （团队 JWKS 签名、issuer、audience、有效期），再按 ADR 0005 §8 区分身份：
+ * 人 = 带 `email` 且在邮箱白名单里；agent = 没有 `email`、`common_name` 在 `AGENT_CLIENT_IDS` 里。
  * 失败即拒绝：Access 被关掉或配置错时，请求没有有效令牌 → 403；
  * Worker 自身没配置 → 503。私有报告不会因为任何一层配置失误而公开。
  */
@@ -19,10 +20,14 @@ export interface GateConfig {
    * 完整邮箱精确匹配（demiwhisker@gmail.com）；以 @ 开头的条目匹配整个域名（@mantle.xyz，不含子域名）。
    */
   allowedEmails?: string;
+  /** 逗号分隔的 service token client id（精确匹配）；为空 = 不接受任何 agent */
+  agentClientIds?: string;
 }
 
+export type Identity = { kind: "human"; email: string } | { kind: "agent"; clientId: string };
+
 export type GateResult =
-  | { ok: true; email?: string }
+  | { ok: true; identity: Identity }
   | { ok: false; status: 403 | 503; reason: string };
 
 export function normalizeTeamDomain(value: string | undefined): string | undefined {
@@ -44,17 +49,26 @@ export async function checkAccess(
   const token = headers.get("cf-access-jwt-assertion");
   if (!token) return { ok: false, status: 403, reason: "missing Cloudflare Access token" };
   const issuer = `https://${team}`;
-  let email: string | undefined;
+  let payload: Record<string, unknown>;
   try {
-    const { payload } = await jwtVerify(token, getKey(issuer), { issuer, audience });
-    email = typeof payload.email === "string" ? payload.email : undefined;
+    ({ payload } = await jwtVerify(token, getKey(issuer), { issuer, audience }));
   } catch {
     return { ok: false, status: 403, reason: "invalid Cloudflare Access token" };
   }
-  if (!isEmailAllowed(email, config.allowedEmails)) {
-    return { ok: false, status: 403, reason: "email not allowed" };
+  // 带 email 的令牌永远不当 agent
+  if (payload.email !== undefined) {
+    const email = payload.email;
+    if (typeof email !== "string" || !email.trim() || !isEmailAllowed(email, config.allowedEmails)) {
+      return { ok: false, status: 403, reason: "email not allowed" };
+    }
+    return { ok: true, identity: { kind: "human", email } };
   }
-  return { ok: true, email };
+  const clientId = payload.common_name;
+  const agents = (config.agentClientIds ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (typeof clientId === "string" && agents.includes(clientId)) {
+    return { ok: true, identity: { kind: "agent", clientId } };
+  }
+  return { ok: false, status: 403, reason: "identity not allowed" };
 }
 
 /** 白名单为空时放行（只依赖 Access 策略）；否则邮箱必须精确匹配某一项，或属于某个 @域名。 */
