@@ -63,6 +63,8 @@ rh publish → push main → CI → Cloudflare
 
 ### 3.4 Daily Topics（0.1.0，设计见 [decisions/0004](decisions/0004-public-daily-topics.md)）
 
+状态：暂停（2026-10-24，0.1.1）——所有者改用外部工具；历史页面 `/daily/` 作为存档保留在线上，重新启用见 README“Daily Topics 运行手册 → 启用 / 关闭”。
+
 ```
 GitHub Actions（每天 04:30 / 08:15 / 13:30 UTC，可手动补跑）
   ingest   只读 + BlockBeats key：rh ingest --date D（ETHTAO 日报是骨干，其他源按时间窗归日）→ 只含公开上下文的输入目录

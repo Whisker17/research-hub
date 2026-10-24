@@ -1,6 +1,6 @@
 # 0004：公开 Daily Topics——边界、时间窗、状态机、保留期与 GitHub Actions 运行方式
 
-- 状态：已采纳（WHI-1927，所有者于 2026-10-18 批准）
+- 状态：已采纳（WHI-1927，所有者于 2026-10-18 批准）；暂停（2026-10-24，0.1.1，WHI-2152）——所有者改用外部工具，历史页面 `/daily/` 作为存档保留在线上，重新启用见 README“Daily Topics 运行手册 → 启用 / 关闭”
 - 日期：2026-10-18
 - 规格：[../product-spec.md](../product-spec.md) §3.1、§3.4、§5、§7
 - 依据：[../research/daily-sources.md](../research/daily-sources.md)（WHI-1925，Actions runner 实测）；Linear 项目文档“research-hub 0.1.0 规划”§4、§6（§6 取代 §4 里冲突的部分）；Linear 文档“Release 0.1.0 — orchestration”的所有者决定 1
