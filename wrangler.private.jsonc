@@ -27,6 +27,6 @@
     "ACCESS_AUD": "d0781a546051e4573c7f70171fc6de94cd424deded735a8997309b15120e51ef",
     "ALLOWED_EMAILS": "demiwhisker@gmail.com,@mantle.xyz",
     // service token 的 client id（逗号分隔，不是秘密）；为空 = 不接受任何 agent（ADR 0005 §8）
-    "AGENT_CLIENT_IDS": ""
+    "AGENT_CLIENT_IDS": "57632a2eac680f783dd5979108fd155a.access"
   }
 }
