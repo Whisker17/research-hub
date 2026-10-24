@@ -49,6 +49,8 @@ pnpm dev         # 本地预览索引页（报告页需先 pnpm build，再看 d
 
 导入其他仓库完成的研究：`rh import report --explainer <am稿件.md> | --html <页面.html> --slug … --domain … --source-repo <路径>`。
 
+处理报告页上的评论（ADR 0005，只在私有站点）：对 agent 说“看看我在 <slug> 上的评论”，skill 按“处理评论”一节走：回复线程，或改稿后回复“已准备，未发布”，由你 `rh publish`。命令是 `rh comments list [<slug>] [--status open|resolved|all] [--lang zh|en] [--json]`、`rh comments show <threadId>`、`rh comments reply <threadId> --body <文字>`、`rh comments resolve|reopen <threadId>`；认证用 Access service token，环境变量 `RH_ACCESS_CLIENT_ID` / `RH_ACCESS_CLIENT_SECRET`。`--json`（`rh.comments/v1`）给出每个线程的地址、引文在 explainer 里的行号（唯一匹配才给）、页面是否已重新渲染（`outdated`）和全部评论。
+
 ### 检查的严格程度
 
 - schema、目录年月、标签登记、引用：所有报告都是错误（draft 也一样）。

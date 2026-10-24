@@ -6,6 +6,7 @@
 import { loadConfig } from "../lib/config.ts";
 import { CARD_HELP, cmdCard } from "./commands/card.ts";
 import { CHECK_HELP, cmdCheck } from "./commands/check.ts";
+import { COMMENTS_HELP, cmdComments } from "./commands/comments.ts";
 import { runBuild } from "./commands/build.ts";
 import { DAILY_HELP, cmdDaily } from "./commands/daily.ts";
 import { IMPORT_HELP, cmdImport } from "./commands/import.ts";
@@ -36,11 +37,12 @@ const HELP = `rh —— research-hub 工具链（pnpm rh <命令>）
   rh list                     列出全部报告
   rh paths [slug]             打印已解析的路径（vault brief 目录、am、报告目录、发布地址、会话恢复命令）
   rh session add <slug>       把当前 agent 会话记到报告的 meta.yml（修改报告、处理评论的会话先运行）
+  rh comments list | show | reply | resolve | reopen   私有站点上的评论（service token：RH_ACCESS_CLIENT_ID / RH_ACCESS_CLIENT_SECRET）
 
   rh <命令> --help 查看详细用法。`;
 
 const SUB_HELP: Record<string, string> = {
-  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP, daily: DAILY_HELP, ingest: INGEST_HELP, topic: TOPIC_HELP, session: SESSION_HELP,
+  new: NEW_HELP, import: IMPORT_HELP, render: RENDER_HELP, card: CARD_HELP, check: CHECK_HELP, publish: PUBLISH_HELP, tags: TAGS_HELP, paths: PATHS_HELP, daily: DAILY_HELP, ingest: INGEST_HELP, topic: TOPIC_HELP, session: SESSION_HELP, comments: COMMENTS_HELP,
 };
 
 async function main(argv: string[]): Promise<number> {
@@ -65,6 +67,7 @@ async function main(argv: string[]): Promise<number> {
     case "list": cmdList(cfg); break;
     case "paths": cmdPaths(cfg, rest); break;
     case "session": cmdSession(cfg, rest); break;
+    case "comments": await cmdComments(cfg, rest); break;
     default:
       console.log(HELP);
       throw new CliError(`未知命令：${cmd}`, 2);
@@ -72,14 +75,22 @@ async function main(argv: string[]): Promise<number> {
   return 0;
 }
 
+// process.exit() 会丢掉还排在 stdout / stderr 里的输出（管道的读端慢时写是异步的）：先等两者写完再退出
+function exit(code: number): void {
+  let pending = 2;
+  const done = () => --pending || process.exit(code);
+  process.stdout.write("", done);
+  process.stderr.write("", done);
+}
+
 main(process.argv.slice(2)).then(
-  (code) => process.exit(code),
+  exit,
   (e: unknown) => {
     if (e instanceof CliError) {
       fail(e.message);
-      process.exit(e.exitCode);
+      return exit(e.exitCode);
     }
     console.error(e);
-    process.exit(1);
+    exit(1);
   },
 );
