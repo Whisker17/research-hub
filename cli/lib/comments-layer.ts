@@ -324,7 +324,6 @@ export function commentsLayer(cfg: DOMStringMap, A: ReturnType<typeof commentsAn
     draft = sel;
     chip.textContent = sel.quote;
     err.hidden = true;
-    composer.hidden = false;
     open(true);
     composer.hidden = false;
     input.focus();
@@ -336,14 +335,15 @@ export function commentsLayer(cfg: DOMStringMap, A: ReturnType<typeof commentsAn
   });
 
   load().then(() => {
-    const id = /^#c-(.+)$/.exec(location.hash)?.[1];
-    if (id && threads.some((t) => t.id === id)) {
-      if (threads.find((t) => t.id === id)!.status === "resolved") {
+    const id = decodeURIComponent(/^#c-(.+)$/.exec(location.hash)?.[1] || "");
+    const t = threads.find((x) => x.id === id);
+    if (t) {
+      if (t.status === "resolved") {
         showResolved = resolvedBox.checked = true;
         render();
       }
       open(true);
-      focus(decodeURIComponent(id), true);
+      focus(id, true);
     }
   }, die);
 }

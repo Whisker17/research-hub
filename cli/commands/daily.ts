@@ -72,7 +72,7 @@ function cmdDailyCheck(cfg: HubConfig, argv: string[]): void {
   });
   if (values.help) return info(DAILY_HELP);
   if (values.workflow && !values.base) throw new CliError("--workflow 需要 --base <ref>", 2);
-  const ctx = loadDailyContext(cfg.root, cfg.dailyAvoidTerms, cfg.publicUrl);
+  const ctx = loadDailyContext(cfg.root, cfg.dailyAvoidTerms);
   const { errors, warnings, load } = checkDaily(cfg.root, ctx);
   if (values.base) errors.push(...baseErrors(cfg.root, values.base, load, values.workflow ?? false));
   for (const w of warnings) warn(w);
@@ -165,7 +165,7 @@ function cmdDailyImport(cfg: HubConfig, argv: string[]): void {
   if (!gen) outcome = "skipped";
   else if (!values.candidate) outcome = "failed";
   else {
-    res = importCandidate(date, values.candidate, items, loadDailyContext(cfg.root, cfg.dailyAvoidTerms, cfg.publicUrl));
+    res = importCandidate(date, values.candidate, items, loadDailyContext(cfg.root, cfg.dailyAvoidTerms));
     outcome = res.rejected ? "rejected" : res.topics!.topics.length;
   }
   for (const r of res?.rejected ?? []) fail(`候选被整体拒绝：${r}`);

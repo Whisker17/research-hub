@@ -415,11 +415,8 @@ export interface DailyContext {
   avoidTerms: string[];
 }
 
-/**
- * 从仓库读出检查用的上下文。related 与标签都走公开站点投影（lib/site-data.ts 的 projectSite，siteView 的纯函数版本）。
- * _publicUrl 已不再使用（ADR 0005 后投影不需要公开站点地址）；cli/commands 的调用方仍在传，留着参数免得改它们。
- */
-export function loadDailyContext(root: string, avoidTerms: string[], _publicUrl = ""): DailyContext {
+/** 从仓库读出检查用的上下文。related 与标签都走公开站点投影（lib/site-data.ts 的 projectSite，siteView 的纯函数版本）。 */
+export function loadDailyContext(root: string, avoidTerms: string[]): DailyContext {
   const { reports } = loadReports(root);
   const view = projectSite("public", reports, loadTags(root).tags);
   const all = new Set(reports.map((r) => r.slug));

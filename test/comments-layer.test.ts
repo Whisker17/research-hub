@@ -143,11 +143,13 @@ async function api(req: IncomingMessage, res: ServerResponse, origin: string) {
   }
   writes.push({ path: url.pathname, body: b });
   if (failWrites) return json(res, 503, { error: "D1 unavailable" });
-  for (const k of ["as", "agent_runtime", "agent_session"]) if (k in b) return json(res, 400, { error: `${k} is for agents` });
+  // 和 worker/comments.ts 一样：未知字段 400；人带 agent 字段 400
+  const allowed = parts.length === 1 ? ["slug", "lang", "quote", "prefix", "suffix", "heading", "rev", "body"] : parts[2] === "status" ? ["status"] : ["body"];
+  for (const k of Object.keys(b)) if (!allowed.includes(k)) return json(res, 400, { error: `unknown field: ${k}` });
   const body = typeof b.body === "string" ? b.body.trim() : "";
   if (parts[0] === "threads" && parts.length === 1) {
     if (!PAGES[b.slug as string] || !["zh", "en"].includes(b.lang as string)) return json(res, 404, { error: "unknown report" });
-    if (!(cps(b.quote) >= 1 && cps(b.quote) <= 1000 && cps(b.prefix) <= 64 && cps(b.suffix) <= 64 && cps(b.prefix) >= 0 && cps(b.suffix) >= 0)) return json(res, 400, { error: "bad selector" });
+    if (!(cps(b.quote) >= 1 && cps(b.quote) <= 1000 && cps(b.prefix) <= 64 && cps(b.suffix) <= 64 && typeof b.prefix === "string" && typeof b.suffix === "string")) return json(res, 400, { error: "bad selector" });
     if (b.heading !== undefined && !(cps(b.heading) >= 0 && cps(b.heading) <= 200)) return json(res, 400, { error: "bad heading" });
     if (!/^[0-9a-f]{12}$/.test(String(b.rev)) || !body || cps(body) > 4000) return json(res, 400, { error: "bad rev or body" });
     const t: Th = { id: randomUUID(), slug: b.slug as string, lang: b.lang as string, quote: b.quote as string, prefix: b.prefix as string, suffix: b.suffix as string, heading: (b.heading as string) ?? null, rev: b.rev as string, status: "open", created_at: now(), created_by: human.author, created_by_kind: "human", status_changed_at: null, status_changed_by: null, status_changed_by_kind: null };
