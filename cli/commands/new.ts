@@ -7,7 +7,7 @@ import { parseArgs } from "node:util";
 import type { HubConfig } from "../../lib/config.ts";
 import { LEDGER_TEMPLATE } from "../../lib/ledger.ts";
 import { isReservedSlug, reservedSlugMessage } from "../../lib/schema.ts";
-import { createReportDir, ensureTags, readFrontmatter, readText, str, strList } from "../lib/create.ts";
+import { SESSION_OPTIONS, createReportDir, ensureTags, resolveSession, readFrontmatter, readText, str, strList } from "../lib/create.ts";
 import { CliError, info, ok, slugify, splitList, today, warn } from "../lib/util.ts";
 
 export const NEW_HELP = `rh new <brief> [选项]
@@ -21,6 +21,8 @@ export const NEW_HELP = `rh new <brief> [选项]
   --tags <a,b>               标签，必须已登记；未登记的会提示确认
   --visibility <v>           public | private，默认 private（显式公开才公开）
   --created <YYYY-MM-DD>     默认今天
+  --session <id> --runtime <pi|claude-code>
+                             记录到 meta.yml 的 sessions；默认从 PI_SESSION_ID / CLAUDE_CODE_SESSION_ID 识别，识别不到就不记录
 
 brief frontmatter 可写：title、summary、slug、domain、tags、visibility。命令行参数优先。`;
 
@@ -41,7 +43,7 @@ export async function cmdNew(cfg: HubConfig, argv: string[]): Promise<void> {
     allowPositionals: true,
     options: {
       slug: { type: "string" }, title: { type: "string" }, summary: { type: "string" }, domain: { type: "string" },
-      tags: { type: "string" }, visibility: { type: "string" }, created: { type: "string" }, help: { type: "boolean", short: "h" },
+      tags: { type: "string" }, visibility: { type: "string" }, created: { type: "string" }, help: { type: "boolean", short: "h" }, ...SESSION_OPTIONS,
     },
   });
   if (values.help || positionals.length !== 1) {
@@ -61,6 +63,7 @@ export async function cmdNew(cfg: HubConfig, argv: string[]): Promise<void> {
   if (!domain) throw new CliError("缺少 domain：用 --domain 指定，或写在 brief 的 frontmatter 里");
   const tags = values.tags !== undefined ? splitList(values.tags) : (strList(fm.tags) ?? []);
   const visibility = values.visibility ?? str(fm.visibility) ?? "private";
+  const session = resolveSession(values);
 
   const inVault = !relative(cfg.vaultDir, briefPath).startsWith("..");
   const briefSource = inVault ? relative(cfg.vaultDir, briefPath) : briefPath;
@@ -78,6 +81,7 @@ export async function cmdNew(cfg: HubConfig, argv: string[]): Promise<void> {
     kind: "native",
     brief_source: briefSource,
     changelogNote: "创建（brief 快照）",
+    session,
   });
   copyFileSync(briefPath, join(dir, "brief.md"));
   mkdirSync(join(dir, "research"), { recursive: true });
