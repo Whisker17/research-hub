@@ -15,6 +15,7 @@ description: 在 research-hub 仓库里把一个研究 topic 做成手机友好�
 - **默认 private**。只有用户明确要求时才用 `--visibility public`；`domain: work` 一律 private。
 - **不编造**。页面上的每个论断都要在 `research/ledger.md` 有一行，类型只能是 observed / inferred / speculative；speculative 的论断要在页面上标明。
 - **不往报告 HTML 里注入 CSS 补丁**。手机检查不过就改稿件，或修 answer-me-with-html 源头。
+- **记录会话**：修改已有报告、或处理它的评论的会话，开始时先运行 `pnpm rh session add <slug>`（自动识别 pi / Claude Code 的会话；`rh new` / `rh import` 已自动记录）。`pnpm rh paths <slug>` 的 `resume` 行是恢复命令。
 - Claude Code 的 Bash 不是交互终端：`rh new` / `rh import` 遇到未登记的标签会直接失败。先在 ① 和用户确认标签，再 `pnpm rh tags add <key> --label <展示名>`。
 
 路径约定：报告目录 `reports/YYYY/MM/<slug>/`（下文记作 `$DIR`）。不要猜路径，运行 `pnpm rh paths [slug]`：它打印 vault 的 brief 目录（`briefs`）、answer-me-with-html 的 CLI（`am`）与文档目录（`am_docs`）；给出 slug 时还打印 `dir`、`status`、发布地址 `url` 和截图目录 `shots`。下文的 `am` 指 `node <am 路径>`。

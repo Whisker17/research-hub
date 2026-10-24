@@ -77,10 +77,10 @@ const tmpRoot = () => {
 };
 const cfgFor = (root: string) => ({ ...loadConfig(join(import.meta.dirname, "..")), root, vaultDir: join(root, "vault") });
 
-test("保留路由名：daily、tags、archive、fonts、about 与纯数字 slug 是保留的", () => {
-  for (const s of ["daily", "tags", "archive", "fonts", "about", "2026", "404", "0"]) assert.ok(isReservedSlug(s), s);
-  for (const s of ["daily-topics", "tags-2", "about-mantle", "2026-review", "p", "r", "meme-launchpad"]) assert.ok(!isReservedSlug(s), s);
-  assert.deepEqual([...RESERVED_SLUGS], ["daily", "tags", "archive", "fonts", "about"]);
+test("保留路由名：daily、tags、archive、fonts、about、api 与纯数字 slug 是保留的", () => {
+  for (const s of ["daily", "tags", "archive", "fonts", "about", "api", "2026", "404", "0"]) assert.ok(isReservedSlug(s), s);
+  for (const s of ["daily-topics", "tags-2", "about-mantle", "2026-review", "p", "r", "api-gateway", "meme-launchpad"]) assert.ok(!isReservedSlug(s), s);
+  assert.deepEqual([...RESERVED_SLUGS], ["daily", "tags", "archive", "fonts", "about", "api"]);
 });
 
 test("rh new 拒绝保留的 slug，不创建目录", async () => {

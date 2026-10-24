@@ -1,0 +1,5 @@
+[
+  { "slug": "alpha-report", "lang": "en", "rev": "0123456789ab", "title": "Alpha" },
+  { "slug": "alpha-report", "lang": "zh", "rev": "ba9876543210", "title": "阿尔法" },
+  { "slug": "zh-only", "lang": "zh", "rev": "aaaaaaaaaaaa", "title": "只有中文" }
+]

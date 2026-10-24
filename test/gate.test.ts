@@ -13,8 +13,8 @@ const jwk = { ...(await exportJWK(publicKey)), kid: "k1", alg: "RS256" };
 const jwks = createLocalJWKSet({ keys: [jwk] });
 const getKey = () => jwks;
 
-async function token(claims: { iss?: string; aud?: string; exp?: string } = {}) {
-  return new SignJWT({ email: "reviewer@example.com" })
+async function token(claims: { iss?: string; aud?: string; exp?: string; payload?: Record<string, unknown> } = {}) {
+  return new SignJWT(claims.payload ?? { email: "reviewer@example.com" })
     .setProtectedHeader({ alg: "RS256", kid: "k1" })
     .setIssuer(claims.iss ?? ISSUER)
     .setAudience(claims.aud ?? AUD)
@@ -27,7 +27,7 @@ const config = { teamDomain: TEAM, audience: AUD };
 
 test("valid Access token is allowed", async () => {
   const r = await checkAccess(headers(await token()), config, getKey);
-  assert.deepEqual(r, { ok: true, email: "reviewer@example.com" });
+  assert.deepEqual(r, { ok: true, identity: { kind: "human", email: "reviewer@example.com" } });
 });
 
 test("request without token is denied (Access bypassed/disabled)", async () => {
@@ -98,4 +98,41 @@ test("白名单：精确邮箱 + @域名（不含子域名、不被后缀伪造�
   assert.equal(isEmailAllowed("a@mantle.xyz@evil.com", list), false);
   assert.equal(isEmailAllowed(undefined, list), false);
   assert.equal(isEmailAllowed("anyone@x.com", ""), true, "白名单为空时只依赖 Access 策略");
+});
+
+// ADR 0005 §8：agent = 没有 email、common_name 精确在 AGENT_CLIENT_IDS 里
+const AGENT = "abc123.access";
+const agentToken = (payload: Record<string, unknown>) => token({ payload });
+
+test("allow-listed service token is an agent", async () => {
+  const r = await checkAccess(headers(await agentToken({ common_name: AGENT, sub: "" })), { ...config, allowedEmails: "owner@example.com", agentClientIds: `x.access, ${AGENT}` }, getKey);
+  assert.deepEqual(r, { ok: true, identity: { kind: "agent", clientId: AGENT } });
+});
+
+test("service token not allow-listed, or no allow-list at all, is denied", async () => {
+  for (const agentClientIds of [undefined, "", " , ", "x.access", AGENT.toUpperCase(), `${AGENT}x`]) {
+    const r = await checkAccess(headers(await agentToken({ common_name: AGENT })), { ...config, agentClientIds }, getKey);
+    assert.equal(r.ok, false, String(agentClientIds));
+    assert.equal(!r.ok && r.status, 403);
+  }
+});
+
+test("token without email or common_name is denied even with an empty email allow-list", async () => {
+  const r = await checkAccess(headers(await agentToken({ sub: "x" })), { ...config, agentClientIds: AGENT }, getKey);
+  assert.equal(r.ok, false);
+  assert.equal(!r.ok && r.status, 403);
+});
+
+test("a token with email is never an agent", async () => {
+  for (const email of ["eve@example.com", "", 42]) {
+    const r = await checkAccess(headers(await agentToken({ email, common_name: AGENT })), { ...config, allowedEmails: "owner@example.com", agentClientIds: AGENT }, getKey);
+    assert.equal(r.ok, false, String(email));
+  }
+});
+
+test("agent token for another app or issuer is denied", async () => {
+  const c = { ...config, agentClientIds: AGENT };
+  for (const t of [await token({ aud: "other-app", payload: { common_name: AGENT } }), await token({ iss: "https://evil.cloudflareaccess.com", payload: { common_name: AGENT } })]) {
+    assert.equal((await checkAccess(headers(t), c, getKey)).ok, false);
+  }
 });
