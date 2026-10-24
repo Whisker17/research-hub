@@ -15,7 +15,7 @@
    - 公开 Worker 只有静态资源，没有 Worker 代码（`wrangler.public.jsonc`）。私有 Worker（`worker/private.ts`）对每个请求先校验 Access JWT（`worker/gate.ts` 的 `checkAccess()`：签名、issuer、AUD、有效期，再按 `ALLOWED_EMAILS` 检查 `email`），通过后才从 `ASSETS` 返回；`run_worker_first: true`，所有路径都先经过 Worker。
    - 外壳只在 `cli/lib/build.ts` 的 `decorateReport()` 注入；`deployedReportHtml(r, lang)` 给 `rh build` 与 `rh check` 的手机检查共用，返回链接按报告的可见性选 `/` 或 `/p/`。私有站点的数据投影在 `lib/site-data.ts` 的 `projectSite()`：私有站点上 public 报告的链接与缩略图用 `publicUrl` 绝对地址（0003 决定 2、4）。
    - 21 篇报告全部是 private + published，其中 20 篇有英文版与 `card.png`，没有报告带 `assets/`。41 个报告页（21 中文 + 20 英文）都恰好有一个 `.am-doc-body`；页面里的 `<article>` 有 6–23 个（am 的 finding、prereq 卡片），所以“第一个 `article`”不能当正文根。
-   - D1 数据库 `research-hub-comments` 已由所有者创建（`wrangler d1 list`：uuid `3515ff96-6b73-4b13-9cee-7a7351490ea8`，0 张表）。
+   - D1 数据库 `research-hub-comments` 已由 release 编排者经所有者明确授权用 `wrangler d1 create` 创建（2026-10-24；`wrangler d1 list`：uuid `3515ff96-6b73-4b13-9cee-7a7351490ea8`，0 张表）。
    - 还没有真实的 service token（所有者在创建）。Cloudflare 文档给出了 service token 签发的应用 JWT 的形状（决定 8）。
 
 ## 决定
@@ -119,7 +119,7 @@ comments(id, thread_id, body ≤4000 plain text, author, author_kind human|agent
 - 写请求（`POST`）：必须 `content-type: application/json`；带 `Origin` 时必须与请求 URL 同源；**不带 `Origin` 只接受 agent 身份**（浏览器的 `fetch` POST 总会带 `Origin`）。
 - 错误：400 校验失败（字段、长度、枚举、JSON、content-type）；403 身份或 `Origin` 不合格；404 未知的 slug、线程或 `/api/comments` 下的未知路径。错误体是 `{error: "<说明>"}`。
 - v1 不限流：只有白名单里的人和 agent 能访问，加上长度上限。
-- 路由名：`/api/` 是新增的站点路由，按 0003 决定 5 的规则把 `api` 加进 `lib/schema.ts` 的保留 slug 名单（WHI-2156；现有 slug 都不是 `api`）。`_rh` 含下划线，本来就不是合法 slug。
+- 路由名：`/api/` 是新增的站点路由，按 0003 决定 5 的规则把 `api` 加进 `lib/schema.ts` 的保留 slug 名单（WHI-2155，它在 0.1.1 中负责 `lib/schema.ts`；现有 slug 都不是 `api`）。`_rh` 含下划线，本来就不是合法 slug。
 - 原因：分页把每个响应的大小限定住；同源加 JSON content-type 挡住跨站表单的 CSRF；agent（curl / CLI）没有 `Origin`，所以只对 agent 放开。
 
 ### 10. agent 处理评论的流程（research-hub skill，“处理评论”）
