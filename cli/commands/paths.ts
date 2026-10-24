@@ -5,6 +5,7 @@
 import { dirname, join, relative } from "node:path";
 import type { HubConfig } from "../../lib/config.ts";
 import { loadReports, reportPath } from "../../lib/reports.ts";
+import { resumeCommand } from "../../lib/session.ts";
 import { CliError, info } from "../lib/util.ts";
 
 export const PATHS_HELP = `rh paths [slug]
@@ -17,7 +18,8 @@ export const PATHS_HELP = `rh paths [slug]
   dir       报告目录（仓库相对路径）
   status    draft | published，以及 visibility、kind
   url       发布后的地址（public → /r/<slug>/，private → /p/<slug>/）
-  shots     手机检查截图目录`;
+  shots     手机检查截图目录
+  resume    每个记录的会话一行恢复命令（pi --session <id> / claude --resume <id>）`;
 
 export function cmdPaths(cfg: HubConfig, argv: string[]): void {
   if (argv.includes("-h") || argv.includes("--help")) return info(PATHS_HELP);
@@ -38,6 +40,7 @@ export function cmdPaths(cfg: HubConfig, argv: string[]): void {
       ["url", `${base}${reportPath(report)}`],
       ["shots", relative(cfg.root, join(cfg.root, ".rh", "shots", slug))],
     );
+    for (const s of report.meta.sessions ?? []) rows.push(["resume", `${resumeCommand(s)}  # ${s.at}${s.note ? ` ${s.note}` : ""}`]);
   }
   for (const [k, v] of rows) info(`${k.padEnd(8)} ${v}`);
 }

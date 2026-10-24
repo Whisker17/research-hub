@@ -9,7 +9,7 @@ import { parseArgs } from "node:util";
 import { stringify as stringifyYaml } from "yaml";
 import type { HubConfig } from "../../lib/config.ts";
 import { loadReports } from "../../lib/reports.ts";
-import { createReportDir, ensureTags, readFrontmatter, readText, str } from "../lib/create.ts";
+import { SESSION_OPTIONS, createReportDir, ensureTags, resolveSession, readFrontmatter, readText, str } from "../lib/create.ts";
 import { CliError, info, ok, splitList, today } from "../lib/util.ts";
 import { renderReport } from "./render.ts";
 
@@ -23,6 +23,7 @@ export const IMPORT_HELP = `rh import report (--explainer <am稿件.md> | --html
   --source-repo <路径|URL> 来源仓库；本地路径会记录为 <remote>:<仓库内路径>@<commit>
   --title / --summary     默认取 explainer frontmatter 的 title / subtitle，或 HTML 的 <title>
   --tags <a,b>  --visibility <public|private，默认 private>  --created <YYYY-MM-DD，默认取稿件 date 或今天>
+  --session <id> --runtime <pi|claude-code>  记录会话；默认从环境变量识别，识别不到就不记录
 
 rh import research <slug> <file.md> --tool <工具名>
 
@@ -78,7 +79,7 @@ async function importReport(cfg: HubConfig, argv: string[]): Promise<void> {
     options: {
       explainer: { type: "string" }, html: { type: "string" }, source: { type: "string" }, assets: { type: "string" },
       "source-repo": { type: "string" }, slug: { type: "string" }, title: { type: "string" }, summary: { type: "string" },
-      domain: { type: "string" }, tags: { type: "string" }, visibility: { type: "string" }, created: { type: "string" },
+      domain: { type: "string" }, tags: { type: "string" }, visibility: { type: "string" }, created: { type: "string" }, ...SESSION_OPTIONS,
       help: { type: "boolean", short: "h" },
     },
   });
@@ -96,6 +97,7 @@ async function importReport(cfg: HubConfig, argv: string[]): Promise<void> {
   const summary = values.summary ?? str(fm.subtitle) ?? str(fm.summary);
   if (!summary) throw new CliError("无法确定摘要，请用 --summary 指定");
   const tags = splitList(values.tags);
+  const session = resolveSession(values);
 
   await ensureTags(cfg.root, tags);
   const { dir } = createReportDir(cfg.root, {
@@ -109,6 +111,7 @@ async function importReport(cfg: HubConfig, argv: string[]): Promise<void> {
     kind: "imported",
     source_repo: describeSource(values["source-repo"]),
     changelogNote: "导入",
+    session,
   });
   if (values.explainer) copyFileSync(values.explainer, join(dir, "explainer.md"));
   if (values.html) copyFileSync(values.html, join(dir, "index.html"));

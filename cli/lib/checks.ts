@@ -142,7 +142,8 @@ async function checkSingleHtmlMobile(
 ): Promise<MobileResult | CacheEntry | null> {
   const source = join(report.dir, file);
   if (!existsSync(source) || !opts.browser) return null;
-  const deployed = deployedReportHtml(report, file === REPORT_FILES.htmlEn ? "en" : "zh");
+  // 用报告自己的站点：private 报告带评论层（默认收起，不影响检查），public 报告是公开站点的页面
+  const deployed = deployedReportHtml(report, file === REPORT_FILES.htmlEn ? "en" : "zh", report.meta.visibility === "public" ? "public" : "private");
   const key = cacheKey(Buffer.from(deployed));
   const cacheName = cacheSuffix ? `${report.slug}-${cacheSuffix}.json` : `${report.slug}.json`;
   const cacheFile = opts.cacheDir ? join(opts.cacheDir, cacheName) : null;

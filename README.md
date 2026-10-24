@@ -29,7 +29,7 @@ pnpm dev         # 本地预览索引页（报告页需先 pnpm build，再看 d
 
 ## 工作流
 
-在 Claude Code 里直接说“用 research-hub 做一篇 <topic> 的报告”（或给出资料、外部调研结果、现成 HTML），项目 skill [`.claude/skills/research-hub/`](.claude/skills/research-hub/SKILL.md) 会按下表驱动全流程，并在三个把关点停下等你确认。`rh paths [slug]` 打印 vault brief 目录、am 位置、报告目录与发布地址。
+在 Claude Code 里直接说“用 research-hub 做一篇 <topic> 的报告”（或给出资料、外部调研结果、现成 HTML），项目 skill [`.claude/skills/research-hub/`](.claude/skills/research-hub/SKILL.md) 会按下表驱动全流程，并在三个把关点停下等你确认。`rh paths [slug]` 打印 vault brief 目录、am 位置、报告目录、发布地址，以及记录过的 agent 会话的恢复命令（`pi --session <id>` / `claude --resume <id>`）。`rh new` / `rh import` 自动记录当前会话（pi：`PI_SESSION_ID`；Claude Code：`CLAUDE_CODE_SESSION_ID`）；修改报告或处理评论的会话用 `rh session add <slug>` 追加。
 
 | 步骤 | 命令 | 人工把关 |
 | --- | --- | --- |
@@ -48,6 +48,8 @@ pnpm dev         # 本地预览索引页（报告页需先 pnpm build，再看 d
 - **推特卡片模式**：有 `card.png` 的报告，阅读路径（5 分钟 / 30 分钟 / 完整）后面多一个“推特卡片”。卡片和推文只有英文版（推特统一用英文发），中英文页展示同一份。点开后有推文文案（`card.yml` 的 `tweet`，X 计数 ≤ `rh.config.json` 的 `cardTweetMax`）和“复制文案”“复制图片”：在 X 里引用源推文，先粘贴文案，再粘贴图片（PNG 直接写进剪贴板，不用下载）；`#tweet-card` 锚点直接打开这个模式。复制需要 https（线上站点）或 localhost；不支持的浏览器会提示手动复制。卡片页脚是日期与水印（`cardHandle`）。卡片以中立研究者口吻写，尽量不提 Mantle（`cardAvoidTerms`）。卡片写法与深度控制见 [references/tweet-card.md](.claude/skills/research-hub/references/tweet-card.md)。给已发布报告补卡片：写 `card.yml` → `rh card <slug>` → `rh publish <slug> --note "推特卡片"`。
 
 导入其他仓库完成的研究：`rh import report --explainer <am稿件.md> | --html <页面.html> --slug … --domain … --source-repo <路径>`。
+
+处理报告页上的评论（ADR 0005，只在私有站点）：对 agent 说“看看我在 <slug> 上的评论”，skill 按“处理评论”一节走：回复线程，或改稿后回复“已准备，未发布”，由你 `rh publish`。命令是 `rh comments list [<slug>] [--status open|resolved|all] [--lang zh|en] [--json]`、`rh comments show <threadId>`、`rh comments reply <threadId> --body <文字>`、`rh comments resolve|reopen <threadId>`；认证用 Access service token，环境变量 `RH_ACCESS_CLIENT_ID` / `RH_ACCESS_CLIENT_SECRET`。`--json`（`rh.comments/v1`）给出每个线程的地址、引文在 explainer 里的行号（唯一匹配才给）、页面是否已重新渲染（`outdated`）和全部评论。
 
 ### 检查的严格程度
 
@@ -68,21 +70,31 @@ Chrome 无头模式，390×844 手机视口：
 
 ## 部署
 
-push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型检查、测试、`rh check --no-shot`、`rh build` → 部署 `research-hub-private` 与 `research-hub` → `scripts/smoke.sh` 冒烟测试（公开站点的 `/build.json` 与首页是刚部署的版本，各轮询约 2 分钟；私有站点对匿名请求只返回 Access 重定向或 403 / 503）。
+push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型检查、测试、`rh check --no-shot`、`rh build` → D1 迁移（`wrangler d1 migrations apply research-hub-comments --remote`，失败就不部署）→ 部署 `research-hub-private` 与 `research-hub` → `scripts/smoke.sh` 冒烟测试（公开站点的 `/build.json` 与首页是刚部署的版本，各轮询约 2 分钟；私有站点对匿名请求只返回 Access 重定向或 403 / 503）。
 
-本机也可以直接部署：`pnpm deploy:manual`（需要 `wrangler login`）。
+本机也可以直接部署：`pnpm deploy:manual`（需要 `wrangler login`；同样先跑迁移）。评论存在 D1 `research-hub-comments`（binding `COMMENTS`），迁移在 `worker/migrations/`，只做加法（[ADR 0005](docs/decisions/0005-inline-comments.md) §2）。
 
-### 一次性配置（均已完成，记录供重建时参考）
+### 一次性配置（1、2 已完成，记录供重建时参考）
 
 1. **Cloudflare Access（私有站点）**：控制台 → Workers & Pages → `research-hub-private` → **Access** 标签 → Protect this Worker behind Access，策略 Include：Emails = demiwhisker@gmail.com，再加一条 Include：Emails ending in = @mantle.xyz（两条 Include 是“或”的关系；不要放进 Require）；Preview URL 保持关闭；不要在控制台手动填 `ACCESS_AUD`（每次部署会被 `wrangler.private.jsonc` 覆盖）。然后运行 `pnpm access:setup`：它从 Access 重定向里读出 AUD，写入 `wrangler.private.jsonc` 并重新部署。提交这个文件。在这之前，私有站点对所有请求返回 503（失败即拒绝）。
-2. **CI 部署凭据**：Cloudflare 创建 API Token（权限：Account → Workers Scripts → Edit），然后：
+2. **CI 部署凭据**：Cloudflare 创建 API Token（权限：Account → Workers Scripts → Edit，**Account → D1 → Edit**：部署前要执行 D1 迁移），然后：
    ```sh
    gh secret set CLOUDFLARE_API_TOKEN      # 粘贴 token
    gh variable set DEPLOY_ENABLED --body true
    ```
    `CLOUDFLARE_ACCOUNT_ID` 已配置。`DEPLOY_ENABLED` 不是 `true` 时，CI 只校验与构建，不部署。
+3. **评论 API（[ADR 0005](docs/decisions/0005-inline-comments.md) §2、§8；0.1.1 起）**：
+   1. D1 `research-hub-comments` 已创建（id 在 `wrangler.private.jsonc`）；重建时用 `wrangler d1 create research-hub-comments`，把新 id 写进 `wrangler.private.jsonc`。
+   2. 给第 2 步的 API Token 加上 Account → D1 → Edit（控制台 → My Profile → API Tokens → 编辑这个 token）。缺这个权限时，CI 的迁移步骤失败，不会部署。
+   3. Zero Trust 控制台 → Access → Service credentials → Service Tokens → Create Service Token（名字如 `research-hub-agent`）。记下 Client ID（形如 `<hex>.access`）和 Client Secret（只显示一次）。
+   4. Zero Trust → Access → Applications → `research-hub-private` 的 Access 应用 → Policies → Add a policy：Action = **Service Auth**，Include：Service Token = 第 3 步的 token。原来的邮箱 Allow 策略不动。
+   5. 把 Client ID 写进 `wrangler.private.jsonc` 的 `AGENT_CLIENT_IDS`（逗号分隔，不是秘密），提交并部署。为空时 Worker 不接受任何 agent。
+   6. Client ID / Secret 只放在本机 shell 环境：`export RH_ACCESS_CLIENT_ID=… RH_ACCESS_CLIENT_SECRET=…`。agent 请求带 `CF-Access-Client-Id` / `CF-Access-Client-Secret` 两个请求头。
+   撤销 agent：从 `AGENT_CLIENT_IDS` 删掉 client id 后部署，或在 Access 里吊销 token。
 
 ## Daily Topics 运行手册（`.github/workflows/daily.yml`）
+
+> **已暂停（2026-10-24）：所有者改用外部工具。** 下面描述的是启用时的行为；现在不会运行，重新启用见“启用 / 关闭”。`/daily/` 历史页面作为存档保留在线上。
 
 每天 04:30 / 08:15 / 13:30 UTC 运行（[ADR 0004](docs/decisions/0004-public-daily-topics.md) §4、§11）：处理今天（UTC）；昨天还不是终态时一并收尾。已是终态的日期什么都不做，所以重复运行、补跑都是安全的。三段 job 分权，结果推送到 Lark：
 
@@ -100,10 +112,11 @@ push 到 `main` → GitHub Actions（`.github/workflows/deploy.yml`）：类型�
 
 ### 启用 / 关闭
 
-- 启用（合并到 `main` 之后，由所有者执行）：`gh variable set DAILY_ENABLED --body true`。默认关闭：变量不是 `true` 时定时和手动运行都直接跳过。
-- 关闭：`gh variable set DAILY_ENABLED --body false`。不影响站点和报告。
+- 当前状态：**已暂停（2026-10-24）：所有者改用外部工具**。workflow 已禁用，`DAILY_ENABLED=false`；代码、workflow 文件、`daily/` 数据和 `/daily/` 页面都保留。核对：`gh workflow list --all`（daily 为 `disabled_manually`）、`gh variable list`（`DAILY_ENABLED false`）。
+- 暂停（两条都要执行）：`gh workflow disable daily.yml` + `gh variable set DAILY_ENABLED --body false`。只设变量时定时任务仍会每天跑三次空运行，而且 push 到 `daily-trial/**` 不看 `DAILY_ENABLED`；暂停期间不要 push `daily-trial/**`。不影响站点和报告。
+- 重新启用（由所有者执行）：`gh workflow enable daily.yml` + `gh variable set DAILY_ENABLED --body true`。默认关闭：变量不是 `true` 时定时和手动运行都直接跳过。暂停期间 BlockBeats 账本的 Actions cache 可能已过期，见下面第一次运行的 `seed_ledger` 说明。
 - 模型：默认 `claude-sonnet-5-5`；`gh variable set DAILY_MODEL --body <model>` 改，删掉变量恢复默认。
-- 第一次在 `main` 上运行时 Actions cache 里还没有 BlockBeats 账本，按 WHI-1931 的规则当天不调用 BlockBeats（失败即关闭）。确定当天还没调用过时，可以手动运行一次并勾选 `seed_ledger`，从空账本开始。
+- 第一次在 `main` 上运行（包括暂停后重新启用、账本 cache 已过期）时 Actions cache 里还没有 BlockBeats 账本，按 WHI-1931 的规则当天不调用 BlockBeats（失败即关闭）。确定当天还没调用过时，可以手动运行一次并勾选 `seed_ledger`，从空账本开始。
 
 ### 手动运行、补跑与 regenerate
 

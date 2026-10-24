@@ -13,6 +13,7 @@
  * 最后做泄漏检查：公开产物里不能出现任何私有报告或 draft 的标题、摘要、路径，只用于非公开报告的标签描述，
  * 以及调用方登记的内部数据（如 Daily 的状态与内部清单字段）。
  */
+import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { crc32, deflateSync, inflateSync } from "node:zlib";
@@ -21,6 +22,8 @@ import { REPORT_FILES, isPublicPublished, isPublished, type Report } from "../..
 import type { TagRegistry } from "../../lib/schema.ts";
 import { THUMB_FILE, type Site } from "../../lib/site-data.ts";
 import { loadCard, tweetLength } from "./card.ts";
+import { commentsAnchor } from "./comments-anchor.ts";
+import { commentsLayer } from "./comments-layer.ts";
 
 export const BACK_LINK_ATTR = "data-rh-back";
 /** 公开站点上的构建信息（WHI-1972） */
@@ -43,6 +46,8 @@ export interface DecorateOptions {
   altHref?: string;
   /** 推特卡片：PNG 的相对地址与要引用的源推文；没有卡片时不出现卡片模式 */
   card?: { src: string; quote?: string; tweet?: string };
+  /** 评论层（只在私有站点，ADR 0005）：报告 slug 与未注入外壳的 HTML 的 rev */
+  comments?: { slug: string; rev: string };
 }
 
 const UI: Record<PageLang, Record<string, string>> = {
@@ -62,6 +67,26 @@ const UI: Record<PageLang, Record<string, string>> = {
     tweetLabel: "推文文案",
     count: "X 计数",
     fold: "（会员长文：信息流中约 280 字符后折叠为“显示更多”）",
+    cmt: "评论",
+    cmtLang: "中文",
+    cmtAdd: "评论",
+    cmtNew: "写评论…",
+    cmtReply: "回复…",
+    cmtSend: "发送",
+    cmtCancel: "取消",
+    cmtResolved: "显示已解决",
+    cmtResolve: "解决",
+    cmtReopen: "重新打开",
+    cmtLink: "复制链接",
+    cmtCopy: "复制",
+    cmtCopied: "已复制",
+    cmtPrev: "上一条",
+    cmtNext: "下一条",
+    cmtClose: "关闭",
+    cmtOutdated: "已失效",
+    cmtMore: "更早的评论",
+    cmtAgent: "Agent",
+    cmtFail: "发送失败",
   },
   en: {
     langGroup: "Language / 语言",
@@ -79,6 +104,26 @@ const UI: Record<PageLang, Record<string, string>> = {
     tweetLabel: "Tweet text",
     count: "X count",
     fold: " (Premium long post: folds under “Show more” at around 280 characters)",
+    cmt: "Comments",
+    cmtLang: "EN",
+    cmtAdd: "Comment",
+    cmtNew: "Add a comment…",
+    cmtReply: "Reply…",
+    cmtSend: "Send",
+    cmtCancel: "Cancel",
+    cmtResolved: "Show resolved",
+    cmtResolve: "Resolve",
+    cmtReopen: "Reopen",
+    cmtLink: "Copy link",
+    cmtCopy: "Copy",
+    cmtCopied: "Copied",
+    cmtPrev: "Previous",
+    cmtNext: "Next",
+    cmtClose: "Close",
+    cmtOutdated: "Outdated",
+    cmtMore: "Earlier comments",
+    cmtAgent: "Agent",
+    cmtFail: "Couldn't send",
   },
 };
 
@@ -96,13 +141,14 @@ const fontFace = (family: string, file: string) =>
  * 颜色取报告自己的 am 主题变量（跟着报告的主题与明暗走），没有时回退到系统颜色。
  * am 页面：语言切换在桌面放进右上角工具栏，在窄屏（工具栏占满一行）放在返回链接那一行的右侧。
  */
-function injectedStyle(o: { amToolbar: boolean; amPaths: boolean; lang: boolean; card: boolean }): string {
+function injectedStyle(o: { amToolbar: boolean; amPaths: boolean; lang: boolean; card: boolean; comments: boolean }): string {
   const font = SHELL_UI;
+  // span[…]：评论层的按钮也带 data-rh-lang（ADR 0005 §4），语言切换的样式不能作用到它
   const langRules = [
-    `[data-rh-lang]{display:inline-flex;align-items:stretch;flex:none;min-height:32px;border:1px solid var(--line,rgba(127,127,127,.45));border-radius:8px;overflow:hidden;background:var(--paper,Canvas);font:500 12px/1 ${font};letter-spacing:.01em}`,
-    `[data-rh-lang]>*{display:flex;align-items:center;padding:0 11px;color:var(--ink-2,inherit);text-decoration:none;opacity:1}`,
-    `[data-rh-lang]>a:hover{color:var(--ink,inherit);background:var(--fill,rgba(127,127,127,.12))}`,
-    `[data-rh-lang]>[aria-current]{background:var(--ink,CanvasText);color:var(--paper,Canvas);font-weight:600}`,
+    `span[data-rh-lang]{display:inline-flex;align-items:stretch;flex:none;min-height:32px;border:1px solid var(--line,rgba(127,127,127,.45));border-radius:8px;overflow:hidden;background:var(--paper,Canvas);font:500 12px/1 ${font};letter-spacing:.01em}`,
+    `span[data-rh-lang]>*{display:flex;align-items:center;padding:0 11px;color:var(--ink-2,inherit);text-decoration:none;opacity:1}`,
+    `span[data-rh-lang]>a:hover{color:var(--ink,inherit);background:var(--fill,rgba(127,127,127,.12))}`,
+    `span[data-rh-lang]>[aria-current]{background:var(--ink,CanvasText);color:var(--paper,Canvas);font-weight:600}`,
   ];
   const btn = `font:500 13px/1 ${font};min-height:36px;padding:0 14px;display:inline-flex;align-items:center;border-radius:8px;border:1px solid var(--line,rgba(127,127,127,.45));background:var(--paper,Canvas);color:var(--ink,inherit);text-decoration:none;cursor:pointer`;
   const cardRules = [
@@ -126,11 +172,51 @@ function injectedStyle(o: { amToolbar: boolean; amPaths: boolean; lang: boolean;
       ? `html[data-rh-view="card"] .am-research>:not(.am-paths):not([data-rh-card]){display:none!important}`
       : `html[data-rh-view="card"] body>:not([${BACK_LINK_ATTR}]):not([data-rh-card]):not(.am-toolbar):not(script):not(style){display:none!important}`,
   ];
-  const rules = [...(o.lang ? langRules : []), ...(o.card ? cardRules : [])];
+  const line = "var(--line,rgba(127,127,127,.35))";
+  const small = `font:500 12px/1 ${font};min-height:30px;padding:0 10px;display:inline-flex;align-items:center;gap:6px;border-radius:6px;border:1px solid ${line};background:var(--paper,Canvas);color:var(--ink,inherit);cursor:pointer`;
+  const inverse = "background:var(--ink,CanvasText);color:var(--paper,Canvas);border-color:var(--ink,CanvasText)";
+  // 评论层（ADR 0005 §6、§7）：抽屉覆盖在报告上方（不让报告重新排版），默认 hidden；::highlight 是唯一的例外，只设背景色
+  const commentRules = [
+    `[data-rh-comments-btn][hidden],[data-rh-cmt-drawer][hidden],[data-rh-cmt-add][hidden],[data-rh-cmt-drawer] [hidden]{display:none!important}`,
+    `[data-rh-comments-btn]{${small};min-height:32px;flex:none}`,
+    `[data-rh-comments-btn][aria-expanded="true"]{${inverse}}`,
+    `[data-rh-cmt-drawer]{position:fixed;z-index:2147483000;top:0;right:0;bottom:0;width:min(380px,100vw);box-sizing:border-box;display:flex;flex-direction:column;background:var(--paper,Canvas);color:var(--ink,CanvasText);border-left:1px solid ${line};box-shadow:-12px 0 32px rgba(0,0,0,.16);font:14px/1.5 ${font};text-align:left}`,
+    `@media (max-width:760px){[data-rh-cmt-drawer]{top:auto;left:0;width:auto;max-height:72vh;border-left:0;border-top:1px solid ${line};border-radius:14px 14px 0 0;box-shadow:0 -12px 32px rgba(0,0,0,.18)}}`,
+    `[data-rh-cmt-head]{display:flex;align-items:center;gap:6px;padding:10px 12px;border-bottom:1px solid ${line}}`,
+    `[data-rh-cmt-head]>strong{flex:1;font-weight:600}`,
+    `[data-rh-cmt-head]>label{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--ink-3,GrayText)}`,
+    `[data-rh-cmt-drawer] button{${small}}`,
+    `[data-rh-cmt-drawer] button:not([data-rh-cmt-send]):hover{background:var(--fill,rgba(127,127,127,.12))}`,
+    `[data-rh-cmt-drawer] [data-rh-cmt-send]{${inverse}}`,
+    `[data-rh-cmt-list]{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 0 10px}`,
+    `[data-rh-cmt-composer],[data-rh-cmt-thread]{margin:10px 12px 0;padding:10px;border:1px solid ${line};border-radius:8px}`,
+    `[data-rh-cmt-thread][data-active]{border-color:var(--ink,CanvasText)}`,
+    `[data-rh-cmt-thread][data-status="resolved"]{opacity:.7}`,
+    `[data-rh-cmt-qrow]{display:flex;gap:6px;align-items:flex-start}`,
+    `[data-rh-cmt-drawer] [data-rh-cmt-quote]{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;min-width:0;min-height:0;margin:0;padding:2px 0 2px 8px;border:0;border-left:3px solid #eab308;border-radius:0;background:none;color:var(--ink-2,inherit);font:13px/1.5 ${font};text-align:left;overflow-wrap:anywhere}`,
+    `[data-rh-outdated] [data-rh-cmt-quote]{border-left-color:${line}}`,
+    `[data-rh-cmt-agent],[data-rh-cmt-tag]{flex:none;font:600 10px/1 ${font};padding:3px 5px;border-radius:4px;background:var(--fill,rgba(127,127,127,.15));color:var(--ink-2,inherit);letter-spacing:.03em}`,
+    `[data-rh-cmt-c]{margin:10px 0 0}`,
+    `[data-rh-cmt-who]{display:flex;align-items:center;gap:6px;font-size:12px}`,
+    `[data-rh-cmt-who]>time{color:var(--ink-3,GrayText)}`,
+    `[data-rh-cmt-av]{width:22px;height:22px;flex:none;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font:600 11px/1 ${font}}`,
+    `[data-rh-cmt-body]{margin:4px 0 0 28px;white-space:pre-wrap;overflow-wrap:anywhere}`,
+    `[data-rh-cmt-resume]{display:flex;gap:6px;align-items:center;margin:6px 0 0 28px}`,
+    `[data-rh-cmt-resume]>code{flex:1;min-width:0;padding:4px 6px;border-radius:4px;background:var(--fill,rgba(127,127,127,.12));font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}`,
+    `[data-rh-cmt-drawer] textarea{display:block;width:100%;box-sizing:border-box;margin:8px 0 0;padding:6px 8px;border:1px solid ${line};border-radius:6px;background:var(--paper,Canvas);color:inherit;font:14px/1.5 ${font};resize:vertical}`,
+    `[data-rh-cmt-row]{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;margin-top:8px}`,
+    `[data-rh-cmt-err]{margin:6px 0 0;color:var(--warn,#b45309);font-size:13px;overflow-wrap:anywhere}`,
+    `[data-rh-cmt-add]{position:fixed;z-index:2147483001;${small};${inverse};box-shadow:0 6px 18px rgba(0,0,0,.2)}`,
+    `::highlight(rh-comment){background-color:rgba(234,179,8,.35)}`,
+  ];
+  const rules = [...(o.lang ? langRules : []), ...(o.card ? cardRules : []), ...(o.comments ? commentRules : [])];
   if (o.amToolbar) {
     // 窄屏上 am 工具栏是 absolute（页面右上角，几乎占满一行）：返回链接那一行挪到工具栏下方
-    rules.push(`@media (max-width:760px){nav[${BACK_LINK_ATTR}]{padding-top:50px!important}${o.lang ? ".am-toolbar>[data-rh-lang]{display:none}" : ""}}`);
-    if (o.lang) rules.push(`@media (min-width:761px){nav[${BACK_LINK_ATTR}] [data-rh-lang]{display:none}}`);
+    // 语言切换与评论按钮各两份：桌面在工具栏里，窄屏在返回链接那一行
+    const narrowHide = [o.lang ? ".am-toolbar>span[data-rh-lang]" : "", o.comments ? ".am-toolbar>[data-rh-comments-btn]" : ""].filter(Boolean);
+    const wideHide = [o.lang ? `nav[${BACK_LINK_ATTR}] span[data-rh-lang]` : "", o.comments ? `nav[${BACK_LINK_ATTR}] [data-rh-comments-btn]` : ""].filter(Boolean);
+    rules.push(`@media (max-width:760px){nav[${BACK_LINK_ATTR}]{padding-top:50px!important}${narrowHide.length ? `${narrowHide.join(",")}{display:none}` : ""}}`);
+    if (wideHide.length) rules.push(`@media (min-width:761px){${wideHide.join(",")}{display:none}}`);
   }
   // 只要注入了样式，就带上外壳字体（字体只在用到时才下载）
   return rules.length ? `<style data-rh-style>${fontFace("rh-inter", "inter.woff2")}${fontFace("rh-newsreader", "newsreader.woff2")}${rules.join("")}</style>` : "";
@@ -210,10 +296,25 @@ copy.textContent=copy.dataset.done;setTimeout(()=>{copy.textContent=label},2200)
 finally{copy.disabled=false}})})();</script>`;
 
 /**
+ * 评论层脚本：脚本元素本身带 data-rh-slug / lang / rev（ADR 0005 §4）；锚定代码与界面文字作为参数传进 commentsLayer
+ * （两者都自成一体，见各自文件的说明）。
+ */
+function commentsScript(c: NonNullable<DecorateOptions["comments"]>, lang: PageLang): string {
+  const strings = Object.fromEntries(Object.entries(UI[lang]).filter(([k]) => k.startsWith("cmt")));
+  // JSON 里的 < 转义，文字永远不会提前结束 <script>
+  return (
+    `<script data-rh-comments data-rh-slug="${escapeHtml(c.slug)}" data-rh-lang="${lang}" data-rh-rev="${escapeHtml(c.rev)}">` +
+    `(${commentsLayer.toString()})(document.currentScript.dataset,(${commentsAnchor.toString()})(),${JSON.stringify(strings).replace(/</g, "\\u003c")});</script>`
+  );
+}
+
+/**
  * 部署前给报告 HTML 加上站点外壳。幂等（已注入过的页面原样返回）。
  *  - <body> 开头：返回链接；有另一种语言版本时，右侧是中文 / EN 切换（窄屏）。
  *  - am 工具栏开头：中文 / EN 切换（桌面，右上角）。
  *  - am 阅读路径末尾：“推特卡片”按钮；路径条下方：卡片区（默认隐藏）。非 am 页面放在返回链接那一行。
+ *  - 评论层（opts.comments，只在私有站点）：带数量的按钮（和语言切换同样的位置：am 工具栏开头 / 窄屏在返回链接一行右侧；
+ *    默认 hidden，API 可用时才显示）与 <script data-rh-comments>。
  *  - <head>：robots noindex。
  */
 export function decorateReport(html: string, opts: DecorateOptions): string {
@@ -230,7 +331,12 @@ export function decorateReport(html: string, opts: DecorateOptions): string {
     const cardBtn = opts.card ? `<button class="am-btn" type="button" data-rh-card-btn aria-pressed="false">${escapeHtml(ui.cardBtn)}</button>` : "";
     const section = opts.card ? cardSection(opts.card, ui) : "";
 
-    const right = `${amPaths ? "" : cardBtn}${toggle}`;
+    const c = opts.comments;
+    // 图标 + 数量（最少标签规则；文字放在无障碍名里），窄屏上和卡片按钮、语言切换挤在同一行也不溢出
+    const cmtBtn = c
+      ? `<button type="button" data-rh-comments-btn aria-label="${escapeHtml(ui.cmt)}" title="${escapeHtml(ui.cmt)}" hidden>${COMMENT_ICON}<span data-rh-comments-n>0</span></button>`
+      : "";
+    const right = `${amPaths ? "" : cardBtn}${toggle}${cmtBtn}`;
     // 返回条：和索引页页头同一套标志（方块 + 衬线 “Research Hub”）；行内样式，没有样式块的页面也成立
     const nav =
       `<nav ${BACK_LINK_ATTR} style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0;padding:12px 16px 0;font:500 13px/1.5 ${SHELL_UI.replace(/"/g, "'")};">` +
@@ -243,15 +349,16 @@ export function decorateReport(html: string, opts: DecorateOptions): string {
 
     // 从后往前插入，前面的下标不受影响
     const inserts: [number, string][] = [[body.index + body[0].length, nav + (amPaths ? "" : section)]];
-    if (toolbar && toggle) inserts.push([toolbar.index + toolbar[0].length, toggle]);
+    if (toolbar && (toggle || cmtBtn)) inserts.push([toolbar.index + toolbar[0].length, toggle + cmtBtn]);
     if (amPaths && opts.card) {
       inserts.push([pathsClose, cardBtn]);
       inserts.push([pathsClose + "</div>".length, section]);
     }
     const closeBody = out.search(/<\/body>/i);
     if (opts.card || opts.altHref) inserts.push([closeBody >= 0 ? closeBody : out.length, PAGE_SCRIPT]);
+    if (c) inserts.push([closeBody >= 0 ? closeBody : out.length, commentsScript(c, opts.lang)]);
     const head = /<head\b[^>]*>/i.exec(out);
-    const style = injectedStyle({ amToolbar: Boolean(toolbar), amPaths, lang: Boolean(toggle), card: Boolean(opts.card) });
+    const style = injectedStyle({ amToolbar: Boolean(toolbar), amPaths, lang: Boolean(toggle), card: Boolean(opts.card), comments: Boolean(c) });
     if (head) inserts.push([head.index + head[0].length, style]);
     else inserts[0][1] = style + inserts[0][1];
     inserts.sort((a, b) => b[0] - a[0]);
@@ -264,27 +371,51 @@ export function decorateReport(html: string, opts: DecorateOptions): string {
   return out;
 }
 
-/** 一篇报告某种语言的部署版 HTML（rh build 与 rh check 的手机检查共用，保证检查的就是上线的页面）。 */
-export function deployedReportHtml(r: Report, lang: PageLang): string {
+/** 报告页的 rev（ADR 0005 §4）：未注入外壳的 HTML 文件字节的 sha256 的前 12 个十六进制字符。 */
+export const reportRev = (bytes: Buffer): string => createHash("sha256").update(bytes).digest("hex").slice(0, 12);
+
+/**
+ * 一篇报告某种语言在某个站点上的部署版 HTML（rh build 与 rh check 的手机检查共用，保证检查的就是上线的页面）。
+ * 返回链接按目标站点给出；评论层只注入私有站点（ADR 0005 §1）。
+ */
+export function deployedReportHtml(r: Report, lang: PageLang, site: Site): string {
   const file = join(r.dir, lang === "zh" ? REPORT_FILES.html : REPORT_FILES.htmlEn);
   const other = join(r.dir, lang === "zh" ? REPORT_FILES.htmlEn : REPORT_FILES.html);
   // 推特卡片只有英文版：中英文页展示同一张图和同一段文案，只有周围的按钮与提示跟随页面语言
   const png = join(r.dir, REPORT_FILES.cardPng);
   const loaded = existsSync(png) ? loadCard(r.dir).card : null;
   const card = existsSync(png) ? { src: "card.png", quote: loaded?.quote, tweet: loaded?.tweet } : undefined;
-  return decorateReport(readFileSync(file, "utf8"), {
-    backHref: r.meta.visibility === "public" ? "/" : "/p/",
+  const bytes = readFileSync(file);
+  return decorateReport(bytes.toString("utf8"), {
+    backHref: site === "private" ? "/p/" : "/",
     backLabel: "Research Hub",
     lang,
     altHref: existsSync(other) ? (lang === "zh" ? "./en/" : "../") : undefined,
     card,
+    comments: site === "private" ? { slug: r.slug, rev: reportRev(bytes) } : undefined,
   });
 }
+
+/** 私有站点上的报告清单 _rh/reports.json 的一项（ADR 0005 §4；Worker 读它校验 slug + lang） */
+export interface ManifestEntry {
+  slug: string;
+  lang: PageLang;
+  rev: string;
+  title: string;
+}
+
+/** 私有站点的清单目录：只进私有产物（泄漏检查要求公开产物里没有它） */
+export const MANIFEST_DIR = "_rh";
+const COMMENT_ICON = `<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`;
+
+/** 评论层的标记：公开产物里一个都不能有（ADR 0005 §1） */
+export const COMMENT_MARKERS = ["data-rh-comments", "/api/comments", "::highlight(rh-comment)"];
 
 export interface AssembleResult {
   publicDir: string;
   privateDir: string;
   publicReports: string[];
+  /** private 报告（public 报告在私有站点上的镜像不算在这里） */
   privateReports: string[];
   /** 从 card.png 生成的缩略图数 */
   thumbnails: number;
@@ -435,37 +566,45 @@ export function assemble(root: string, astroOut: string, reports: Report[], o: {
     for (const site of astroOutputSites(name)!) cpSync(join(astroOut, name), join(site === "public" ? publicDir : privateDir, name), { recursive: true });
   }
 
-  // 2. 报告：只分发 published；draft 一律跳过
+  // 2. 报告：只分发 published；draft 一律跳过。public 报告进 /r/<slug>/，并镜像到私有站点的 /p/<slug>/（ADR 0005 §1）
   const result: AssembleResult = { publicDir, privateDir, publicReports: [], privateReports: [], thumbnails: 0 };
+  const manifest: ManifestEntry[] = [];
   for (const r of reports) {
     if (!isPublished(r)) continue;
     const html = join(r.dir, REPORT_FILES.html);
     if (!existsSync(html)) throw new Error(`${r.relDir}：已发布但缺少 index.html`);
     const isPublic = r.meta.visibility === "public";
-    const target = isPublic ? join(publicDir, "r", r.slug) : join(privateDir, "p", r.slug);
-    if (existsSync(target)) throw new Error(`${r.relDir}：目标路径冲突 ${relative(dist, target)}`);
-    mkdirSync(target, { recursive: true });
-    writeFileSync(join(target, "index.html"), deployedReportHtml(r, "zh"));
     const assets = join(r.dir, REPORT_FILES.assetsDir);
     const hasAssets = existsSync(assets) && statSync(assets).isDirectory();
-    if (hasAssets) cpSync(assets, join(target, "assets"), { recursive: true });
     const cardPng = join(r.dir, REPORT_FILES.cardPng);
-    if (existsSync(cardPng)) {
-      cpSync(cardPng, join(target, "card.png"));
-      writeFileSync(join(target, THUMB_FILE), pngThumbnail(readFileSync(cardPng), relative(root, cardPng)));
-      result.thumbnails++;
-    }
-
-    if (existsSync(join(r.dir, REPORT_FILES.htmlEn))) {
-      const enTarget = join(target, "en");
-      mkdirSync(enTarget, { recursive: true });
-      writeFileSync(join(enTarget, "index.html"), deployedReportHtml(r, "en"));
-      if (hasAssets) cpSync(assets, join(enTarget, "assets"), { recursive: true });
-      if (existsSync(join(r.dir, REPORT_FILES.cardPng))) cpSync(join(r.dir, REPORT_FILES.cardPng), join(enTarget, "card.png"));
+    const hasCard = existsSync(cardPng);
+    const thumb = hasCard ? pngThumbnail(readFileSync(cardPng), relative(root, cardPng)) : null;
+    if (thumb) result.thumbnails++;
+    const hasEn = existsSync(join(r.dir, REPORT_FILES.htmlEn));
+    const targets: [Site, string][] = [["private", join(privateDir, "p", r.slug)]];
+    if (isPublic) targets.unshift(["public", join(publicDir, "r", r.slug)]);
+    for (const [site, target] of targets) {
+      if (existsSync(target)) throw new Error(`${r.relDir}：目标路径冲突 ${relative(dist, target)}`);
+      for (const lang of hasEn ? (["zh", "en"] as const) : (["zh"] as const)) {
+        const dir = lang === "zh" ? target : join(target, "en");
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, "index.html"), deployedReportHtml(r, lang, site));
+        if (hasAssets) cpSync(assets, join(dir, "assets"), { recursive: true });
+        if (hasCard) cpSync(cardPng, join(dir, "card.png"));
+        if (site === "private") {
+          const rev = reportRev(readFileSync(join(r.dir, lang === "zh" ? REPORT_FILES.html : REPORT_FILES.htmlEn)));
+          manifest.push({ slug: r.slug, lang, rev, title: lang === "en" ? (r.meta.title_en ?? r.meta.title) : r.meta.title });
+        }
+      }
+      if (thumb) writeFileSync(join(target, THUMB_FILE), thumb);
     }
 
     (isPublic ? result.publicReports : result.privateReports).push(r.slug);
   }
+  // 按 slug、再按 lang（空格比 slug 里的任何字符都小）
+  manifest.sort((a, b) => (`${a.slug} ${a.lang}` < `${b.slug} ${b.lang}` ? -1 : 1));
+  mkdirSync(join(privateDir, MANIFEST_DIR), { recursive: true });
+  writeFileSync(join(privateDir, MANIFEST_DIR, "reports.json"), `${JSON.stringify(manifest)}\n`);
 
   writeFileSync(join(publicDir, BUILD_INFO), `${JSON.stringify({ sha: o.sha ?? null })}\n`);
   writeFileSync(join(publicDir, "_headers"), PUBLIC_HEADERS);
@@ -556,7 +695,7 @@ export function findLeaks(dir: string, needles: Needle[]): LeakFinding[] {
 
 /**
  * 泄漏检查（验收 2、3；ADR 0003 §3、§6）：
- *  - 公开产物里不能出现 publicNeedles 的任何指纹，也不能有 /p/ 目录；
+ *  - 公开产物里不能出现 publicNeedles 的任何指纹，也不能有 /p/ 与 _rh/ 目录，也不能有评论层的标记（ADR 0005 §1、§4）；
  *  - 私有产物里不能出现 draft 的任何指纹。
  * @param forbidden 公开产物里不能出现的内部数据（Daily 的状态与内部清单字段由 Daily 构建登记）
  */
@@ -564,6 +703,8 @@ export function leakCheck(res: AssembleResult, reports: Report[], tags: TagRegis
   const errors: string[] = [];
   const drafts = reports.filter((r) => !isPublished(r));
   if (existsSync(join(res.publicDir, "p"))) errors.push("公开产物里出现了 /p/ 目录");
+  if (existsSync(join(res.publicDir, MANIFEST_DIR))) errors.push(`公开产物里出现了 /${MANIFEST_DIR}/ 目录`);
+  for (const f of findLeaks(res.publicDir, COMMENT_MARKERS.map((needle) => ({ what: "评论层", needle })))) errors.push(`公开产物 ${f.file} 含有评论层的标记：“${f.needle}”`);
   for (const f of findLeaks(res.publicDir, publicNeedles(reports, tags, forbidden))) errors.push(`公开产物 ${f.file} 含有${f.what}的内容：“${f.needle}”`);
   const draftNeedles = drafts.flatMap((r) => fingerprints(r).map((n) => ({ what: ` draft ${r.slug} `, needle: n })));
   for (const f of findLeaks(res.privateDir, draftNeedles)) errors.push(`私有产物 ${f.file} 含有${f.what}的内容：“${f.needle}”`);

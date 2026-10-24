@@ -63,6 +63,8 @@ rh publish → push main → CI → Cloudflare
 
 ### 3.4 Daily Topics（0.1.0，设计见 [decisions/0004](decisions/0004-public-daily-topics.md)）
 
+状态：暂停（2026-10-24，0.1.1）——所有者改用外部工具；历史页面 `/daily/` 作为存档保留在线上，重新启用见 README“Daily Topics 运行手册 → 启用 / 关闭”。
+
 ```
 GitHub Actions（每天 04:30 / 08:15 / 13:30 UTC，可手动补跑）
   ingest   只读 + BlockBeats key：rh ingest --date D（ETHTAO 日报是骨干，其他源按时间窗归日）→ 只含公开上下文的输入目录
@@ -122,6 +124,7 @@ tags.yml                     ← 标签登记表
 | `brief_source` | vault 中 brief 的原路径 |
 | `am_version` | 生成 HTML 的 answer-me-with-html 版本 |
 | `series`, `related` | 关联报告 |
+| `sessions` | 产出或修改这篇报告的 agent 会话（可选，0.1.1）：`[{runtime: pi \| claude-code, id, at: YYYY-MM-DD, note?}]`，只追加、只由 `rh` 写；`rh paths` 打印恢复命令，不在任何网页上显示（[decisions/0005](decisions/0005-inline-comments.md) 决定 11） |
 
 ### 4.3 导入报告
 
@@ -136,12 +139,13 @@ tags.yml                     ← 标签登记表
   - `/`：公开索引，**只列 public 报告**，按 `updated` 倒序，可按 domain 和 tag 筛选，卡片显示创建与更新日期。
   - `/tags/<tag>`、`/YYYY/MM`：归档页。公开站点的标签、月份、计数等派生数据只来自 public 报告。
   - `/r/<slug>`：公开报告，全站 `noindex`。
-  - `/p/`、`/p/<slug>`：私有索引（列出全部报告）与私有报告，由 Cloudflare Access 保护。**实现时放在单独的私有 Worker 域名上**（workers.dev 的 Access 只能按整个域名开启），详见 [decisions/0001](decisions/0001-site-architecture.md)。
+  - `/p/`、`/p/<slug>`：私有索引（列出全部报告）与私有报告，由 Cloudflare Access 保护。**实现时放在单独的私有 Worker 域名上**（workers.dev 的 Access 只能按整个域名开启），详见 [decisions/0001](decisions/0001-site-architecture.md)。public 报告也镜像到 `/p/<slug>`（0.1.1），私有站点上的报告链接一律指向 `/p/`。
   - `/p/tags/<tag>`：私有标签页（0.1.0 新增）。
   - `/daily/`、`/daily/<date>`：公开的 Daily Topics（0.1.0 新增，见 §3.4 与 [decisions/0004](decisions/0004-public-daily-topics.md)）。页面只显示 topic、被引用条目的标题和链接、状态的固定说明，并注明“自动生成、未经人工审阅”；`state.yml` 和 manifest 的内部字段不公开。
   - 保留路由名：报告 slug 不能是 `daily`、`tags`、`archive`、`fonts`、`about` 或纯数字；`rh new` 与 `rh check` 拒绝。
 - **标签描述**：`tags.yml` 的每个标签可选填 `description` / `description_en`，显示在标签页上；只有被 public 报告用到的标签，描述才会出现在公开站点。
-- **静态资源**：字体（自托管拉丁子集）、`favicon.svg`、`404.html` 两站共享；报告的图片、卡片图和缩略图只进报告所在的站点。
+- **静态资源**：字体（自托管拉丁子集）、`favicon.svg`、`404.html` 两站共享；报告的图片、卡片图和缩略图只进报告所在的站点，public 报告另外随镜像进私有站点。
+- **行内评论（0.1.1）**：只在私有站点的报告页（含镜像）。选中文字评论，右侧抽屉（窄屏底部面板）显示线程与评论人，默认收起；公开 `/r/` 页面没有评论。评论存在 D1（`research-hub-comments`），不进 git；私有 Worker 提供 `/api/comments`，人用 Access 登录的邮箱、agent 用白名单里的 Access service token 认证；v1 只追加。部署先执行 D1 迁移再部署私有 Worker。agent 用 `rh comments` 读写评论，改报告仍要过把关 ③。详见 [decisions/0005](decisions/0005-inline-comments.md)。
 - **返回导航**：构建时在报告的输出副本里注入一个 "← Research Hub" 链接。它在文档流里，不用 fixed，也不改样式，源文件不动。不用 iframe 外壳。
 - **语言切换**：有英文版的报告，构建时在右上角（am 工具栏开头；窄屏在返回链接一行的右侧）注入“中文 / EN”切换。切换时保留锚点，并写入与首页共用的 `localStorage.rh_lang`。
 - **推特卡片模式**：报告有 `card.png` 时，构建时在 am 阅读路径（5 分钟 / 30 分钟 / 完整）后面注入“推特卡片”模式：显示推文文案与卡片图、“复制文案”“复制图片”（Clipboard API 写入文本 / PNG）和源推文链接。卡片与推文只有英文版（推特统一用英文发），中英文页共用，卡片图复制到 `<slug>/card.png` 与 `<slug>/en/card.png`。卡片以中立研究者口吻写，尽量不提 Mantle（`cardAvoidTerms`），页脚是日期与水印（`cardHandle`）。详见 [decisions/0002](decisions/0002-lang-toggle-and-tweet-card.md)。
@@ -174,7 +178,7 @@ tags.yml                     ← 标签登记表
 
 做：第 3–6 节的全部内容，以及 doc-hub 迁移。
 
-不做：视频讲解、全文搜索（v2 用 Pagefind）、评论、多语言、报告的全自动流水线（Daily 推荐是 §3.1 里的有界例外）、自定义域名。
+不做：视频讲解、全文搜索（v2 用 Pagefind）、评论（0.1.1 在私有站点加入，见 7.2）、多语言、报告的全自动流水线（Daily 推荐是 §3.1 里的有界例外）、自定义域名。
 
 ### 7.1 0.1.0 范围（站点改版 + Daily Topics）
 
@@ -187,6 +191,19 @@ tags.yml                     ← 标签登记表
 
 - 报告概览页（about）、独立的 `search.json` 与模糊搜索（⌘K 只聚焦现有筛选框）、重新渲染已发布报告、两个站点之间同步主题 / 语言偏好；
 - Daily 与私有报告去重、ETHTAO 兜底源（自建 FxEmbed / 付费 API）、偏好学习、推送通知、crypto 以外的领域。
+
+### 7.2 0.1.1 范围（行内评论 + 报告会话）
+
+做（[decisions/0005](decisions/0005-inline-comments.md)）：
+
+- 私有站点报告页的行内评论：public 报告镜像到 `/p/<slug>/`、`_rh/reports.json` 清单、TextQuoteSelector 锚定与 Highlight API 高亮、抽屉 / 底部面板；
+- 私有 Worker 的评论 API（D1、人与 agent 两种身份、分页）与部署前的 D1 迁移；
+- `rh comments` 与 research-hub skill 的“处理评论”流程；
+- meta `sessions` 与 `rh session add`，`rh paths` 打印恢复命令。
+
+不做：
+
+- 公开 `/r/` 页面上的评论；编辑 / 删除评论、表情回应、附件、@提及、通知、限流；自动重新锚定；在网页上展示报告会话。
 
 ## 8. 迁移
 

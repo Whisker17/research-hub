@@ -16,7 +16,7 @@
     "access:setup": "NODE_USE_ENV_PROXY=1 node scripts/access-setup.ts",
     "smoke": "bash scripts/smoke.sh",
     "figshot": "node scripts/figshot.ts",
-    "deploy:manual": "node cli/rh.ts build && wrangler deploy -c wrangler.private.jsonc && wrangler deploy -c wrangler.public.jsonc && bash scripts/smoke.sh"
+    "deploy:manual": "node cli/rh.ts build && wrangler d1 migrations apply research-hub-comments --remote -c wrangler.private.jsonc && wrangler deploy -c wrangler.private.jsonc && wrangler deploy -c wrangler.public.jsonc && bash scripts/smoke.sh"
   },
   "dependencies": {
     "astro": "7.3.5",

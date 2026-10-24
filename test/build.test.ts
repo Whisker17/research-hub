@@ -6,7 +6,7 @@ import { join, relative } from "node:path";
 import { after, test } from "node:test";
 import { inflateSync } from "node:zlib";
 import { stringify } from "yaml";
-import { BACK_LINK_ATTR, FONT_RANGE, assemble, decorateReport, fingerprints, leakCheck, pngThumbnail, type DecorateOptions, type PublicForbidden } from "../cli/lib/build.ts";
+import { BACK_LINK_ATTR, COMMENT_MARKERS, FONT_RANGE, assemble, decorateReport, fingerprints, leakCheck, pngThumbnail, type DecorateOptions, type PublicForbidden } from "../cli/lib/build.ts";
 import { loadReports, type Report } from "../lib/reports.ts";
 import type { TagRegistry } from "../lib/schema.ts";
 import { projectSite } from "../lib/site-data.ts";
@@ -36,8 +36,8 @@ test("decorateReport：不改页面样式——没有语言 / 卡片的普通页
   assert.match(amOnly, /<style data-rh-style>(@font-face\{[^}]*\})+@media \(max-width:760px\)\{nav\[data-rh-back\]\{padding-top:50px!important\}\}<\/style>/);
 });
 
-test("decorateReport：注入的样式规则只作用于注入的元素（外加卡片模式隐藏正文的一条）", () => {
-  const full = decorateReport(amPage, opts({ altHref: "./en/", card: { src: "card.png" } }));
+test("decorateReport：注入的样式规则只作用于注入的元素（外加卡片模式隐藏正文的一条与评论高亮的 ::highlight）", () => {
+  const full = decorateReport(amPage, opts({ altHref: "./en/", card: { src: "card.png" }, comments: { slug: "s", rev: "0123456789ab" } }));
   const styles = full.match(/<style data-rh-style>[^<]*<\/style>/g) ?? [];
   assert.equal(styles.length, 1);
   // 共享字体（ADR 0003 §1）：只用外壳专用的字体名（rh-*），不会替换报告自己用的同名字体；字体文件来自站点的 /fonts/
@@ -48,9 +48,16 @@ test("decorateReport：注入的样式规则只作用于注入的元素（外加
   for (const rule of css.split("}").filter((r) => r.includes("{"))) {
     const selector = rule.slice(0, rule.indexOf("{"));
     for (const sel of selector.split(",")) {
+      // 唯一的例外（ADR 0005 §6）：::highlight(rh-comment) 只设背景色与文字颜色，不影响布局
+      if (sel === "::highlight(rh-comment)") {
+        const props = rule.slice(rule.indexOf("{") + 1).split(";").map((d) => d.split(":")[0]);
+        assert.ok(props.every((p) => p === "background-color" || p === "color"), rule);
+        continue;
+      }
       assert.ok(/data-rh-/.test(sel), `样式规则必须作用于注入的元素：${sel}`);
     }
   }
+  assert.match(css, /::highlight\(rh-comment\)\{/);
 });
 
 test("decorateReport：外壳字体与索引页同一份字体文件、同一个 unicode-range；只用在注入的元素上", () => {
@@ -74,7 +81,7 @@ test("decorateReport：中文 / EN 切换在右上角工具栏开头（桌面）
   assert.match(zh, /<div class="am-toolbar" data-x="1"><span data-rh-lang [^>]*><span aria-current="page" lang="zh-CN">中文<\/span><a href="\.\/en\/"[^>]*data-rh-lang-to="en">EN<\/a><\/span><label/);
   assert.match(zh, /<nav data-rh-back[^>]*>.*<span data-rh-lang /);
   assert.equal(zh.split("<span data-rh-lang ").length, 3, "工具栏一份 + 返回链接行一份");
-  assert.match(zh, /@media \(max-width:760px\)\{nav\[data-rh-back\]\{padding-top:50px!important\}\.am-toolbar>\[data-rh-lang\]\{display:none\}\}/);
+  assert.match(zh, /@media \(max-width:760px\)\{nav\[data-rh-back\]\{padding-top:50px!important\}\.am-toolbar>span\[data-rh-lang\]\{display:none\}\}/);
   assert.match(zh, /<script data-rh-script>[\s\S]*rh_lang[\s\S]*<\/script><\/body>/);
   const en = decorateReport(amPage, opts({ lang: "en", altHref: "../" }));
   assert.match(en, /<a href="\.\.\/"[^>]*data-rh-lang-to="zh">中文<\/a><span aria-current="page" lang="en">EN<\/span>/);
@@ -115,6 +122,29 @@ test("decorateReport：非 am 页面的卡片按钮与卡片区放在返回链�
   assert.match(html, /html\[data-rh-view="card"\] body>:not\(\[data-rh-back\]\):not\(\[data-rh-card\]\):not\(\.am-toolbar\)/, "非 research 模板的 am 页面进入卡片模式时保留工具栏（桌面语言切换在里面）");
 });
 
+test("decorateReport：评论层——带数量的按钮在语言切换旁边（工具栏 / 返回链接一行各一份，默认 hidden），脚本元素带 slug / lang / rev；不传就没有任何标记", () => {
+  const c = { slug: "my-report", rev: "0123456789ab" };
+  const zh = decorateReport(amPage, opts({ altHref: "./en/", comments: c }));
+  const btn = zh.match(/<button type="button" data-rh-comments-btn aria-label="评论" title="评论" hidden><svg aria-hidden="true"[^>]*>.*?<\/svg><span data-rh-comments-n>0<\/span><\/button>/)![0];
+  assert.ok(zh.includes(`<div class="am-toolbar" data-x="1"><span data-rh-lang `), "工具栏开头是语言切换");
+  assert.ok(zh.includes(`</span>${btn}<label class="am-pick">`), "工具栏：语言切换后面是评论按钮");
+  assert.ok(zh.includes(`</span>${btn}</span></nav>`), "返回链接一行：语言切换后面是评论按钮");
+  assert.equal(zh.split(btn).length, 3);
+  assert.match(zh, /@media \(max-width:760px\)\{[^}]*\}\.am-toolbar>span\[data-rh-lang\],\.am-toolbar>\[data-rh-comments-btn\]\{display:none\}\}/);
+  assert.match(zh, /@media \(min-width:761px\)\{nav\[data-rh-back\] span\[data-rh-lang\],nav\[data-rh-back\] \[data-rh-comments-btn\]\{display:none\}\}/);
+  assert.match(zh, /<script data-rh-comments data-rh-slug="my-report" data-rh-lang="zh" data-rh-rev="0123456789ab">[\s\S]*\/api\/comments[\s\S]*<\/script><\/body>/);
+  assert.equal(zh.split("</script>").length - 1, zh.split("<script").length - 1, "内联的源码不会提前结束 <script>");
+  assert.match(zh, /"cmtResolve":"解决"/);
+  assert.equal(decorateReport(zh, opts({ comments: c })), zh, "幂等");
+  const plain = decorateReport(page, opts({ lang: "en", comments: c }));
+  assert.match(plain, /<nav data-rh-back[^>]*>.*<button type="button" data-rh-comments-btn aria-label="Comments" [^>]*hidden><svg[\s\S]*?<\/svg><span[^>]*>0<\/span><\/button><\/span><\/nav>/, "没有语言切换与卡片的普通页面也有评论层");
+  assert.match(plain, /<script data-rh-comments data-rh-slug="my-report" data-rh-lang="en" /);
+  assert.match(plain, /"cmtResolve":"Resolve"/);
+  for (const html of [decorateReport(amPage, opts({ altHref: "./en/", card: { src: "card.png" } })), decorateReport(page, opts())]) {
+    for (const m of COMMENT_MARKERS) assert.ok(!html.includes(m), `没有评论层时不出现 ${m}`);
+  }
+});
+
 test("fingerprints：标题 / 摘要的原文与转义形式，以及站点路径", () => {
   const r = {
     slug: "s",
@@ -133,7 +163,6 @@ test("fingerprints：标题 / 摘要的原文与转义形式，以及站点路�
 // ── 按站点投影、资源分发与泄漏检查（WHI-1926，ADR 0003 §3–§6）────────────────────────────
 
 const FIXTURE_PNG = join(import.meta.dirname, "fixtures", "png");
-const PUBLIC_URL = "https://pub.example";
 const HTML = '<!doctype html><html><head><meta charset="utf-8"></head><body><h1>x</h1></body></html>';
 
 /** 混合夹具：public / private / draft 报告，各自带 card.png、assets/、英文版，标签有共享、私有专用与 draft 专用。 */
@@ -198,7 +227,7 @@ function* files(dir: string): Generator<string> {
 
 test("projectSite：公开站点的列表、计数、标签、共现、缩略图、related、引用都只来自 public + published", () => {
   const { reports, tags } = mixedRepo();
-  const v = projectSite("public", reports, tags, PUBLIC_URL);
+  const v = projectSite("public", reports, tags);
   assert.deepEqual(v.cards.map((c) => c.slug), ["pub-a", "pub-e"], "按 updated 倒序");
   assert.deepEqual(v.usedTags, [{ key: "dex", label: "DEX", count: 2 }, { key: "shared", label: "共享", count: 1 }], "计数不含私有与 draft");
   assert.deepEqual(Object.keys(v.tags).sort(), ["dex", "shared"], "登记表只含公开报告用到的标签（描述也只有这些）");
@@ -221,17 +250,16 @@ test("projectSite：公开站点的列表、计数、标签、共现、缩略图
   assert.doesNotMatch(JSON.stringify(v), /ZQX|QQQ|WWW|priv-b|draft-|机密|草稿/, "投影里没有任何非公开数据（包括公开报告 meta.related 里的私有 slug）");
 });
 
-test("projectSite：私有站点用全部 published（不含 draft），公开报告的链接与缩略图指向公开站点", () => {
+test("projectSite：私有站点用全部 published（不含 draft），公开报告的链接与缩略图指向 /p/ 镜像（ADR 0005 §1）", () => {
   const { reports, tags } = mixedRepo();
-  const v = projectSite("private", reports, tags, PUBLIC_URL);
+  const v = projectSite("private", reports, tags);
   assert.deepEqual(slugsOf(v.cards), ["priv-b", "pub-a", "pub-e"]);
   assert.deepEqual(v.months.map((m) => [m.ym, slugsOf(m.cards)]), [["2026-10", ["pub-a", "pub-e"]], ["2026-09", ["priv-b"]]]);
   assert.deepEqual(Object.keys(v.tags).sort(), ["dex", "secret", "shared"], "draft 专用与没人用的标签不出现");
   assert.deepEqual(v.domains.map((d) => [d.key, d.count]), [["ai", 1], ["crypto", 1], ["work", 1]], "领域计数含私有、不含 draft（draft-c 的 finance 不出现）");
   assert.deepEqual(v.coTags("shared").map((t) => t.key), ["dex", "secret"]);
   const a = v.cards.find((c) => c.slug === "pub-a")!;
-  assert.equal(a.href, `${PUBLIC_URL}/r/pub-a/`);
-  assert.equal(a.thumb, `${PUBLIC_URL}/r/pub-a/thumb.png`, "公开报告的缩略图用公开站点的绝对地址，不复制");
+  assert.deepEqual([a.href, a.href_en, a.thumb], ["/p/pub-a/", "/p/pub-a/en/", "/p/pub-a/thumb.png"], "公开报告在私有站点上链接到镜像");
   assert.deepEqual(a.related, ["priv-b", "pub-e"]);
   const b = v.cards.find((c) => c.slug === "priv-b")!;
   assert.equal(b.href, "/p/priv-b/");
@@ -241,7 +269,7 @@ test("projectSite：私有站点用全部 published（不含 draft），公开�
 
 test("projectSite.tag：标签页的篇数、最近更新、描述、特色配图、相关标签都按站点投影计算（WHI-1932）", () => {
   const { reports, tags } = mixedRepo();
-  const pub = projectSite("public", reports, tags, PUBLIC_URL);
+  const pub = projectSite("public", reports, tags);
   const shared = pub.tag("shared")!;
   assert.deepEqual(
     { ...shared, cards: slugsOf(shared.cards), featured: shared.featured?.slug },
@@ -253,7 +281,7 @@ test("projectSite.tag：标签页的篇数、最近更新、描述、特色配�
   for (const k of ["secret", "draft-only", "unused", "nope"]) assert.equal(pub.tag(k), undefined, `公开站点没有 ${k}`);
   assert.deepEqual(pub.months.map((m) => [m.ym, m.updated]), [["2026-10", "2026-10-09"]]);
 
-  const priv = projectSite("private", reports, tags, PUBLIC_URL);
+  const priv = projectSite("private", reports, tags);
   const pshared = priv.tag("shared")!;
   assert.deepEqual([pshared.count, pshared.updated, slugsOf(pshared.cards)], [2, "2026-10-09", ["priv-b", "pub-a"]]);
   assert.deepEqual(pshared.related, priv.coTags("shared"));
@@ -337,6 +365,69 @@ test("assemble：私有报告的缩略图、card.png、assets 只在私有产物
   assert.ok(existsSync(join(draftDir, "card.png")));
   assert.equal(readFileSync(pubThumb).subarray(1, 4).toString(), "PNG");
   assert.deepEqual(leakCheck(res, reports, mixedRepo().tags), [], "正常产物通过泄漏检查");
+});
+
+test("assemble：public 报告镜像到私有站点的 /p/<slug>/（中英文、assets、card.png、缩略图）；返回链接与评论层按站点；公开产物没有评论层与 _rh/", () => {
+  const { root, reports, tags } = mixedRepo();
+  const res = assemble(root, fakeAstro(root), reports);
+  const list = (d: string) => [...files(d)].map((f) => relative(d, f)).sort();
+  const reportFiles = (d: string, slug: string) => list(d).filter((f) => f.startsWith(`${slug}/`)).map((f) => f.slice(slug.length + 1));
+  const full = ["assets/fig.svg", "card.png", "en/assets/fig.svg", "en/card.png", "en/index.html", "index.html", "thumb.png"];
+  assert.deepEqual(reportFiles(join(res.privateDir, "p"), "pub-a"), full, "镜像与公开站点的文件一样");
+  assert.deepEqual(reportFiles(join(res.publicDir, "r"), "pub-a"), full);
+  assert.deepEqual(reportFiles(join(res.privateDir, "p"), "pub-e"), ["assets/fig.svg", "en/assets/fig.svg", "en/index.html", "index.html"]);
+  for (const f of ["card.png", "thumb.png", "assets/fig.svg"]) {
+    assert.deepEqual(readFileSync(join(res.privateDir, "p", "pub-a", f)), readFileSync(join(res.publicDir, "r", "pub-a", f)), f);
+  }
+  assert.ok(!list(res.publicDir).some((f) => f.includes("priv-b") || f.includes("draft-")), "private 与 draft 不进公开站点");
+  assert.ok(!list(res.privateDir).some((f) => f.includes("draft-")), "draft 不进私有站点（中英文都没有）");
+  assert.deepEqual([res.publicReports.sort(), res.privateReports], [["pub-a", "pub-e"], ["priv-b"]]);
+
+  const read = (...p: string[]) => readFileSync(join(...p), "utf8");
+  for (const lang of ["zh", "en"]) {
+    const sub = lang === "zh" ? [] : ["en"];
+    const pub = read(res.publicDir, "r", "pub-a", ...sub, "index.html");
+    const mirror = read(res.privateDir, "p", "pub-a", ...sub, "index.html");
+    assert.match(pub, /<nav data-rh-back[^>]*><a href="\/"/, `${lang}：公开页返回 /`);
+    assert.match(mirror, /<nav data-rh-back[^>]*><a href="\/p\/"/, `${lang}：镜像返回 /p/`);
+    assert.match(mirror, new RegExp(`<script data-rh-comments data-rh-slug="pub-a" data-rh-lang="${lang}" data-rh-rev="[0-9a-f]{12}">`));
+    for (const m of COMMENT_MARKERS) assert.ok(!pub.includes(m), `${lang}：公开页没有 ${m}`);
+    assert.match(read(res.privateDir, "p", "priv-b", ...sub, "index.html"), /<a href="\/p\/"[\s\S]*<script data-rh-comments data-rh-slug="priv-b"/);
+  }
+  assert.ok(!existsSync(join(res.publicDir, "_rh")));
+  assert.deepEqual(leakCheck(res, reports, tags), []);
+
+  // 清单（ADR 0005 §4）：私有站点上的每个报告页，按 slug、lang 排序；英文标题缺失时回退中文；rev = 源文件字节 sha256 的前 12 位
+  const manifest = JSON.parse(read(res.privateDir, "_rh", "reports.json"));
+  const rev = (slug: string, file: string) => sha(readFileSync(join(reports.find((r) => r.slug === slug)!.dir, file))).slice(0, 12);
+  assert.deepEqual(manifest, [
+    { slug: "priv-b", lang: "en", rev: rev("priv-b", "index.en.html"), title: "私密报告ZQX" },
+    { slug: "priv-b", lang: "zh", rev: rev("priv-b", "index.html"), title: "私密报告ZQX" },
+    { slug: "pub-a", lang: "en", rev: rev("pub-a", "index.en.html"), title: "公开报告甲" },
+    { slug: "pub-a", lang: "zh", rev: rev("pub-a", "index.html"), title: "公开报告甲" },
+    { slug: "pub-e", lang: "en", rev: rev("pub-e", "index.en.html"), title: "公开报告戊" },
+    { slug: "pub-e", lang: "zh", rev: rev("pub-e", "index.html"), title: "公开报告戊" },
+  ]);
+  for (const e of manifest) {
+    assert.ok(read(res.privateDir, "p", e.slug, ...(e.lang === "en" ? ["en"] : []), "index.html").includes(`data-rh-rev="${e.rev}"`), `${e.slug} ${e.lang}：页面上的 rev 与清单一致`);
+  }
+  // 英文标题：有 title_en 就用它
+  const withEn = mixedRepo();
+  writeFileSync(join(withEn.reports.find((r) => r.slug === "pub-a")!.dir, "meta.yml"), readFileSync(join(withEn.reports.find((r) => r.slug === "pub-a")!.dir, "meta.yml"), "utf8").replace("title: 公开报告甲", "title: 公开报告甲\ntitle_en: Public A"));
+  const again = loadReports(withEn.root).reports;
+  const m2 = JSON.parse(readFileSync(join(assemble(withEn.root, fakeAstro(withEn.root), again).privateDir, "_rh", "reports.json"), "utf8"));
+  assert.deepEqual(m2.filter((e: { slug: string }) => e.slug === "pub-a").map((e: { title: string }) => e.title), ["Public A", "公开报告甲"]);
+});
+
+test("leakCheck：公开产物里有 _rh/ 或评论层的标记时构建失败", () => {
+  const { root, reports, tags } = mixedRepo();
+  const run = (extra: Record<string, string>) => leakCheck(assemble(root, fakeAstro(root, extra), reports), reports, tags);
+  assert.deepEqual(run({}), []);
+  for (const m of COMMENT_MARKERS) assert.match(run({ "daily/index.html": `x ${m} y` }).join("\n"), new RegExp(`daily/index\\.html 含有评论层的标记`), m);
+  const res = assemble(root, fakeAstro(root), reports);
+  mkdirSync(join(res.publicDir, "_rh"));
+  writeFileSync(join(res.publicDir, "_rh", "reports.json"), "[]");
+  assert.match(leakCheck(res, reports, tags).join("\n"), /公开产物里出现了 \/_rh\/ 目录/);
 });
 
 test("leakCheck：Daily 页面引用私有报告、私有专用标签的描述、登记的内部数据都会让构建失败", () => {

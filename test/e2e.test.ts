@@ -218,8 +218,14 @@ test("rh build：公开 / 私有分发、返回链接、draft 排除、私有内
   const pindex = readFileSync(join(priv, "p", "index.html"), "utf8");
   assert.match(pindex, /私密报告ZQX/);
   assert.match(pindex, /公开报告甲/);
-  const { publicUrl } = JSON.parse(readFileSync(join(tmp, "rh.config.json"), "utf8"));
-  assert.ok(pindex.includes(`href="${publicUrl}/r/pub-a/"`), "私有索引里的公开报告链接回公开站点");
+  assert.ok(pindex.includes('href="/p/pub-a/"'), "私有索引里的公开报告链接到私有站点上的镜像（ADR 0005 §1）");
+  const mirror = readFileSync(join(priv, "p", "pub-a", "index.html"), "utf8");
+  assert.match(mirror, /<nav data-rh-back[^>]*><a href="\/p\/"/, "镜像的返回链接是 /p/");
+  assert.match(mirror, /<script data-rh-comments data-rh-slug="pub-a" data-rh-lang="zh"/);
+  assert.ok(existsSync(join(priv, "p", "pub-a", "en", "index.html")) && existsSync(join(priv, "p", "pub-a", "thumb.png")));
+  assert.deepEqual(JSON.parse(readFileSync(join(priv, "_rh", "reports.json"), "utf8")).map((e: { slug: string; lang: string }) => `${e.slug}/${e.lang}`), ["priv-b/zh", "priv-n/zh", "pub-a/en", "pub-a/zh"]);
+  for (const needle of ["data-rh-comments", "/api/comments"]) assert.deepEqual(grepDir(pub, needle), [], `公开产物没有评论层：${needle}`);
+  assert.equal(existsSync(join(pub, "_rh")), false);
   assert.match(readFileSync(join(priv, "_headers"), "utf8"), /Cache-Control: private, no-store/);
 
   // 验收 3：draft 不出现在任何产物
@@ -361,7 +367,6 @@ test("站点外壳（WHI-1928）：中英文 × 明暗 × localStorage 不可用
 test("首页与私有索引（WHI-1930）：各站的报告集合、左栏筛选、中英文搜索、URL 参数、排序与时间范围、390px 单列、无结果 / 无卡片 / 空列表", { skip: findChrome() ? false : "没有 Chrome" }, async () => {
   const pub = join(tmp, "dist", "public");
   const priv = join(tmp, "dist", "private");
-  const { publicUrl } = JSON.parse(readFileSync(join(tmp, "rh.config.json"), "utf8"));
   // 浏览器里的“现在”：UTC 2026-10-08 周四中午 → 本周 10-05…10-11，本月 10-01…10-31
   const NOW = Date.UTC(2026, 9, 8, 12);
   const browser = await launchBrowser();
@@ -394,7 +399,7 @@ test("首页与私有索引（WHI-1930）：各站的报告集合、左栏筛选
       page.$$eval("[data-filter][aria-pressed=true]", (els) => els.map((e) => `${(e as HTMLElement).dataset.filter}=${(e as HTMLElement).dataset.value}`).sort());
     const pIndex = join(priv, "p", "index.html");
 
-    // 私有索引，390px：全部 published（含公开报告，链接与缩略图用公开站点的绝对地址），默认“最近更新”
+    // 私有索引，390px：全部 published（含公开报告，链接与缩略图指向 /p/ 镜像），默认“最近更新”
     const { page, errors } = await open(pIndex);
     assert.deepEqual(await shown(page), ["priv-n", "pub-a", "priv-b"]);
     const rows = await page.$$eval("[data-card]", (els) =>
@@ -408,8 +413,8 @@ test("首页与私有索引（WHI-1930）：各站的报告集合、左栏筛选
       })),
     );
     const bySlug = Object.fromEntries(rows.map((r) => [r.slug, r]));
-    assert.equal(bySlug["pub-a"].href, `${publicUrl}/r/pub-a/`);
-    assert.equal(bySlug["pub-a"].img, `${publicUrl}/r/pub-a/thumb.png`);
+    assert.equal(bySlug["pub-a"].href, "/p/pub-a/");
+    assert.equal(bySlug["pub-a"].img, "/p/pub-a/thumb.png");
     assert.equal(bySlug["pub-a"].lazy, "lazy");
     assert.equal(bySlug["priv-b"].href, "/p/priv-b/");
     assert.equal(bySlug["priv-b"].img, "/p/priv-b/thumb.png");

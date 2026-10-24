@@ -11,11 +11,22 @@
     "run_worker_first": true,
     "not_found_handling": "404-page"
   },
+  // 评论存储（ADR 0005 §2）：迁移在部署之前执行（deploy.yml、pnpm deploy:manual）
+  "d1_databases": [
+    {
+      "binding": "COMMENTS",
+      "database_name": "research-hub-comments",
+      "database_id": "3515ff96-6b73-4b13-9cee-7a7351490ea8",
+      "migrations_dir": "worker/migrations"
+    }
+  ],
   "workers_dev": true,
   "preview_urls": false,
   "vars": {
     "ACCESS_TEAM_DOMAIN": "lucky-dust-c0b5.cloudflareaccess.com",
     "ACCESS_AUD": "d0781a546051e4573c7f70171fc6de94cd424deded735a8997309b15120e51ef",
-    "ALLOWED_EMAILS": "demiwhisker@gmail.com,@mantle.xyz"
+    "ALLOWED_EMAILS": "demiwhisker@gmail.com,@mantle.xyz",
+    // service token 的 client id（逗号分隔，不是秘密）；为空 = 不接受任何 agent（ADR 0005 §8）
+    "AGENT_CLIENT_IDS": "57632a2eac680f783dd5979108fd155a.access"
   }
 }
