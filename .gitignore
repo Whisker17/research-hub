@@ -10,3 +10,6 @@ reports/**/.rh-mobile-check.html
 # Python (dispatcher test)
 __pycache__/
 .pytest_cache/
+
+# 本地博客草稿（不上传）：blog/YYYY/MM/<slug>/{outline.md,post.md,post.en.md}
+/blog/
