@@ -1,0 +1,46 @@
+# Tweet card (English only): pnpm rh card uniswap-aggregator-hooks → card.png
+# Spec: .claude/skills/research-hub/references/tweet-card.md · neutral researcher voice, observed / inferred rows only.
+# Ledger: title C13/F1 (virtual pool has no v4 reserves); background C2/C9 (return delta replaces core pricing), C1 (unlock zero-delta check);
+# context M1/M2 (launch 2026-10-22, 7 sources, 3 chains), M4 ("now an aggregator", any router);
+# figure: left C6/C8/C13/C20 (PoolKey identity + delta ledger, no LPs/reserves), right C13 (reserves, pricing, venue fees stay at source);
+# findings: 1) D5 (99.6% of ~$250M Ethereum volume, last 16 days, LitePSM), D3; 2) D9 (~$2,500 lifetime fees), D2 (first swap 2026-04-19);
+# takeaway G1/M18 (adapter becomes a public v4 pool; routing still offchain), C14/D8/G3 (1–10 bp protocol fee on top of venue fee);
+# tweet also uses C12 (partial fill reverts), G2 (one unlock with native pools), C18/D8 (LitePSM pays no protocol fee), D6 (~70% via Universal Router), D11 (1.5 days of post-launch data).
+# Not used: all speculative rows (G4–G7, G9, M41–M44).
+# astra round-1 fixes: fee scope (mostly 10 bp; LitePSM / UniswapX excluded), ~70% scoped to post-launch sample, "Robinhood Chain". Round 2: PASS.
+quote: https://x.com/Uniswap/status/2113269114017857808
+title: "Uniswap Aggregator Hooks: a v4 pool with no v4 reserves"
+background: A v4 hook can return a delta that replaces pool pricing; PoolManager only checks all deltas net to zero.
+context: "Oct 22: Uniswap said v4 is now an aggregator: 7 sources across Ethereum, Base and Robinhood Chain."
+figure:
+  caption: One swap through an Aggregator Hook pool
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: v4, label: "PoolKey identity\ndelta ledger", x: 0, y: 36, w: 250, h: 84, color: blue }
+      - { id: src, label: "Reserves, pricing\nvenue fees", x: 320, y: 36, w: 250, h: 84, color: green }
+    edges:
+      - { from: v4, to: src }
+    texts:
+      - { x: 4, y: 0, text: "Lives in v4", fontSize: 22, color: blue }
+      - { x: 324, y: 0, text: "Stays at the source venue", fontSize: 22, color: green }
+findings:
+  - stat: "99.6%"
+    text: "of ~$250M Ethereum hook volume (last 16 days) was LitePSM stablecoin swaps."
+  - stat: "~$2,500"
+    text: "Lifetime protocol fees collected; the hooks have run swaps since Apr 2026."
+takeaway: "Not another 1inch: routing stays offchain, venues become v4 pools; most add a 1–10 bp fee."
+tweet: |-
+  Aggregator Hooks do not move Curve, Fluid or V3-fork liquidity into Uniswap. An adapter hook trades on the source venue inside beforeSwap, then returns a delta that cancels v4's own curve. The "pool" is a PoolKey with no v4 reserves.
+
+  Why it matters: any v4 router can quote these venues and settle them in one unlock with native pools. A partial fill leaves a non-zero delta, so the swap reverts.
+
+  How to read the figure:
+  • Left: what lives in v4, the PoolKey and the delta ledger.
+  • Right: what stays at the venue, its reserves, pricing and fees.
+
+  Two onchain details (Dune, to Oct 24):
+  • The hooks have run swaps since Apr 2026. In the last 16 days, 99.6% of ~$250M Ethereum hook volume was LitePSM stablecoin conversion, which pays no protocol fee.
+  • Ethereum non-PSM virtual pools: mostly 10 bp, some stable pairs 3 bp. LitePSM and UniswapX are excluded. Lifetime protocol fees: ~$2,500.
+
+  Caveat: ~70% of post-launch hook swaps used Uniswap's Universal Router; that sample spans 1.5 days.

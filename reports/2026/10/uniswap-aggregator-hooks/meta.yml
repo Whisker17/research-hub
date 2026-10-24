@@ -1,0 +1,21 @@
+title: Uniswap Aggregator Hooks：把外部流动性包装成 v4 池
+summary: 讲清 Uniswap Aggregator Hooks 如何在代码层面把 Curve、Fluid、V3 分支、LitePSM 等外部流动性映射成 v4 池，对比传统聚合器，判断优劣、市场接受度与 hooks 的走向
+created: 2026-10-24
+updated: 2026-10-24
+domain: crypto
+tags:
+  - uniswap
+  - dex
+  - routing
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/Uniswap Aggregator Hooks.md
+am_version: 0.5.2-research.1
+changelog:
+  - date: 2026-10-24
+    note: 创建（brief 快照）
+  - date: 2026-10-24
+    note: 发布
+title_en: "Uniswap Aggregator Hooks: Wrapping External Liquidity as v4 Pools"
+summary_en: A code-level teardown of how Uniswap Aggregator Hooks map Curve, Fluid, V3 forks and LitePSM into v4 pools, how they differ from classic aggregators, and what onchain data says about adoption and the hooks narrative.

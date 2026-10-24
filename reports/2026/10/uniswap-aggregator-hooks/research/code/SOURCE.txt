@@ -1,0 +1,4 @@
+Uniswap/v4-hooks-public @ 2264ac8b023011fdca8fd3422ada172dc10184e0 (MIT)
+src/aggregator-hooks/BaseAggregatorHook.sol
+src/aggregator-hooks/implementations/UniswapV3/UniswapV3Aggregator.sol
+src/aggregator-hooks/implementations/StableSwap/StableSwapAggregator.sol
