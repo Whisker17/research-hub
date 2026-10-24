@@ -31,7 +31,7 @@ export function runBuild(cfg: HubConfig): void {
     if (isPublished(r) && !existsSync(join(r.dir, "index.html"))) errors.push(`${r.relDir}: 已发布但缺少 index.html`);
   }
   // Daily 页面在 Astro 里读 daily/：先做和 rh daily check 相同的离线检查，不合法就不构建（失败即拒绝）
-  const daily = checkDaily(cfg.root, loadDailyContext(cfg.root, cfg.dailyAvoidTerms, cfg.publicUrl));
+  const daily = checkDaily(cfg.root, loadDailyContext(cfg.root, cfg.dailyAvoidTerms));
   errors.push(...daily.errors);
   if (errors.length) {
     for (const e of errors) fail(e);

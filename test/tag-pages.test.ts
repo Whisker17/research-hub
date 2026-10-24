@@ -106,7 +106,7 @@ after(() => {
 function views(): Record<"public" | "private", SiteView> {
   const { reports } = loadReports(tmp);
   const { tags } = loadTags(tmp);
-  return { public: projectSite("public", reports, tags, PUBLIC_URL), private: projectSite("private", reports, tags, PUBLIC_URL) };
+  return { public: projectSite("public", reports, tags), private: projectSite("private", reports, tags) };
 }
 
 /** 改版前（基线 65ae857，同一夹具）公开产物的目录，不含报告目录 r/。 */
@@ -195,9 +195,9 @@ test("/p/tags/ 与 /p/archive/：全部 published；计数与共现与 projectSi
   assert.ok(dex.includes('src="/p/priv-x/thumb.png"'));
   const secret = readFileSync(join(priv(), "p", "tags", "secret-topic", "index.html"), "utf8");
   assert.ok(secret.includes("只给私有报告用的描述PRIVDESC") && secret.includes('data-en="Private-only description PRIVDESCEN"'));
-  // 公开报告在私有标签页上链接回公开站点（绝对地址）
+  // 公开报告在私有标签页上链接到私有站点上的镜像（ADR 0005 §1）
   const amm = readFileSync(join(priv(), "p", "tags", "amm", "index.html"), "utf8");
-  assert.ok(amm.includes(`href="${PUBLIC_URL}/r/pub-a/"`) && amm.includes(`src="${PUBLIC_URL}/r/pub-a/thumb.png"`));
+  assert.ok(amm.includes('href="/p/pub-a/"') && amm.includes('src="/p/pub-a/thumb.png"') && !amm.includes(`${PUBLIC_URL}/r/`));
   // 私有月归档：含只有私有报告的月份
   const archive = readFileSync(join(priv(), "p", "archive", "index.html"), "utf8");
   assert.deepEqual([...archive.matchAll(/data-month="([^"]+)"/g)].map((m) => m[1]), v.months.map((m) => m.ym));
@@ -255,7 +255,7 @@ test("浏览器：标签页、标签索引、月归档在 390 / 1440 × 明暗 �
             const p = await browser.newPage();
             const errors: string[] = [];
             p.on("pageerror", (e) => errors.push(String(e)));
-            // 公开报告在私有页面上用 publicUrl 绝对地址（夹具里是不存在的主机），只检查本站的请求
+            // 只检查本站的请求（publicUrl 在夹具里是不存在的主机）
             p.on("requestfailed", (r) => {
               if (r.url().startsWith(origin)) errors.push(`requestfailed ${r.url()}`);
             });
