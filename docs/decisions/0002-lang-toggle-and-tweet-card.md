@@ -3,6 +3,7 @@
 - 状态：已采纳
 - 日期：2026-10-16
 - 规格：[../product-spec.md](../product-spec.md) §4.1、§5
+- 决定 1 部分被 [0005](0005-inline-comments.md) 取代（评论高亮的样式例外、`deployedReportHtml` 区分目标站点）
 
 ## 背景
 
@@ -17,6 +18,7 @@
 - 在构建时注入可以覆盖全部已发布报告，不需要 `rh render --force` 重新渲染（已发布 HTML 不自动重渲染，规格 §6.3）。
 - `decorateReport()` 是唯一的注入入口；`rh check` 的手机检查用同一个函数生成部署版 HTML（`deployedReportHtml()`），检查的就是线上页面。
 - 注入的样式只作用于注入的元素（`data-rh-*`），外加卡片模式下隐藏正文的一条规则。这不是 §6.1 禁止的“手机 CSS 补丁”：它不修改报告自身的排版。没有英文版、也没有卡片的非 am 页面不注入任何样式与脚本。
+- **部分被 [0005](0005-inline-comments.md) 取代**：`deployedReportHtml` 增加目标站点参数，评论层只注入私有站点（0005 决定 1）；评论高亮的 `::highlight(rh-comment)`（只设 `background-color` 与 `color`）是“只作用于 `data-rh-*`”的唯一例外（0005 决定 6）。
 
 ### 2. 语言切换的位置
 
