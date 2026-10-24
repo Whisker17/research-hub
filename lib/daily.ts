@@ -416,9 +416,9 @@ export interface DailyContext {
 }
 
 /** 从仓库读出检查用的上下文。related 与标签都走公开站点投影（lib/site-data.ts 的 projectSite，siteView 的纯函数版本）。 */
-export function loadDailyContext(root: string, avoidTerms: string[], publicUrl = ""): DailyContext {
+export function loadDailyContext(root: string, avoidTerms: string[]): DailyContext {
   const { reports } = loadReports(root);
-  const view = projectSite("public", reports, loadTags(root).tags, publicUrl);
+  const view = projectSite("public", reports, loadTags(root).tags);
   const all = new Set(reports.map((r) => r.slug));
   return {
     publicTags: new Set(Object.keys(view.tags)),

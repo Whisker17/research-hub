@@ -4,19 +4,19 @@
  * 按站点投影（ADR 0003 §3）：页面只读 siteView("public") / siteView("private")，不直接读报告列表。
  *  - 公开站点：只有 public + published 报告，以及只被它们用到的标签；所有列表、计数、标签共现、
  *    缩略图、related 链接都从这个集合计算。
- *  - 私有站点：全部 published 报告；public 报告的链接与缩略图用公开站点的绝对地址（不复制）。
+ *  - 私有站点：全部 published 报告；链接与缩略图一律指向 /p/<slug>/（public 报告在私有站点上有镜像，ADR 0005 §1）。
  *  - draft 不出现在任何站点。
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadConfig } from "./config.ts";
 import { parseLedger } from "./ledger.ts";
-import { REPORT_FILES, isPublicPublished, isPublished, loadReports, loadTags, reportEnPath, reportPath, sortByUpdated, type Report } from "./reports.ts";
+import { REPORT_FILES, isPublicPublished, isPublished, loadReports, loadTags, reportPath, sortByUpdated, type Report } from "./reports.ts";
 import { DOMAIN_LABELS, type Domain, type TagRegistry } from "./schema.ts";
 
 export type Site = "public" | "private";
 
-/** rh build 从 card.png 生成的列表缩略图，放在报告目录里（/r/<slug>/ 或 /p/<slug>/），只进报告所在的站点。 */
+/** rh build 从 card.png 生成的列表缩略图，放在报告目录里（/r/<slug>/ 与 /p/<slug>/）。 */
 export const THUMB_FILE = "thumb.png";
 
 export interface CardData {
@@ -95,13 +95,12 @@ export interface SiteView {
 }
 
 /** 纯函数：从全部报告与标签登记表算出一个站点的投影。 */
-export function projectSite(site: Site, all: Report[], registry: TagRegistry, publicUrl: string): SiteView {
+export function projectSite(site: Site, all: Report[], registry: TagRegistry): SiteView {
   const reports = sortByUpdated(all.filter(site === "public" ? isPublicPublished : isPublished));
   const visible = new Set(reports.map((r) => r.slug));
   const used = new Set(reports.flatMap((r) => r.meta.tags));
   const tags: TagRegistry = Object.fromEntries(Object.entries(registry).filter(([k]) => used.has(k)));
-  const linkBase = site === "private" ? publicUrl : "";
-  const cards = reports.map((r) => ({ ...toCard(r, tags, linkBase), related: (r.meta.related ?? []).filter((s) => visible.has(s)) }));
+  const cards = reports.map((r) => ({ ...toCard(r, tags, site), related: (r.meta.related ?? []).filter((s) => visible.has(s)) }));
   const bySlug = new Map(cards.map((c) => [c.slug, c]));
   const tagCounts = usedTags(reports, tags);
   const coTags = (tag: string) => usedTags(reports.filter((r) => r.meta.tags.includes(tag)), tags).filter((t) => t.key !== tag);
@@ -136,14 +135,12 @@ export function siteView(site: Site): SiteView {
   if (all.length) {
     throw new Error(`报告数据不合法，先运行 rh check：\n${all.map((i) => `  ${i.where}: ${i.message}`).join("\n")}`);
   }
-  return (cache[site] = projectSite(site, reports, tagLoad.tags, cfg.publicUrl));
+  return (cache[site] = projectSite(site, reports, tagLoad.tags));
 }
 
-/**
- * @param linkBase 私有站点里，公开报告的链接与缩略图用公开站点的绝对 URL；公开站点传空串。
- */
-function toCard(r: Report, tags: TagRegistry, linkBase: string): Omit<CardData, "related"> {
-  const base = r.meta.visibility === "public" ? linkBase : "";
+/** 私有站点上每篇报告都在 /p/<slug>/（public 报告是镜像）；公开站点只有 public 报告，在 /r/<slug>/。 */
+function toCard(r: Report, tags: TagRegistry, site: Site): Omit<CardData, "related"> {
+  const path = site === "private" ? `/p/${r.slug}/` : reportPath(r);
   const hasEn = existsSync(join(r.dir, REPORT_FILES.htmlEn));
   const hasCard = existsSync(join(r.dir, REPORT_FILES.cardPng));
   return {
@@ -158,9 +155,9 @@ function toCard(r: Report, tags: TagRegistry, linkBase: string): Omit<CardData, 
     domainLabel: DOMAIN_LABELS[r.meta.domain],
     tags: r.meta.tags.map((k) => ({ key: k, ...tagName(tags, k) })),
     visibility: r.meta.visibility,
-    href: `${base}${reportPath(r)}`,
-    href_en: hasEn ? `${base}${reportEnPath(r)}` : undefined,
-    thumb: hasCard ? `${base}${reportPath(r)}${THUMB_FILE}` : undefined,
+    href: path,
+    href_en: hasEn ? `${path}en/` : undefined,
+    thumb: hasCard ? `${path}${THUMB_FILE}` : undefined,
     ledger: r.meta.kind === "imported" ? null : ledgerCount(join(r.dir, REPORT_FILES.ledger)),
   };
 }
