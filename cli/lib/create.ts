@@ -3,8 +3,9 @@ import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse as parseYaml } from "yaml";
 import { loadReports, loadTags } from "../../lib/reports.ts";
-import { DOMAINS, SLUG_RE, VISIBILITIES, isValidDate, metaSchema, formatZodIssues, type Meta } from "../../lib/schema.ts";
-import { CliError, ask, confirm, ok, writeMeta, writeTags } from "./util.ts";
+import { DOMAINS, SESSION_RUNTIMES, SLUG_RE, VISIBILITIES, isValidDate, metaSchema, formatZodIssues, type Meta, type SessionRuntime } from "../../lib/schema.ts";
+import { detectSession, type Session } from "../../lib/session.ts";
+import { CliError, ask, confirm, ok, today, writeMeta, writeTags } from "./util.ts";
 
 /** 解析 Markdown 开头的 YAML frontmatter。 */
 export function readFrontmatter(markdown: string): Record<string, unknown> {
@@ -57,6 +58,23 @@ export interface NewReportInput {
   source_repo?: string;
   brief_source?: string;
   changelogNote: string;
+  session?: Session | null;
+}
+
+export const SESSION_OPTIONS = { session: { type: "string" }, runtime: { type: "string" } } as const;
+
+/** 本次命令的会话：--session 必须配 --runtime；只给 --runtime 时读该 runtime 的环境变量；都不给时自动识别。 */
+export function resolveSession(v: { session?: string; runtime?: string }, env: Record<string, string | undefined> = process.env): Session | null {
+  if (v.runtime !== undefined && !(SESSION_RUNTIMES as readonly string[]).includes(v.runtime)) {
+    throw new CliError(`--runtime 必须是 ${SESSION_RUNTIMES.join(" | ")} 之一`, 2);
+  }
+  const runtime = v.runtime as SessionRuntime | undefined;
+  if (v.session !== undefined) {
+    if (!runtime) throw new CliError("--session 需要同时给 --runtime", 2);
+    if (!v.session.trim()) throw new CliError("--session 不能为空", 2);
+    return { runtime, id: v.session.trim() };
+  }
+  return detectSession(env, runtime);
 }
 
 /** 校验输入并创建 reports/YYYY/MM/<slug>/ 与 meta.yml；返回目录。 */
@@ -87,6 +105,7 @@ export function createReportDir(root: string, input: NewReportInput): { dir: str
     source_repo: input.source_repo,
     brief_source: input.brief_source,
     changelog: [{ date: input.created, note: input.changelogNote }],
+    sessions: input.session ? [{ ...input.session, at: today() }] : undefined,
   };
   const parsed = metaSchema.safeParse(raw);
   if (!parsed.success) throw new CliError(`meta 不合法：\n  ${formatZodIssues(parsed.error).join("\n  ")}`);

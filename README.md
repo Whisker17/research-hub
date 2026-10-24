@@ -29,7 +29,7 @@ pnpm dev         # 本地预览索引页（报告页需先 pnpm build，再看 d
 
 ## 工作流
 
-在 Claude Code 里直接说“用 research-hub 做一篇 <topic> 的报告”（或给出资料、外部调研结果、现成 HTML），项目 skill [`.claude/skills/research-hub/`](.claude/skills/research-hub/SKILL.md) 会按下表驱动全流程，并在三个把关点停下等你确认。`rh paths [slug]` 打印 vault brief 目录、am 位置、报告目录与发布地址。
+在 Claude Code 里直接说“用 research-hub 做一篇 <topic> 的报告”（或给出资料、外部调研结果、现成 HTML），项目 skill [`.claude/skills/research-hub/`](.claude/skills/research-hub/SKILL.md) 会按下表驱动全流程，并在三个把关点停下等你确认。`rh paths [slug]` 打印 vault brief 目录、am 位置、报告目录、发布地址，以及记录过的 agent 会话的恢复命令（`pi --session <id>` / `claude --resume <id>`）。`rh new` / `rh import` 自动记录当前会话（pi：`PI_SESSION_ID`；Claude Code：`CLAUDE_CODE_SESSION_ID`）；修改报告或处理评论的会话用 `rh session add <slug>` 追加。
 
 | 步骤 | 命令 | 人工把关 |
 | --- | --- | --- |

@@ -26,7 +26,7 @@ export const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
  * 保留路由名（ADR 0003 §5）：报告与站点页面共用 /p/<name>/（将来合并域名后是根路径），所以报告 slug
  * 不能用这些名字，也不能是纯数字（与 /YYYY/ 归档路径冲突）。新增站点路由时先把名字加进这里。
  */
-export const RESERVED_SLUGS = ["daily", "tags", "archive", "fonts", "about"] as const;
+export const RESERVED_SLUGS = ["daily", "tags", "archive", "fonts", "about", "api"] as const;
 
 export const isReservedSlug = (s: string): boolean => (RESERVED_SLUGS as readonly string[]).includes(s) || /^\d+$/.test(s);
 
@@ -45,6 +45,17 @@ const slug = z.string().regex(SLUG_RE, { message: "只能用小写字母、数�
 export const changelogEntry = z.strictObject({
   date: isoDate,
   note: z.string().trim().min(1),
+});
+
+export const SESSION_RUNTIMES = ["pi", "claude-code"] as const;
+export type SessionRuntime = (typeof SESSION_RUNTIMES)[number];
+
+/** 报告会话（ADR 0005 §11）：只由 rh 追加，只在 CLI 里用，不进任何站点投影。 */
+export const sessionEntry = z.strictObject({
+  runtime: z.enum(SESSION_RUNTIMES),
+  id: z.string().trim().min(1),
+  at: isoDate,
+  note: z.string().trim().min(1).optional(),
 });
 
 export const metaSchema = z
@@ -66,6 +77,7 @@ export const metaSchema = z
     am_version: z.string().trim().min(1).optional(),
     series: slug.optional(),
     related: z.array(slug).optional(),
+    sessions: z.array(sessionEntry).optional(),
   })
   .superRefine((m, ctx) => {
     if (m.updated < m.created) {
@@ -79,6 +91,10 @@ export const metaSchema = z
     }
     if (new Set(m.tags).size !== m.tags.length) {
       ctx.addIssue({ code: "custom", path: ["tags"], message: "tags 有重复项" });
+    }
+    const keys = (m.sessions ?? []).map((s) => `${s.runtime}:${s.id}`);
+    if (new Set(keys).size !== keys.length) {
+      ctx.addIssue({ code: "custom", path: ["sessions"], message: "sessions 有重复项（同一 runtime + id）" });
     }
   });
 
