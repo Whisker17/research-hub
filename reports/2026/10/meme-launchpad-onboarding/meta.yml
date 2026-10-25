@@ -1,0 +1,28 @@
+title: 系统入门：7702 智能账户、meme 发射台和 OpenClaw 怎样协同工作
+summary: 一个 AI agent 怎样拿着一把受限、可撤销、免 gas 的 session key，在 Mantle Sepolia 的 meme 发射台上替用户发币和交易。先讲 7702 SDK、发射台新增的组件和整个系统怎样运作，再用 2026-10-22 的一次真实运行把九个步骤逐一拆开，最后是安全模型与信任边界、技术选型、已知限制和代码地图。
+created: 2026-10-23
+updated: 2026-10-26
+domain: work
+tags:
+  - meme
+  - account-abstraction
+  - ai-agent
+  - mantle
+status: published
+visibility: private
+kind: imported
+source_repo: git@github.com:Whisker17/agentic-meme-lauchpad-poc.git:docs/onboarding/index.html@3f1ed6b
+related:
+  - meme-launchpad
+  - agentic-wallet
+changelog:
+  - date: 2026-10-23
+    note: 导入
+  - date: 2026-10-26
+    note: 首次发布：从 agentic-meme-lauchpad-poc 导入（含 12 张截图）；新增英文版（正文与 11 张图翻译，sol review PASS）
+sessions:
+  - runtime: pi
+    id: 01a173db-2210-73fb-a52d-c62eb3569917
+    at: 2026-10-26
+title_en: "System Onboarding: How the 7702 Smart Account, the Meme Launchpad and OpenClaw Work Together"
+summary_en: How an AI agent uses a limited, revocable, gasless session key to launch and trade tokens for its user on a meme launchpad on Mantle Sepolia. The page first explains the 7702 SDK, the components the launchpad adds and how the system runs as a whole, then takes apart a real run from 2026-10-22 in nine steps, and ends with the security model and trust boundaries, technology choices, known limits and a code map.
