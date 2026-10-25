@@ -1,0 +1,24 @@
+title: Bybit 用户会把 Mantle 当成免费跨链桥吗？
+summary: 用 90 天链上数据检验“Bybit 用户把 Mantle 当免费跨链桥”：假设不成立，散户提现到 Mantle 后只有 2.1% 进入任何一座桥；按真实费率，经 Mantle 只在以太坊 / OP / Monad 更省。Bybit 每月约 296 万笔 USDT 提现，量跟着对手方和用途走，不跟着提现费走。据此给出跨链路由与“免费 USDT 轨道”两个产品方向，以及需要拍板的问题。
+created: 2026-10-23
+updated: 2026-10-26
+domain: work
+tags:
+  - mantle
+  - interop
+  - payment
+status: published
+visibility: private
+kind: imported
+source_repo: /Users/whisker/Work/research/work/bybit-mantle-bridge-design:report（未提交的工作区文件）
+changelog:
+  - date: 2026-10-23
+    note: 导入
+  - date: 2026-10-26
+    note: 首次发布：从 bybit-mantle-bridge-design 导入，双语页拆成中文 / 英文两页
+sessions:
+  - runtime: pi
+    id: 01a173db-2210-73fb-a52d-c62eb3569917
+    at: 2026-10-26
+title_en: Is Mantle a Free Bridge for Bybit Users?
+summary_en: "Tests the idea that Bybit users treat Mantle as a free bridge with 90 days of on-chain data. It does not hold: only 2.1% of retail users who withdraw to Mantle go on to any bridge, and at real fees routing via Mantle saves money only for Ethereum, OP and Monad. Bybit makes about 2.96M USDT withdrawals a month, and volume follows counterparties and use, not withdrawal fees. The report proposes two product directions, cross-chain routing and a free USDT rail, and lists the decisions needed."
