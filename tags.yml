@@ -16,6 +16,9 @@ tags:
   eip:
     label: EIP
     label_en: EIP
+  evm:
+    label: EVM 执行层
+    label_en: EVM execution
   hyperliquid:
     label: Hyperliquid
     label_en: Hyperliquid

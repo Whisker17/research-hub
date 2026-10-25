@@ -1,0 +1,36 @@
+# Tweet card (English only): pnpm rh card revm-vs-evm2 -> card.png
+# Ledger basis: background A6/X44; context A8/A11/A1; figure H2/H3/H12/H13/H20;
+# findings H35/H34, X26/X33/X36 (X27/X34); takeaway H37/H20 + M31/M36 (diff practice);
+# tweet also uses A12/A13, H9/H10, H37, A2/X44, H25, A15.
+quote: https://x.com/gakonst/status/2114190575486538225
+title: "evm2 vs revm: a real win, smaller than 2x"
+background: "evm2 rewrites revm's interpreter hot path. EVM semantics, gas and host behavior stay the same."
+context: "reth main swapped revm for evm2 on Oct 24 (unreleased). Hours later, gakonst posted about a new JIT EVM."
+figure:
+  caption: "Per-opcode interpreter overhead, simplified"
+  excalidraw:
+    defaults: { fontSize: 20 }
+    nodes:
+      - { id: r, label: "revm: loop + fn table\npc / gas in memory", x: 0, y: 36, w: 265, h: 84, color: red }
+      - { id: e, label: "evm2: TCO or packed\npc / gas in registers", x: 300, y: 36, w: 265, h: 84, color: green }
+    texts:
+      - { x: 4, y: 0, text: "Memory round trips", fontSize: 21, color: red }
+      - { x: 304, y: 0, text: "Fixed at compile time", fontSize: 21, color: green }
+findings:
+  - "Public A/B test: 1.10–1.19× over 10 mainnet blocks vs revm 42. No public 2x."
+  - "BAL, fiber async DB and a split tracing path already exist in recent revm."
+takeaway: "A faster interpreter, not a 2x node. Build differential replay before any engine switch."
+tweet: |-
+  Is evm2 2x faster than revm? On public evidence: a real but smaller win. Its only public head-to-head shows 1.10-1.19x on 10 mainnet blocks vs revm 42.0.1. The README's "up to 2x" has no public benchmark.
+
+  Why it matters: reth main replaced revm with evm2 on Oct 24. No reth release ships it yet.
+
+  How to read the figure:
+  • Left: revm sends every opcode through a central loop. pc, stack length and gas sit behind &mut Interpreter and go through memory.
+  • Right: evm2 picks its dispatch backend at compile time (by default: tail calls on nightly, packed on stable 64-bit) and keeps those values in registers.
+
+  Two details:
+  • Gains shrink in block replay: one change cut 23-34% on compute benchmarks, but 4.8-6.2% on mainnet replay.
+  • BAL, fiber async DB and a split tracing path already exist in recent revm. They are not reasons to switch.
+
+  Caveat: evm2 has no release and no API stability promise, and its JIT is off by default.

@@ -1,0 +1,24 @@
+title: EVM 执行引擎工程调研：revm、evm2 与 Mantle 的执行层选择
+summary: evm2 的真实优势在解释器热路径，公开实测只有 1.10–1.19 倍；reth main 已切换但未发布，Base 只在差分测试，RISE 是自有 VM。Mantle 应先补齐 revm 栈的差分门禁、CI 与版本追平，再跟随 OP 上游评估 evm2。
+created: 2026-10-25
+updated: 2026-10-25
+domain: crypto
+tags:
+  - evm
+  - mantle
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/revm-vs-evm2.md
+am_version: 0.5.2-research.1
+changelog:
+  - date: 2026-10-25
+    note: 创建（brief 快照）
+  - date: 2026-10-25
+    note: 首次发布：revm vs evm2 源码对比、业界迁移状态、Mantle revm 栈改进点（中英双语，sol review PASS，推特卡片 astra PASS）
+sessions:
+  - runtime: pi
+    id: 01a171e2-285d-70f1-a7c3-42a452a275d3
+    at: 2026-10-25
+title_en: "EVM Execution Engines: revm, evm2, and Mantle's Execution-Layer Choice"
+summary_en: evm2's real gain is in the interpreter hot path, and the only public head-to-head shows 1.10–1.19×. reth main has switched but not released, Base only runs differential tests, and RISE built its own VM. Mantle should first add a differential gate, fix its fork CI and catch up versions, then evaluate evm2 with the OP upstream.
