@@ -1,0 +1,25 @@
+title: 高性能链的系统设计：组件、瓶颈与 Mantle 工程路线
+summary: 链的性能由 8 个职责层共同决定。逐层讲清问题、优化方向和 2026 年各项目的做法；Mantle 主网目前只用了 gas 上限的约 0.17%，所以先改延迟、入口和账户体验，再按测量结果扩容执行与状态层。
+created: 2026-10-27
+updated: 2026-10-27
+domain: crypto
+tags:
+  - high-performance
+  - mantle
+  - evm
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/high-performance-chain-roadmap.md
+am_version: 0.5.2-research.1
+changelog:
+  - date: 2026-10-27
+    note: 创建（brief 快照）
+  - date: 2026-10-27
+    note: 首次发布：高性能链组件模型、逐组件问题与 2026 年业界做法、2025 研究复核、Mantle 基线与短中长期路线（中英双语，sol review PASS，推特卡片 astra PASS）
+sessions:
+  - runtime: pi
+    id: 01a17919-d13c-7375-b37c-11e565afac27
+    at: 2026-10-27
+title_en: "High-Performance Chain Design: Components, Bottlenecks, and Mantle's Engineering Roadmap"
+summary_en: Chain performance comes from 8 layers of work. This report explains each layer's problems, fixes, and 2026 practice. Mantle mainnet uses about 0.17% of its gas limit, so fix latency, ingress, and accounts first, then scale execution and state when measurements call for it.

@@ -19,6 +19,9 @@ tags:
   evm:
     label: EVM 执行层
     label_en: EVM execution
+  high-performance:
+    label: 高性能链
+    label_en: High-performance chains
   hyperliquid:
     label: Hyperliquid
     label_en: Hyperliquid

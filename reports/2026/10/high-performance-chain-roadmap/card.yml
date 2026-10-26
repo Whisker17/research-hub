@@ -1,0 +1,38 @@
+# 推特卡片（只有英文版）：pnpm rh card high-performance-chain-roadmap → card.png
+# 台账依据：background S8/R14（五个指标的划分，推导）；context B13、B15/B16；
+# figure S60（持续能力 ≤ min(执行, DA, 证明/挑战)）；findings E32/E9、B30–B33；takeaway S60、B42；
+# tweet 另用 E3、E8、B27、B17、B21、B30/B31、B34、B36、B43。
+title: Fast execution alone does not make a fast chain
+background: Chain speed spans throughput, latency, tail latency, state freshness and sustained capacity.
+context: "2026: Base tests 200 ms canonical blocks; OP Mainnet has replaced Flashblocks with Subblocks."
+figure:
+  caption: OP Stack-style L2s posting to blobs
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: ex, label: "Execution\ncapacity", x: 0, y: 36, w: 170, h: 84, color: green }
+      - { id: da, label: "Blob DA\ncapacity", x: 200, y: 36, w: 190, h: 84, color: red }
+      - { id: pf, label: "Proving\ncapacity", x: 420, y: 36, w: 150, h: 84, color: yellow }
+    texts:
+      - { x: 4, y: 0, text: "Sustained throughput ≤ the smallest of", fontSize: 22, color: blue }
+findings:
+  - stat: 1–10%
+    text: "revmc JIT sped L1 historical sync by only 1–10%; cold state reads dominate."
+  - stat: 152 KB/s
+    text: "BPO2 blob target using OP encoding, shared across blob-posting L2s."
+takeaway: Assess sustained L2 throughput across execution, DA and proving, not execution alone.
+tweet: |-
+  A faster EVM does not guarantee a faster chain. For OP Stack-style L2s, sustained throughput is bounded by execution, DA posting and proof/challenge capacity.
+
+  Why it matters: Reth 2.0 reduced end-of-block state-root work on Ethereum mainnet blocks to 1–2 ms. Base measured storage-heavy blocks executing about 30x slower than blocks without storage access.
+
+  How to read the figure (OP Stack-style L2s posting to Ethereum blobs):
+  • Left: execution capacity.
+  • Middle: blob DA. At the BPO2 target, about 152 KB/s, shared by every blob-posting L2.
+  • Right: proofs. As Base put it, a chain cannot produce more data than its proof system can prove.
+
+  Two details:
+  • revmc JIT: 1.85–19x on synthetic loads, 1–10% on L1 historical sync.
+  • At 100 bytes per tx, the blob target supports roughly 1,500 TPS across all L2s.
+
+  Caveat: Base is testing 200 ms canonical blocks and OP Labs replaced Flashblocks with Subblocks. Both rest on sequencer trust, not finality.
