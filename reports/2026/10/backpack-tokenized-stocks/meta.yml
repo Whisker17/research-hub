@@ -1,0 +1,24 @@
+title: Backpack 的代币化股票为什么交易得起来，以及 mStocks 应该怎么做
+summary: 2,800 万美元的流通量一个月周转 57 次。用自建 Dune dashboard 的 90 天链上数据加 Blockworks Research 的成交质量研究，解释 Backpack 的成交从哪来、价格为什么锚得住真股票，并给出 mStocks 生态的 8 条建议。
+created: 2026-10-28
+updated: 2026-10-28
+domain: work
+tags:
+  - rwa
+  - propamm
+  - mantle
+status: published
+visibility: private
+kind: imported
+source_repo: https://github.com/Whisker17/mantle-v3-roadmap.git:9-backpack-stocks@89d1785（未提交的工作区文件）
+changelog:
+  - date: 2026-10-28
+    note: 导入
+  - date: 2026-10-28
+    note: 首次发布：从 mantlev3-roadmap/9-backpack-stocks 导入，双语页拆成中文 / 英文两页，强调 Dune dashboard 数据来源
+sessions:
+  - runtime: pi
+    id: 01a18285-0154-77a8-9d32-f80e09749114
+    at: 2026-10-28
+title_en: "Backpack's Tokenized Stocks on Solana: What Makes Them Trade, and What mStocks Should Build"
+summary_en: A $28M float that turns over 57 times a month. Using 90 days of data from our own Dune dashboard plus Blockworks Research's execution study, the report explains where Backpack's volume comes from, why its price stays anchored to the real share, and gives 8 recommendations for the mStocks ecosystem.

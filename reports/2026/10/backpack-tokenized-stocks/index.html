@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Backpack 代币化股票调研 · 对 mStocks 的启示</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{--bg:#040F0B;--bg2:#0D100F;--bg3:#07160F;--text:#FFFFFF;--muted:#B8C6BE;--accent:#00FF93;--struct:#06B680;--line:#1E2925;--tag:#7F8F86;--soft:#BAFFF5;--bar:#2C3B34}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg);scroll-behavior:smooth}
+  body{color:var(--text);font-family:"ABC Monument Grotesk",Inter,"Helvetica Neue",Arial,"PingFang SC","Noto Sans SC",sans-serif;font-size:17px;line-height:1.65;font-feature-settings:"tnum" 1}
+  html[data-lang=zh] body{font-family:"PingFang SC","Noto Sans SC",Inter,"Helvetica Neue",sans-serif}
+  html[data-lang=en] .zh,html[data-lang=zh] .en{display:none!important}
+  a{color:var(--soft);text-decoration:none} a:hover{text-decoration:underline}
+  code{font-family:Menlo,Consolas,monospace;font-size:.88em;color:var(--soft)}
+  b,strong{font-weight:600}
+  em{font-style:normal;color:var(--accent)}
+  /* layout */
+  .wrap{display:grid;grid-template-columns:250px minmax(0,1fr);gap:56px;max-width:1340px;margin:0 auto;padding:0 40px}
+  nav.toc{position:sticky;top:0;height:100vh;overflow:auto;padding:36px 0 40px;border-right:1px solid var(--line)}
+  nav.toc .brand{font-size:13px;letter-spacing:.14em;color:var(--accent);font-weight:500;margin-bottom:22px}
+  nav.toc a{display:block;color:var(--muted);font-size:14px;line-height:1.4;padding:6px 14px 6px 0;border-left:2px solid transparent;margin-left:-2px;padding-left:12px}
+  nav.toc a:hover{color:var(--text);text-decoration:none;border-left-color:var(--struct)}
+  nav.toc a.sub{font-size:13px;padding-left:24px;color:var(--tag)}
+  main{padding:56px 0 120px;min-width:0}
+  #lang{position:fixed;right:22px;top:16px;z-index:20;font:13px/1 Inter,"PingFang SC",sans-serif;color:var(--muted);background:rgba(13,16,15,.9);border:1px solid #2A3A33;border-radius:14px;padding:8px 14px;cursor:pointer}
+  #lang:hover{color:var(--text);border-color:var(--struct)}
+  /* hero */
+  .hero{padding:26px 0 34px;border-bottom:1px solid var(--line);position:relative}
+  .eyebrow{font-size:15px;letter-spacing:.14em;color:var(--accent);font-weight:500}
+  html[data-lang=zh] .eyebrow{letter-spacing:.08em}
+  h1{font-size:46px;line-height:1.12;font-weight:500;letter-spacing:-.01em;margin-top:16px}
+  .lede{font-size:21px;line-height:1.5;color:var(--muted);margin-top:16px;max-width:900px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:22px;font-size:14px;color:var(--tag)}
+  .meta b{color:var(--muted);font-weight:500}
+  /* sections */
+  section{padding-top:56px;scroll-margin-top:10px}
+  h2{font-size:32px;line-height:1.2;font-weight:500;letter-spacing:-.005em}
+  h2 .no{color:var(--struct);margin-right:14px;font-size:.8em;vertical-align:2px}
+  h3{font-size:22px;font-weight:500;margin:34px 0 10px;scroll-margin-top:10px}
+  .kicker{font-size:19px;color:var(--muted);margin-top:8px;line-height:1.5}
+  p{margin-top:14px;max-width:900px}
+  p.muted,.muted{color:var(--muted)}
+  ul.list{margin-top:12px;max-width:920px;list-style:none}
+  ul.list li{position:relative;padding:5px 0 5px 22px}
+  ul.list li::before{content:"";position:absolute;left:4px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--struct)}
+  ol.list{margin:12px 0 0 22px;max-width:920px}
+  ol.list li{padding:4px 0}
+  .src{font-size:13px;color:var(--tag);margin-top:10px;line-height:1.5}
+  .src a{color:var(--tag);text-decoration:underline}
+  /* cards & stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
+  .stat{background:var(--bg2);border:1px solid var(--line);border-top:3px solid var(--struct);border-radius:10px;padding:16px 18px}
+  .stat .k{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  html[data-lang=zh] .stat .k{letter-spacing:.04em}
+  .stat .n{font-size:34px;font-weight:500;line-height:1.1;margin-top:8px}
+  .stat .c{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.45}
+  .stat.acc{border-top-color:var(--accent)} .stat.acc .n{color:var(--accent)}
+  .tldr{margin-top:28px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;padding:22px 28px}
+  .tldr .t{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .tldr ol{margin-left:22px}
+  .tldr li{padding:6px 0;font-size:17px}
+  .call{margin-top:22px;background:var(--bg3);border:1px solid var(--struct);border-left:5px solid var(--struct);border-radius:10px;padding:16px 22px;max-width:960px}
+  .call .t{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--struct);margin-bottom:4px}
+  .call p{margin-top:4px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:20px}
+  .box{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:18px 22px}
+  .box .t{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--struct);margin-bottom:6px}
+  .box h4{font-size:19px;font-weight:500;margin-bottom:6px}
+  .box ul{list-style:none}
+  .box li{font-size:15px;color:var(--muted);padding:5px 0 5px 18px;position:relative;border-top:1px solid var(--line)}
+  .box li:first-child{border-top:0}
+  .box li::before{content:"";position:absolute;left:2px;top:14px;width:6px;height:6px;border-radius:50%;background:var(--struct)}
+  .box li b{color:var(--text)}
+  figure{margin-top:22px}
+  figure img{display:block;max-width:100%;border-radius:10px;border:1px solid var(--line)}
+  figcaption{font-size:13px;color:var(--tag);margin-top:8px;line-height:1.5}
+  .fig{position:relative;line-height:0;max-width:900px}
+  .fig .hl{position:absolute;left:2.3%;right:2.3%;top:25.2%;height:5.4%;border:2px solid var(--accent);border-radius:6px;box-shadow:0 0 0 4px rgba(0,255,147,.14)}
+  .chart{margin-top:20px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:16px 18px 12px}
+  .chart .ct{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  html[data-lang=zh] .chart .ct{letter-spacing:.03em}
+  .chart svg{display:block;width:100%;height:auto;margin-top:8px;font-family:Inter,"PingFang SC",sans-serif}
+  .lg{display:flex;gap:22px;font-size:13px;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+  .lg i{display:inline-block;width:18px;height:10px;border-radius:2px;margin-right:7px;vertical-align:0}
+  /* html bars */
+  .hb{display:grid;grid-template-columns:var(--lw,200px) 1fr var(--rw,80px);gap:7px 12px;align-items:center;font-size:15px;margin-top:10px}
+  .hb .l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hb .l small{color:var(--tag);font-size:12px;margin-left:6px}
+  .hb .b{height:16px;background:var(--bar);border-radius:3px}
+  .hb .b.s{background:var(--struct)} .hb .b.a{background:var(--accent)}
+  .hb .r{text-align:right;color:var(--muted)} .hb .r b{color:var(--text);font-weight:500}
+  #hbTx{--lw:380px}
+  .hb .sep{grid-column:1/-1;border-top:1px solid var(--line);margin:3px 0}
+  /* tables */
+  .tw{overflow-x:auto;margin-top:18px}
+  table{width:100%;border-collapse:collapse;font-size:15px;line-height:1.45}
+  th{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:500;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  html[data-lang=zh] th{letter-spacing:.03em}
+  td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  td.n,th.n{text-align:right;white-space:nowrap}
+  td.k{color:var(--muted);font-size:13px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+  tr.hi td{background:#0B1F17}
+  td .m{color:var(--muted)}
+  /* loop */
+  .loop{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;margin-top:22px}
+  .lp{position:relative;background:var(--bg2);border:1px solid var(--line);border-top:3px solid var(--struct);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column}
+  .lp:not(:last-child)::after{content:"→";position:absolute;right:-24px;top:45%;color:var(--struct);font-size:20px}
+  .lp .t{font-size:12px;letter-spacing:.1em;color:var(--struct)}
+  .lp h4{font-size:17px;font-weight:500;line-height:1.3;margin-top:6px}
+  .lp p{font-size:14px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .lp .ev{margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  .lp .ev b{display:block;font-size:24px;color:var(--text);font-weight:500}
+  .lp.acc{border-top-color:var(--accent)} .lp.acc .ev b{color:var(--accent)}
+  /* recommendations */
+  .rec{margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--struct);border-radius:10px;padding:18px 24px;max-width:1000px}
+  .rec .hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .rec .id{font-size:22px;color:var(--struct);font-weight:500}
+  .rec h4{font-size:20px;font-weight:500}
+  .rec .pr{font-size:11px;letter-spacing:.1em;color:var(--bg);background:var(--struct);border-radius:4px;padding:2px 7px;vertical-align:3px}
+  .rec .pr.p1{background:var(--muted)} .rec .pr.p2{background:var(--tag)}
+  .rec .g{display:grid;grid-template-columns:110px 1fr;gap:6px 16px;margin-top:10px;font-size:15px}
+  .rec .g .lab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--tag);padding-top:3px}
+  html[data-lang=zh] .rec .g .lab{letter-spacing:.04em;font-size:12px}
+  .rec .g div{color:var(--muted)} .rec .g div b{color:var(--text)}
+  .rec.p0{border-left-color:var(--accent)} .rec.p0 .id{color:var(--accent)}
+  .rec.p0 .pr{background:var(--accent)}
+  @media (max-width:1000px){.wrap{grid-template-columns:1fr}nav.toc{display:none}.stats,.loop{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}}
+  @media (max-width:600px){.hb .l{white-space:normal}#hbVenue{--lw:120px}#hbTx{--lw:150px}}
+  @media print{nav.toc,#lang{display:none}.wrap{display:block;max-width:none}body{font-size:13px}section{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc">
+  <div class="brand">MANTLE · RESEARCH</div>
+  <a href="#summary"><span class="en">Summary</span><span class="zh">摘要</span></a>
+  <a href="#s1"><span class="en">1 · The turnover puzzle</span><span class="zh">1 · 周转之谜</span></a>
+  <a href="#s2"><span class="en">2 · How Backpack stocks work</span><span class="zh">2 · Backpack 股票的结构</span></a>
+  <a href="#s3"><span class="en">3 · Where the volume comes from</span><span class="zh">3 · 成交从哪来</span></a>
+  <a href="#s4"><span class="en">4 · Why the price holds</span><span class="zh">4 · 价格为什么锚得住</span></a>
+  <a class="sub" href="#s4a"><span class="en">Prop AMMs from day one</span><span class="zh">prop AMM 从第一天报价</span></a>
+  <a class="sub" href="#s4b"><span class="en">Conversion loop</span><span class="zh">申赎通道</span></a>
+  <a class="sub" href="#s4c"><span class="en">Atomic arbitrage</span><span class="zh">原子套利</span></a>
+  <a class="sub" href="#s4d"><span class="en">US-market anchor</span><span class="zh">美股价格锚</span></a>
+  <a class="sub" href="#s4e"><span class="en">Execution quality</span><span class="zh">成交质量</span></a>
+  <a class="sub" href="#s4f"><span class="en">Shared liquidity</span><span class="zh">共享流动性</span></a>
+  <a href="#s5"><span class="en">5 · Who trades, how long</span><span class="zh">5 · 谁在交易、拿多久</span></a>
+  <a href="#s6"><span class="en">6 · The model and its limits</span><span class="zh">6 · 模式与短板</span></a>
+  <a href="#s7"><span class="en">7 · Mantle today</span><span class="zh">7 · Mantle 现状对照</span></a>
+  <a href="#s8"><span class="en">8 · Recommendations for mStocks</span><span class="zh">8 · 对 mStocks 的建议</span></a>
+  <a href="#s9"><span class="en">9 · Open questions</span><span class="zh">9 · 待确认问题</span></a>
+  <a href="#appx"><span class="en">Appendix · Method & sources</span><span class="zh">附录 · 方法与来源</span></a>
+</nav>
+
+<main>
+<!-- ═════ HERO ═════ -->
+<header class="hero">
+  <div class="eyebrow en">MANTLE RESEARCH · TOKENIZED EQUITIES</div><div class="eyebrow zh">MANTLE 调研 · 代币化股票</div>
+  <h1 class="en">Backpack's tokenized stocks on Solana: what makes them trade, and what mStocks should build</h1>
+  <h1 class="zh">Backpack 的代币化股票为什么交易得起来，以及 mStocks 应该怎么做</h1>
+  <p class="lede en">A $28M float that turns over 57 times a month. We combine 90 days of our own Dune data with Blockworks Research's execution study to explain where Backpack's volume comes from, why its price stays anchored to the real share, and what that means for the mStocks ecosystem on Mantle.</p>
+  <p class="lede zh">2,800 万美元的流通量，一个月周转 57 次。我们把自己在 Dune 上跑的 90 天数据和 Blockworks Research 的成交质量研究放在一起，回答三个问题：Backpack 的成交从哪来，价格为什么能锚住真股票，以及这对 Mantle 上 mStocks 的生态意味着什么。</p>
+  <div class="meta">
+    <span class="en"><b>Date</b> 2026-10-28</span><span class="zh"><b>日期</b> 2026-10-28</span>
+    <span class="en"><b>Onchain window</b> 2026-07-21 → 10-18 (90 days)</span><span class="zh"><b>链上窗口</b> 2026-07-21 至 10-18（90 天）</span>
+    <span class="en"><b>Sources</b> <a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a>, Blockworks Research, Backpack docs</span><span class="zh"><b>来源</b> <a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a>、Blockworks Research、Backpack 文档</span>
+  </div>
+  <div class="call"><div class="t en">Data source</div><div class="t zh">数据来源</div>
+    <p class="en">The headline numbers, the charts and the wallet table come from our own Dune dashboard: 13 queries over Backpack's 88 stock mints on Solana, 2026-07-21 to 10-18 UTC. Figures from Blockworks Research are labelled as such. <a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8"><b>Open the Dune dashboard →</b></a></p>
+    <p class="zh">摘要里的核心数字、全部图表和地址表都来自我们自己搭建的 Dune dashboard：13 个查询，覆盖 Backpack 在 Solana 上的 88 个股票代币，窗口为 2026-07-21 至 10-18（UTC）。来自 Blockworks Research 的数字都已单独标注。<a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8"><b>打开 Dune dashboard →</b></a></p>
+  </div>
+</header>
+
+<!-- ═════ SUMMARY ═════ -->
+<section id="summary">
+  <h2 class="en">Summary</h2><h2 class="zh">摘要</h2>
+  <div class="stats">
+    <div class="stat"><div class="k en">Dune-visible DEX volume · 90d</div><div class="k zh">Dune 可见 DEX 成交 · 90 天</div><div class="n">$2.06B</div><div class="c en">425K wallets, 79 of 88 stocks traded, 100% on Solana</div><div class="c zh">42.5 万个地址，88 只里 79 只有成交，全部在 Solana</div></div>
+    <div class="stat"><div class="k en">Traded vs USDC / USDT / SOL</div><div class="k zh">兑 USDC / USDT / SOL</div><div class="n">92%</div><div class="c en">Memecoin-quoted pairs 8%, mostly in September</div><div class="c zh">meme 计价 8%，集中在九月</div></div>
+    <div class="stat acc"><div class="k en">Atomic arbitrage</div><div class="k zh">原子套利</div><div class="n">33%</div><div class="c en">~4,000 bots loop prop AMMs against pools in one tx</div><div class="c zh">约 4,000 个机器人在同一笔交易里套 prop AMM 和池子</div></div>
+    <div class="stat"><div class="k en">Exchange ⇄ chain conversion · 90d</div><div class="k zh">交易所 ⇄ 链上申赎 · 90 天</div><div class="n">$303M</div><div class="c en">$4.6M a weekday vs $0.24M a weekend day</div><div class="c zh">工作日每天 $4.6M，周末每天 $0.24M</div></div>
+  </div>
+  <div class="tldr en"><div class="t">Key findings</div><ol>
+    <li><b>The volume is structural, not issuance-driven.</b> Backpack's float is 3% of xStocks', yet it out-traded xStocks in single-name stocks from June to August ($2.7B vs $1.45B, Blockworks). Our data: $2.06B over 90 days, 92% of it the stock traded against dollars.</li>
+    <li><b>The anchor is instant two-way conversion.</b> Withdrawing a share from Backpack Exchange mints the token on Solana in seconds; depositing burns it back into a brokerage entitlement. $303M moved this way in 90 days, almost all on weekdays.</li>
+    <li><b>Conversion lets market makers quote from day one.</b> Because they can dump or refill inventory through Backpack, prop AMMs quoted every listing from launch: 53% of SPCX volume on day one, 62% of Backpack volume in Jul–Aug, versus 86% passive pools for xStocks (Blockworks).</li>
+    <li><b>Arbitrage bots then pull every other venue to that price.</b> 33% of volume is atomic arbitrage, mostly prop AMM ↔ public pool. Volume spikes 6.5× in the hour of the US open: the onchain price follows Wall Street.</li>
+    <li><b>The result is measurably better execution.</b> Backpack SPCX fills beat xStocks SPCXx by 1.2–2.4 bps against the stock's own quote, and quoted lower round-trip costs in 98% of matched tests. Through Jupiter, even xStocks buyers route 81% via Backpack SPCX.</li>
+    <li><b>The weak spots are weekends, size and memes.</b> Conversion nearly stops on weekends, prop AMM depth thins out by $50K, and the September memecoin wave (up to $7.9M a day) faded to under $1M a day by October.</li>
+  </ol></div>
+  <div class="tldr zh"><div class="t">核心结论</div><ol>
+    <li><b>成交来自结构，不是来自发行量。</b> Backpack 的流通量只有 xStocks 的 3%，但 6–8 月单只股票的 DEX 成交反而超过 xStocks（$2.7B 对 $1.45B，Blockworks）。我们的数据：90 天 $2.06B，其中 92% 是用美元买卖股票本身。</li>
+    <li><b>锚是秒级的双向申赎。</b> 从 Backpack 交易所把股票提到 Solana 就是铸造代币，几秒到账；充回交易所就是销毁、换回券商账户里的股票。90 天走了 3.03 亿美元，几乎全在工作日。</li>
+    <li><b>能申赎，做市商才敢从第一天报价。</b> 库存多了可以换回股票，少了可以从股票换出代币，所以 prop AMM 每只新股一上线就报价：SPCX 首日 53%、7–8 月 Backpack 62% 的成交在 prop AMM；而 xStocks 86% 在被动池子（Blockworks）。</li>
+    <li><b>套利机器人把其他场所都拉到这个价格。</b> 33% 的成交是原子套利，主要是 prop AMM ↔ 公共池。美股开盘那一小时成交暴增 6.5 倍：链上价格跟着美股走。</li>
+    <li><b>结果是可测量的更好成交。</b> 以股票自身报价为基准，Backpack SPCX 比 xStocks SPCXx 便宜 1.2–2.4 bps；配对报价测试里 98% 更便宜。通过 Jupiter，连 xStocks 的买单都有 81% 先经过 Backpack SPCX。</li>
+    <li><b>短板在周末、大单和 meme。</b> 周末申赎几乎停摆；单笔到 $5 万时 prop AMM 的深度明显变薄；九月的 meme 浪潮（最高每天 $7.9M）到十月已不足每天 $1M。</li>
+  </ol></div>
+  <div class="call en"><div class="t">For mStocks, in one line</div><p>Build the anchor before the demand: <b>Bybit ⇄ Mantle conversion in seconds</b>, market makers quoting on prop AMMs from launch, cheap composable routing for arbitrage, then a 24/7 hedge leg and meme / lending demand on top. Details in <a href="#s8">Section 8</a>.</p></div>
+  <div class="call zh"><div class="t">对 mStocks 的一句话建议</div><p>先锚后需求：<b>Bybit ⇄ Mantle 秒级申赎</b>，做市商从上线第一天在 prop AMM 报价，便宜可组合的路由让套利者进来，然后再叠加 7×24 的对冲腿和 meme / 借贷需求。详见<a href="#s8">第 8 节</a>。</p></div>
+</section>
+
+<!-- ═════ 1 ═════ -->
+<section id="s1">
+  <h2><span class="no">01</span><span class="en">The turnover puzzle</span><span class="zh">周转之谜</span></h2>
+  <p class="kicker en">Same issuance, wildly different activity. Backpack sits second on Blockworks' turnover ranking with one of the smallest floats.</p>
+  <p class="kicker zh">发行量差不多，活跃度天差地别。Backpack 用很小的流通量，在 Blockworks 的周转排名里排第二。</p>
+  <figure><div class="fig"><img src="assets/blockworks-issuance-activity.jpg" alt="Blockworks: tokenized equities, issuance ≠ activity"><i class="hl"></i></div>
+    <figcaption class="en">Blockworks Research: 30-day DEX volume ÷ average circulating value, Sep 19–Oct 18, 2026, all chains (DEXs covered by BWR only). Backpack row highlighted.</figcaption>
+    <figcaption class="zh">Blockworks Research：30 天 DEX 成交 ÷ 平均流通市值，2026-09-19 至 10-18，全链（只统计其覆盖的 DEX）。高亮行为 Backpack。</figcaption></figure>
+  <div class="tw"><table>
+    <tr><th class="en">Issuer · same 30 days</th><th class="zh">发行方 · 同一 30 天</th><th class="n en">DEX volume</th><th class="n zh">DEX 成交</th><th class="n en">Avg. float</th><th class="n zh">平均流通</th><th class="n en">Turnover</th><th class="n zh">周转</th></tr>
+    <tr class="hi"><td>Backpack</td><td class="n">$1.61B</td><td class="n">$28.1M</td><td class="n"><b>57.2×</b></td></tr>
+    <tr><td class="en">xStocks · all chains</td><td class="zh">xStocks · 全链</td><td class="n">$2.31B</td><td class="n">$959.8M</td><td class="n">2.41×</td></tr>
+    <tr><td class="en">xStocks · Mantle (our measurement)</td><td class="zh">xStocks · Mantle（我们自测）</td><td class="n">$243K</td><td class="n">$4.6M</td><td class="n">0.05×</td></tr>
+  </table></div>
+  <p class="en">On Mantle, a third of that $243K is our own Bybit ↔ Fluxion arbitrage bot. The question this report answers: <b>what does Backpack have that turns a small float into continuous trading, and which parts can mStocks copy?</b></p>
+  <p class="zh">在 Mantle 上，这 24.3 万美元里有三分之一是我们自己的 Bybit ↔ Fluxion 套利机器人。这份报告要回答的是：<b>Backpack 靠什么让很小的流通量持续被交易？哪些是 mStocks 可以复制的？</b></p>
+</section>
+
+<!-- ═════ 2 ═════ -->
+<section id="s2">
+  <h2><span class="no">02</span><span class="en">How Backpack stocks work</span><span class="zh">Backpack 股票的结构</span></h2>
+  <p class="kicker en">One share, two markets, connected in seconds.</p>
+  <p class="kicker zh">一股股票，两个市场，几秒钟打通。</p>
+  <div class="two">
+    <div class="box"><div class="t en">Off-chain · Backpack Securities</div><div class="t zh">链下 · Backpack Securities</div>
+      <h4 class="en">The exchange holds the real share</h4><h4 class="zh">交易所持有真股票</h4>
+      <ul class="en"><li><b>Real shares</b> held as US brokerage security entitlements</li><li><b>Weekdays:</b> orders routed to US exchanges; RFQ quotes in extended hours</li><li><b>Weekends:</b> native weekend order book run by market makers</li><li><b>Equity perps</b> (SPCX, MU, SNDK…) and shares usable as collateral (since Sep 1)</li></ul>
+      <ul class="zh"><li><b>真股票</b>：以美国券商证券权益的形式持有</li><li><b>工作日</b>：订单路由到美国交易所；盘前盘后夜盘用询价报价</li><li><b>周末</b>：自建周末订单簿，由做市商提供流动性</li><li><b>股票永续</b>（SPCX、MU、SNDK…），股票可作保证金（9 月 1 日起）</li></ul>
+    </div>
+    <div class="box"><div class="t en">Onchain · Solana</div><div class="t zh">链上 · Solana</div>
+      <h4 class="en">88 tokens, redeemable 1:1</h4><h4 class="zh">88 个代币，可 1:1 赎回</h4>
+      <ul class="en"><li>SPL Token-2022; legally a <b>BVI-issued trust receipt</b> that detokenizes into a brokerage entitlement</li><li><b>Withdraw = mint</b> (~$0.50 fee, seconds); <b>deposit = burn</b> (free, seconds)</li><li>Self-custodied, 24/7, usable across Solana DeFi; dividends reinvested by rebasing</li><li>Live since SpaceX's IPO day (2026-06-12); market makers coordinated by <b>Sunrise</b></li></ul>
+      <ul class="zh"><li>SPL Token-2022；法律上是 <b>BVI 发行的信托凭证</b>，可以“去代币化”成券商账户里的股票权益</li><li><b>提币 = 铸造</b>（约 $0.50，几秒）；<b>充值 = 销毁</b>（免费，几秒）</li><li>自托管、7×24、可在 Solana DeFi 里使用；分红以 rebase 方式再投资</li><li>SpaceX IPO 当天（2026-06-12）上线；做市商由 <b>Sunrise</b> 统一协调</li></ul>
+    </div>
+  </div>
+  <h3 class="en">Backpack vs xStocks: the claim decides the liquidity</h3><h3 class="zh">Backpack 对 xStocks：权益结构决定流动性</h3>
+  <div class="tw"><table>
+    <tr><th></th><th>Backpack</th><th>xStocks</th></tr>
+    <tr><td class="k en">Legal claim</td><td class="k zh">法律权益</td><td class="en">Trust receipt; detokenizes into a stock entitlement</td><td class="zh">信托凭证，可换成股票权益</td><td class="en">1:1 collateralized debt security against Backed (acquired by Kraken); no share ownership</td><td class="zh">对 Backed（已被 Kraken 收购）的 1:1 抵押债务证券，不拥有股票</td></tr>
+    <tr><td class="k en">Conversion</td><td class="k zh">申赎</td><td class="en"><b>Direct, seconds</b>, inside the user's Backpack account</td><td class="zh"><b>直接、秒级</b>，在用户自己的 Backpack 账户里完成</td><td class="en">Possible via Backed, but not instant or integrated with a brokerage</td><td class="zh">可以通过 Backed 赎回，但不是即时的，也没有接入券商账户</td></tr>
+    <tr><td class="k en">Liquidity model</td><td class="k zh">流动性模式</td><td class="en">Prop AMMs (>60% of volume)</td><td class="zh">prop AMM（60% 以上的成交）</td><td class="en">Passive AMM pools (86% of volume)</td><td class="zh">被动 AMM 池子（86% 的成交）</td></tr>
+    <tr><td class="k en">Breadth</td><td class="k zh">品种</td><td class="en">88 single names, no ETFs</td><td class="zh">88 只个股，没有 ETF</td><td class="en">Broader, incl. SPY and CRCL; regained volume lead in late August (61% vs 31%)</td><td class="zh">品种更多，有 SPY、CRCL；8 月底重新拿回成交第一（61% 对 31%）</td></tr>
+  </table></div>
+  <p class="src en">Sources: Backpack support docs (Tokenized Securities, Conversion Flow, Weekend Stock Trading); Blockworks Research, “Tokenized Equities on Solana: From Issuance to Execution” (2026-09-04).</p>
+  <p class="src zh">来源：Backpack 支持文档（Tokenized Securities、Conversion Flow、Weekend Stock Trading）；Blockworks Research《Tokenized Equities on Solana: From Issuance to Execution》（2026-09-04）。</p>
+</section>
+
+<!-- ═════ 3 ═════ -->
+<section id="s3">
+  <h2><span class="no">03</span><span class="en">Where the volume comes from</span><span class="zh">成交从哪来</span></h2>
+  <p class="kicker en">90 days of Dune data across all 88 Backpack mints: who trades what, where, and against what.</p>
+  <p class="kicker zh">Dune 上 Backpack 全部 88 个代币的 90 天数据：交易什么、在哪交易、用什么计价。</p>
+  <div class="two">
+    <div class="chart"><div class="ct en">By venue · share of 90-day volume</div><div class="ct zh">按场所 · 90 天成交占比</div><div class="hb" id="hbVenue"></div>
+      <div class="lg"><span><i style="background:var(--struct)"></i>Prop AMM</span><span><i style="background:var(--bar)"></i><span class="en">Public pool / other</span><span class="zh">公共池子 / 其他</span></span></div><p class="src"><span class="en">Data: </span><span class="zh">数据：</span><a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a> · <span class="en">query</span><span class="zh">查询</span> <code>9026713</code></p></div>
+    <div class="chart"><div class="ct en">By stock · share of volume (prop AMM share)</div><div class="ct zh">按股票 · 成交占比（prop AMM 占比）</div><div class="hb" id="hbStock" style="--lw:70px;--rw:120px"></div><p class="src"><span class="en">Data: </span><span class="zh">数据：</span><a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a> · <span class="en">query</span><span class="zh">查询</span> <code>9026714</code></p></div>
+  </div>
+  <ul class="list en">
+    <li><b>Concentrated.</b> SPCX, MU and SKHY are 65% of volume; SPCX clears 73% on prop AMMs.</li>
+    <li><b>Mostly the stock itself.</b> 92% is against USDC/USDT/SOL, 8% memecoin or other tokens, under 0.1% against xStocks.</li>
+    <li><b>Small tickets.</b> 61% of dollar volume is in trades under $1K; only 5% is above $10K.</li>
+  </ul>
+  <ul class="list zh">
+    <li><b>高度集中。</b> SPCX、MU、SKHY 三只占 65%；SPCX 有 73% 在 prop AMM 成交。</li>
+    <li><b>主要是股票本身。</b> 92% 兑 USDC/USDT/SOL，8% 以 meme 或其他代币计价，兑 xStocks 不到 0.1%。</li>
+    <li><b>单笔很小。</b> 61% 的金额来自 1,000 美元以下的单子，1 万美元以上只占 5%。</li>
+  </ul>
+  <div class="chart"><div class="ct en">Daily DEX volume by quote asset ($M) · shaded = weekend</div><div class="ct zh">每日 DEX 成交 · 按计价资产（$M）· 阴影为周末</div><div id="chDaily"></div>
+    <div class="lg"><span><i style="background:var(--struct)"></i><span class="en">vs USDC / USDT / SOL</span><span class="zh">兑 USDC / USDT / SOL</span></span><span><i style="background:var(--soft)"></i><span class="en">vs memecoin / other</span><span class="zh">兑 meme / 其他</span></span></div><p class="src"><span class="en">Data: </span><span class="zh">数据：</span><a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a> · <span class="en">query</span><span class="zh">查询</span> <code>9026712</code></p></div>
+  <h3 class="en">Two regimes in 90 days</h3><h3 class="zh">90 天里的两个阶段</h3>
+  <div class="tw"><table>
+    <tr><th class="en">Month</th><th class="zh">月份</th><th class="n en">DEX volume</th><th class="n zh">DEX 成交</th><th class="n en">Prop AMM</th><th class="n zh">Prop AMM</th><th class="n en">Atomic arb</th><th class="n zh">原子套利</th><th class="n en">Memecoin-quoted</th><th class="n zh">meme 计价</th><th class="n en">Meme routed via stock</th><th class="n zh">meme 借道股票</th><th class="n en">Mint+burn ÷ DEX</th><th class="n zh">申赎 ÷ DEX</th></tr>
+    <tr><td class="en">Jul (21–31)</td><td class="zh">7 月（21–31 日）</td><td class="n">$381M</td><td class="n">58%</td><td class="n">47%</td><td class="n">0%</td><td class="n">0%</td><td class="n">4%</td></tr>
+    <tr><td class="en">Aug</td><td class="zh">8 月</td><td class="n">$475M</td><td class="n">58%</td><td class="n">45%</td><td class="n">0%</td><td class="n">1%</td><td class="n">4%</td></tr>
+    <tr class="hi"><td class="en">Sep</td><td class="zh">9 月</td><td class="n">$710M</td><td class="n">32%</td><td class="n">23%</td><td class="n">17%</td><td class="n">27%</td><td class="n">22%</td></tr>
+    <tr><td class="en">Oct (1–18)</td><td class="zh">10 月（1–18 日）</td><td class="n">$496M</td><td class="n">34%</td><td class="n">25%</td><td class="n">11%</td><td class="n">12%</td><td class="n">23%</td></tr>
+  </table></div>
+  <p class="en"><b>Jul–Aug was a market-maker market:</b> prop AMMs carried 58%, atomic arbitrage nearly half, no memecoin pairs, and weekends were almost idle ($3.3M a day). <b>September brought retail:</b> StonkFun moved to Raydium LaunchLab (Sep 5) and pump.fun launched Custom Pairs (Sep 9), letting anyone launch memecoins priced in stocks. Weekend volume rose to $14.7M a day (4.5×) and the mint/redeem loop scaled up roughly 10–20×. By mid-October memecoin flow had faded from $7.9M to $0.9M a day, yet total volume stayed above the pre-September level.</p>
+  <p class="zh"><b>7–8 月是做市商的市场：</b>prop AMM 占 58%，原子套利接近一半，没有 meme 交易对，周末几乎没量（每天 $3.3M）。<b>9 月散户进场：</b>StonkFun 9 月 5 日迁到 Raydium LaunchLab，pump.fun 9 月 9 日上线 Custom Pairs，任何人都能发以股票计价的 meme。周末成交升到每天 $14.7M（4.5 倍），申赎通道也放大了约 10–20 倍。到 10 月中，meme 成交从每天 $7.9M 掉到 $0.9M，但总成交仍高于 9 月之前。</p>
+  <p class="src en">Memecoin-quoted share is a floor: Dune does not decode pump.fun Custom Pairs. “Atomic arb” and “routed via stock” use transaction-level classification (Section 4); they overlap with the quote-asset split and should not be added.</p>
+  <p class="src zh">meme 计价占比是下限：Dune 不解析 pump.fun Custom Pairs。“原子套利”和“借道股票”按交易归类（见第 4 节），与计价资产的拆分有重叠，不能相加。</p>
+</section>
+
+<!-- ═════ 4 ═════ -->
+<section id="s4">
+  <h2><span class="no">04</span><span class="en">Why the price holds</span><span class="zh">价格为什么锚得住</span></h2>
+  <p class="kicker en">Six pieces of evidence, from our onchain data and Blockworks' execution study.</p>
+  <p class="kicker zh">六组证据，来自我们的链上数据和 Blockworks 的成交质量研究。</p>
+
+  <div id="s4a" style="scroll-margin-top:10px"></div><h3 class="en">4.1 Prop AMMs quote from day one, around the clock</h3><h3 class="zh">4.1 prop AMM 从第一天、全天候报价</h3>
+  <p class="en">Prop AMMs quote from live stock-market data and their own view of fair value, but inventory limits how much they can show. Backpack's two-way conversion removes that limit: excess tokens can be turned into stock, and stock into tokens when inventory runs low. Blockworks finds prop AMMs took <b>53% of SPCX volume on day one and 64% in its first full week</b>, versus a few percent for xStocks. From Jun 12 to Aug 30 they cleared <b>60% during market hours, 65% overnight and 59% on weekends</b>. Over Jul–Aug: 62% of Backpack volume on prop AMMs; 86% of xStocks volume in passive pools.</p>
+  <p class="zh">prop AMM 根据实时股价和自己对公允价值的判断报价，但能报多少受库存限制。Backpack 的双向申赎解决了这个问题：代币多了可以换回股票，少了可以用股票换出代币。Blockworks 发现，prop AMM <b>在 SPCX 上线首日拿到 53% 的成交、首个完整周 64%</b>，而 xStocks 同期只有几个百分点。6 月 12 日至 8 月 30 日，prop AMM 在 <b>美股交易时段占 60%、夜盘 65%、周末 59%</b>。7–8 月 Backpack 62% 的成交在 prop AMM，xStocks 86% 在被动池子。</p>
+  <p class="en">Our Dune data agrees for the same months (58% prop AMM in Jul–Aug; Dune misses a few prop AMMs). The share fell to about a third from September, not because prop AMMs left, but because memecoin flow arrived on public pools.</p>
+  <p class="zh">我们的 Dune 数据在同一时期得到一致的结果（7–8 月 prop AMM 占 58%，Dune 少解析了几家 prop AMM）。9 月起占比降到三分之一左右，不是因为 prop AMM 退出，而是 meme 流量进了公共池子。</p>
+
+  <div id="s4b" style="scroll-margin-top:10px"></div><h3 class="en">4.2 The conversion loop is the weekday anchor</h3><h3 class="zh">4.2 申赎通道是工作日的锚</h3>
+  <div class="chart"><div class="ct en">Daily mint (withdraw) and burn (redeem) vs DEX volume ($M)</div><div class="ct zh">每日铸造（提币）与销毁（赎回）vs DEX 成交（$M）</div><div id="chMint"></div>
+    <div class="lg"><span><i style="background:var(--struct)"></i><span class="en">mint</span><span class="zh">铸造</span></span><span><i style="background:#0A6B4D"></i><span class="en">burn</span><span class="zh">销毁</span></span><span><i style="background:var(--muted);height:2px"></i><span class="en">DEX volume</span><span class="zh">DEX 成交</span></span></div><p class="src"><span class="en">Data: </span><span class="zh">数据：</span><a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a> · <span class="en">query</span><span class="zh">查询</span> <code>9026718</code></p></div>
+  <ul class="list en">
+    <li><b>$158M minted and $145M burned</b> in 90 days, equal to 15% of DEX volume.</li>
+    <li><b>Weekdays only:</b> $4.6M a weekday (16% of that day's DEX volume) vs $0.24M a weekend day (2.6%). On weekdays Backpack can route to US exchanges, so arbitrageurs can buy the share and mint, or buy the token and redeem.</li>
+    <li><b>Two-way:</b> daily mints and burns nearly cancel (net is 13% of gross on weekdays), and 35% of redeemed value comes from wallets that also withdrew. The same desks move inventory in both directions.</li>
+  </ul>
+  <ul class="list zh">
+    <li>90 天<b>铸造 $158M、销毁 $145M</b>，相当于 DEX 成交的 15%。</li>
+    <li><b>只在工作日运转：</b>工作日每天 $4.6M（占当天 DEX 16%），周末每天 $0.24M（2.6%）。工作日 Backpack 能把订单路由到美国交易所，套利者可以买股票再铸造，或者买代币再赎回。</li>
+    <li><b>双向进出：</b>每天的铸造和销毁几乎相等（工作日净差只占总额的 13%）；被赎回的金额里 35% 来自也提过币的钱包。同一批做市商在双向搬库存。</li>
+  </ul>
+
+  <div id="s4c" style="scroll-margin-top:10px"></div><h3 class="en">4.3 A third of volume is atomic arbitrage</h3><h3 class="zh">4.3 三分之一的成交是原子套利</h3>
+  <p class="en">We rebuilt every transaction touching a Backpack stock from all its DEX legs. A transaction where every token sold is bought back (e.g. USDC → SPCX on Meteora → USDC on ZeroFi) is a cycle: atomic arbitrage.</p>
+  <p class="zh">我们把每一笔碰到 Backpack 股票的交易，用它所有的 DEX 腿还原出来。如果卖出的每种代币最后都被买回（例如 USDC → 在 Meteora 买 SPCX → 在 ZeroFi 卖回 USDC），就是一个闭环，也就是原子套利。</p>
+  <div class="chart"><div class="ct en">By transaction type · share of 90-day volume (signers)</div><div class="ct zh">按交易类型 · 90 天成交占比（签名地址数）</div><div class="hb" id="hbTx"></div><p class="src"><span class="en">Data: </span><span class="zh">数据：</span><a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a> · <span class="en">query</span><span class="zh">查询</span> <code>9026720</code> / <code>9026721</code></p></div>
+  <p class="en">Prop AMM ↔ public pool cycles are 21% of volume from just 2,295 signers (~$186K each); prop AMM ↔ prop AMM adds 11%. Cycles against xStocks are 0.4%. This is a floor: arbitrage across transactions and off-chain hedges are invisible.</p>
+  <p class="zh">prop AMM ↔ 公共池的闭环占 21%，只有 2,295 个签名地址（平均每个约 $186K）；prop AMM 之间再占 11%。和 xStocks 之间的闭环只有 0.4%。这是下限：跨交易的套利和链下对冲在链上看不到。</p>
+
+  <div id="s4d" style="scroll-margin-top:10px"></div><h3 class="en">4.4 The price follows the US market</h3><h3 class="zh">4.4 价格跟着美股走</h3>
+  <div class="chart"><div class="ct en">Average hourly volume by UTC hour ($M)</div><div class="ct zh">平均每小时成交 · 按 UTC 小时（$M）</div><div id="chHour"></div>
+    <div class="lg"><span><i style="background:var(--struct)"></i><span class="en">weekday</span><span class="zh">工作日</span></span><span><i style="background:#4F6B60"></i><span class="en">weekend</span><span class="zh">周末</span></span></div><p class="src"><span class="en">Data: </span><span class="zh">数据：</span><a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a> · <span class="en">query</span><span class="zh">查询</span> <code>9026715</code></p></div>
+  <p class="en">Weekday volume in the 13:00 UTC hour (US open at 13:30) is 6.5× the Asia-session average, with a second bump at the 20:00 UTC close. Weekends have no open and no spike. Onchain trading does not discover the price; it re-aligns to Wall Street when Wall Street opens. On weekends, Blockworks notes prop AMMs likely price off other 24/7 venues and Pyth feeds.</p>
+  <p class="zh">工作日 13:00 UTC 这一小时（美股 13:30 开盘）的成交是亚洲时段平均值的 6.5 倍，20:00 UTC 收盘前后再放量一次；周末没有开盘，也没有峰值。链上交易不负责发现价格，而是在美股开盘时重新对齐。Blockworks 认为周末 prop AMM 大概率参考其他 7×24 场所和 Pyth 喂价报价。</p>
+
+  <div id="s4e" style="scroll-margin-top:10px"></div><h3 class="en">4.5 Execution is measurably better (Blockworks)</h3><h3 class="zh">4.5 成交质量可测量地更好（Blockworks）</h3>
+  <div class="tw"><table>
+    <tr><th class="en">Test</th><th class="zh">测试</th><th class="en">Result</th><th class="zh">结果</th></tr>
+    <tr><td class="en">Realized $100–$20K fills vs the stock's preceding touch (SIP NBBO / Blue Ocean)</td><td class="zh">$100–$2 万实际成交 vs 股票前一刻报价（SIP NBBO / Blue Ocean）</td><td class="en">Backpack SPCX <b>1.23 bps</b> cheaper than xStocks SPCXx in regular hours, <b>2.42 bps</b> overnight</td><td class="zh">Backpack SPCX 比 xStocks SPCXx 常规时段便宜 <b>1.23 bps</b>，夜盘便宜 <b>2.42 bps</b></td></tr>
+    <tr><td class="en">Matched Jupiter quotes, 7-stock basket, round trip</td><td class="zh">Jupiter 配对报价，7 只股票，买入再卖出</td><td class="en">Backpack cheaper in <b>98%</b> of hourly comparisons for $500–$10K; median advantage 27–33 bps, <b>narrowing to 1.6 bps at $50K</b></td><td class="zh">$500–$1 万订单 <b>98%</b> 的小时比较里 Backpack 更便宜；中位优势 27–33 bps，<b>到 $5 万时缩小到 1.6 bps</b></td></tr>
+    <tr><td class="en">$5K quotes vs the stock's midpoint</td><td class="zh">$5,000 报价 vs 股票中间价</td><td class="en">Backpack cheaper in 78% of tests and 96% of 30-minute windows</td><td class="zh">78% 的测试、96% 的 30 分钟窗口里 Backpack 更便宜</td></tr>
+    <tr><td class="en">Backpack (Solana) vs Robinhood Chain fills</td><td class="zh">Backpack（Solana）vs Robinhood Chain 实际成交</td><td class="en">5.8 bps cheaper under $1K, 12.1 bps for $10–20K; before gas (median $0.075 on Robinhood Chain vs $0.0006 on Solana)</td><td class="zh">$1,000 以下便宜 5.8 bps，$1–2 万便宜 12.1 bps；还没算 gas（Robinhood Chain 中位 $0.075，Solana $0.0006）</td></tr>
+  </table></div>
+
+  <div id="s4f" style="scroll-margin-top:10px"></div><h3 class="en">4.6 Composability turns competing issuers into shared liquidity</h3><h3 class="zh">4.6 可组合性让竞争的发行方共享流动性</h3>
+  <p class="en">Because SPCX and SPCXx trade near 1:1 in a shared pool, Jupiter routes <b>81% of $1K SPCXx buys and 64% of sells through Backpack SPCX</b>, letting xStocks users tap Backpack's tighter prop AMM quotes. The reverse is rare (2–5% of Backpack buys, no sells). This matches our finding that cycles against xStocks are only 0.4%: the wrappers are linked by routing, not by arbitrage. Issuers compete on redemption and rights while sharing execution liquidity.</p>
+  <p class="zh">因为 SPCX 和 SPCXx 在一个公共池子里以接近 1:1 交易，Jupiter 把 <b>$1,000 SPCXx 买单的 81%、卖单的 64% 先路由经过 Backpack SPCX</b>，让 xStocks 用户也用上 Backpack 更紧的 prop AMM 报价。反向很少（Backpack 买单只有 2–5%，卖单为 0）。这和我们“对 xStocks 的闭环只有 0.4%”的发现一致：两种代币是通过路由连起来的，不是通过套利。发行方在申赎和权益上竞争，但共享成交流动性。</p>
+</section>
+
+<!-- ═════ 5 ═════ -->
+<section id="s5">
+  <h2><span class="no">05</span><span class="en">Who trades, and how long they hold</span><span class="zh">谁在交易、拿多久</span></h2>
+  <p class="kicker en">Professional flow at the top, a retail long tail, and a small but growing holding base.</p>
+  <p class="kicker zh">头部是专业资金，后面是散户长尾，还有一小部分正在形成的长期持仓。</p>
+  <div class="tw"><table id="tbTraders"></table></div>
+  <p class="src"><span class="en">Data: </span><span class="zh">数据：</span><a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">Dune dashboard</a> · <span class="en">query</span><span class="zh">查询</span> <code>9026717</code></p>
+  <div class="two">
+    <div class="box"><div class="t en">Four archetypes (our Dune data)</div><div class="t zh">四类参与者（Dune 数据）</div>
+      <ul class="en"><li><b>Full-universe bot</b> <code>AgmLJ…</code>: 2.25M trades in 90 days, $82 average, all 79 stocks</li><li><b>Single-name pool arbitrageurs</b> <code>Hasda…</code>, <code>m7Vm…</code>, <code>MfDu…</code>: 3–4 names, $500–$950 a trade, almost never on prop AMMs</li><li><b>Prop AMM takers</b> <code>Gpji…</code>, <code>GxDC…</code>, <code>DcQN…</code>: 58–72% of their flow on prop AMMs</li><li><b>Converters</b> <code>bpfe9…</code>: withdrew $25.4M from Backpack and traded $25.2M on DEXs</li></ul>
+      <ul class="zh"><li><b>全品种机器人</b> <code>AgmLJ…</code>：90 天 225 万笔、平均 $82、覆盖 79 只</li><li><b>单品种池子套利者</b> <code>Hasda…</code>、<code>m7Vm…</code>、<code>MfDu…</code>：只做 3–4 只，每笔 $500–$950，几乎不碰 prop AMM</li><li><b>prop AMM 吃单者</b> <code>Gpji…</code>、<code>GxDC…</code>、<code>DcQN…</code>：58–72% 的成交在 prop AMM</li><li><b>申赎者</b> <code>bpfe9…</code>：从 Backpack 提了 $25.4M，在 DEX 上成交 $25.2M</li></ul></div>
+    <div class="box"><div class="t en">Holding periods (Blockworks, through Aug)</div><div class="t zh">持有期（Blockworks，截至 8 月）</div>
+      <ul class="en"><li>Of every $100 traded, ~$70 is the same taker in and out within a day; ~$10 is clear one-way position building</li><li>~85% of purchase notional resold within one day; 8.5% never resold by Aug 31</li><li><b>$243M</b> of purchases held at least a week, $220M at least two weeks</li><li>That holding base creates demand for <b>lending and perp collateral</b></li></ul>
+      <ul class="zh"><li>每交易 $100，约 $70 是同一个吃单者当天进出，约 $10 是明确的单向建仓</li><li>约 85% 的买入金额在一天内卖出；8.5% 到 8 月 31 日都没卖</li><li><b>$2.43 亿</b>买入持有超过一周，$2.2 亿超过两周</li><li>这部分持仓会带来<b>借贷和永续保证金</b>的需求</li></ul></div>
+  </div>
+  <p class="en">The top 30 wallets do 53% of volume; 425K wallets share the rest. The ecosystem's engine is a few dozen professional roles. Retail rides on top of it.</p>
+  <p class="zh">前 30 个地址占 53% 的成交，剩下的由 42.5 万个地址分。生态的发动机是几十个专业角色，散户是在这之上的。</p>
+</section>
+
+<!-- ═════ 6 ═════ -->
+<section id="s6">
+  <h2><span class="no">06</span><span class="en">The model, and where it breaks</span><span class="zh">模式与短板</span></h2>
+  <p class="kicker en">A loop with four links. Each depends on the one before it.</p>
+  <p class="kicker zh">一个四环的闭环，每一环都依赖上一环。</p>
+  <div class="loop">
+    <div class="lp acc"><div class="t en">① ANCHOR</div><div class="t zh">① 锚</div><h4 class="en">A token you can convert 1:1 in seconds</h4><h4 class="zh">几秒钟就能 1:1 申赎的代币</h4><p class="en">Any drift from the real share is arbitraged through the exchange.</p><p class="zh">链上价格一偏离真股价，就有人通过交易所搬回来。</p><div class="ev"><b>$303M</b><span class="en">converted in 90 days</span><span class="zh">90 天申赎</span></div></div>
+    <div class="lp"><div class="t en">② QUOTE</div><div class="t zh">② 报价</div><h4 class="en">MMs can hedge and rebalance, so they quote</h4><h4 class="zh">做市商能对冲、能调库存，所以敢报价</h4><p class="en">Prop AMMs from day one, coordinated by Sunrise.</p><p class="zh">prop AMM 从上线第一天报价，由 Sunrise 协调。</p><div class="ev"><b>62%</b><span class="en">prop AMM share, Jul–Aug</span><span class="zh">7–8 月 prop AMM 占比</span></div></div>
+    <div class="lp"><div class="t en">③ ARBITRAGE</div><div class="t zh">③ 搬砖</div><h4 class="en">Bots pull every venue to that price</h4><h4 class="zh">机器人把所有场所拉到同一价格</h4><p class="en">Pools, meme pools and other wrappers converge via Jupiter.</p><p class="zh">公共池、meme 池、别家代币都通过 Jupiter 对齐。</p><div class="ev"><b>33%</b><span class="en">of volume is atomic arb</span><span class="zh">的成交是原子套利</span></div></div>
+    <div class="lp"><div class="t en">④ FLOW</div><div class="t zh">④ 成交</div><h4 class="en">Retail and memes get a fair price anywhere</h4><h4 class="zh">散户和 meme 在哪都拿到公平价格</h4><p class="en">More flow makes quoting pay, back to ②.</p><p class="zh">成交越多，做市越赚钱，回到 ②。</p><div class="ev"><b>425K</b><span class="en">wallets</span><span class="zh">个地址</span></div></div>
+  </div>
+  <h3 class="en">Where it breaks</h3><h3 class="zh">短板</h3>
+  <ul class="list en">
+    <li><b>Weekends.</b> Conversion falls to 1/20 of a weekday and volume drops by two-thirds; prices rest on MM inventory, perps and oracle feeds.</li>
+    <li><b>Size.</b> The quote advantage narrows from ~30 bps to 1.6 bps at $50K as prop AMM quotes thin out. Pools remain the backstop for larger orders.</li>
+    <li><b>Breadth.</b> No ETFs. xStocks regained the volume lead in late August with SPY and CRCL.</li>
+    <li><b>Memes are transient.</b> They doubled weekend activity in September and were mostly gone by mid-October.</li>
+    <li><b>Concentration.</b> Three names are 65% of volume, and one coordinator (Sunrise) organizes the market makers.</li>
+  </ul>
+  <ul class="list zh">
+    <li><b>周末。</b> 申赎降到工作日的 1/20，成交少三分之二；价格靠做市商库存、永续和预言机喂价撑住。</li>
+    <li><b>大单。</b> 单笔到 $5 万时报价优势从约 30 bps 缩到 1.6 bps，prop AMM 报价变薄，大单仍要靠池子兜底。</li>
+    <li><b>品种。</b> 没有 ETF；xStocks 靠 SPY、CRCL 在 8 月底拿回成交第一。</li>
+    <li><b>meme 不持久。</b> 九月让周末成交翻了几倍，十月中基本退潮。</li>
+    <li><b>集中。</b> 三只股票占 65% 的成交；做市商由一家（Sunrise）协调。</li>
+  </ul>
+</section>
+
+<!-- ═════ 7 ═════ -->
+<section id="s7">
+  <h2><span class="no">07</span><span class="en">Mantle today, link by link</span><span class="zh">逐环对照 Mantle 现状</span></h2>
+  <p class="kicker en">The asset is not the problem. Every link of the loop is.</p>
+  <p class="kicker zh">问题不在资产本身，而在闭环的每一环。</p>
+  <div class="tw"><table>
+    <tr><th></th><th>Backpack · Solana</th><th class="en">xStocks · Mantle today</th><th class="zh">xStocks · Mantle 现状</th></tr>
+    <tr><td class="k en">① Anchor</td><td class="k zh">① 锚</td><td class="en">Exchange withdraw = mint, deposit = burn, seconds; $303M in 90 days</td><td class="zh">交易所提币即铸造、充值即销毁，秒级；90 天 $303M</td><td class="en">Supply for all 1,506 tokens sits in one issuer inventory address; a fast public Bybit ⇄ Mantle path is <span class="m">to be confirmed</span></td><td class="zh">1,506 个代币的库存都在一个发行方地址；Bybit ⇄ Mantle 的快速公开申赎路径<span class="m">待确认</span></td></tr>
+    <tr><td class="k en">② Quote</td><td class="k zh">② 报价</td><td class="en">5 prop AMMs, 43–62% of volume; MMs coordinated per listing</td><td class="zh">5 家 prop AMM，占 43–62%；每次上新统一协调做市商</td><td class="en">Fluxion (10 pools) and Merchant Moe; TSLA depth at ±0.5% is $122</td><td class="zh">Fluxion（10 个池子）和 Merchant Moe；TSLA ±0.5% 深度只有 $122</td></tr>
+    <tr><td class="k en">③ Arbitrage</td><td class="k zh">③ 搬砖</td><td class="en">~4,000 bots; Jupiter routing across all venues and wrappers</td><td class="zh">约 4,000 个机器人；Jupiter 在所有场所和代币之间路由</td><td class="en">Mostly our own Bybit ⇄ Fluxion bot (36% of volume)</td><td class="zh">主要是我们自己的 Bybit ⇄ Fluxion 机器人（36% 的成交）</td></tr>
+    <tr><td class="k en">④ Flow</td><td class="k zh">④ 成交</td><td class="en">425K wallets; StonkFun and pump.fun use stocks as meme quote</td><td class="zh">42.5 万个地址；StonkFun、pump.fun 把股票当 meme 计价货币</td><td class="en">No launchpad yet; 1,500+ tickers, only 14 hold more than $10K</td><td class="zh">还没有发射台；1,500+ 只代币，流通超过 $1 万的只有 14 只</td></tr>
+    <tr class="hi"><td class="k en">30-day turnover</td><td class="k zh">30 天周转</td><td><b>57.2×</b></td><td><b>0.05×</b></td></tr>
+  </table></div>
+  <p class="en">Mantle does have one structural advantage Backpack lacks: <b>Bybit trades 24/7</b>. If conversion and hedging run through Bybit, the weekend gap that limits Backpack need not exist for mStocks.</p>
+  <p class="zh">Mantle 有一个 Backpack 没有的结构性优势：<b>Bybit 是 7×24 交易的</b>。如果申赎和对冲都走 Bybit，限制 Backpack 的周末短板在 mStocks 上可以不存在。</p>
+</section>
+
+<!-- ═════ 8 ═════ -->
+<section id="s8">
+  <h2><span class="no">08</span><span class="en">Recommendations for the mStocks ecosystem</span><span class="zh">对 mStocks 生态的建议</span></h2>
+  <p class="kicker en">Anchor before demand. P0 items should be live at launch; without them, demand will not stick.</p>
+  <p class="kicker zh">先锚后需求。P0 应在上线时就位；没有它们，带来的需求留不住。</p>
+
+  <div class="rec p0"><div class="hd"><span class="id">R1</span><h4 class="en">Make Bybit ⇄ Mantle conversion the anchor</h4><h4 class="zh">把 Bybit ⇄ Mantle 申赎做成锚</h4><span class="pr">P0</span></div>
+    <div class="g en"><span class="lab">What</span><div>For the launch names, a Bybit withdrawal to Mantle mints mStocks and a deposit burns it back into the Bybit position: <b>two-way, seconds, near-zero cost</b>, open to market makers and arbitrageurs, not only retail.</div><span class="lab">Evidence</span><div>Backpack: $303M converted in 90 days; mint and burn nearly equal each weekday; conversion is what lets prop AMMs quote from day one (Blockworks).</div><span class="lab">Owner</span><div>Bybit + issuer partner; Mantle BD</div></div>
+    <div class="g zh"><span class="lab">做什么</span><div>上线的股票里，从 Bybit 提币到 Mantle 就是铸造 mStocks，充回 Bybit 就是销毁并恢复 Bybit 上的持仓：<b>双向、秒级、接近零成本</b>，并且对做市商和套利者开放，不只是散户。</div><span class="lab">依据</span><div>Backpack 90 天申赎 $303M；每个工作日铸造和销毁几乎相等；正是申赎让 prop AMM 能从第一天报价（Blockworks）。</div><span class="lab">负责方</span><div>Bybit + 发行合作方；Mantle BD</div></div></div>
+
+  <div class="rec p0"><div class="hd"><span class="id">R2</span><h4 class="en">Coordinate market makers on prop AMMs from day one</h4><h4 class="zh">从第一天起协调做市商在 prop AMM 报价</h4><span class="pr">P0</span></div>
+    <div class="g en"><span class="lab">What</span><div>Play Sunrise's role: line up 2–3 desks per listing that quote mStocks on prop AMM / RFQ venues (Fluxion, plus the dev team's PropAMM + JIT Router work), hedge on Bybit, and rebalance inventory via R1. Keep standing pools as the backstop for larger orders.</div><span class="lab">Evidence</span><div>Prop AMMs: 53% of SPCX volume on day one, 60–65% in every session; Backpack beats xStocks in 98% of matched quotes. xStocks' passive-pool model loses on price.</div><span class="lab">Owner</span><div>Mantle dev team (PropAMM, JIT Router) + BD (MM programme)</div></div>
+    <div class="g zh"><span class="lab">做什么</span><div>扮演 Sunrise 的角色：每只上线的股票安排 2–3 家做市商，在 prop AMM / RFQ 场所报价（Fluxion，以及 dev team 的 PropAMM + JIT Router），在 Bybit 对冲，通过 R1 调库存；同时保留公共池子给大单兜底。</div><span class="lab">依据</span><div>prop AMM 拿到 SPCX 首日 53% 的成交，各时段都在 60–65%；配对报价里 98% 比 xStocks 便宜。xStocks 的被动池子模式在价格上输了。</div><span class="lab">负责方</span><div>Mantle dev team（PropAMM、JIT Router）+ BD（做市商计划）</div></div></div>
+
+  <div class="rec p0"><div class="hd"><span class="id">R3</span><h4 class="en">Make arbitrage and routing cheap and composable</h4><h4 class="zh">让套利和路由便宜、可组合</h4><span class="pr">P0</span></div>
+    <div class="g en"><span class="lab">What</span><div>Make every mStocks venue routable by the aggregators already on Mantle (OKX DEX, KyberSwap, LI.FI); cheap multi-leg transactions; <b>1:1 pools linking mStocks with other wrappers of the same stock</b> (e.g. xStocks on Mantle) so routers can share liquidity; publish venue and oracle data so outside bots can run. Goal: external bots replace our own arb.</div><span class="lab">Evidence</span><div>33% of Backpack volume is atomic arbitrage by ~4,000 bots; Jupiter routes 81% of SPCXx buys via Backpack SPCX. On Mantle, our own bot is 36% of xStocks volume.</div><span class="lab">Owner</span><div>Mantle dev team + ecosystem DEX/aggregator partners</div></div>
+    <div class="g zh"><span class="lab">做什么</span><div>让 Mantle 上已有的聚合器（OKX DEX、KyberSwap、LI.FI）能路由到所有 mStocks 场所；便宜的多腿交易；<b>用 1:1 池子把 mStocks 和同一只股票的其他代币（比如 Mantle 上的 xStocks）连起来</b>，让路由共享流动性；公开场所和预言机数据，方便外部机器人接入。目标是让外部机器人取代我们自己的套利。</div><span class="lab">依据</span><div>Backpack 33% 的成交是约 4,000 个机器人的原子套利；Jupiter 把 81% 的 SPCXx 买单路由经过 Backpack SPCX。Mantle 上我们自己的机器人占 xStocks 成交的 36%。</div><span class="lab">负责方</span><div>Mantle dev team + 生态 DEX / 聚合器</div></div></div>
+
+  <div class="rec"><div class="hd"><span class="id">R4</span><h4 class="en">Keep fees Solana-level and sequencing neutral</h4><h4 class="zh">手续费保持 Solana 水平，排序保持中立</h4><span class="pr p1">P1</span></div>
+    <div class="g en"><span class="lab">What</span><div>Target sub-cent, predictable fees for swaps and multi-leg arbitrage, and publish clear, neutral ordering rules (Flashblocks, priority) so market makers and bots can model execution.</div><span class="lab">Evidence</span><div>Blockworks' critique of Robinhood Chain: fees rose 18× to a $0.075 median (128× Solana) and ordering is operator-controlled. “If every trade… carries meaningful gas costs, sophisticated onchain finance remains uneconomic.” Mantle is an L2 and will be judged the same way; its single sequencer with no public mempool is an anti-sandwich advantage worth stating explicitly to MMs.</div><span class="lab">Owner</span><div>Mantle dev team</div></div>
+    <div class="g zh"><span class="lab">做什么</span><div>兑换和多腿套利的手续费做到低于 1 美分且可预测；公开清晰、中立的排序规则（Flashblocks、优先级），让做市商和机器人能对执行建模。</div><span class="lab">依据</span><div>Blockworks 对 Robinhood Chain 的批评：手续费涨了 18 倍，中位 $0.075（Solana 的 128 倍），排序由运营方控制。“如果每笔交易都有明显的 gas 成本，复杂的链上金融就不经济。” Mantle 是 L2，会被用同样的标准衡量；单 sequencer、没有公开 mempool，不会被夹，这一点应该明确告诉做市商。</div><span class="lab">负责方</span><div>Mantle dev team</div></div></div>
+
+  <div class="rec"><div class="hd"><span class="id">R5</span><h4 class="en">Close Backpack's weekend gap with Bybit's 24/7 market</h4><h4 class="zh">用 Bybit 的 7×24 市场补上 Backpack 的周末短板</h4><span class="pr p1">P1</span></div>
+    <div class="g en"><span class="lab">What</span><div>Keep R1 conversion open on weekends; give MMs a 24/7 hedge (Bybit stock perps or the planned Mantle Perps); use a robust weekend reference price. Make “best weekend execution for tokenized stocks” a headline.</div><span class="lab">Evidence</span><div>Backpack's weekend conversion is 1/20 of a weekday and weekend volume is a third; its prop AMMs still quote weekends off 24/7 venues and Pyth.</div><span class="lab">Owner</span><div>Bybit + Perps product + oracle partner</div></div>
+    <div class="g zh"><span class="lab">做什么</span><div>R1 的申赎在周末也开放；给做市商一个 7×24 的对冲腿（Bybit 股票永续或计划中的 Mantle Perps）；周末用可靠的参考价。把“周末成交最好的代币化股票”当成卖点。</div><span class="lab">依据</span><div>Backpack 周末申赎只有工作日的 1/20，周末成交只有三分之一；它的 prop AMM 周末仍参考 7×24 场所和 Pyth 报价。</div><span class="lab">负责方</span><div>Bybit + Perps 产品 + 预言机合作方</div></div></div>
+
+  <div class="rec"><div class="hd"><span class="id">R6</span><h4 class="en">Launch narrow and event-driven</h4><h4 class="zh">上线时品种要少，并借势热点事件</h4><span class="pr p1">P1</span></div>
+    <div class="g en"><span class="lab">What</span><div>Start with 5–10 names where MMs will quote and conversion works, ideally around a catalyst (IPO day, earnings). Add ETFs early, since that is where xStocks beat Backpack. Do not count deployed tickers as progress.</div><span class="lab">Evidence</span><div>Backpack took 45% of Solana tokenized-equity volume on SPCX's IPO day; SPCX, MU, SKHY are 65% of its volume. Mantle has 1,500+ xStocks tickers, 14 above $10K float.</div><span class="lab">Owner</span><div>BD + Bybit listing</div></div>
+    <div class="g zh"><span class="lab">做什么</span><div>先做 5–10 只做市商愿意报价、申赎跑得通的股票，最好借助热点（IPO 当天、财报）；尽早加 ETF，这正是 xStocks 胜过 Backpack 的地方。不要把部署了多少只代币当成进展。</div><span class="lab">依据</span><div>SPCX IPO 当天 Backpack 拿下 Solana 代币化股票成交的 45%；SPCX、MU、SKHY 占其 65% 的成交。Mantle 上部署了 1,500+ 只 xStocks，流通超过 $1 万的只有 14 只。</div><span class="lab">负责方</span><div>BD + Bybit 上币</div></div></div>
+
+  <div class="rec"><div class="hd"><span class="id">R7</span><h4 class="en">Serve the holders: lending and perp collateral</h4><h4 class="zh">服务持有者：借贷和永续保证金</h4><span class="pr p2">P2</span></div>
+    <div class="g en"><span class="lab">What</span><div>Once R1–R3 work, let mStocks be borrowed against and posted as perp collateral, so holders keep exposure while accessing liquidity; arbitrage between spot and perps deepens both.</div><span class="lab">Evidence</span><div>Blockworks: $243M of Backpack purchases held ≥1 week; Backpack already accepts shares as perp collateral. Fits Mantle's lending and Perps tracks.</div><span class="lab">Owner</span><div>Lending / Perps partners</div></div>
+    <div class="g zh"><span class="lab">做什么</span><div>R1–R3 跑通后，让 mStocks 可以抵押借贷、作为永续保证金，持有者不卖出也能拿到流动性；现货和永续之间的套利会让两边都更深。</div><span class="lab">依据</span><div>Blockworks：$2.43 亿 Backpack 买入持有超过一周；Backpack 已支持股票作永续保证金。对应 Mantle 的借贷和 Perps 方向。</div><span class="lab">负责方</span><div>借贷 / Perps 合作方</div></div></div>
+
+  <div class="rec"><div class="hd"><span class="id">R8</span><h4 class="en">Add meme demand on top, and measure it honestly</h4><h4 class="zh">在上面叠加 meme 需求，并如实衡量</h4><span class="pr p2">P2</span></div>
+    <div class="g en"><span class="lab">What</span><div>The Agentic Meme Launchpad prices memes in mStocks, as an accelerator for retail and weekend flow. Report stock-vs-stablecoin volume separately from meme-pair volume.</div><span class="lab">Evidence</span><div>Memes lifted Backpack's weekend volume 4.5× in September, then fell from $7.9M to $0.9M a day. Blockworks notes Robinhood Chain's equity volume lead came largely from stock-to-memecoin pools, which says little about stock demand.</div><span class="lab">Owner</span><div>Launchpad product</div></div>
+    <div class="g zh"><span class="lab">做什么</span><div>Agentic Meme Launchpad 用 mStocks 给 meme 计价，用来带动散户和周末流量；对外报告时把“股票兑稳定币”的成交和 meme 交易对的成交分开。</div><span class="lab">依据</span><div>九月 meme 让 Backpack 周末成交涨了 4.5 倍，随后从每天 $7.9M 掉到 $0.9M。Blockworks 指出 Robinhood Chain 的股票成交领先，主要来自股票 ↔ meme 池子，说明不了对股票本身的需求。</div><span class="lab">负责方</span><div>Launchpad 产品</div></div></div>
+
+  <h3 class="en">Scoreboard: track against Backpack's benchmarks</h3><h3 class="zh">跟踪指标：以 Backpack 为基准</h3>
+  <div class="tw"><table>
+    <tr><th class="en">Metric</th><th class="zh">指标</th><th class="n en">Backpack</th><th class="n zh">Backpack</th><th class="n en">Mantle xStocks today</th><th class="n zh">Mantle xStocks 现状</th><th class="en">Tied to</th><th class="zh">对应建议</th></tr>
+    <tr><td class="en">30-day turnover (DEX volume ÷ float)</td><td class="zh">30 天周转（DEX 成交 ÷ 流通）</td><td class="n">57×</td><td class="n">0.05×</td><td>R1–R6</td></tr>
+    <tr><td class="en">Mint + burn ÷ DEX volume, weekdays</td><td class="zh">申赎 ÷ DEX 成交（工作日）</td><td class="n">16%</td><td class="n en">n/a</td><td class="n zh">无</td><td>R1</td></tr>
+    <tr><td class="en">Prop AMM / RFQ share of volume</td><td class="zh">prop AMM / RFQ 成交占比</td><td class="n">43–62%</td><td class="n en">not measured</td><td class="n zh">未测</td><td>R2</td></tr>
+    <tr><td class="en">Atomic arb signers (external)</td><td class="zh">外部原子套利地址数</td><td class="n">~4,000</td><td class="n en">~1 (ours)</td><td class="n zh">约 1 个（我们的）</td><td>R3</td></tr>
+    <tr><td class="en">Weekend ÷ weekday daily volume</td><td class="zh">周末 ÷ 工作日日均成交</td><td class="n">33%</td><td class="n en">n/a</td><td class="n zh">无</td><td>R5</td></tr>
+    <tr><td class="en">Round-trip cost at $5K vs stock midpoint</td><td class="zh">$5,000 往返成本 vs 股票中间价</td><td class="n en">best on Solana</td><td class="n zh">Solana 最优</td><td class="n en">not measured</td><td class="n zh">未测</td><td>R2–R4</td></tr>
+    <tr><td class="en">Share of volume in stock ↔ stablecoin pairs</td><td class="zh">股票 ↔ 稳定币交易对占比</td><td class="n">92%</td><td class="n en">n/a</td><td class="n zh">无</td><td>R8</td></tr>
+  </table></div>
+</section>
+
+<!-- ═════ 9 ═════ -->
+<section id="s9">
+  <h2><span class="no">09</span><span class="en">Open questions to confirm</span><span class="zh">待确认问题</span></h2>
+  <ol class="list en">
+    <li><b>Conversion path.</b> Can Bybit and the mStocks issuer support two-way, seconds-level mint/redeem for MMs and users, including on weekends?</li>
+    <li><b>Legal claim.</b> What do mStocks holders own, and can they redeem into a brokerage or Bybit position like Backpack's trust receipt?</li>
+    <li><b>Market makers.</b> Which desks will quote on Mantle prop AMMs at launch, and what inventory and hedging terms do they need?</li>
+    <li><b>Fees and ordering.</b> What is Mantle's median swap fee today, and what can MMs rely on for ordering and latency?</li>
+    <li><b>Wrapper linkage.</b> Will mStocks coexist with xStocks on Mantle, and who seeds the 1:1 linking pools?</li>
+  </ol>
+  <ol class="list zh">
+    <li><b>申赎路径。</b> Bybit 和 mStocks 发行方能否为做市商和用户提供双向、秒级、包括周末的铸造/赎回？</li>
+    <li><b>法律权益。</b> mStocks 持有者拥有的是什么？能否像 Backpack 的信托凭证那样赎回成券商或 Bybit 持仓？</li>
+    <li><b>做市商。</b> 上线时哪些做市商会在 Mantle 的 prop AMM 报价？他们需要什么库存和对冲条件？</li>
+    <li><b>手续费与排序。</b> Mantle 目前的兑换手续费中位数是多少？做市商在排序和延迟上能依赖什么？</li>
+    <li><b>代币之间的连接。</b> mStocks 会不会和 Mantle 上的 xStocks 并存？谁来提供 1:1 连接池的初始流动性？</li>
+  </ol>
+</section>
+
+<!-- ═════ APPENDIX ═════ -->
+<section id="appx">
+  <h2><span class="no">A</span><span class="en">Appendix: method and sources</span><span class="zh">附录：方法与来源</span></h2>
+  <ul class="list en">
+    <li><b>Window and scope.</b> 2026-07-21 to 10-18 UTC (90 days, ending on the Blockworks 30-day chart's end date); the 88 mints on Backpack's official asset list (snapshot 2026-10-26).</li>
+    <li><b>Tables.</b> Dune <code>dex_solana.trades</code> and <code>tokens_solana.transfers</code>. Dune misses pump.fun Custom Pairs and some prop AMMs: for the last 30 days Dune sees $846M vs Blockworks' $1.61B. About 4.8M trades (mostly memecoin pairs) have no USD price and are excluded from dollar totals.</li>
+    <li><b>Prop AMMs</b> by Dune project name: zerofi, goonfi, scorch, humidifi, tessera.</li>
+    <li><b>Atomic arbitrage</b> = every token sold in the transaction is bought back. It is a floor: cross-transaction arbitrage and off-chain hedges are invisible. “~4,000 bots” adds the two main signer groups, which may overlap.</li>
+    <li><b>Mint/burn USD</b> valued at the same-day DEX VWAP per stock; within 0.2% of Dune's price where both exist. <code>43DbAv…</code> is the only mint recipient over 90 days (inferred Backpack withdrawal wallet); burn owners are inferred user deposit addresses; about half of withdrawn-token flow cannot be attributed.</li>
+    <li><b>Weekend</b> = Saturday and Sunday UTC. Wallet archetypes are behavioural, not identities. xStocks are identified by tickers ending in lowercase “x”.</li>
+    <li><b>Blockworks figures</b> come from “Tokenized Equities on Solana: From Issuance to Execution” (Sam Schubert, 2026-09-04; data mostly Jun 12–Aug 31), the 0xResearch newsletter “Backpack's execution edge” (2026-08-05), and the “issuance ≠ activity” chart.</li>
+    <li><b>Mantle figures</b> come from the company-share deck P1–P2 (<code>company-share/references/p1b-xstocks-mantle-2026-10-20.md</code>).</li>
+  </ul>
+  <ul class="list zh">
+    <li><b>窗口与范围。</b> 2026-07-21 至 10-18 UTC（90 天，结束日与 Blockworks 30 天图对齐）；Backpack 官方资产列表上的 88 个 mint（2026-10-26 快照）。</li>
+    <li><b>数据表。</b> Dune <code>dex_solana.trades</code>、<code>tokens_solana.transfers</code>。Dune 不解析 pump.fun Custom Pairs 和部分 prop AMM：最近 30 天 Dune 可见 $846M，Blockworks 口径 $1.61B。约 480 万笔成交（多为 meme 交易对）没有美元价格，未计入金额。</li>
+    <li><b>Prop AMM</b> 按 Dune project 名：zerofi、goonfi、scorch、humidifi、tessera。</li>
+    <li><b>原子套利</b> = 同一笔交易里卖出的每种代币都被买回。这是下限：跨交易套利和链下对冲看不到。“约 4,000 个机器人”是两类主要签名地址相加，可能有重叠。</li>
+    <li><b>申赎金额</b>按当天每只股票的 DEX 均价计价；有 Dune 价格的日子两者相差不到 0.2%。<code>43DbAv…</code> 是 90 天内唯一接收铸造的地址（推断为 Backpack 提币钱包）；销毁地址推断为用户充值地址；约一半的提币后流向无法归类。</li>
+    <li><b>周末</b> = UTC 周六、周日。地址分类基于行为特征，不是身份确认。xStocks 按以小写 “x” 结尾的代币符号识别。</li>
+    <li><b>Blockworks 数字</b>来自《Tokenized Equities on Solana: From Issuance to Execution》（Sam Schubert，2026-09-04；数据主要为 6/12–8/31）、0xResearch 简报《Backpack's execution edge》（2026-08-05）以及“issuance ≠ activity”图。</li>
+    <li><b>Mantle 数字</b>来自全公司分享 P1–P2（<code>company-share/references/p1b-xstocks-mantle-2026-10-20.md</code>）。</li>
+  </ul>
+  <div class="tw"><table>
+    <tr><th class="en">Resource</th><th class="zh">资源</th><th class="en">Location</th><th class="zh">位置</th></tr>
+    <tr><td class="en">Dune dashboard (private)</td><td class="zh">Dune dashboard（private）</td><td><a href="https://dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private/8a869c23-7877-4b80-8fe9-dfa075b72ed8">dune.com/mantlexyz/backpack-tokenized-stocks-onchain-evidence-private</a></td></tr>
+    <tr><td class="en">Dune queries (private)</td><td class="zh">Dune 查询（private）</td><td><code>9026703</code> mint list · <code>9026711</code> KPIs · <code>9026712</code> daily · <code>9026713</code> venues · <code>9026714</code> stocks · <code>9026715</code> hourly · <code>9026716</code> size · <code>9026717</code> traders · <code>9026718</code> mint/burn · <code>9026719</code> withdrawals · <code>9026720</code>/<code>9026721</code> tx classes · <code>9026780</code> flow</td></tr>
+    <tr><td class="en">Data snapshot</td><td class="zh">数据快照</td><td><code>references/backpack-stocks-dune-90d.json</code></td></tr>
+    <tr><td class="en">Blockworks article (text)</td><td class="zh">Blockworks 文章（全文）</td><td><code>references/blockworks-tokenized-equities-on-solana-2026-09-04.md</code> · <a href="https://x.com/minnus/status/2095848292189982836">x.com/minnus/status/2095848292189982836</a></td></tr>
+  </table></div>
+</section>
+</main>
+</div>
+
+<script>
+  const DATA = {"days":[{"d":"2026-07-21","s":24,"m":0.01,"o":0.08,"p":14.42},{"d":"2026-07-22","s":27.36,"m":0.01,"o":0.06,"p":16.28},{"d":"2026-07-23","s":44.21,"m":0.01,"o":0.08,"p":24.13},{"d":"2026-07-24","s":29.47,"m":0.46,"o":0.02,"p":17.33},{"d":"2026-07-25","s":3.16,"m":0,"o":0,"p":2.06},{"d":"2026-07-26","s":3.09,"m":0,"o":0.01,"p":1.49},{"d":"2026-07-27","s":30.31,"m":0.01,"o":0.03,"p":17.1},{"d":"2026-07-28","s":48.77,"m":0.01,"o":0.07,"p":29.17},{"d":"2026-07-29","s":75.44,"m":0.02,"o":0.07,"p":46.02},{"d":"2026-07-30","s":45.81,"m":0.01,"o":0.06,"p":26.83},{"d":"2026-07-31","s":48.13,"m":0.01,"o":0.09,"p":24.32},{"d":"2026-08-01","s":3.91,"m":0,"o":0.01,"p":2.02},{"d":"2026-08-02","s":7.51,"m":0,"o":0.01,"p":3.19},{"d":"2026-08-03","s":25.38,"m":0.01,"o":0.05,"p":10.84},{"d":"2026-08-04","s":34.81,"m":0.16,"o":0.06,"p":18.91},{"d":"2026-08-05","s":29.43,"m":0.03,"o":0.07,"p":13.58},{"d":"2026-08-06","s":24.17,"m":0.02,"o":0.05,"p":12.34},{"d":"2026-08-07","s":27.39,"m":0.02,"o":0.03,"p":17.33},{"d":"2026-08-08","s":8.91,"m":0.03,"o":0,"p":6.67},{"d":"2026-08-09","s":2.33,"m":0.01,"o":0,"p":1.38},{"d":"2026-08-10","s":24.51,"m":0.03,"o":0.01,"p":15.48},{"d":"2026-08-11","s":17.96,"m":0.04,"o":0.03,"p":11.15},{"d":"2026-08-12","s":20.1,"m":0.03,"o":0.04,"p":12.93},{"d":"2026-08-13","s":23.42,"m":0.03,"o":0.05,"p":15.62},{"d":"2026-08-14","s":16.96,"m":0.01,"o":0.05,"p":10.58},{"d":"2026-08-15","s":2.15,"m":0.01,"o":0,"p":1.56},{"d":"2026-08-16","s":1.56,"m":0.01,"o":0.01,"p":1.13},{"d":"2026-08-17","s":24.17,"m":0.02,"o":0.04,"p":15.95},{"d":"2026-08-18","s":27.4,"m":0.02,"o":0.04,"p":17.78},{"d":"2026-08-19","s":33.85,"m":0.03,"o":0.06,"p":21.38},{"d":"2026-08-20","s":18.67,"m":0.04,"o":0.04,"p":9.53},{"d":"2026-08-21","s":15.23,"m":0.02,"o":0.03,"p":7.52},{"d":"2026-08-22","s":2,"m":0.01,"o":0,"p":1.23},{"d":"2026-08-23","s":2.14,"m":0,"o":0.01,"p":1.21},{"d":"2026-08-24","s":13.59,"m":0,"o":0.02,"p":7.61},{"d":"2026-08-25","s":15.31,"m":0.01,"o":0.02,"p":9.93},{"d":"2026-08-26","s":13.47,"m":0,"o":0.03,"p":8.21},{"d":"2026-08-27","s":13.34,"m":0.08,"o":0.02,"p":6.97},{"d":"2026-08-28","s":11.03,"m":0.01,"o":0.02,"p":6.41},{"d":"2026-08-29","s":0.6,"m":0.01,"o":0,"p":0.42},{"d":"2026-08-30","s":1.89,"m":0.01,"o":0.01,"p":0.9},{"d":"2026-08-31","s":10.56,"m":0.03,"o":0.02,"p":6.01},{"d":"2026-09-01","s":13.12,"m":0.03,"o":0.02,"p":6.24},{"d":"2026-09-02","s":12.82,"m":0.02,"o":0.02,"p":7.33},{"d":"2026-09-03","s":17.31,"m":0.05,"o":0.03,"p":9.8},{"d":"2026-09-04","s":15.48,"m":0.04,"o":0.02,"p":8.68},{"d":"2026-09-05","s":1.83,"m":0.03,"o":0,"p":1.07},{"d":"2026-09-06","s":9.58,"m":1.18,"o":0,"p":5.07},{"d":"2026-09-07","s":5.17,"m":0.93,"o":0.01,"p":2.37},{"d":"2026-09-08","s":27.42,"m":2.97,"o":0.03,"p":11.7},{"d":"2026-09-09","s":27.33,"m":1.57,"o":0.01,"p":10.9},{"d":"2026-09-10","s":28.65,"m":1.67,"o":0.01,"p":10.7},{"d":"2026-09-11","s":24.39,"m":3.19,"o":0.01,"p":8.55},{"d":"2026-09-12","s":18.6,"m":1.53,"o":0,"p":2.77},{"d":"2026-09-13","s":9.02,"m":1.85,"o":0.01,"p":3.93},{"d":"2026-09-14","s":25.98,"m":1.44,"o":0.02,"p":11.97},{"d":"2026-09-15","s":19.88,"m":3.03,"o":0.01,"p":7.87},{"d":"2026-09-16","s":24.85,"m":4.05,"o":0.02,"p":9.52},{"d":"2026-09-17","s":15.96,"m":2.93,"o":0.02,"p":6.92},{"d":"2026-09-18","s":24.46,"m":11.28,"o":0.03,"p":10.66},{"d":"2026-09-19","s":10.2,"m":6.39,"o":0.01,"p":3.2},{"d":"2026-09-20","s":8.85,"m":6.62,"o":0.01,"p":2.55},{"d":"2026-09-21","s":28.89,"m":7.4,"o":0.05,"p":10.2},{"d":"2026-09-22","s":28.46,"m":6.72,"o":0.05,"p":8.66},{"d":"2026-09-23","s":21.09,"m":3.78,"o":0.02,"p":7.03},{"d":"2026-09-24","s":23.04,"m":3.94,"o":0.03,"p":9.73},{"d":"2026-09-25","s":25.01,"m":5.66,"o":0.05,"p":8.03},{"d":"2026-09-26","s":7.33,"m":2.87,"o":0,"p":2.5},{"d":"2026-09-27","s":13.03,"m":4.21,"o":0.05,"p":6.2},{"d":"2026-09-28","s":27.73,"m":3.5,"o":0.06,"p":12.37},{"d":"2026-09-29","s":33.37,"m":14.2,"o":0.05,"p":9.28},{"d":"2026-09-30","s":42.9,"m":14.73,"o":0.09,"p":12.4},{"d":"2026-10-01","s":31.71,"m":13.74,"o":0.04,"p":12.88},{"d":"2026-10-02","s":29.02,"m":7.28,"o":0.07,"p":9.69},{"d":"2026-10-03","s":5.26,"m":5.1,"o":0.01,"p":0.96},{"d":"2026-10-04","s":8.63,"m":6.96,"o":0.01,"p":2.17},{"d":"2026-10-05","s":20.54,"m":8.59,"o":0.03,"p":7.16},{"d":"2026-10-06","s":23.71,"m":2.25,"o":0.04,"p":9.94},{"d":"2026-10-07","s":25.61,"m":1.73,"o":0.05,"p":10.89},{"d":"2026-10-08","s":32.52,"m":1.36,"o":0.04,"p":15.18},{"d":"2026-10-09","s":17.53,"m":0.77,"o":0.07,"p":8.12},{"d":"2026-10-10","s":22.66,"m":0.51,"o":0.01,"p":4.41},{"d":"2026-10-11","s":18.46,"m":0.61,"o":0.02,"p":2.68},{"d":"2026-10-12","s":26.57,"m":1.03,"o":0.06,"p":12.74},{"d":"2026-10-13","s":26.6,"m":0.86,"o":0.04,"p":9.81},{"d":"2026-10-14","s":34.46,"m":0.71,"o":0.05,"p":13.21},{"d":"2026-10-15","s":52.86,"m":0.72,"o":0.16,"p":20.44},{"d":"2026-10-16","s":31.55,"m":0.56,"o":0.08,"p":13.13},{"d":"2026-10-17","s":16.83,"m":0.25,"o":0.03,"p":6.58},{"d":"2026-10-18","s":17.35,"m":0.18,"o":0.03,"p":7.21}],"mb":[{"d":"2026-07-21","w":0,"dex":24.09,"mi":0.06,"bu":0.88},{"d":"2026-07-22","w":0,"dex":27.43,"mi":0.2,"bu":0.28},{"d":"2026-07-23","w":0,"dex":44.3,"mi":1.08,"bu":0.73},{"d":"2026-07-24","w":0,"dex":29.95,"mi":1.17,"bu":0.31},{"d":"2026-07-25","w":1,"dex":3.17,"mi":0.04,"bu":0},{"d":"2026-07-26","w":1,"dex":3.1,"mi":0.01,"bu":0.01},{"d":"2026-07-27","w":0,"dex":30.35,"mi":1.15,"bu":0.13},{"d":"2026-07-28","w":0,"dex":48.85,"mi":2.27,"bu":0.19},{"d":"2026-07-29","w":0,"dex":75.53,"mi":1.67,"bu":0.66},{"d":"2026-07-30","w":0,"dex":45.89,"mi":0.6,"bu":1.88},{"d":"2026-07-31","w":0,"dex":48.23,"mi":0.98,"bu":0.85},{"d":"2026-08-01","w":1,"dex":3.92,"mi":0.03,"bu":0},{"d":"2026-08-02","w":1,"dex":7.52,"mi":0.01,"bu":0},{"d":"2026-08-03","w":0,"dex":25.44,"mi":1.2,"bu":1.25},{"d":"2026-08-04","w":0,"dex":35.02,"mi":0.22,"bu":0.78},{"d":"2026-08-05","w":0,"dex":29.53,"mi":0.67,"bu":0.27},{"d":"2026-08-06","w":0,"dex":24.24,"mi":0.53,"bu":0.29},{"d":"2026-08-07","w":0,"dex":27.45,"mi":0.32,"bu":0.41},{"d":"2026-08-08","w":1,"dex":8.94,"mi":0.19,"bu":0.34},{"d":"2026-08-09","w":1,"dex":2.34,"mi":0.06,"bu":0},{"d":"2026-08-10","w":0,"dex":24.56,"mi":0.12,"bu":2.54},{"d":"2026-08-11","w":0,"dex":18.03,"mi":0.21,"bu":0.26},{"d":"2026-08-12","w":0,"dex":20.17,"mi":0.17,"bu":0.55},{"d":"2026-08-13","w":0,"dex":23.5,"mi":0.13,"bu":1.53},{"d":"2026-08-14","w":0,"dex":17.03,"mi":0.08,"bu":1.31},{"d":"2026-08-15","w":1,"dex":2.16,"mi":0,"bu":0.02},{"d":"2026-08-16","w":1,"dex":1.57,"mi":0.14,"bu":0.07},{"d":"2026-08-17","w":0,"dex":24.23,"mi":0.11,"bu":1.45},{"d":"2026-08-18","w":0,"dex":27.46,"mi":0.57,"bu":0.03},{"d":"2026-08-19","w":0,"dex":33.95,"mi":1,"bu":0.3},{"d":"2026-08-20","w":0,"dex":18.74,"mi":0.48,"bu":0.14},{"d":"2026-08-21","w":0,"dex":15.29,"mi":0.18,"bu":0.3},{"d":"2026-08-22","w":1,"dex":2.01,"mi":0.02,"bu":0.01},{"d":"2026-08-23","w":1,"dex":2.15,"mi":0,"bu":0},{"d":"2026-08-24","w":0,"dex":13.62,"mi":0.55,"bu":0.42},{"d":"2026-08-25","w":0,"dex":15.34,"mi":0.3,"bu":0.25},{"d":"2026-08-26","w":0,"dex":13.5,"mi":0.27,"bu":0.11},{"d":"2026-08-27","w":0,"dex":13.44,"mi":0.27,"bu":0.13},{"d":"2026-08-28","w":0,"dex":11.05,"mi":0.09,"bu":0.09},{"d":"2026-08-29","w":1,"dex":0.61,"mi":0,"bu":0.02},{"d":"2026-08-30","w":1,"dex":1.91,"mi":0,"bu":0},{"d":"2026-08-31","w":0,"dex":10.62,"mi":0.12,"bu":0.05},{"d":"2026-09-01","w":0,"dex":13.17,"mi":1.26,"bu":0.65},{"d":"2026-09-02","w":0,"dex":12.86,"mi":0.37,"bu":0.41},{"d":"2026-09-03","w":0,"dex":17.38,"mi":0.22,"bu":0.29},{"d":"2026-09-04","w":0,"dex":15.54,"mi":0.41,"bu":2.09},{"d":"2026-09-05","w":1,"dex":1.86,"mi":0.03,"bu":0.01},{"d":"2026-09-06","w":1,"dex":10.77,"mi":0.02,"bu":0.21},{"d":"2026-09-07","w":0,"dex":6.11,"mi":0.08,"bu":0.12},{"d":"2026-09-08","w":0,"dex":30.41,"mi":1.91,"bu":1.93},{"d":"2026-09-09","w":0,"dex":28.91,"mi":3.54,"bu":3.24},{"d":"2026-09-10","w":0,"dex":30.33,"mi":2.53,"bu":1.8},{"d":"2026-09-11","w":0,"dex":27.6,"mi":3.47,"bu":1.51},{"d":"2026-09-12","w":1,"dex":20.14,"mi":0.68,"bu":0.08},{"d":"2026-09-13","w":1,"dex":10.88,"mi":0.4,"bu":0.44},{"d":"2026-09-14","w":0,"dex":27.44,"mi":3.64,"bu":2.37},{"d":"2026-09-15","w":0,"dex":22.92,"mi":2.93,"bu":2.95},{"d":"2026-09-16","w":0,"dex":28.92,"mi":3.23,"bu":2.56},{"d":"2026-09-17","w":0,"dex":18.91,"mi":2.29,"bu":2.03},{"d":"2026-09-18","w":0,"dex":35.77,"mi":5.47,"bu":5.24},{"d":"2026-09-19","w":1,"dex":16.6,"mi":0.74,"bu":0.01},{"d":"2026-09-20","w":1,"dex":15.48,"mi":0.01,"bu":0.04},{"d":"2026-09-21","w":0,"dex":36.33,"mi":6.62,"bu":6.67},{"d":"2026-09-22","w":0,"dex":35.23,"mi":7,"bu":7.49},{"d":"2026-09-23","w":0,"dex":24.89,"mi":4.71,"bu":5.63},{"d":"2026-09-24","w":0,"dex":27.01,"mi":4.61,"bu":4.21},{"d":"2026-09-25","w":0,"dex":30.72,"mi":4.79,"bu":4.89},{"d":"2026-09-26","w":1,"dex":10.2,"mi":0.99,"bu":0.43},{"d":"2026-09-27","w":1,"dex":17.29,"mi":0.01,"bu":0.12},{"d":"2026-09-28","w":0,"dex":31.29,"mi":3.69,"bu":4.39},{"d":"2026-09-29","w":0,"dex":47.62,"mi":7.77,"bu":7.39},{"d":"2026-09-30","w":0,"dex":57.72,"mi":5.29,"bu":5.09},{"d":"2026-10-01","w":0,"dex":45.49,"mi":3.87,"bu":2.5},{"d":"2026-10-02","w":0,"dex":36.36,"mi":5.11,"bu":4.56},{"d":"2026-10-03","w":1,"dex":10.37,"mi":0.02,"bu":0.05},{"d":"2026-10-04","w":1,"dex":15.6,"mi":0.03,"bu":0.1},{"d":"2026-10-05","w":0,"dex":29.16,"mi":5.37,"bu":5.21},{"d":"2026-10-06","w":0,"dex":25.99,"mi":2.68,"bu":2.69},{"d":"2026-10-07","w":0,"dex":27.4,"mi":3.35,"bu":3.26},{"d":"2026-10-08","w":0,"dex":33.93,"mi":3.96,"bu":3.71},{"d":"2026-10-09","w":0,"dex":18.37,"mi":1.67,"bu":1.75},{"d":"2026-10-10","w":1,"dex":23.18,"mi":0.14,"bu":0.05},{"d":"2026-10-11","w":1,"dex":19.09,"mi":0.05,"bu":0.06},{"d":"2026-10-12","w":0,"dex":27.66,"mi":4.91,"bu":3.84},{"d":"2026-10-13","w":0,"dex":27.5,"mi":5.86,"bu":3.45},{"d":"2026-10-14","w":0,"dex":35.22,"mi":5.66,"bu":3.36},{"d":"2026-10-15","w":0,"dex":53.74,"mi":15.03,"bu":14.09},{"d":"2026-10-16","w":0,"dex":32.2,"mi":4.02,"bu":2.53},{"d":"2026-10-17","w":1,"dex":17.11,"mi":0.28,"bu":0.13},{"d":"2026-10-18","w":1,"dex":17.56,"mi":0.07,"bu":0.13}],"hour":[{"h":0,"wd":2.55,"we":0.83},{"h":1,"wd":1.77,"we":0.87},{"h":2,"wd":1.39,"we":0.96},{"h":3,"wd":1.47,"we":0.69},{"h":4,"wd":1.15,"we":0.56},{"h":5,"wd":1.14,"we":0.72},{"h":6,"wd":0.97,"we":0.62},{"h":7,"wd":0.75,"we":0.44},{"h":8,"wd":1.54,"we":0.43},{"h":9,"wd":1.14,"we":0.44},{"h":10,"wd":1.24,"we":0.33},{"h":11,"wd":1.83,"we":0.56},{"h":12,"wd":2.19,"we":0.63},{"h":13,"wd":8.9,"we":0.8},{"h":14,"wd":6.43,"we":0.9},{"h":15,"wd":3.78,"we":0.84},{"h":16,"wd":2.82,"we":0.71},{"h":17,"wd":2.26,"we":0.98},{"h":18,"wd":2.46,"we":1.16},{"h":19,"wd":3.02,"we":1.22},{"h":20,"wd":3.08,"we":0.94},{"h":21,"wd":1.84,"we":1.33},{"h":22,"wd":1.53,"we":1.07},{"h":23,"wd":1.53,"we":0.85}],"venue":[{"p":"meteora","t":"Public AMM pool","s":32.2,"v":664},{"p":"zerofi","t":"Prop AMM","s":27.8,"v":573},{"p":"whirlpool","t":"Public AMM pool","s":9.5,"v":195},{"p":"goonfi","t":"Prop AMM","s":9.3,"v":193},{"p":"raydium","t":"Public AMM pool","s":5.9,"v":121},{"p":"byreal","t":"Public AMM pool","s":4.2,"v":87},{"p":"raydium_launchlab","t":"Launchpad curve","s":2.9,"v":59},{"p":"scorch","t":"Prop AMM","s":2.3,"v":47},{"p":"humidifi","t":"Prop AMM","s":1.9,"v":40},{"p":"tessera","t":"Prop AMM","s":1.8,"v":37}],"stock":[{"k":"SPCX","v":492,"sh":23.9,"meme":0,"prop":73},{"k":"MU","v":441,"sh":21.4,"meme":1,"prop":44},{"k":"SKHY","v":404,"sh":19.6,"meme":0,"prop":31},{"k":"SNDK","v":152,"sh":7.4,"meme":16,"prop":73},{"k":"DJT","v":141,"sh":6.8,"meme":37,"prop":0},{"k":"BOT","v":51,"sh":2.5,"meme":0,"prop":45},{"k":"TTWO","v":43,"sh":2.1,"meme":0,"prop":45},{"k":"DRAM","v":26,"sh":1.3,"meme":25,"prop":72},{"k":"BABA","v":22,"sh":1.1,"meme":31,"prop":0},{"k":"HIMS","v":18,"sh":0.9,"meme":0,"prop":0},{"k":"NKE","v":18,"sh":0.9,"meme":47,"prop":0},{"k":"RBLX","v":16,"sh":0.8,"meme":40,"prop":0}],"tx":[{"c":"1. Single swap","s":39.3,"n":264447,"v":811},{"c":"2. Atomic arb: prop AMM <> public pool","s":20.7,"n":2295,"v":426},{"c":"3. Atomic arb: prop AMM <> prop AMM","s":11.4,"n":1778,"v":236},{"c":"4. Atomic arb: pool <> pool","s":0.4,"n":753,"v":8},{"c":"5. Atomic arb: vs xStocks","s":0.4,"n":265,"v":9},{"c":"6. Atomic arb: via memecoin / other token","s":0.3,"n":609,"v":5},{"c":"7. Route: stock as hop for memecoin trade","s":12.1,"n":167942,"v":250},{"c":"8. Route: stock as hop (other)","s":1,"n":8355,"v":21},{"c":"9. Multi-leg one-way (aggregator split etc.)","s":14.4,"n":317839,"v":298}],"traders":[{"a":"AgmLJBMDCqWynYnQiPCuj9ewsNNsBJXyzoUhD9LJzN51","v":124.7,"sh":6,"n":2249066,"avg":82,"k":79,"d":90,"prop":26,"wd":0},{"a":"Hasda78TSaT9bjiPxDBvP4GpohFpP3TDTaJEcCYK5kyN","v":124.7,"sh":6,"n":237931,"avg":524,"k":4,"d":90,"prop":0,"wd":0},{"a":"m7VmSjdSN6isudY6PVRa7GuZbG8rPBpB2X2DGHR5awz","v":96.9,"sh":4.7,"n":142163,"avg":681,"k":4,"d":90,"prop":0,"wd":0},{"a":"MfDuWeqSHEqTFVYZ7LoexgAK9dxk7cy4DFJWjWMGVWa","v":79.6,"sh":3.9,"n":85182,"avg":935,"k":3,"d":87,"prop":0,"wd":1.8},{"a":"Gpji3gCNBywt89bYr3z5GcQC32rs8qDBy7iiHzEEvrGC","v":71.5,"sh":3.5,"n":227403,"avg":314,"k":11,"d":85,"prop":58,"wd":0},{"a":"GxDC9e7SP9mzhDo4re5HbpLa2RW7gB9DtmThx4i4pXSq","v":44.4,"sh":2.2,"n":280728,"avg":168,"k":78,"d":90,"prop":69,"wd":0},{"a":"GJvewfRjqTUPtx6WsBSUnaFbdgXwgXnWfpDyLm65T4YA","v":42.9,"sh":2.1,"n":57909,"avg":740,"k":4,"d":89,"prop":10,"wd":0.1},{"a":"DcQNaByvstRZCERvb9UJHgHiQe8YX2FMdPptM86psQyz","v":42,"sh":2,"n":637871,"avg":68,"k":78,"d":90,"prop":72,"wd":0},{"a":"UUAhspPgUdGuXUnokmxERH1VvNGNh1ouN3mfcbfV8yd","v":39.2,"sh":1.9,"n":185649,"avg":226,"k":63,"d":69,"prop":69,"wd":0},{"a":"CQwT1byuHgjKnL6vzmuNaAywKfDBVxDmFVgsQDBWxcWt","v":37.4,"sh":1.8,"n":88454,"avg":456,"k":74,"d":90,"prop":65,"wd":0}]};
+    let lang='zh';
+  const zh=()=>lang==='zh';
+  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const md=d=>zh()?`${+d.slice(5,7)}/${+d.slice(8,10)}`:`${MON[+d.slice(5,7)-1]} ${+d.slice(8,10)}`;
+  const isWe=d=>[0,6].includes(new Date(d+'T00:00:00Z').getUTCDay());
+  const T='font-size="13" fill="#7F8F86"';
+  function hbars(id,rows,max){const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=rows.map(r=>r.sep?'<i class="sep"></i>':`<div class="l">${r.l}</div><div><div class="b ${r.cls||''}" style="width:${Math.max(.6,100*r.v/max)}%"></div></div><div class="r">${r.txt}</div>`).join('');}
+  function axis(W,l,r,y,vals){return vals.map(v=>`<line x1="${l}" x2="${W-r}" y1="${y(v)}" y2="${y(v)}" stroke="#1E2925"/><text x="${l-8}" y="${y(v)+4}" text-anchor="end" ${T}>${v}</text>`).join('');}
+  function render(){
+    const D=DATA, ticks=['2026-07-21','2026-08-01','2026-09-01','2026-10-01'];
+    const vName={meteora:'Meteora',zerofi:'ZeroFi',whirlpool:'Orca Whirlpool',goonfi:'GoonFi',raydium:'Raydium',byreal:'Byreal',raydium_launchlab:'Raydium LaunchLab',scorch:'Scorch',humidifi:'HumidiFi',tessera:'Tessera'};
+    hbars('hbVenue',D.venue.map(v=>({l:vName[v.p]||v.p,v:v.s,txt:`<b>${v.s}%</b>`,cls:v.t==='Prop AMM'?'s':''})),34);
+    hbars('hbStock',D.stock.slice(0,10).map(s=>({l:s.k,v:s.sh,txt:`<b>${s.sh}%</b> <small style="color:var(--tag)">(${s.prop}%)</small>`,cls:s.k==='SPCX'?'s':''})),26);
+    const tN={1:['Single swap','单笔交易'],2:['Atomic arb · prop AMM ↔ public pool','原子套利 · prop AMM ↔ 公共池'],3:['Atomic arb · prop AMM ↔ prop AMM','原子套利 · prop AMM ↔ prop AMM'],4:['Atomic arb · pool ↔ pool','原子套利 · 池 ↔ 池'],5:['Atomic arb · vs xStocks','原子套利 · 对 xStocks'],6:['Atomic arb · via memecoin','原子套利 · 借道 meme'],7:['Memecoin trade routed via stock','meme 交易借道股票'],8:['Other route via stock','其他借道股票'],9:['Aggregator multi-leg (one-way)','聚合器多腿（单向）']};
+    hbars('hbTx',[2,3,4,5,6,null,1,9,7,8].map(k=>{if(k===null)return{sep:1};const r=D.tx[k-1];return{l:`${tN[k][zh()?1:0]} <small>${r.n.toLocaleString()}</small>`,v:r.s,txt:`<b>${r.s}%</b>`,cls:k===2?'a':k<=6?'s':''};}),40);
+    const tb=document.getElementById('tbTraders');
+    const h=zh()?['#','地址','90 天成交','占比','笔数','平均','股票数','prop AMM','从 Backpack 提币']:['#','Wallet','90d volume','Share','Trades','Avg','Stocks','Prop AMM','Withdrew from Backpack'];
+    tb.innerHTML=`<tr>${h.map((x,i)=>`<th class="${i>1?'n':''}">${x}</th>`).join('')}</tr>`+D.traders.map((t,i)=>`<tr><td>${i+1}</td><td><code>${t.a.slice(0,6)}…</code></td><td class="n">$${t.v}M</td><td class="n">${t.sh}%</td><td class="n">${(t.n/1e3).toFixed(0)}K</td><td class="n">$${t.avg}</td><td class="n">${t.k}</td><td class="n">${t.prop}%</td><td class="n">${t.wd?'$'+t.wd+'M':'–'}</td></tr>`).join('');
+    {const W=1000,H=360,l=44,r=8,t=12,b=34,days=D.days,bw=(W-l-r)/days.length,y=v=>t+(H-t-b)*(1-v/80);let s='';
+      days.forEach((d,i)=>{if(isWe(d.d))s+=`<rect x="${l+i*bw}" y="${t}" width="${bw}" height="${H-t-b}" fill="rgba(255,255,255,.045)"/>`;});
+      s+=axis(W,l,r,y,[0,20,40,60,80]);
+      days.forEach((d,i)=>{const x=l+i*bw+.6,w=bw-1.2,a=d.s+d.o;s+=`<rect x="${x}" y="${y(a)}" width="${w}" height="${y(0)-y(a)}" fill="#06B680"/><rect x="${x}" y="${y(a+d.m)}" width="${w}" height="${y(a)-y(a+d.m)}" fill="#BAFFF5" opacity=".85"/>`;if(ticks.includes(d.d))s+=`<text x="${x}" y="${H-10}" ${T}>${md(d.d)}</text>`;});
+      [['2026-09-05',zh()?'StonkFun 上 LaunchLab':'StonkFun on LaunchLab',70],['2026-09-09','pump.fun Custom Pairs',58]].forEach(([d,lab,yy])=>{const i=days.findIndex(x=>x.d===d),x=l+i*bw+bw/2;s+=`<line x1="${x}" x2="${x}" y1="${y(yy)-4}" y2="${y(0)}" stroke="#B8C6BE" stroke-dasharray="3 3"/><text x="${x-5}" y="${y(yy)-8}" text-anchor="end" font-size="13" fill="#B8C6BE">${lab}</text>`;});
+      document.getElementById('chDaily').innerHTML=`<svg viewBox="0 0 ${W} ${H}">${s}</svg>`;}
+    {const W=1000,H=330,l=44,r=8,t=12,b=34,hs=D.hour,cw=(W-l-r)/24,y=v=>t+(H-t-b)*(1-v/10);let s=axis(W,l,r,y,[0,2,4,6,8,10]);
+      hs.forEach((hh,i)=>{const x=l+i*cw,w=(cw-6)/2;s+=`<rect x="${x+3}" y="${y(hh.wd)}" width="${w}" height="${y(0)-y(hh.wd)}" fill="${i===13?'#00FF93':'#06B680'}"/><rect x="${x+3+w}" y="${y(hh.we)}" width="${w}" height="${y(0)-y(hh.we)}" fill="#4F6B60"/>`;if(i%3===0)s+=`<text x="${x+cw/2}" y="${H-10}" text-anchor="middle" ${T}>${String(i).padStart(2,'0')}:00</text>`;});
+      [[13.5,zh()?'美股开盘 13:30':'US open 13:30'],[20,zh()?'收盘 20:00':'close 20:00']].forEach(([hh,lab])=>{const x=l+hh*cw;s+=`<line x1="${x}" x2="${x}" y1="${t}" y2="${y(0)}" stroke="#B8C6BE" stroke-dasharray="3 3"/><text x="${x+6}" y="${t+14}" font-size="13" fill="#B8C6BE">${lab}</text>`;});
+      document.getElementById('chHour').innerHTML=`<svg viewBox="0 0 ${W} ${H}">${s}</svg>`;}
+    {const W=1000,H=330,l=44,r=8,t=12,b=34,mb=D.mb,bw=(W-l-r)/mb.length,y=v=>t+(H-t-b)*(1-v/80);let s='';
+      mb.forEach((d,i)=>{if(d.w)s+=`<rect x="${l+i*bw}" y="${t}" width="${bw}" height="${H-t-b}" fill="rgba(255,255,255,.045)"/>`;});
+      s+=axis(W,l,r,y,[0,20,40,60,80]);
+      mb.forEach((d,i)=>{const x=l+i*bw+.6,w=bw-1.2;s+=`<rect x="${x}" y="${y(d.mi)}" width="${w}" height="${y(0)-y(d.mi)}" fill="#06B680"/><rect x="${x}" y="${y(d.mi+d.bu)}" width="${w}" height="${y(d.mi)-y(d.mi+d.bu)}" fill="#0A6B4D"/>`;if(ticks.includes(d.d))s+=`<text x="${x}" y="${H-10}" ${T}>${md(d.d)}</text>`;});
+      s+=`<polyline fill="none" stroke="#B8C6BE" stroke-width="1.6" opacity=".8" points="${mb.map((d,i)=>`${l+i*bw+bw/2},${y(d.dex)}`).join(' ')}"/>`;
+      const i8=mb.findIndex(x=>x.d==='2026-09-08'),x8=l+i8*bw;s+=`<line x1="${x8}" x2="${x8}" y1="${y(62)}" y2="${y(0)}" stroke="#00FF93" stroke-dasharray="3 3"/><text x="${x8-6}" y="${y(62)-6}" text-anchor="end" font-size="13" fill="#00FF93">${zh()?'9/8 申赎放大':'Sep 8: loop scales up'}</text>`;
+      document.getElementById('chMint').innerHTML=`<svg viewBox="0 0 ${W} ${H}">${s}</svg>`;}
+  }
+  function applyLang(){document.documentElement.dataset.lang=lang;document.documentElement.lang=zh()?'zh-CN':'en';document.title=zh()?'Backpack 代币化股票调研 · 对 mStocks 的启示':'Backpack Tokenized Stocks on Solana · Lessons for mStocks';render();}
+  applyLang();
+</script>
+</body>
+</html>
