@@ -1,0 +1,38 @@
+# 推特卡片（只有英文版）：pnpm rh card mantle-perf-roadmap-2026 → card.png
+# 台账依据：background D19、D20；context X14、X15、P59、P60、P61；
+# figure D19、D21、D26（默认 scalar 400 → 每笔 footprint ≥ 40,000，转账 21,000 gas）；
+# findings K35、K36（p99 样本量）、D30、D34、D35（1559 参数方向）；takeaway R2、R16；
+# tweet 另用 D11、D30–D32、K37（以 E=4、D=50 为例的算术，不点名链）。
+title: Three traps in benchmarking an OP Stack L2
+background: "Jovian updates base fee from the larger block total: execution gas or scaled DA footprint."
+context: "Reth v2.9.0 moved to evm2 on Oct 29; Base targets 200 ms canonical blocks on mainnet in November."
+figure:
+  caption: OP Stack Jovian, default DA scalar 400
+  excalidraw:
+    defaults: { fontSize: 21 }
+    nodes:
+      - { id: gas, label: "Plain transfer\n21,000 gas", x: 0, y: 36, w: 250, h: 84, color: blue }
+      - { id: fp, label: "DA footprint\nat least 40,000", x: 300, y: 36, w: 270, h: 84, color: red }
+    texts:
+      - { x: 4, y: 0, text: "Execution gas", fontSize: 22, color: blue }
+      - { x: 304, y: 0, text: "DA metering", fontSize: 22, color: red }
+findings:
+  - stat: "0.4"
+    text: "Expected samples above the true p99 in a 40-block run; use 900+ blocks."
+  - "Lower 1559 denominator: faster fee response, not more execution capacity."
+takeaway: Name the client, load mix and commitment level before you trust an L2 performance number.
+tweet: |-
+  Before tuning an OP Stack L2, check what your benchmark measures. Three numbers mislead easily: DA footprint, block-level p99, and the effect of EIP-1559 parameters.
+
+  Why it matters: a wrong reading sends roadmap work to the wrong layer.
+
+  How to read the figure (Jovian rules, default scalar 400):
+  • Left: a plain transfer uses 21,000 gas.
+  • Right: its footprint is at least 100 estimated bytes x 400 = 40,000. Base-fee updates use the larger block total.
+  Hitting the footprint limit first shows a metering limit, not that blob bandwidth is full.
+
+  Two details:
+  • 40 blocks yield 0.4 expected observations above the true p99. With 900 independent samples, the 4th to 16th largest bracket the true p99 with about 96% confidence.
+  • Fee change scales with 1/denominator. For example, with elasticity 4 and denominator 50, each full block raises base fee 6%; 40 full blocks give about 10.3x.
+
+  Caveat: fee parameters shift price-sensitive demand; they do not add execution, DA or proving capacity.

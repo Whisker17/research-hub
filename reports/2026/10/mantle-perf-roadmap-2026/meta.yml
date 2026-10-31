@@ -1,0 +1,27 @@
+title: 2026 Mantle 性能优化路线：评审与实验方案
+summary: 草稿方向成立，但主网 sequencer 仍是 op-geth，reth 的预确认承诺在断电或切换时可能丢失，证明每次只跑 1 个 range。短期先做配置清单、承诺审计、证明与存储盘点，再按测量结果决定短区块、evm2、并行 EVM 和 commitment。
+created: 2026-10-31
+updated: 2026-10-31
+domain: work
+tags:
+  - high-performance
+  - mantle
+status: published
+visibility: private
+kind: native
+brief_source: Research Briefs/mantle-perf-roadmap-2026.md
+am_version: 0.5.2-research.1
+related:
+  - high-performance-chain-roadmap
+  - revm-vs-evm2
+changelog:
+  - date: 2026-10-31
+    note: 创建（brief 快照）
+  - date: 2026-10-31
+    note: 首次发布：2026 性能路线评审、E0–E14 实验方案与短/中/长期排期（中英双语；英文版 sol 审查经 codex 通道 PASS（mantle 通道 503）；推特卡片 astra PASS）
+sessions:
+  - runtime: pi
+    id: 01a18f99-c7aa-762f-8a2b-a1d119678a5d
+    at: 2026-10-31
+title_en: "Mantle's 2026 Performance Roadmap: Review and Experiment Plan"
+summary_en: The draft points the right way, but the mainnet sequencer is still op-geth, a reth preconf commitment can be lost on power loss or failover, and the prover runs one range at a time. First build the config inventory, audit commitments, and diagnose proving and storage; then decide on short blocks, evm2, parallel EVM and the commitment by measurement.
